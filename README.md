@@ -11,7 +11,7 @@ WRC WEBSITE/
 ├── index.html              # Homepage (Hero, Stats, Featured Causes, Pillars, Footer)
 ├── about.html              # About WRC (Vision, Mission, Core Values, Team)
 ├── causes.html             # Relief Projects (Water Aid, Food Packs, Orphan Care)
-├── donate.html             # Online Donation Portal (Presets, Bank Account Info)
+├── contribute-with-us.html   # Collaboration & Contribution Portal (Partnership Inquiry Form)
 ├── contact.html            # Contact Form & Volunteer Portal + FAQ Accordion
 ├── README.md               # Project documentation & editing guide
 └── assets/
@@ -53,8 +53,8 @@ tailwind.config = {
 }
 ```
 
-### 2. Updating Bank Account Details
-- Open `donate.html` and edit lines containing IBAN, Bank Title, and JazzCash/EasyPaisa phone numbers.
+### 2. Updating Partnership Details
+- Open `contribute-with-us.html` and edit the collaboration inquiry form fields and contribution opportunity cards as needed.
 
 ### 3. Adding New Images
 - Save your new images in the `assets/images/` folder and reference them in your HTML image tags (`<img src="assets/images/your-image.jpg">`).

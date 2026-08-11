@@ -182,29 +182,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // --- 6. Quick Donation Preset Selector ---
-  const donationPills = document.querySelectorAll('.donate-preset');
-  const customAmountInput = document.getElementById('custom-amount');
-
-  if (donationPills.length > 0 && customAmountInput) {
-    donationPills.forEach(pill => {
-      pill.addEventListener('click', () => {
-        donationPills.forEach(p => {
-          p.classList.remove('bg-brandRed', 'text-white');
-          p.classList.add('bg-slate-100', 'text-slate-700', 'hover:bg-slate-200');
-        });
-        pill.classList.remove('bg-slate-100', 'text-slate-700', 'hover:bg-slate-200');
-        pill.classList.add('bg-brandRed', 'text-white');
-
-        const val = pill.getAttribute('data-amount');
-        if (val) {
-          customAmountInput.value = val;
-        }
-      });
-    });
-  }
-
-  // --- 7. Timeline Scroll Animations ---
+  // --- 6. Timeline Scroll Animations ---
   const lifecycleTargets = document.querySelectorAll('.fade-up, .reveal');
   if (lifecycleTargets.length > 0 && window.matchMedia('(prefers-reduced-motion: no-preference)').matches) {
     const lifecycleObserver = new IntersectionObserver((entries, obs) => {
