@@ -4,122 +4,196 @@
  */
 
 document.addEventListener('DOMContentLoaded', () => {
-  // --- 1. Mobile Main Menu & Nested Submenus ---
+  // --- 1. Mobile Side Tray ---
   const menuBtn = document.getElementById('mobile-menu-btn');
-  const mobileMenu = document.getElementById('mobile-menu');
-  const mobileCloseBtn = document.getElementById('mobile-menu-close');
-  const mobileAccordionBtns = document.querySelectorAll('.mobile-accordion-btn');
+  const tray = document.getElementById('mobile-tray');
+  const trayOverlay = document.getElementById('mobile-tray-overlay');
+  const trayClose = document.getElementById('mobile-tray-close');
+  const accordionBtns = document.querySelectorAll('.mobile-tray-accordion-btn');
+  const trayLinks = tray ? tray.querySelectorAll('.mobile-tray-link, .mobile-tray-accordion-btn') : [];
 
-  const openMobileMenu = () => {
-    document.body.classList.add('mobile-menu-open');
-    if (menuBtn) menuBtn.classList.add('menu-open');
-    if (mobileMenu) mobileMenu.classList.add('menu-open');
-    if (menuBtn) menuBtn.setAttribute('aria-expanded', 'true');
-
-    const focusable = mobileMenu ? mobileMenu.querySelectorAll('button, a[href]') : [];
-    if (focusable.length) {
-      focusable[0].focus();
-    }
-  };
-
-  const closeMobileMenu = () => {
-    document.body.classList.remove('mobile-menu-open');
-    if (menuBtn) menuBtn.classList.remove('menu-open');
-    if (mobileMenu) mobileMenu.classList.remove('menu-open');
-    if (menuBtn) menuBtn.setAttribute('aria-expanded', 'false');
-    if (menuBtn) menuBtn.focus();
-  };
-
-  const toggleMobileMenu = () => {
-    if (mobileMenu?.classList.contains('menu-open')) {
-      closeMobileMenu();
-    } else {
-      openMobileMenu();
-    }
-  };
-
-  if (menuBtn && mobileMenu) {
-    menuBtn.addEventListener('click', toggleMobileMenu);
-  }
-
-  if (mobileCloseBtn) {
-    mobileCloseBtn.addEventListener('click', closeMobileMenu);
-  }
-
-  if (mobileMenu) {
-    mobileMenu.addEventListener('click', (event) => {
-      const target = event.target;
-      if (target === mobileMenu || target.classList.contains('mobile-menu-backdrop')) {
-        closeMobileMenu();
-      }
-    });
-
-    mobileMenu.querySelectorAll('a[href]').forEach(link => {
-      link.addEventListener('click', () => {
-        closeMobileMenu();
+  const staggerLinks = () => {
+    trayLinks.forEach((item, i) => {
+      item.style.opacity = '0';
+      item.style.transform = 'translateX(20px)';
+      item.style.transitionDelay = `${0.12 + i * 0.035}s`;
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          item.style.opacity = '1';
+          item.style.transform = 'translateX(0)';
+        });
       });
     });
-  }
-
-  // Close the drawer automatically when resized to a desktop viewport
-  const desktopMq = window.matchMedia('(min-width: 768px)');
-  const handleDesktopResize = (e) => {
-    if (e.matches) closeMobileMenu();
   };
-  if (desktopMq.addEventListener) {
-    desktopMq.addEventListener('change', handleDesktopResize);
-  } else {
-    desktopMq.addListener(handleDesktopResize);
+
+  const resetLinks = () => {
+    trayLinks.forEach(item => {
+      item.style.opacity = '0';
+      item.style.transform = 'translateX(20px)';
+      item.style.transitionDelay = '0s';
+    });
+  };
+
+  const openTray = () => {
+    if (!tray) return;
+    document.body.classList.add('tray-open');
+    if (menuBtn) {
+      menuBtn.classList.add('menu-open');
+      menuBtn.setAttribute('aria-expanded', 'true');
+    }
+    tray.classList.add('active');
+    if (trayOverlay) trayOverlay.classList.add('active');
+    staggerLinks();
+  };
+
+  const closeTray = () => {
+    if (!tray) return;
+    document.body.classList.remove('tray-open');
+    if (menuBtn) {
+      menuBtn.classList.remove('menu-open');
+      menuBtn.setAttribute('aria-expanded', 'false');
+    }
+    tray.classList.remove('active');
+    if (trayOverlay) trayOverlay.classList.remove('active');
+    // Close any open accordions
+    accordionBtns.forEach(b => {
+      b.classList.remove('open');
+      if (b.nextElementSibling) b.nextElementSibling.classList.remove('open');
+    });
+    // Reset after tray finishes closing
+    setTimeout(() => {
+      resetLinks();
+      if (menuBtn) menuBtn.focus();
+    }, 500);
+  };
+
+  if (menuBtn) menuBtn.addEventListener('click', openTray);
+  if (trayClose) trayClose.addEventListener('click', closeTray);
+  if (trayOverlay) trayOverlay.addEventListener('click', closeTray);
+
+  // Close on Escape
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && tray && tray.classList.contains('active')) {
+      closeTray();
+    }
+  });
+
+  // Close on link click
+  if (tray) {
+    tray.querySelectorAll('a[href]').forEach(link => {
+      link.addEventListener('click', closeTray);
+    });
   }
 
-  mobileAccordionBtns.forEach(btn => {
-    btn.addEventListener('click', (e) => {
-      e.preventDefault();
+  // Accordion toggle
+  accordionBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
       const submenu = btn.nextElementSibling;
-      const icon = btn.querySelector('.accordion-icon');
+      const wasOpen = btn.classList.contains('open');
 
-      if (submenu) {
-        submenu.classList.toggle('open');
-      }
-      if (icon) {
-        icon.classList.toggle('rotate-180');
+      // Close others
+      accordionBtns.forEach(b => {
+        if (b !== btn) {
+          b.classList.remove('open');
+          if (b.nextElementSibling) b.nextElementSibling.classList.remove('open');
+        }
+      });
+
+      // Toggle current
+      if (wasOpen) {
+        btn.classList.remove('open');
+        if (submenu) submenu.classList.remove('open');
+      } else {
+        btn.classList.add('open');
+        if (submenu) submenu.classList.add('open');
       }
     });
   });
 
-  document.addEventListener('keydown', (event) => {
-    if (!mobileMenu?.classList.contains('menu-open')) return;
+  // Close tray on resize to desktop
+  const desktopMq = window.matchMedia('(min-width: 1024px)');
+  if (desktopMq.addEventListener) {
+    desktopMq.addEventListener('change', (e) => { if (e.matches) closeTray(); });
+  }
 
-    if (event.key === 'Escape') {
-      event.preventDefault();
-      closeMobileMenu();
-      return;
-    }
-
-    if (event.key === 'Tab') {
-      const focusable = Array.from(mobileMenu.querySelectorAll('button:not([disabled]), a[href]')).filter(el => el.offsetParent !== null);
-      if (!focusable.length) return;
-
-      const currentIndex = focusable.indexOf(document.activeElement);
-      if (event.shiftKey && currentIndex === 0) {
-        event.preventDefault();
-        focusable[focusable.length - 1].focus();
-      } else if (!event.shiftKey && currentIndex === focusable.length - 1) {
-        event.preventDefault();
-        focusable[0].focus();
-      }
-    }
-  });
+  // Initialize: hide links
+  resetLinks();
 
   // --- 2. Active Navigation Link Highlighting ---
-  const currentPath = window.location.pathname.split('/').pop() || 'index.html';
+  const currentPath = window.location.pathname.replace(/\\/g, '/');
+  const currentFile = currentPath.split('/').pop() || 'index.html';
   const navLinks = document.querySelectorAll('.nav-link-item');
+
+  // Detect folder from URL (e.g. /about/who-we-are.html → "about")
+  const pathSegments = currentPath.split('/').filter(Boolean);
+  const currentFolder = pathSegments.length > 1 ? pathSegments[pathSegments.length - 2] : '';
+
+  // Map folders to nav text labels
+  const folderNavMap = {
+    'about': 'ABOUT US'
+  };
+
+  let activeFound = false;
 
   navLinks.forEach(link => {
     const href = link.getAttribute('href');
-    if (href && (href === currentPath || (currentPath === '' && href === 'index.html'))) {
+    if (!href) return;
+
+    const cleanHref = href.replace(/^\.\.\//, '').replace(/^\.\//, '');
+
+    // Skip if already active
+    if (activeFound) return;
+
+    // Folder-based match: highlight parent nav when inside its subfolder
+    if (currentFolder && folderNavMap[currentFolder]) {
+      const linkText = link.textContent.trim();
+      if (linkText.startsWith(folderNavMap[currentFolder])) {
+        link.classList.add('text-brandRed', 'font-bold');
+        link.classList.remove('text-slate-200');
+        activeFound = true;
+        return;
+      }
+    }
+
+    // Exact file match
+    if (cleanHref === currentFile) {
       link.classList.add('text-brandRed', 'font-bold');
       link.classList.remove('text-slate-200');
+      activeFound = true;
+    }
+  });
+
+  // Mobile tray active link highlighting
+  const trayLinksAll = document.querySelectorAll('.mobile-tray-link, .mobile-tray-submenu a');
+  let trayActiveFound = false;
+  trayLinksAll.forEach(link => {
+    if (trayActiveFound) return;
+    const href = link.getAttribute('href');
+    if (!href) return;
+    const cleanHref = href.replace(/^\.\.\//, '').replace(/^\.\//, '');
+
+    // Folder-based match for about pages
+    if (currentFolder && currentFolder === 'about' && href.includes('about/')) {
+      link.classList.add('active-link');
+      trayActiveFound = true;
+      // Open the ABOUT US accordion if it exists
+      const accBtn = link.closest('.mobile-tray-submenu')?.previousElementSibling;
+      if (accBtn && accBtn.classList.contains('mobile-tray-accordion-btn')) {
+        accBtn.classList.add('open');
+        accBtn.nextElementSibling?.classList.add('open');
+      }
+      return;
+    }
+
+    if (cleanHref === currentFile) {
+      link.classList.add('active-link');
+      trayActiveFound = true;
+      // Open parent accordion if inside submenu
+      const accBtn = link.closest('.mobile-tray-submenu')?.previousElementSibling;
+      if (accBtn && accBtn.classList.contains('mobile-tray-accordion-btn')) {
+        accBtn.classList.add('open');
+        accBtn.nextElementSibling?.classList.add('open');
+      }
     }
   });
 

@@ -66,82 +66,6 @@
     }
   </script>
 
-  <style>
-    @media (max-width: 767px) {
-      .mobile-menu-panel {
-        background: rgba(14, 31, 39, 0.98);
-        backdrop-filter: blur(14px);
-        transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease;
-      }
-
-      .mobile-menu-panel {
-        transform: translateY(-100%);
-        opacity: 0;
-        pointer-events: none;
-      }
-
-      .mobile-menu-panel.menu-open {
-        transform: translateY(0);
-        opacity: 1;
-        pointer-events: auto;
-      }
-
-      body.mobile-menu-open {
-        overflow: hidden;
-      }
-
-      .hamburger-line {
-        transition: transform 0.3s ease, opacity 0.3s ease, background-color 0.3s ease;
-      }
-
-      .mobile-menu-btn.menu-open .hamburger-line:first-child {
-        transform: translateY(7px) rotate(45deg);
-      }
-      .mobile-menu-btn.menu-open .hamburger-line:nth-child(2) {
-        opacity: 0;
-      }
-      .mobile-menu-btn.menu-open .hamburger-line:last-child {
-        transform: translateY(-7px) rotate(-45deg);
-      }
-
-      .mobile-menu-panel nav a {
-        opacity: 0;
-        transform: translateY(10px);
-        animation: mobileLinkIn 0.4s forwards ease;
-      }
-      .mobile-menu-panel.menu-open nav a:nth-child(1) { animation-delay: 0.08s; }
-      .mobile-menu-panel.menu-open nav a:nth-child(2) { animation-delay: 0.14s; }
-      .mobile-menu-panel.menu-open nav a:nth-child(3) { animation-delay: 0.20s; }
-      .mobile-menu-panel.menu-open nav a:nth-child(4) { animation-delay: 0.26s; }
-      .mobile-menu-panel.menu-open nav a:nth-child(5) { animation-delay: 0.32s; }
-      .mobile-menu-panel.menu-open nav a:nth-child(6) { animation-delay: 0.38s; }
-      .mobile-menu-panel.menu-open nav a:nth-child(7) { animation-delay: 0.44s; }
-      .mobile-menu-panel.menu-open nav a:nth-child(8) { animation-delay: 0.50s; }
-      .mobile-menu-panel.menu-open nav a:nth-child(9) { animation-delay: 0.56s; }
-      .mobile-menu-panel.menu-open nav a:nth-child(10) { animation-delay: 0.62s; }
-      .mobile-menu-panel.menu-open nav a:nth-child(11) { animation-delay: 0.68s; }
-      .mobile-menu-panel.menu-open nav a:nth-child(12) { animation-delay: 0.74s; }
-      .mobile-menu-panel.menu-open nav a:nth-child(13) { animation-delay: 0.80s; }
-      .mobile-menu-panel.menu-open nav a:nth-child(14) { animation-delay: 0.86s; }
-
-      @keyframes mobileLinkIn {
-        to {
-          opacity: 1;
-          transform: translateY(0);
-        }
-      }
-
-      .mobile-submenu {
-        max-height: 0;
-        overflow: hidden;
-        transition: max-height 0.28s ease;
-      }
-      .mobile-submenu.open {
-        max-height: 900px;
-      }
-    }
-  </style>
-
   <!-- Font Awesome Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
@@ -383,109 +307,108 @@
         </div>
 
         <!-- MOBILE MENU BUTTON -->
-        <button id="mobile-menu-btn" class="mobile-menu-btn lg:hidden text-slate-900 p-2 rounded-lg relative z-50" aria-label="Toggle menu" aria-expanded="false" aria-controls="mobile-menu">
+        <button id="mobile-menu-btn" class="mobile-menu-btn lg:hidden text-slate-900 p-2 rounded-lg relative z-[90]" aria-label="Toggle menu" aria-expanded="false" aria-controls="mobile-tray">
           <span class="hamburger-line block w-6 h-0.5 bg-slate-900 mb-1.5"></span>
           <span class="hamburger-line block w-6 h-0.5 bg-slate-900 mb-1.5"></span>
           <span class="hamburger-line block w-6 h-0.5 bg-slate-900"></span>
         </button>
       </div>
+  
 
-      <!-- MOBILE ACCORDION MENU DRAWER -->
-      <div id="mobile-menu" class="mobile-menu-panel lg:hidden fixed inset-x-0 top-0 h-full overflow-hidden z-[60]" role="dialog" aria-modal="true">
-        <div class="mobile-menu-backdrop absolute inset-0"></div>
-        <div class="relative z-10 h-full overflow-y-auto pt-6 pb-8 px-5">
-          <div class="flex items-center justify-between mb-8">
-            <a href="index.html" class="inline-flex items-center gap-3">
-              <img src="assets/images/logo.png" alt="WRC logo" class="w-24 h-auto object-contain" />
-              <span class="font-display text-xl font-semibold text-sand-50">WRC</span>
-            </a>
-            <button id="mobile-menu-close" class="text-sand-50 w-11 h-11 flex items-center justify-center rounded-full border border-sand-50/25 hover:bg-ink-900 transition" aria-label="Close menu">
-              <i class="fa-solid fa-xmark text-xl"></i>
+</header>
+
+<!-- MOBILE SIDE TRAY -->
+      <div id="mobile-tray-overlay" class="mobile-tray-overlay"></div>
+      <div id="mobile-tray" class="mobile-tray" role="dialog" aria-modal="true" aria-label="Navigation menu">
+        <div class="mobile-tray-header">
+          <a href="index.html" class="flex items-center gap-2.5">
+            <img src="assets/images/logo.png" alt="WRC logo" class="w-9 h-9 object-contain rounded-lg bg-slate-100 p-1" />
+            <span class="text-sm font-bold text-slate-900 tracking-wide">WRC</span>
+          </a>
+          <button id="mobile-tray-close" class="mobile-tray-close" aria-label="Close menu">
+            <i class="fa-solid fa-xmark text-base"></i>
+          </button>
+        </div>
+
+        <div class="mobile-tray-body">
+          <nav class="mobile-tray-nav">
+            <a href="index.html" class="mobile-tray-link active-link">HOME</a>
+
+            <button class="mobile-tray-accordion-btn" data-delay="0.05">
+              <span>ABOUT US</span>
+              <i class="acc-icon fa-solid fa-chevron-down"></i>
             </button>
-          </div>
+            <div class="mobile-tray-submenu"><div>
+<a href="about/who-we-are.html">Who We Are</a>
+              <a href="about/vision-mission-values.html">Vision, Mission & Values</a>
+              <a href="about/history.html">Our History</a>
+              <a href="about/leadership.html">Leadership</a>
+              <a href="about/organizational-structure.html">Organizational Structure</a>
+              <a href="about/team.html">Our Team</a>
+              <a href="about/policies-compliance.html">Policies & Compliance</a>
+              <a href="about/annual-reports.html">Annual Reports</a>
+</div>
+</div>
 
-          <nav class="space-y-2 font-sans text-lg text-sand-50">
-            <a href="index.html" class="block rounded-3xl bg-ink-900/90 px-4 py-4 font-semibold uppercase tracking-[0.2em] hover:bg-ink-900 transition">HOME</a>
+            <button class="mobile-tray-accordion-btn" data-delay="0.10">
+              <span>OUR WORK</span>
+              <i class="acc-icon fa-solid fa-chevron-down"></i>
+            </button>
+            <div class="mobile-tray-submenu"><div>
+<a href="our-work.html#health">Health</a>
+              <a href="our-work.html#education">Education</a>
+              <a href="our-work.html#wash">WASH</a>
+              <a href="our-work.html#food-security">Food Security</a>
+              <a href="our-work.html#nutrition">Nutrition</a>
+              <a href="our-work.html#livelihood">Livelihood</a>
+              <a href="our-work.html#emergency">Emergency Response</a>
+              <a href="our-work.html#drr">Disaster Risk Reduction</a>
+              <a href="our-work.html#climate">Climate Resilience</a>
+              <a href="our-work.html" class="font-semibold" style="color:#ca0000">All Programs →</a>
+</div>
+</div>
 
-                        <div>
-              <button class="mobile-accordion-btn w-full rounded-3xl px-4 py-4 flex items-center justify-between text-left font-semibold hover:bg-ink-900/90 transition">
-                <span>ABOUT US</span>
-                <i class="accordion-icon fa-solid fa-chevron-down text-base transition-transform duration-300"></i>
-              </button>
-              <div class="mobile-submenu pl-5 mt-2 space-y-1 border-l border-sand-50/20 text-sm">
-                <div class="px-3 pt-2 pb-1 text-[10px] text-sand-50/50 uppercase tracking-widest font-bold">About WRC</div>
-                <a href="about/who-we-are.html" class="block py-2.5 px-3 rounded-2xl text-sand-50 hover:bg-ink-900 transition">Who We Are</a>
-                <a href="about/vision-mission-values.html" class="block py-2.5 px-3 rounded-2xl text-sand-50 hover:bg-ink-900 transition">Vision, Mission & Values</a>
-                <a href="about/history.html" class="block py-2.5 px-3 rounded-2xl text-sand-50 hover:bg-ink-900 transition">Our History</a>
-                
-                <div class="px-3 pt-4 pb-1 text-[10px] text-sand-50/50 uppercase tracking-widest font-bold">People & Governance</div>
-                <a href="about/leadership.html" class="block py-2.5 px-3 rounded-2xl text-sand-50 hover:bg-ink-900 transition">Leadership</a>
-                <a href="about/organizational-structure.html" class="block py-2.5 px-3 rounded-2xl text-sand-50 hover:bg-ink-900 transition">Organizational Structure</a>
-                <a href="about/team.html" class="block py-2.5 px-3 rounded-2xl text-sand-50 hover:bg-ink-900 transition">Our Team</a>
-                
-                <div class="px-3 pt-4 pb-1 text-[10px] text-sand-50/50 uppercase tracking-widest font-bold">Transparency</div>
-                <a href="about/policies-compliance.html" class="block py-2.5 px-3 rounded-2xl text-sand-50 hover:bg-ink-900 transition">Policies & Compliance</a>
-                <a href="about/annual-reports.html" class="block py-2.5 px-3 rounded-2xl text-sand-50 hover:bg-ink-900 transition">Annual Reports</a>
-                
-                <div class="mt-2 border-t border-sand-50/10 pt-2">
-                  <a href="contact.html" class="block py-2.5 px-3 rounded-2xl text-sand-50 hover:bg-ink-900 transition font-semibold">Contact Us</a>
-                </div>
-              </div>
-            </div>
+            <button class="mobile-tray-accordion-btn" data-delay="0.15">
+              <span>PROJECTS</span>
+              <i class="acc-icon fa-solid fa-chevron-down"></i>
+            </button>
+            <div class="mobile-tray-submenu"><div>
+<a href="projects.html#active">Active Projects</a>
+              <a href="projects.html#completed">Completed Projects</a>
+              <a href="projects.html#portfolio">Project Portfolio</a>
+              <a href="projects.html#stories">Success Stories</a>
+              <a href="projects.html#dashboard">Project Dashboard</a>
+</div>
+</div>
 
-            <div>
-              <button class="mobile-accordion-btn w-full rounded-3xl px-4 py-4 flex items-center justify-between text-left font-semibold hover:bg-ink-900/90 transition">
-                <span>OUR WORK</span>
-                <i class="accordion-icon fa-solid fa-chevron-down text-base transition-transform duration-300"></i>
-              </button>
-              <div class="mobile-submenu pl-5 mt-2 space-y-2 border-l border-sand-50/20">
-                <a href="our-work.html#health" class="block py-3 px-3 rounded-2xl text-sand-50 hover:bg-ink-900 transition">Health</a>
-                <a href="our-work.html#education" class="block py-3 px-3 rounded-2xl text-sand-50 hover:bg-ink-900 transition">Education</a>
-                <a href="our-work.html#wash" class="block py-3 px-3 rounded-2xl text-sand-50 hover:bg-ink-900 transition">WASH</a>
-                <a href="our-work.html#food-security" class="block py-3 px-3 rounded-2xl text-sand-50 hover:bg-ink-900 transition">Food Security</a>
-                <a href="our-work.html#nutrition" class="block py-3 px-3 rounded-2xl text-sand-50 hover:bg-ink-900 transition">Nutrition</a>
-                <a href="our-work.html#livelihood" class="block py-3 px-3 rounded-2xl text-sand-50 hover:bg-ink-900 transition">Livelihood</a>
-                <a href="our-work.html#emergency" class="block py-3 px-3 rounded-2xl text-sand-50 hover:bg-ink-900 transition">Emergency Response</a>
-                <a href="our-work.html#drr" class="block py-3 px-3 rounded-2xl text-sand-50 hover:bg-ink-900 transition">Disaster Risk Reduction</a>
-                <a href="our-work.html#climate" class="block py-3 px-3 rounded-2xl text-sand-50 hover:bg-ink-900 transition">Climate Resilience</a>
-                <a href="our-work.html" class="block py-3 px-3 rounded-2xl text-sand-50 font-semibold hover:bg-ink-900 transition">All Programs →</a>
-              </div>
-            </div>
+            <button class="mobile-tray-accordion-btn" data-delay="0.20">
+              <span>PROCUREMENT</span>
+              <i class="acc-icon fa-solid fa-chevron-down"></i>
+            </button>
+            <div class="mobile-tray-submenu"><div>
+<a href="procurement.html#tenders">Open Tenders</a>
+              <a href="procurement.html#vendor">Vendor Registration</a>
+</div>
+</div>
 
-            <div>
-              <button class="mobile-accordion-btn w-full rounded-3xl px-4 py-4 flex items-center justify-between text-left font-semibold hover:bg-ink-900/90 transition">
-                <span>PROJECTS</span>
-                <i class="accordion-icon fa-solid fa-chevron-down text-base transition-transform duration-300"></i>
-              </button>
-              <div class="mobile-submenu pl-5 mt-2 space-y-2 border-l border-sand-50/20">
-                <a href="projects.html#active" class="block py-3 px-3 rounded-2xl text-sand-50 hover:bg-ink-900 transition">Active Projects</a>
-                <a href="projects.html#completed" class="block py-3 px-3 rounded-2xl text-sand-50 hover:bg-ink-900 transition">Completed Projects</a>
-                <a href="projects.html#portfolio" class="block py-3 px-3 rounded-2xl text-sand-50 hover:bg-ink-900 transition">Project Portfolio</a>
-                <a href="projects.html#stories" class="block py-3 px-3 rounded-2xl text-sand-50 hover:bg-ink-900 transition">Success Stories</a>
-                <a href="projects.html#dashboard" class="block py-3 px-3 rounded-2xl text-sand-50 hover:bg-ink-900 transition">Project Dashboard</a>
-              </div>
-            </div>
-
-            <div>
-              <button class="mobile-accordion-btn w-full rounded-3xl px-4 py-4 flex items-center justify-between text-left font-semibold hover:bg-ink-900/90 transition">
-                <span>PROCUREMENT</span>
-                <i class="accordion-icon fa-solid fa-chevron-down text-base transition-transform duration-300"></i>
-              </button>
-              <div class="mobile-submenu pl-5 mt-2 space-y-2 border-l border-sand-50/20">
-                <a href="procurement.html#tenders" class="block py-3 px-3 rounded-2xl text-sand-50 hover:bg-ink-900 transition">Open Tenders</a>
-                <a href="procurement.html#vendor" class="block py-3 px-3 rounded-2xl text-sand-50 hover:bg-ink-900 transition">Vendor Registration</a>
-              </div>
-            </div>
+            <a href="where-we-work.html" class="mobile-tray-link" data-delay="0.25">WHERE WE WORK</a>
+            <a href="impact.html" class="mobile-tray-link" data-delay="0.30">IMPACT</a>
+            <a href="resources.html" class="mobile-tray-link" data-delay="0.35">RESOURCES</a>
+            <a href="news.html" class="mobile-tray-link" data-delay="0.40">NEWS & MEDIA</a>
+            <a href="get-involved.html" class="mobile-tray-link" data-delay="0.45">GET INVOLVED</a>
+            <a href="contact.html" class="mobile-tray-link" data-delay="0.50">CONTACT</a>
           </nav>
+        </div>
 
-          <div class="mt-8 px-1">
-            <a href="contribute-with-us.html" class="block w-full rounded-3xl bg-gold-500 text-ink-900 font-semibold text-center py-4 hover:bg-gold-600 transition">Explore Collaboration</a>
-          </div>
+        <div class="mobile-tray-footer">
+          <a href="contribute-with-us.html" class="mobile-tray-cta">
+            <i class="fa-solid fa-handshake text-xs"></i> Contribute With Us
+          </a>
         </div>
       </div>
 
     </div>
-  </header>
+
 
   <!-- MAIN HERO SLIDER SECTION -->
   <section class="relative w-full bg-slate-900 text-white min-h-[560px] flex items-center overflow-hidden group">
@@ -943,7 +866,7 @@
           <h4 class="text-white font-semibold uppercase tracking-[0.2em] text-xs mb-4">Explore</h4>
           <ul class="space-y-3 text-slate-400">
             <li><a href="index.html" class="hover:text-white transition">Home</a></li>
-            <li><a href="about.html" class="hover:text-white transition">About Us</a></li>
+            <li><a href="about/index.html" class="hover:text-white transition">About Us</a></li>
             <li><a href="our-work.html" class="hover:text-white transition">Our Work</a></li>
             <li><a href="projects.html" class="hover:text-white transition">Projects</a></li>
             <li><a href="news.html" class="hover:text-white transition">News</a></li>
