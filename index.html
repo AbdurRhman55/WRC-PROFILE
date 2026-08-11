@@ -1,0 +1,1062 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>World Relief Committee (WRC) - Official NGO Portal</title>
+  <meta name="description" content="World Relief Committee (WRC) is a non-profit humanitarian organization delivering health, education, WASH, food security, and emergency disaster relief globally.">
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Tailwind Configuration -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brandRed: {
+              DEFAULT: '#ca0000',
+              hover: '#a30000',
+              light: '#fef2f2',
+            },
+            brand: {
+              50: '#f8fafc',
+              900: '#0f172a',
+              950: '#020617'
+            },
+            ink: {
+              900: '#0E1F27',
+              800: '#152C36',
+              700: '#1D3A47'
+            },
+            sand: {
+              50: '#FAF8F3',
+              100: '#F3EFE4'
+            },
+            gold: {
+              400: '#C89B3C',
+              500: '#B0862F',
+              600: '#8F6D26'
+            },
+            teal: {
+              500: '#2F6F62',
+              600: '#255A50'
+            }
+          },
+          fontFamily: {
+            display: ['Fraunces', 'serif'],
+            sans: ['Inter', 'sans-serif'],
+          },
+          keyframes: {
+            'pulse-glow': {
+              '0%, 100%': { boxShadow: '0 0 8px rgba(202, 0, 0, 0.25)' },
+              '50%': { boxShadow: '0 0 15px rgba(202, 0, 0, 0.45)' },
+            },
+            'progress': {
+              from: { width: '0%' },
+            },
+          },
+          animation: {
+            'pulse-glow': 'pulse-glow 3s infinite',
+            'progress': 'progress 1.5s ease-out forwards',
+          },
+        }
+      }
+    }
+  </script>
+
+  <style>
+    @media (max-width: 767px) {
+      .mobile-menu-panel {
+        background: rgba(14, 31, 39, 0.98);
+        backdrop-filter: blur(14px);
+        transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease;
+      }
+
+      .mobile-menu-panel {
+        transform: translateY(-100%);
+        opacity: 0;
+        pointer-events: none;
+      }
+
+      .mobile-menu-panel.menu-open {
+        transform: translateY(0);
+        opacity: 1;
+        pointer-events: auto;
+      }
+
+      body.mobile-menu-open {
+        overflow: hidden;
+      }
+
+      .hamburger-line {
+        transition: transform 0.3s ease, opacity 0.3s ease, background-color 0.3s ease;
+      }
+
+      .mobile-menu-btn.menu-open .hamburger-line:first-child {
+        transform: translateY(7px) rotate(45deg);
+      }
+      .mobile-menu-btn.menu-open .hamburger-line:nth-child(2) {
+        opacity: 0;
+      }
+      .mobile-menu-btn.menu-open .hamburger-line:last-child {
+        transform: translateY(-7px) rotate(-45deg);
+      }
+
+      .mobile-menu-panel nav a {
+        opacity: 0;
+        transform: translateY(10px);
+        animation: mobileLinkIn 0.4s forwards ease;
+      }
+      .mobile-menu-panel.menu-open nav a:nth-child(1) { animation-delay: 0.08s; }
+      .mobile-menu-panel.menu-open nav a:nth-child(2) { animation-delay: 0.14s; }
+      .mobile-menu-panel.menu-open nav a:nth-child(3) { animation-delay: 0.20s; }
+      .mobile-menu-panel.menu-open nav a:nth-child(4) { animation-delay: 0.26s; }
+      .mobile-menu-panel.menu-open nav a:nth-child(5) { animation-delay: 0.32s; }
+      .mobile-menu-panel.menu-open nav a:nth-child(6) { animation-delay: 0.38s; }
+      .mobile-menu-panel.menu-open nav a:nth-child(7) { animation-delay: 0.44s; }
+      .mobile-menu-panel.menu-open nav a:nth-child(8) { animation-delay: 0.50s; }
+      .mobile-menu-panel.menu-open nav a:nth-child(9) { animation-delay: 0.56s; }
+      .mobile-menu-panel.menu-open nav a:nth-child(10) { animation-delay: 0.62s; }
+      .mobile-menu-panel.menu-open nav a:nth-child(11) { animation-delay: 0.68s; }
+      .mobile-menu-panel.menu-open nav a:nth-child(12) { animation-delay: 0.74s; }
+      .mobile-menu-panel.menu-open nav a:nth-child(13) { animation-delay: 0.80s; }
+      .mobile-menu-panel.menu-open nav a:nth-child(14) { animation-delay: 0.86s; }
+
+      @keyframes mobileLinkIn {
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .mobile-submenu {
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.28s ease;
+      }
+      .mobile-submenu.open {
+        max-height: 900px;
+      }
+    }
+  </style>
+
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+  <!-- Poppins + Partner section fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/custom.css">
+  
+
+</head>
+<body class="bg-slate-50 text-slate-800 flex flex-col min-h-screen">
+
+  <!-- TOP UTILITY BAR -->
+  <div class="bg-brandRed text-white text-xs py-2 border-b border-brandRed/80 hidden lg:block w-full">
+    <div class="w-full px-4 sm:px-6 lg:px-8 flex justify-between items-center">
+      <div class="flex items-center gap-6">
+       
+        <span class="flex items-center gap-2"><i class="fa-solid fa-phone text-white text-[11px]"></i> +92 300 1234567</span>
+        <span class="flex items-center gap-2"><i class="fa-solid fa-envelope text-white text-[11px]"></i> info@wrc.org.pk</span>
+        <span class="text-white/80">|</span>
+        <span class="text-white/90 font-medium"><i class="fa-solid fa-bullhorn text-white mr-1 text-[11px]"></i> Emergency Flood & Winter Aid Active</span>
+      </div>
+      <div class="flex items-center gap-4 text-xs text-white">
+         <span class="flex items-center gap-2"><i class="fa-solid fa-location-dot text-white text-[11px]"></i>Flat#1, 3rd Floor, Shami Flats near Marbella Wedding Hall, Warsak Road, Peshawar, Pakistan</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN HEADER NAVIGATION -->
+  <header class="sticky top-0 z-50 w-full bg-white/95 lg:bg-white/75 lg:backdrop-blur-xl border-b border-white/50 transition-all duration-300 shadow-sm">
+    <div class="w-full px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-20 gap-4">
+
+        <!-- BRAND LOGO -->
+        <a href="index.html" class="flex items-center gap-3 shrink-0 group">
+          <img src="assets/images/logo.png" alt="WRC logo" class="w-32 h-18  transition-all group-hover:border-brandRed" />
+          <!-- <div>
+            <span class="text-lg font-extrabold tracking-tight text-slate-900 block font-heading leading-tight">WRC WORLD</span>
+            <span class="text-[10px] font-semibold text-slate-500 tracking-wider uppercase block">Relief Committee</span>
+          </div> -->
+        </a>
+
+        <!-- DESKTOP NAVBAR LINKS (ALIGNED & BALANCED) -->
+        <nav class="hidden lg:flex items-center gap-1 xl:gap-1.5 text-[11px] xl:text-xs font-medium text-slate-600">
+
+          <!-- 1. HOME -->
+          <a href="index.html" class="nav-link-item px-2.5 py-2 rounded-lg text-brandRed font-semibold hover:bg-slate-800/60 transition-all">
+            HOME
+          </a>
+
+                    <!-- 2. ABOUT US -->
+          <div class="nav-item-dropdown">
+            <a href="about/index.html" class="nav-link-item px-2.5 py-2 rounded-lg hover:text-white hover:bg-slate-800/60 transition-all flex items-center gap-1">
+              ABOUT US <i class="fa-solid fa-chevron-down text-[8px] opacity-60"></i>
+            </a>
+            <div class="dropdown-menu absolute top-full left-0 w-64 bg-white border border-gray-100 rounded-2xl shadow-xl p-3 text-slate-600 text-xs">
+              
+              <div class="mb-1 px-2 text-[10px] font-bold text-slate-400 uppercase tracking-wider">About WRC</div>
+              <a href="about/who-we-are.html" class="block px-3 py-1.5 rounded-xl hover:bg-slate-800 hover:text-white transition-colors"><i class="fa-solid fa-circle-info w-4 text-center mr-1 text-slate-400"></i> Who We Are</a>
+              <a href="about/vision-mission-values.html" class="block px-3 py-1.5 rounded-xl hover:bg-slate-800 hover:text-white transition-colors"><i class="fa-solid fa-bullseye w-4 text-center mr-1 text-slate-400"></i> Vision, Mission & Values</a>
+              <a href="about/history.html" class="block px-3 py-1.5 rounded-xl hover:bg-slate-800 hover:text-white transition-colors"><i class="fa-solid fa-timeline w-4 text-center mr-1 text-slate-400"></i> Our History</a>
+              
+              <div class="mt-2 mb-1 px-2 text-[10px] font-bold text-slate-400 uppercase tracking-wider">People & Governance</div>
+              <a href="about/leadership.html" class="block px-3 py-1.5 rounded-xl hover:bg-slate-800 hover:text-white transition-colors"><i class="fa-solid fa-user-tie w-4 text-center mr-1 text-slate-400"></i> Leadership</a>
+              <a href="about/organizational-structure.html" class="block px-3 py-1.5 rounded-xl hover:bg-slate-800 hover:text-white transition-colors"><i class="fa-solid fa-sitemap w-4 text-center mr-1 text-slate-400"></i> Organizational Structure</a>
+              <a href="about/team.html" class="block px-3 py-1.5 rounded-xl hover:bg-slate-800 hover:text-white transition-colors"><i class="fa-solid fa-users w-4 text-center mr-1 text-slate-400"></i> Our Team</a>
+              
+              <div class="mt-2 mb-1 px-2 text-[10px] font-bold text-slate-400 uppercase tracking-wider">Transparency</div>
+              <a href="about/policies-compliance.html" class="block px-3 py-1.5 rounded-xl hover:bg-slate-800 hover:text-white transition-colors"><i class="fa-solid fa-shield-halved w-4 text-center mr-1 text-slate-400"></i> Policies & Compliance</a>
+              <a href="about/annual-reports.html" class="block px-3 py-1.5 rounded-xl hover:bg-slate-800 hover:text-white transition-colors"><i class="fa-solid fa-file-invoice w-4 text-center mr-1 text-slate-400"></i> Annual Reports</a>
+              
+              <div class="mt-2 pt-2 border-t border-slate-100">
+                <a href="contact.html" class="block px-3 py-1.5 rounded-xl hover:bg-slate-800 hover:text-white transition-colors font-medium"><i class="fa-solid fa-address-book w-4 text-center mr-1 text-slate-400"></i> Contact Us</a>
+              </div>
+            </div>
+          </div>
+
+          <!-- 3. OUR WORK (MEGA MENU) -->
+          <div class="nav-item-dropdown">
+            <a href="our-work.html" class="nav-link-item px-2.5 py-2 rounded-lg hover:text-white hover:bg-slate-800/60 transition-all flex items-center gap-1">
+              OUR WORK <i class="fa-solid fa-chevron-down text-[8px] opacity-60"></i>
+            </a>
+            <div class="dropdown-menu mega-menu mega-menu-full absolute top-full bg-white border border-gray-100 rounded-2xl shadow-xl p-5 text-slate-600">
+              <div class="mb-3 border-b border-gray-200 pb-2 flex justify-between items-center">
+                <span class="text-xs font-bold text-slate-900 uppercase tracking-wider font-heading">Humanitarian Sectors</span>
+                <a href="our-work.html" class="text-brandRed text-[11px] font-semibold hover:underline">All Programs &rarr;</a>
+              </div>
+              <div class="grid grid-cols-3 gap-2.5">
+                <a href="our-work.html#health" class="p-2.5 rounded-xl hover:bg-red-50 transition-all border border-transparent hover:border-brandRed/20">
+                  <div class="font-semibold text-slate-900 text-xs mb-0.5 flex items-center gap-2"><i class="fa-solid fa-heart-pulse text-brandRed"></i> Health</div>
+                  <p class="text-[11px] text-slate-400 font-normal">Free medical camps & emergency healthcare.</p>
+                </a>
+                <a href="our-work.html#education" class="p-2.5 rounded-xl hover:bg-red-50 transition-all border border-transparent hover:border-brandRed/20">
+                  <div class="font-semibold text-slate-900 text-xs mb-0.5 flex items-center gap-2"><i class="fa-solid fa-graduation-cap text-brandRed"></i> Education</div>
+                  <p class="text-[11px] text-slate-500 font-normal">Schooling kits, orphan care & literacy.</p>
+                </a>
+                <a href="our-work.html#wash" class="p-2.5 rounded-xl hover:bg-red-50 transition-all border border-transparent hover:border-brandRed/20">
+                  <div class="font-semibold text-slate-900 text-xs mb-0.5 flex items-center gap-2"><i class="fa-solid fa-faucet-drip text-brandRed"></i> WASH</div>
+                  <p class="text-[11px] text-slate-500 font-normal">Water, sanitation & hygiene projects.</p>
+                </a>
+                <a href="our-work.html#food-security" class="p-2.5 rounded-xl hover:bg-red-50 transition-all border border-transparent hover:border-brandRed/20">
+                  <div class="font-semibold text-slate-900 text-xs mb-0.5 flex items-center gap-2"><i class="fa-solid fa-bowl-food text-brandRed"></i> Food Security</div>
+                  <p class="text-[11px] text-slate-500 font-normal">Emergency food ration packs.</p>
+                </a>
+                <a href="our-work.html#nutrition" class="p-2.5 rounded-xl hover:bg-red-50 transition-all border border-transparent hover:border-brandRed/20">
+                  <div class="font-semibold text-slate-900 text-xs mb-0.5 flex items-center gap-2"><i class="fa-solid fa-apple-whole text-brandRed"></i> Nutrition</div>
+                  <p class="text-[11px] text-slate-500 font-normal">Child & maternal malnutrition care.</p>
+                </a>
+                <a href="our-work.html#livelihood" class="p-2.5 rounded-xl hover:bg-red-50 transition-all border border-transparent hover:border-brandRed/20">
+                  <div class="font-semibold text-slate-900 text-xs mb-0.5 flex items-center gap-2"><i class="fa-solid fa-briefcase text-brandRed"></i> Livelihood</div>
+                  <p class="text-[11px] text-slate-500 font-normal">Skill development & micro-enterprises.</p>
+                </a>
+                <a href="our-work.html#emergency" class="p-2.5 rounded-xl hover:bg-red-50 transition-all border border-transparent hover:border-brandRed/20">
+                  <div class="font-semibold text-slate-900 text-xs mb-0.5 flex items-center gap-2"><i class="fa-solid fa-truck-medical text-brandRed"></i> Emergency Response</div>
+                  <p class="text-[11px] text-slate-500 font-normal">Immediate disaster & crisis relief.</p>
+                </a>
+                <a href="our-work.html#drr" class="p-2.5 rounded-xl hover:bg-red-50 transition-all border border-transparent hover:border-brandRed/20">
+                  <div class="font-semibold text-slate-900 text-xs mb-0.5 flex items-center gap-2"><i class="fa-solid fa-triangle-exclamation text-brandRed"></i> DRR</div>
+                  <p class="text-[11px] text-slate-500 font-normal">Disaster Risk Reduction & readiness.</p>
+                </a>
+                <a href="our-work.html#climate" class="p-2.5 rounded-xl hover:bg-red-50 transition-all border border-transparent hover:border-brandRed/20">
+                  <div class="font-semibold text-slate-900 text-xs mb-0.5 flex items-center gap-2"><i class="fa-solid fa-leaf text-brandRed"></i> Climate Resilience</div>
+                  <p class="text-[11px] text-slate-500 font-normal">Green energy & environmental protection.</p>
+                </a>
+              </div>
+            </div>
+          </div>
+
+          <!-- 4. PROJECTS -->
+          <div class="nav-item-dropdown">
+            <a href="projects.html" class="nav-link-item px-2.5 py-2 rounded-lg hover:text-white hover:bg-slate-800/60 transition-all flex items-center gap-1">
+              PROJECTS <i class="fa-solid fa-chevron-down text-[8px] opacity-60"></i>
+            </a>
+            <div class="dropdown-menu absolute top-full left-0 w-56 bg-white border border-gray-100 rounded-2xl shadow-xl p-2 text-slate-600 text-xs">
+              <a href="projects.html#active" class="block px-3 py-2 rounded-xl hover:bg-slate-800 hover:text-white transition-colors"><i class="fa-solid fa-spinner mr-2 text-slate-400"></i> Active Projects</a>
+              <a href="projects.html#completed" class="block px-3 py-2 rounded-xl hover:bg-slate-800 hover:text-white transition-colors"><i class="fa-solid fa-circle-check mr-2 text-slate-400"></i> Completed Projects</a>
+              <a href="projects.html#portfolio" class="block px-3 py-2 rounded-xl hover:bg-slate-800 hover:text-white transition-colors"><i class="fa-solid fa-folder-open mr-2 text-slate-400"></i> Project Portfolio</a>
+              <a href="projects.html#stories" class="block px-3 py-2 rounded-xl hover:bg-slate-800 hover:text-white transition-colors"><i class="fa-solid fa-star mr-2 text-slate-400"></i> Success Stories</a>
+              <a href="projects.html#dashboard" class="block px-3 py-2 rounded-xl hover:bg-slate-800 hover:text-white transition-colors"><i class="fa-solid fa-chart-line mr-2 text-slate-400"></i> Project Dashboard</a>
+            </div>
+          </div>
+
+          <!-- 5. WHERE WE WORK -->
+          <div class="nav-item-dropdown">
+            <a href="where-we-work.html" class="nav-link-item px-2.5 py-2 rounded-lg hover:text-white hover:bg-slate-800/60 transition-all flex items-center gap-1">
+              WHERE WE WORK <i class="fa-solid fa-chevron-down text-[8px] opacity-60"></i>
+            </a>
+            <div class="dropdown-menu absolute top-full left-0 w-56 bg-white border border-gray-100 rounded-2xl shadow-xl p-2 text-slate-600 text-xs">
+              <a href="where-we-work.html#map" class="block px-3 py-2 rounded-xl hover:bg-slate-800 hover:text-white transition-colors"><i class="fa-solid fa-map-location-dot mr-2 text-slate-400"></i> Pakistan Map</a>
+              <a href="where-we-work.html#kp" class="block px-3 py-2 rounded-xl hover:bg-slate-800 hover:text-white transition-colors"><i class="fa-solid fa-mountain mr-2 text-slate-400"></i> Khyber Pakhtunkhwa</a>
+              <a href="where-we-work.html#punjab" class="block px-3 py-2 rounded-xl hover:bg-slate-800 hover:text-white transition-colors"><i class="fa-solid fa-wheat-awn mr-2 text-slate-400"></i> Punjab</a>
+              <a href="where-we-work.html#sindh" class="block px-3 py-2 rounded-xl hover:bg-slate-800 hover:text-white transition-colors"><i class="fa-solid fa-water mr-2 text-slate-400"></i> Sindh</a>
+              <a href="where-we-work.html#balochistan" class="block px-3 py-2 rounded-xl hover:bg-slate-800 hover:text-white transition-colors"><i class="fa-solid fa-sun mr-2 text-slate-400"></i> Balochistan</a>
+              <a href="where-we-work.html#districts" class="block px-3 py-2 rounded-xl hover:bg-slate-800 hover:text-white transition-colors"><i class="fa-solid fa-layer-group mr-2 text-slate-400"></i> District Coverage</a>
+            </div>
+          </div>
+
+          <!-- 6. IMPACT -->
+          <div class="nav-item-dropdown">
+            <a href="impact.html" class="nav-link-item px-2.5 py-2 rounded-lg hover:text-white hover:bg-slate-800/60 transition-all flex items-center gap-1">
+              IMPACT <i class="fa-solid fa-chevron-down text-[8px] opacity-60"></i>
+            </a>
+            <div class="dropdown-menu absolute top-full left-0 w-56 bg-white border border-gray-100 rounded-2xl shadow-xl p-2 text-slate-600 text-xs">
+              <a href="impact.html#dashboard" class="block px-3 py-2 rounded-xl hover:bg-slate-800 hover:text-white transition-colors"><i class="fa-solid fa-chart-pie mr-2 text-slate-400"></i> Impact Dashboard</a>
+              <a href="impact.html#stats" class="block px-3 py-2 rounded-xl hover:bg-slate-800 hover:text-white transition-colors"><i class="fa-solid fa-users-viewfinder mr-2 text-slate-400"></i> Beneficiary Statistics</a>
+              <a href="impact.html#mne" class="block px-3 py-2 rounded-xl hover:bg-slate-800 hover:text-white transition-colors"><i class="fa-solid fa-clipboard-check mr-2 text-slate-400"></i> Monitoring & Evaluation</a>
+              <a href="impact.html#case-studies" class="block px-3 py-2 rounded-xl hover:bg-slate-800 hover:text-white transition-colors"><i class="fa-solid fa-book-open-reader mr-2 text-slate-400"></i> Case Studies</a>
+              <a href="impact.html#sdgs" class="block px-3 py-2 rounded-xl hover:bg-slate-800 hover:text-white transition-colors"><i class="fa-solid fa-globe mr-2 text-slate-400"></i> SDG Contributions</a>
+            </div>
+          </div>
+
+          <!-- 8. RESOURCES -->
+          <div class="nav-item-dropdown">
+            <a href="resources.html" class="nav-link-item px-2.5 py-2 rounded-lg hover:text-white hover:bg-slate-800/60 transition-all flex items-center gap-1">
+              RESOURCES <i class="fa-solid fa-chevron-down text-[8px] opacity-60"></i>
+            </a>
+            <div class="dropdown-menu absolute top-full right-0 w-56 bg-white border border-gray-100 rounded-2xl shadow-xl p-2 text-slate-600 text-xs">
+              <a href="resources.html#publications" class="block px-3 py-2 rounded-xl hover:bg-slate-800 hover:text-white transition-colors"><i class="fa-solid fa-book mr-2 text-slate-400"></i> Publications</a>
+              <a href="resources.html#annual-reports" class="block px-3 py-2 rounded-xl hover:bg-slate-800 hover:text-white transition-colors"><i class="fa-solid fa-file-pdf mr-2 text-slate-400"></i> Annual Reports</a>
+              <a href="resources.html#financial-reports" class="block px-3 py-2 rounded-xl hover:bg-slate-800 hover:text-white transition-colors"><i class="fa-solid fa-coins mr-2 text-slate-400"></i> Financial Reports</a>
+              <a href="resources.html#audit-reports" class="block px-3 py-2 rounded-xl hover:bg-slate-800 hover:text-white transition-colors"><i class="fa-solid fa-magnifying-glass-chart mr-2 text-slate-400"></i> Audit Reports</a>
+              <a href="resources.html#policies" class="block px-3 py-2 rounded-xl hover:bg-slate-800 hover:text-white transition-colors"><i class="fa-solid fa-shield-halved mr-2 text-slate-400"></i> Policies</a>
+              <a href="resources.html#downloads" class="block px-3 py-2 rounded-xl hover:bg-slate-800 hover:text-white transition-colors"><i class="fa-solid fa-download mr-2 text-slate-400"></i> Downloads</a>
+              <a href="resources.html#media-kit" class="block px-3 py-2 rounded-xl hover:bg-slate-800 hover:text-white transition-colors"><i class="fa-solid fa-photo-film mr-2 text-slate-400"></i> Media Kit</a>
+            </div>
+          </div>
+
+          <!-- 9. NEWS & MEDIA -->
+          <div class="nav-item-dropdown">
+            <a href="news.html" class="nav-link-item px-2.5 py-2 rounded-lg hover:text-white hover:bg-slate-800/60 transition-all flex items-center gap-1">
+              NEWS & MEDIA <i class="fa-solid fa-chevron-down text-[8px] opacity-60"></i>
+            </a>
+            <div class="dropdown-menu absolute top-full right-0 w-56 bg-white border border-gray-100 rounded-2xl shadow-xl p-2 text-slate-600 text-xs">
+              <a href="news.html#news" class="block px-3 py-2 rounded-xl hover:bg-slate-800 hover:text-white transition-colors"><i class="fa-solid fa-newspaper mr-2 text-slate-400"></i> Latest News</a>
+              <a href="news.html#press" class="block px-3 py-2 rounded-xl hover:bg-slate-800 hover:text-white transition-colors"><i class="fa-solid fa-bullhorn mr-2 text-slate-400"></i> Press Releases</a>
+              <a href="news.html#events" class="block px-3 py-2 rounded-xl hover:bg-slate-800 hover:text-white transition-colors"><i class="fa-solid fa-calendar-days mr-2 text-slate-400"></i> Events</a>
+              <a href="news.html#photos" class="block px-3 py-2 rounded-xl hover:bg-slate-800 hover:text-white transition-colors"><i class="fa-solid fa-images mr-2 text-slate-400"></i> Photo Gallery</a>
+              <a href="news.html#videos" class="block px-3 py-2 rounded-xl hover:bg-slate-800 hover:text-white transition-colors"><i class="fa-solid fa-video mr-2 text-slate-400"></i> Video Gallery</a>
+              <a href="news.html#blogs" class="block px-3 py-2 rounded-xl hover:bg-slate-800 hover:text-white transition-colors"><i class="fa-solid fa-blog mr-2 text-slate-400"></i> Blogs</a>
+            </div>
+          </div>
+
+          <!-- 10. GET INVOLVED -->
+          <div class="nav-item-dropdown">
+            <a href="get-involved.html" class="nav-link-item px-2.5 py-2 rounded-lg hover:text-white hover:bg-slate-800/60 transition-all flex items-center gap-1">
+              GET INVOLVED <i class="fa-solid fa-chevron-down text-[8px] opacity-60"></i>
+            </a>
+            <div class="dropdown-menu absolute top-full right-0 w-56 bg-white border border-gray-100 rounded-2xl shadow-xl p-2 text-slate-600 text-xs">
+              <a href="donate.html" class="block px-3 py-2 rounded-xl hover:bg-slate-800 hover:text-white transition-colors"><i class="fa-solid fa-hand-holding-heart mr-2 text-slate-400"></i> Donate</a>
+              <a href="get-involved.html#volunteer" class="block px-3 py-2 rounded-xl hover:bg-slate-800 hover:text-white transition-colors"><i class="fa-solid fa-hands-holding-child mr-2 text-slate-400"></i> Volunteer</a>
+              <a href="get-involved.html#careers" class="block px-3 py-2 rounded-xl hover:bg-slate-800 hover:text-white transition-colors"><i class="fa-solid fa-user-plus mr-2 text-slate-400"></i> Careers</a>
+              <a href="get-involved.html#internships" class="block px-3 py-2 rounded-xl hover:bg-slate-800 hover:text-white transition-colors"><i class="fa-solid fa-user-graduate mr-2 text-slate-400"></i> Internships</a>
+              <a href="get-involved.html#partner" class="block px-3 py-2 rounded-xl hover:bg-slate-800 hover:text-white transition-colors"><i class="fa-solid fa-handshake-angle mr-2 text-slate-400"></i> Become a Partner</a>
+              <a href="get-involved.html#membership" class="block px-3 py-2 rounded-xl hover:bg-slate-800 hover:text-white transition-colors"><i class="fa-solid fa-id-card-clip mr-2 text-slate-400"></i> Membership</a>
+            </div>
+          </div>
+
+          <!-- 11. CONTACT -->
+          <div class="nav-item-dropdown">
+            <a href="contact.html" class="nav-link-item px-2.5 py-2 rounded-lg hover:text-white hover:bg-slate-800/60 transition-all flex items-center gap-1">
+              CONTACT <i class="fa-solid fa-chevron-down text-[8px] opacity-60"></i>
+            </a>
+            <div class="dropdown-menu absolute top-full right-0 w-56 bg-white border border-gray-100 rounded-2xl shadow-xl p-2 text-slate-600 text-xs">
+              <a href="contact.html" class="block px-3 py-2 rounded-xl hover:bg-slate-800 hover:text-white transition-colors"><i class="fa-solid fa-envelope-open-text mr-2 text-slate-400"></i> Contact Us</a>
+              <a href="contact.html#offices" class="block px-3 py-2 rounded-xl hover:bg-slate-800 hover:text-white transition-colors"><i class="fa-solid fa-building-user mr-2 text-slate-400"></i> Office Locations</a>
+              <a href="contact.html#feedback" class="block px-3 py-2 rounded-xl hover:bg-slate-800 hover:text-white transition-colors"><i class="fa-solid fa-comment-dots mr-2 text-slate-400"></i> Feedback</a>
+              <a href="contact.html#whistleblower" class="block px-3 py-2 rounded-xl hover:bg-slate-800 hover:text-white transition-colors"><i class="fa-solid fa-triangle-exclamation mr-2 text-slate-400"></i> Report a Concern</a>
+            </div>
+          </div>
+
+        </nav>
+
+        <!-- CTA DONATE BUTTON (SUBTLE RED BALANCED) -->
+        <div class="hidden lg:flex items-center gap-3 shrink-0">
+          <a href="donate.html" class="animate-pulse-glow bg-brandRed hover:bg-brandRed-hover text-white font-bold text-xs px-4 py-2.5 rounded-xl shadow-md transition-all flex items-center gap-1.5 uppercase tracking-wider">
+            <i class="fa-solid fa-heart text-[10px]"></i> Donate Now
+          </a>
+        </div>
+
+        <!-- MOBILE MENU BUTTON -->
+        <button id="mobile-menu-btn" class="mobile-menu-btn lg:hidden text-slate-900 p-2 rounded-lg relative z-50" aria-label="Toggle menu" aria-expanded="false" aria-controls="mobile-menu">
+          <span class="hamburger-line block w-6 h-0.5 bg-slate-900 mb-1.5"></span>
+          <span class="hamburger-line block w-6 h-0.5 bg-slate-900 mb-1.5"></span>
+          <span class="hamburger-line block w-6 h-0.5 bg-slate-900"></span>
+        </button>
+      </div>
+
+      <!-- MOBILE ACCORDION MENU DRAWER -->
+      <div id="mobile-menu" class="mobile-menu-panel lg:hidden fixed inset-x-0 top-0 h-full overflow-hidden z-[60]" role="dialog" aria-modal="true">
+        <div class="mobile-menu-backdrop absolute inset-0"></div>
+        <div class="relative z-10 h-full overflow-y-auto pt-6 pb-8 px-5">
+          <div class="flex items-center justify-between mb-8">
+            <a href="index.html" class="inline-flex items-center gap-3">
+              <img src="assets/images/logo.png" alt="WRC logo" class="w-24 h-auto object-contain" />
+              <span class="font-display text-xl font-semibold text-sand-50">WRC</span>
+            </a>
+            <button id="mobile-menu-close" class="text-sand-50 w-11 h-11 flex items-center justify-center rounded-full border border-sand-50/25 hover:bg-ink-900 transition" aria-label="Close menu">
+              <i class="fa-solid fa-xmark text-xl"></i>
+            </button>
+          </div>
+
+          <nav class="space-y-2 font-sans text-lg text-sand-50">
+            <a href="index.html" class="block rounded-3xl bg-ink-900/90 px-4 py-4 font-semibold uppercase tracking-[0.2em] hover:bg-ink-900 transition">HOME</a>
+
+                        <div>
+              <button class="mobile-accordion-btn w-full rounded-3xl px-4 py-4 flex items-center justify-between text-left font-semibold hover:bg-ink-900/90 transition">
+                <span>ABOUT US</span>
+                <i class="accordion-icon fa-solid fa-chevron-down text-base transition-transform duration-300"></i>
+              </button>
+              <div class="mobile-submenu pl-5 mt-2 space-y-1 border-l border-sand-50/20 text-sm">
+                <div class="px-3 pt-2 pb-1 text-[10px] text-sand-50/50 uppercase tracking-widest font-bold">About WRC</div>
+                <a href="about/who-we-are.html" class="block py-2.5 px-3 rounded-2xl text-sand-50 hover:bg-ink-900 transition">Who We Are</a>
+                <a href="about/vision-mission-values.html" class="block py-2.5 px-3 rounded-2xl text-sand-50 hover:bg-ink-900 transition">Vision, Mission & Values</a>
+                <a href="about/history.html" class="block py-2.5 px-3 rounded-2xl text-sand-50 hover:bg-ink-900 transition">Our History</a>
+                
+                <div class="px-3 pt-4 pb-1 text-[10px] text-sand-50/50 uppercase tracking-widest font-bold">People & Governance</div>
+                <a href="about/leadership.html" class="block py-2.5 px-3 rounded-2xl text-sand-50 hover:bg-ink-900 transition">Leadership</a>
+                <a href="about/organizational-structure.html" class="block py-2.5 px-3 rounded-2xl text-sand-50 hover:bg-ink-900 transition">Organizational Structure</a>
+                <a href="about/team.html" class="block py-2.5 px-3 rounded-2xl text-sand-50 hover:bg-ink-900 transition">Our Team</a>
+                
+                <div class="px-3 pt-4 pb-1 text-[10px] text-sand-50/50 uppercase tracking-widest font-bold">Transparency</div>
+                <a href="about/policies-compliance.html" class="block py-2.5 px-3 rounded-2xl text-sand-50 hover:bg-ink-900 transition">Policies & Compliance</a>
+                <a href="about/annual-reports.html" class="block py-2.5 px-3 rounded-2xl text-sand-50 hover:bg-ink-900 transition">Annual Reports</a>
+                
+                <div class="mt-2 border-t border-sand-50/10 pt-2">
+                  <a href="contact.html" class="block py-2.5 px-3 rounded-2xl text-sand-50 hover:bg-ink-900 transition font-semibold">Contact Us</a>
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <button class="mobile-accordion-btn w-full rounded-3xl px-4 py-4 flex items-center justify-between text-left font-semibold hover:bg-ink-900/90 transition">
+                <span>OUR WORK</span>
+                <i class="accordion-icon fa-solid fa-chevron-down text-base transition-transform duration-300"></i>
+              </button>
+              <div class="mobile-submenu pl-5 mt-2 space-y-2 border-l border-sand-50/20">
+                <a href="our-work.html#health" class="block py-3 px-3 rounded-2xl text-sand-50 hover:bg-ink-900 transition">Health</a>
+                <a href="our-work.html#education" class="block py-3 px-3 rounded-2xl text-sand-50 hover:bg-ink-900 transition">Education</a>
+                <a href="our-work.html#wash" class="block py-3 px-3 rounded-2xl text-sand-50 hover:bg-ink-900 transition">WASH</a>
+                <a href="our-work.html#food-security" class="block py-3 px-3 rounded-2xl text-sand-50 hover:bg-ink-900 transition">Food Security</a>
+                <a href="our-work.html#nutrition" class="block py-3 px-3 rounded-2xl text-sand-50 hover:bg-ink-900 transition">Nutrition</a>
+                <a href="our-work.html#livelihood" class="block py-3 px-3 rounded-2xl text-sand-50 hover:bg-ink-900 transition">Livelihood</a>
+                <a href="our-work.html#emergency" class="block py-3 px-3 rounded-2xl text-sand-50 hover:bg-ink-900 transition">Emergency Response</a>
+                <a href="our-work.html#drr" class="block py-3 px-3 rounded-2xl text-sand-50 hover:bg-ink-900 transition">Disaster Risk Reduction</a>
+                <a href="our-work.html#climate" class="block py-3 px-3 rounded-2xl text-sand-50 hover:bg-ink-900 transition">Climate Resilience</a>
+                <a href="our-work.html" class="block py-3 px-3 rounded-2xl text-sand-50 font-semibold hover:bg-ink-900 transition">All Programs →</a>
+              </div>
+            </div>
+
+            <div>
+              <button class="mobile-accordion-btn w-full rounded-3xl px-4 py-4 flex items-center justify-between text-left font-semibold hover:bg-ink-900/90 transition">
+                <span>PROJECTS</span>
+                <i class="accordion-icon fa-solid fa-chevron-down text-base transition-transform duration-300"></i>
+              </button>
+              <div class="mobile-submenu pl-5 mt-2 space-y-2 border-l border-sand-50/20">
+                <a href="projects.html#active" class="block py-3 px-3 rounded-2xl text-sand-50 hover:bg-ink-900 transition">Active Projects</a>
+                <a href="projects.html#completed" class="block py-3 px-3 rounded-2xl text-sand-50 hover:bg-ink-900 transition">Completed Projects</a>
+                <a href="projects.html#portfolio" class="block py-3 px-3 rounded-2xl text-sand-50 hover:bg-ink-900 transition">Project Portfolio</a>
+                <a href="projects.html#stories" class="block py-3 px-3 rounded-2xl text-sand-50 hover:bg-ink-900 transition">Success Stories</a>
+                <a href="projects.html#dashboard" class="block py-3 px-3 rounded-2xl text-sand-50 hover:bg-ink-900 transition">Project Dashboard</a>
+              </div>
+            </div>
+
+            <div>
+              <button class="mobile-accordion-btn w-full rounded-3xl px-4 py-4 flex items-center justify-between text-left font-semibold hover:bg-ink-900/90 transition">
+                <span>PROCUREMENT</span>
+                <i class="accordion-icon fa-solid fa-chevron-down text-base transition-transform duration-300"></i>
+              </button>
+              <div class="mobile-submenu pl-5 mt-2 space-y-2 border-l border-sand-50/20">
+                <a href="procurement.html#tenders" class="block py-3 px-3 rounded-2xl text-sand-50 hover:bg-ink-900 transition">Open Tenders</a>
+                <a href="procurement.html#vendor" class="block py-3 px-3 rounded-2xl text-sand-50 hover:bg-ink-900 transition">Vendor Registration</a>
+              </div>
+            </div>
+          </nav>
+
+          <div class="mt-8 px-1">
+            <a href="donate.html" class="block w-full rounded-3xl bg-gold-500 text-ink-900 font-semibold text-center py-4 hover:bg-gold-600 transition">Donate Now</a>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- MAIN HERO SLIDER SECTION -->
+  <section class="relative w-full bg-slate-900 text-white min-h-[560px] flex items-center overflow-hidden group">
+    
+    <!-- Slider Wrapper -->
+    <div id="hero-slider" class="absolute inset-0 z-0 w-full h-full transition-transform duration-1000 ease-in-out flex">
+      <!-- Slide 1 -->
+      <div class="w-full h-full flex-shrink-0 relative">
+        <div class="absolute inset-0 opacity-40 mix-blend-luminosity bg-cover bg-center" style="background-image: url('assets/images/hero.jpg');"></div>
+      </div>
+      <!-- Slide 2 -->
+      <div class="w-full h-full flex-shrink-0 relative">
+        <div class="absolute inset-0 opacity-40 mix-blend-luminosity bg-cover bg-center" style="background-image: url('assets/images/hero-slider-2.jpg');"></div>
+      </div>
+      <!-- Slide 3 -->
+      <div class="w-full h-full flex-shrink-0 relative">
+        <div class="absolute inset-0 opacity-40 mix-blend-luminosity bg-cover bg-center" style="background-image: url('assets/images/hero-slider-3.jpg');"></div>
+      </div>
+    </div>
+    
+    <div class="absolute inset-0 hero-gradient z-0 pointer-events-none"></div>
+
+    <!-- Slider Navigation (Arrows) -->
+    <button id="slider-prev" class="absolute left-4 sm:left-8 top-1/2 -translate-y-1/2 z-20 w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center rounded-full bg-white/10 hover:bg-brandRed/90 backdrop-blur-md border border-white/20 text-white opacity-0 group-hover:opacity-100 transition-all duration-300 shadow-lg">
+      <i class="fa-solid fa-chevron-left text-sm sm:text-lg"></i>
+    </button>
+    <button id="slider-next" class="absolute right-4 sm:right-8 top-1/2 -translate-y-1/2 z-20 w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center rounded-full bg-white/10 hover:bg-brandRed/90 backdrop-blur-md border border-white/20 text-white opacity-0 group-hover:opacity-100 transition-all duration-300 shadow-lg">
+      <i class="fa-solid fa-chevron-right text-sm sm:text-lg"></i>
+    </button>
+
+    <!-- Slider Pagination (Dots) -->
+    <div class="absolute bottom-6 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2" id="slider-dots">
+      <button class="w-3 h-3 rounded-full bg-brandRed shadow-md transition-all duration-300" data-index="0" aria-label="Go to slide 1"></button>
+      <button class="w-2.5 h-2.5 rounded-full bg-white/50 hover:bg-white shadow-md transition-all duration-300" data-index="1" aria-label="Go to slide 2"></button>
+      <button class="w-2.5 h-2.5 rounded-full bg-white/50 hover:bg-white shadow-md transition-all duration-300" data-index="2" aria-label="Go to slide 3"></button>
+    </div>
+
+    <!-- Content -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full py-16 lg:py-24">
+      <div class="max-w-3xl animate-fade-in-up">
+        <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider bg-slate-900/60 backdrop-blur-sm text-slate-100 border border-white/20 mb-6">
+          <i class="fa-solid fa-globe text-brandRed"></i> World Relief Committee NGO
+        </span>
+        <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-white leading-tight mb-6 font-heading drop-shadow-md">
+          Empowering Hope, Rebuilding Lives Worldwide.
+        </h1>
+        <p class="text-base sm:text-lg text-slate-200 mb-8 leading-relaxed drop-shadow-sm max-w-2xl">
+          WRC is dedicated to providing immediate emergency aid, clean water solutions, nutritious food packs, and sustainable education to vulnerable communities in crisis.
+        </p>
+
+        <div class="flex flex-wrap gap-4 items-center">
+          <a href="donate.html" class="animate-pulse-glow bg-brandRed hover:bg-brandRed-hover text-white font-bold text-sm sm:text-base px-7 py-3.5 rounded-xl shadow-lg shadow-brandRed/30 transition-all flex items-center gap-2 transform hover:-translate-y-1">
+            <i class="fa-solid fa-hand-holding-heart"></i> Make a Difference Today
+          </a>
+          <a href="our-work.html" class="bg-white/10 hover:bg-white/25 backdrop-blur-md text-white border border-white/30 font-semibold text-sm sm:text-base px-6 py-3.5 rounded-xl transition-all flex items-center gap-2 transform hover:-translate-y-1">
+            Explore Programs <i class="fa-solid fa-arrow-right text-xs"></i>
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+    <!-- IMPACT STATISTICS (BALANCED COLORS) -->
+  <section class="bg-white border-b border-slate-200 py-8 sm:py-10">
+    <div class="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8">
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-center text-[10px] sm:text-[11px] md:text-sm">
+        <div class="p-3 sm:p-4 border-r border-slate-100 last:border-0">
+          <div class="text-2xl sm:text-3xl md:text-4xl font-extrabold text-slate-900 mb-1 leading-none font-heading counter-val" data-target="150000">0+</div>
+          <p class="text-slate-600 text-[10px] sm:text-[11px] md:text-sm font-medium leading-snug">Lives Positively Impacted</p>
+        </div>
+        <div class="p-3 sm:p-4 border-r border-slate-100 last:border-0">
+          <div class="text-2xl sm:text-3xl md:text-4xl font-extrabold text-slate-900 mb-1 leading-none font-heading counter-val" data-target="1200">0+</div>
+          <p class="text-slate-600 text-[10px] sm:text-[11px] md:text-sm font-medium leading-snug">Clean Water Wells Installed</p>
+        </div>
+        <div class="p-3 sm:p-4 border-r border-slate-100 last:border-0">
+          <div class="text-2xl sm:text-3xl md:text-4xl font-extrabold text-slate-900 mb-1 leading-none font-heading counter-val" data-target="85000">0+</div>
+          <p class="text-slate-600 text-[10px] sm:text-[11px] md:text-sm font-medium leading-snug">Food Packages Distributed</p>
+        </div>
+        <div class="p-3 sm:p-4">
+          <div class="text-2xl sm:text-3xl md:text-4xl font-extrabold text-slate-900 mb-1 leading-none font-heading counter-val" data-target="100">0%</div>
+          <p class="text-slate-600 text-[10px] sm:text-[11px] md:text-sm font-medium leading-snug">Direct Aid Transparency</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <section class="bg-slate-50 py-10 lg:py-12">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="mb-8 text-center ">
+        <p class="text-brandRed text-xs uppercase tracking-[0.35em] font-semibold mb-2">Leadership Message</p>
+        <h2 class="text-3xl sm:text-4xl font-extrabold text-slate-900">Chairman’s Message</h2>
+        <p class="mt-3 mx-auto text-slate-500 text-sm  sm:text-base">A thoughtful message from the chairman highlighting WRC’s mission, values, and commitment to community resilience.</p>
+      </div>
+      <div class="grid gap-5 lg:grid-cols-[0.95fr_0.9fr] items-center bg-white border border-slate-200 rounded-[2rem] shadow-xl overflow-hidden">
+        <div class="relative overflow-hidden">
+          <img src="assets/images/hero.jpg" alt="Chairman of WRC" class="w-full h-full object-cover min-h-[480px]" />
+          <div class="absolute inset-0 bg-brandRed/85 mix-blend-multiply"></div>
+          <div class="absolute bottom-4 left-4 right-4 text-white">
+            <p class="text-[11px] uppercase tracking-[0.3em] text-white/80 mb-2">Message from the Chairman</p>
+            <h2 class="text-2xl sm:text-[2.5rem] font-extrabold leading-tight">Leading with compassion, transparency, and bold action.</h2>
+          </div>
+        </div>
+        <div class="p-4 sm:p-5 lg:p-6">
+          <span class="inline-flex items-center gap-2 text-brandRed text-xs font-semibold uppercase tracking-[0.35em] mb-5">Chairman’s Note</span>
+          <p class="text-slate-700 text-base sm:text-lg leading-relaxed mb-6">
+            At WRC, every life touched is a promise kept. We deliver emergency relief and sustainable development with integrity, compassion, and respect for the communities we serve.
+            
+          </p>
+          <p class="text-slate-700 text-base sm:text-lg leading-relaxed mb-8">
+            Guided by accountability and long-term impact, our teams bring clean water, education, and hope to families rebuilding after crisis.
+          </p>
+          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
+            <div>
+              <p class="text-red-500 font-bold text-lg pt-6">Mr. Asad Shah</p>
+              <p class="text-slate-500 text-xs uppercase tracking-[0.25em] mt-1">Chairman, World Relief Committee</p>
+            </div>
+            <div class="border-t border-slate-200 pt-8">
+              <p class="text-[10px] uppercase tracking-[0.3em] text-slate-400">Vision</p>
+              <p class="mt-2 text-sm text-slate-600">Empowering communities through resilience, dignity, and sustainable change.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- OUR CORE SECTORS -->
+  <section class="bg-slate-50 py-14 lg:py-20">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center mb-6 lg:mb-10">
+        <p class="text-brandRed text-xs uppercase tracking-[0.35em] font-semibold mb-3">Our Core Sectors</p>
+        <h2 class="text-3xl sm:text-4xl font-extrabold text-slate-900">Programs That Deliver Real Results</h2>
+        <p class="mt-4 mx-auto max-w-2xl text-slate-600 text-sm sm:text-base leading-7">These core sectors show exactly where WRC invests time and resources to restore safety, health, education, and hope.</p>
+      </div>
+      <div class="grid gap-6 lg:grid-cols-2 xl:grid-cols-4">
+        <article class="group overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-sm transition-all hover:-translate-y-1 hover:shadow-xl">
+          <div class="relative h-72 overflow-hidden">
+            <img src="assets/images/water.jpg" alt="Clean water and hygiene support" class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
+            <div class="absolute inset-0 bg-gradient-to-t from-slate-950/75 via-slate-950/20 to-transparent"></div>
+            <div class="absolute bottom-4 left-4 right-4">
+              <p class="text-xs uppercase tracking-[0.35em] text-white/80">WASH & Water</p>
+              <h3 class="mt-2 text-xl font-semibold text-white">Clean Water & Hygiene</h3>
+            </div>
+          </div>
+          <div class="p-5">
+            <p class="text-slate-600 text-sm leading-6">Fresh water access, safe sanitation, and hygiene education keeping communities healthy and resilient.</p>
+          </div>
+        </article>
+        <article class="group overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-sm transition-all hover:-translate-y-1 hover:shadow-xl">
+          <div class="relative h-72 overflow-hidden">
+            <img src="assets/images/food.jpg" alt="Food distribution program" class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
+            <div class="absolute inset-0 bg-gradient-to-t from-slate-950/75 via-slate-950/20 to-transparent"></div>
+            <div class="absolute bottom-4 left-4 right-4">
+              <p class="text-xs uppercase tracking-[0.35em] text-white/80">Food Security</p>
+              <h3 class="mt-2 text-xl font-semibold text-white">Nutrition & Food Aid</h3>
+            </div>
+          </div>
+          <div class="p-5">
+            <p class="text-slate-600 text-sm leading-6">Emergency meal distribution, nutrition support, and food supply chains for families in immediate need.</p>
+          </div>
+        </article>
+        <article class="group overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-sm transition-all hover:-translate-y-1 hover:shadow-xl">
+          <div class="relative h-72 overflow-hidden">
+            <img src="assets/images/hero-slider-2.jpg" alt="Emergency relief team in action" class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
+            <div class="absolute inset-0 bg-gradient-to-t from-slate-950/75 via-slate-950/20 to-transparent"></div>
+            <div class="absolute bottom-4 left-4 right-4">
+              <p class="text-xs uppercase tracking-[0.35em] text-white/80">Emergency Response</p>
+              <h3 class="mt-2 text-xl font-semibold text-white">Disaster Relief</h3>
+            </div>
+          </div>
+          <div class="p-5">
+            <p class="text-slate-600 text-sm leading-6">Rapid emergency response, medical support, and safe shelter when crisis impacts communities.</p>
+          </div>
+        </article>
+        <article class="group overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-sm transition-all hover:-translate-y-1 hover:shadow-xl">
+          <div class="relative h-72 overflow-hidden">
+            <img src="assets/images/hero-slider-3.jpg" alt="Community education and livelihood support" class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
+            <div class="absolute inset-0 bg-gradient-to-t from-slate-950/75 via-slate-950/20 to-transparent"></div>
+            <div class="absolute bottom-4 left-4 right-4">
+              <p class="text-xs uppercase tracking-[0.35em] text-white/80">Education & Livelihood</p>
+              <h3 class="mt-2 text-xl font-semibold text-white">Learning & Skills</h3>
+            </div>
+          </div>
+          <div class="p-5">
+            <p class="text-slate-600 text-sm leading-6">Education, vocational training, and community programs that build stronger livelihoods.</p>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- INFOGRAPHICS SECTION -->
+  <section id="how-it-works" class="w-full bg-slate-50 py-8 lg:py-12 overflow-hidden">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="mx-auto max-w-3xl text-center mb-20">
+        <p class="text-xs uppercase tracking-[0.35em] font-semibold text-brandRed">Our process</p>
+        <h2 class="mt-4 text-3xl sm:text-4xl font-extrabold text-slate-900">How we work</h2>
+        <p class="mt-4 text-sm sm:text-base leading-7 text-slate-600">From the first funding lead to lasting change on the ground — a disciplined, transparent path that every project moves through, start to finish.</p>
+      </div>
+
+      <div class="relative max-w-5xl mx-auto timeline-track">
+        <div class="hidden md:block absolute left-1/2 top-0 bottom-0 w-px -translate-x-1/2 bg-slate-300">
+          <div id="spine-fill" class="absolute inset-0 w-full bg-brandRed/40"></div>
+        </div>
+        <div class="md:hidden absolute left-[19px] top-0 bottom-0 w-px bg-slate-300"></div>
+
+        <div class="space-y-10 md:space-y-0">
+          <div class="step-row fade-up relative md:grid md:grid-cols-2 md:gap-x-16 md:items-center md:pb-20">
+            <div class="pl-14 md:pl-0 md:pr-16 md:text-right">
+              <span class="text-sm uppercase tracking-[0.28em] font-semibold text-brandRed">01</span>
+              <h3 class="mt-2 text-xl md:text-2xl font-semibold text-slate-900">Funding opportunity</h3>
+              <p class="mt-4 text-sm md:text-[15px] text-slate-600 leading-relaxed">We scan donor calls, government grants, and partnership openings, screening each against community needs and our technical capacity before pursuing it.</p>
+            </div>
+            <div class="hidden md:block"></div>
+            <span class="node-dot absolute left-[13px] md:left-1/2 top-1 md:top-1/2 -translate-x-1/2 md:-translate-y-1/2 w-3.5 h-3.5 rounded-full bg-brandRed ring-1 ring-brandRed/30"></span>
+          </div>
+
+          <div class="step-row fade-up relative md:grid md:grid-cols-2 md:gap-x-16 md:items-center md:pb-20">
+            <div class="hidden md:block"></div>
+            <div class="pl-14 md:pl-16">
+              <span class="text-sm uppercase tracking-[0.28em] font-semibold text-brandRed">02</span>
+              <h3 class="mt-2 text-xl md:text-2xl font-semibold text-slate-900">Proposal development</h3>
+              <p class="mt-4 text-sm md:text-[15px] text-slate-600 leading-relaxed">Technical and finance teams co-author a proposal with clear objectives, a realistic budget, and evidence drawn from prior assessments in the field.</p>
+            </div>
+            <span class="node-dot absolute left-[13px] md:left-1/2 top-1 md:top-1/2 -translate-x-1/2 md:-translate-y-1/2 w-3.5 h-3.5 rounded-full bg-brandRed ring-1 ring-brandRed/30"></span>
+          </div>
+
+          <div class="step-row fade-up relative md:grid md:grid-cols-2 md:gap-x-16 md:items-center md:pb-20">
+            <div class="pl-14 md:pl-0 md:pr-16 md:text-right">
+              <span class="text-sm uppercase tracking-[0.28em] font-semibold text-brandRed">03</span>
+              <h3 class="mt-2 text-xl md:text-2xl font-semibold text-slate-900">Project award</h3>
+              <p class="mt-4 text-sm md:text-[15px] text-slate-600 leading-relaxed">Once selected, we formalize the agreement with the donor, confirm compliance requirements, and mobilize the core project team.</p>
+            </div>
+            <div class="hidden md:block"></div>
+            <span class="node-dot absolute left-[13px] md:left-1/2 top-1 md:top-1/2 -translate-x-1/2 md:-translate-y-1/2 w-3.5 h-3.5 rounded-full bg-brandRed ring-1 ring-brandRed/30"></span>
+          </div>
+
+          <div class="step-row fade-up relative md:grid md:grid-cols-2 md:gap-x-16 md:items-center md:pb-20">
+            <div class="hidden md:block"></div>
+            <div class="pl-14 md:pl-16">
+              <span class="text-sm uppercase tracking-[0.28em] font-semibold text-slate-700">04</span>
+              <h3 class="mt-2 text-xl md:text-2xl font-semibold text-slate-900">Planning</h3>
+              <p class="mt-4 text-sm md:text-[15px] text-slate-600 leading-relaxed">We map scope, timelines, and responsibilities with local stakeholders, turning the proposal into a workable operational plan.</p>
+            </div>
+            <span class="node-dot absolute left-[13px] md:left-1/2 top-1 md:top-1/2 -translate-x-1/2 md:-translate-y-1/2 w-3.5 h-3.5 rounded-full bg-slate-700 ring-1 ring-slate-700/20"></span>
+          </div>
+
+          <div class="step-row fade-up relative md:grid md:grid-cols-2 md:gap-x-16 md:items-center md:pb-20">
+            <div class="pl-14 md:pl-0 md:pr-16 md:text-right">
+              <span class="text-sm uppercase tracking-[0.28em] font-semibold text-slate-700">05</span>
+              <h3 class="mt-2 text-xl md:text-2xl font-semibold text-slate-900">Implementation</h3>
+              <p class="mt-4 text-sm md:text-[15px] text-slate-600 leading-relaxed">Activities move onto the ground, delivered with technical rigor and close coordination with the communities and institutions we serve.</p>
+            </div>
+            <div class="hidden md:block"></div>
+            <span class="node-dot absolute left-[13px] md:left-1/2 top-1 md:top-1/2 -translate-x-1/2 md:-translate-y-1/2 w-3.5 h-3.5 rounded-full bg-slate-700 ring-1 ring-slate-700/20"></span>
+          </div>
+
+          <div class="step-row fade-up relative md:grid md:grid-cols-2 md:gap-x-16 md:items-center md:pb-20">
+            <div class="hidden md:block"></div>
+            <div class="pl-14 md:pl-16">
+              <span class="text-sm uppercase tracking-[0.28em] font-semibold text-slate-700">06</span>
+              <h3 class="mt-2 text-xl md:text-2xl font-semibold text-slate-900">Monitoring &amp; evaluation</h3>
+              <p class="mt-4 text-sm md:text-[15px] text-slate-600 leading-relaxed">Indicators are tracked against the plan, so we can catch issues early and adjust course before they affect outcomes.</p>
+            </div>
+            <span class="node-dot absolute left-[13px] md:left-1/2 top-1 md:top-1/2 -translate-x-1/2 md:-translate-y-1/2 w-3.5 h-3.5 rounded-full bg-slate-700 ring-1 ring-slate-700/20"></span>
+          </div>
+
+          <div class="step-row fade-up relative md:grid md:grid-cols-2 md:gap-x-16 md:items-center md:pb-20">
+            <div class="pl-14 md:pl-0 md:pr-16 md:text-right">
+              <span class="text-sm uppercase tracking-[0.28em] font-semibold text-slate-800">07</span>
+              <h3 class="mt-2 text-xl md:text-2xl font-semibold text-slate-900">Reporting</h3>
+              <p class="mt-4 text-sm md:text-[15px] text-slate-600 leading-relaxed">Results, spending, and lessons learned are documented clearly for funders, partners, and the communities involved.</p>
+            </div>
+            <div class="hidden md:block"></div>
+            <span class="node-dot absolute left-[13px] md:left-1/2 top-1 md:top-1/2 -translate-x-1/2 md:-translate-y-1/2 w-3.5 h-3.5 rounded-full bg-slate-700 ring-1 ring-slate-700/20"></span>
+          </div>
+
+          <div class="step-row fade-up relative md:grid md:grid-cols-2 md:gap-x-16 md:items-center md:pb-20">
+            <div class="hidden md:block"></div>
+            <div class="pl-14 md:pl-16">
+              <span class="text-sm uppercase tracking-[0.28em] font-semibold text-slate-800">08</span>
+              <h3 class="mt-2 text-xl md:text-2xl font-semibold text-slate-900">Project closure</h3>
+              <p class="mt-4 text-sm md:text-[15px] text-slate-600 leading-relaxed">Deliverables are finalized, accounts reconciled, and the project formally handed over to the communities and institutions that will sustain it.</p>
+            </div>
+            <span class="node-dot absolute left-[13px] md:left-1/2 top-1 md:top-1/2 -translate-x-1/2 md:-translate-y-1/2 w-3.5 h-3.5 rounded-full bg-slate-700 ring-1 ring-slate-700/20"></span>
+          </div>
+        </div>
+
+        <div class="fade-up relative flex justify-center mt-10">
+          <div class="relative z-10 flex flex-col items-center text-center max-w-md px-8 py-10 rounded-3xl bg-slate-950 shadow-2xl shadow-slate-950/20">
+            <span class="w-11 h-11 rounded-full bg-brandRed flex items-center justify-center mb-4">
+              <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 21c-4.5-3-8-6.5-8-11a8 8 0 1116 0c0 4.5-3.5 8-8 11z"/>
+                <circle cx="12" cy="10" r="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </span>
+            <span class="text-[11px] tracking-[0.25em] uppercase text-brandRed/70 mb-2">Where it all leads</span>
+            <h3 class="text-2xl md:text-3xl font-semibold text-white mb-3">Community impact</h3>
+            <p class="text-sm text-slate-200/80 leading-relaxed">Every stage exists to serve this outcome — measurable, lasting improvement in the lives of the people we work with.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PARTNERS & DONORS SECTION -->
+  <section class="relative py-8 md:py-12 px-6 bg-slate-50">
+    <div class="max-w-6xl mx-auto">
+
+      <!-- Header -->
+      <div class="max-w-2xl mx-auto text-center mb-10 md:mb-12 reveal">
+        <span class="inline-block font-sans text-xs tracking-[0.25em] uppercase text-brandRed mb-4">Who makes it possible</span>
+        <h2 class="font-display text-4xl md:text-5xl text-slate-950 leading-tight mb-5">Partners &amp; donors</h2>
+        <p class="font-sans text-slate-600 text-base md:text-lg leading-relaxed">Our work is made possible through the trust and support of funding partners, government bodies, and institutions who share our commitment to lasting community impact.</p>
+      </div>
+
+      <!-- Funding partners -->
+      <div class="reveal mb-16">
+        <div class="flex items-center gap-4 mb-8">
+          <h3 class="font-display text-lg text-slate-950 whitespace-nowrap">Funding partners</h3>
+          <span class="h-px flex-1 bg-slate-200"></span>
+        </div>
+
+        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+
+          <div class="partner-card group flex flex-col items-center justify-center gap-3 text-center bg-white border border-slate-200 rounded-xl px-6 py-8">
+            <div class="partner-logo w-28 h-28 flex items-center justify-center overflow-hidden">
+              <img class="h-24 w-24 object-contain" src="assets/images/partners/un.png" alt="United Nations logo">
+            </div>
+            <span class="font-sans text-sm font-medium text-slate-950">UN Development Fund</span>
+          </div>
+
+          <div class="partner-card group flex flex-col items-center justify-center gap-3 text-center bg-white border border-slate-200 rounded-xl px-6 py-8">
+            <div class="partner-logo w-28 h-28 flex items-center justify-center overflow-hidden">
+              <img class="h-24 w-24 object-contain" src="assets/images/partners/world-bank-logo.jpg" alt="World Bank logo">
+            </div>
+            <span class="font-sans text-sm font-medium text-slate-950">World Bank Group</span>
+          </div>
+
+          <div class="partner-card group flex flex-col items-center justify-center gap-3 text-center bg-white border border-slate-200 rounded-xl px-6 py-8">
+            <div class="partner-logo w-28 h-28 flex items-center justify-center overflow-hidden">
+              <img class="h-24 w-24 object-contain" src="assets/images/partners/Canada Logo.png" alt="Global Affairs Canada logo">
+            </div>
+            <span class="font-sans text-sm font-medium text-slate-950">Global Affairs Canada</span>
+          </div>
+
+          <div class="partner-card group flex flex-col items-center justify-center gap-3 text-center bg-white border border-slate-200 rounded-xl px-6 py-8">
+            <div class="partner-logo w-28 h-28 flex items-center justify-center overflow-hidden">
+              <img class="h-24 w-24 object-contain" src="assets/images/partners/usaid-united-states-agency-for-international-logo-png_seeklogo-306631.png" alt="USAID logo">
+            </div>
+            <span class="font-sans text-sm font-medium text-slate-950">USAID</span>
+          </div>
+
+          <div class="partner-card group flex flex-col items-center justify-center gap-3 text-center bg-white border border-slate-200 rounded-xl px-6 py-8">
+            <div class="partner-logo w-28 h-28 flex items-center justify-center overflow-hidden">
+              <img class="h-24 w-24 object-contain" src="assets/images/partners/FCDO, UK.jpg" alt="FCDO logo">
+            </div>
+            <span class="font-sans text-sm font-medium text-slate-950">FCDO, UK</span>
+          </div>
+
+          <div class="partner-card group flex flex-col items-center justify-center gap-3 text-center bg-white border border-slate-200 rounded-xl px-6 py-8">
+            <div class="partner-logo w-28 h-28 flex items-center justify-center overflow-hidden">
+              <img class="h-24 w-24 object-contain" src="assets/images/partners/GIZ, Germany.png" alt="GIZ logo">
+            </div>
+            <span class="font-sans text-sm font-medium text-slate-950">GIZ, Germany</span>
+          </div>
+
+          <div class="partner-card group flex flex-col items-center justify-center gap-3 text-center bg-white border border-slate-200 rounded-xl px-6 py-8">
+            <div class="partner-logo w-28 h-28 flex items-center justify-center overflow-hidden">
+              <img class="h-24 w-24 object-contain" src="assets/images/partners/European Union.jpg" alt="European Union logo">
+            </div>
+            <span class="font-sans text-sm font-medium text-slate-950">European Union</span>
+          </div>
+
+          <div class="partner-card group flex flex-col items-center justify-center gap-3 text-center bg-white border border-slate-200 rounded-xl px-6 py-8">
+            <div class="partner-logo w-28 h-28 flex items-center justify-center overflow-hidden">
+              <img class="h-24 w-24 object-contain" src="assets/images/partners/gatesfoundation.png" alt="Gates Foundation logo">
+            </div>
+            <span class="font-sans text-sm font-medium text-slate-950">Gates Foundation</span>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Government & implementation partners -->
+      <div class="reveal">
+        <div class="flex items-center gap-4 mb-8">
+          <h3 class="font-display text-lg text-ink-900 whitespace-nowrap">Government &amp; implementation partners</h3>
+          <span class="h-px flex-1 bg-ink-900/10"></span>
+        </div>
+
+        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+
+          <div class="partner-card group flex flex-col items-center justify-center gap-3 text-center bg-white border border-slate-200 rounded-xl px-6 py-8">
+            <div class="partner-logo w-28 h-28 flex items-center justify-center overflow-hidden">
+              <img class="h-24 w-24 object-contain" src="assets/images/partners/Govt. of Khyber Pakhtunkhwa.png" alt="Government of Khyber Pakhtunkhwa logo">
+            </div>
+            <span class="font-sans text-sm font-medium text-slate-950">Govt. of Khyber Pakhtunkhwa</span>
+          </div>
+
+          <div class="partner-card group flex flex-col items-center justify-center gap-3 text-center bg-white border border-slate-200 rounded-xl px-6 py-8">
+            <div class="partner-logo w-28 h-28 flex items-center justify-center overflow-hidden">
+              <img class="h-24 w-24 object-contain" src="assets/images/partners/Department of Health.png" alt="Department of Health logo">
+            </div>
+            <span class="font-sans text-sm font-medium text-slate-950">Department of Health</span>
+          </div>
+
+          <div class="partner-card group flex flex-col items-center justify-center gap-3 text-center bg-white border border-slate-200 rounded-xl px-6 py-8">
+            <div class="partner-logo w-28 h-28 flex items-center justify-center overflow-hidden">
+              <img class="h-24 w-24 object-contain" src="assets/images/partners/Planning & Development Dept..png" alt="Planning & Development Department logo">
+            </div>
+            <span class="font-sans text-sm font-medium text-slate-950">Planning &amp; Development Dept.</span>
+          </div>
+
+          <div class="partner-card group flex flex-col items-center justify-center gap-3 text-center bg-white border border-slate-200 rounded-xl px-6 py-8">
+            <div class="partner-logo w-28 h-28 flex items-center justify-center overflow-hidden">
+              <img class="h-24 w-24 object-contain" src="assets/images/partners/World Health Organization.png" alt="WHO logo">
+            </div>
+            <span class="font-sans text-sm font-medium text-slate-950">World Health Organization</span>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Trust strip -->
+      <div class="reveal mt-16 pt-10 border-t border-ink-900/10 flex flex-col md:flex-row items-center justify-between gap-6 text-center md:text-left">
+        <p class="font-sans text-sm text-ink-700/60 max-w-md">Interested in partnering with us on a funded initiative or technical assessment? We welcome collaboration with donors, government bodies, and mission-aligned organizations.</p>
+        <a href="#contact" class="shrink-0 inline-flex items-center gap-2 font-sans text-sm font-medium text-ink-900 border border-ink-900/20 rounded-full px-6 py-3 hover:bg-ink-900 hover:text-sand-50 hover:border-ink-900 transition-colors">Become a partner<svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg></a>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="bg-slate-950 text-slate-300 text-sm mt-auto border-t border-slate-800">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14">
+      <div class="grid grid-cols-1 xl:grid-cols-12 gap-10">
+
+        <div class="xl:col-span-4 space-y-5">
+          <a href="index.html" class="inline-flex items-center gap-3">
+            <img src="assets/images/logo.png" alt="WRC logo" class="w-16 h-16 object-contain rounded-2xl bg-white p-2 border border-slate-800" />
+            <div>
+              <p class="text-lg font-semibold text-white font-heading">World Relief <br> Committee</p>
+            </div>
+          </a>
+          <p class="max-w-md leading-relaxed text-slate-400">WRC partners with donors, governments, and field agencies to deliver clean water, health services, education, and emergency relief across vulnerable communities.</p>
+          <div class="flex flex-wrap gap-3">
+            <a href="donate.html" class="inline-flex items-center justify-center rounded-full bg-brandRed px-5 py-3 text-white text-sm font-semibold shadow-lg shadow-brandRed/20 hover:bg-[#a30000] transition">Donate Now</a>
+            <a href="contact.html" class="inline-flex items-center justify-center rounded-full border border-slate-700 px-5 py-3 text-slate-200 text-sm hover:bg-slate-800 transition">Contact Us</a>
+          </div>
+        </div>
+
+        <div class="xl:col-span-2">
+          <h4 class="text-white font-semibold uppercase tracking-[0.2em] text-xs mb-4">Explore</h4>
+          <ul class="space-y-3 text-slate-400">
+            <li><a href="index.html" class="hover:text-white transition">Home</a></li>
+            <li><a href="about.html" class="hover:text-white transition">About Us</a></li>
+            <li><a href="our-work.html" class="hover:text-white transition">Our Work</a></li>
+            <li><a href="projects.html" class="hover:text-white transition">Projects</a></li>
+            <li><a href="news.html" class="hover:text-white transition">News</a></li>
+          </ul>
+        </div>
+
+        <div class="xl:col-span-3">
+          <h4 class="text-white font-semibold uppercase tracking-[0.2em] text-xs mb-4">Programs</h4>
+          <ul class="space-y-3 text-slate-400">
+            <li><a href="our-work.html#wash" class="hover:text-white transition">WASH & Water</a></li>
+            <li><a href="our-work.html#health" class="hover:text-white transition">Healthcare</a></li>
+            <li><a href="our-work.html#education" class="hover:text-white transition">Education</a></li>
+            <li><a href="our-work.html#food-security" class="hover:text-white transition">Food Security</a></li>
+            <li><a href="get-involved.html" class="hover:text-white transition">Get Involved</a></li>
+          </ul>
+        </div>
+
+        <div class="xl:col-span-3">
+          <h4 class="text-white font-semibold uppercase tracking-[0.2em] text-xs mb-4">Contact</h4>
+          <ul class="space-y-4 text-slate-400 text-[13px] leading-relaxed">
+            <li class="flex items-start gap-3">
+              <i class="fa-solid fa-location-dot mt-1 text-brandRed"></i>
+              <span>Flat#1, 3rd Floor, Shami Flats near Marbella Wedding Hall, Warsak Road, Peshawar, Pakistan</span>
+            </li>
+            <li class="flex items-center gap-3">
+              <i class="fa-solid fa-phone text-brandRed"></i>
+              <a href="tel:+923001234567" class="hover:text-white transition">+92 300 1234567</a>
+            </li>
+            <li class="flex items-center gap-3">
+              <i class="fa-solid fa-envelope text-brandRed"></i>
+              <a href="mailto:info@wrc.org.pk" class="hover:text-white transition">info@wrc.org.pk</a>
+            </li>
+          </ul>
+        </div>
+
+      </div>
+
+      <div class="border-t border-slate-800/70 mt-10 pt-6 flex flex-col gap-4 md:flex-row md:items-center md:justify-between text-slate-500 text-xs">
+        <p>© 2026 World Relief Committee. All rights reserved.</p>
+        <div class="flex flex-wrap items-center gap-3 justify-center md:justify-end text-slate-400">
+          <a href="privacy.html" class="hover:text-white transition">Privacy Policy</a>
+          <a href="terms.html" class="hover:text-white transition">Terms of Use</a>
+          <a href="contact.html" class="hover:text-white transition">Support</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Main JavaScript File -->
+  <script src="assets/js/main.js"></script>
+  <script>
+    // Hero Slider Logic
+    const slider = document.getElementById('hero-slider');
+    const prevBtn = document.getElementById('slider-prev');
+    const nextBtn = document.getElementById('slider-next');
+    const dots = document.querySelectorAll('#slider-dots button');
+    let currentSlide = 0;
+    const slideCount = 3;
+    let slideInterval;
+
+    function updateSlider() {
+      if(slider) {
+        slider.style.transform = `translateX(-${currentSlide * 100}%)`;
+        dots.forEach((dot, index) => {
+          if (index === currentSlide) {
+            dot.className = 'w-3 h-3 rounded-full bg-brandRed shadow-md transition-all duration-300';
+          } else {
+            dot.className = 'w-2.5 h-2.5 rounded-full bg-white/50 hover:bg-white shadow-md transition-all duration-300';
+          }
+        });
+      }
+    }
+
+    function nextSlide() {
+      currentSlide = (currentSlide + 1) % slideCount;
+      updateSlider();
+    }
+
+    function prevSlide() {
+      currentSlide = (currentSlide - 1 + slideCount) % slideCount;
+      updateSlider();
+    }
+
+    function startSlider() {
+      slideInterval = setInterval(nextSlide, 3000); // 3 seconds
+    }
+
+    function resetSlider() {
+      clearInterval(slideInterval);
+      startSlider();
+    }
+
+    if(nextBtn && prevBtn && dots.length > 0) {
+      nextBtn.addEventListener('click', () => {
+        nextSlide();
+        resetSlider();
+      });
+
+      prevBtn.addEventListener('click', () => {
+        prevSlide();
+        resetSlider();
+      });
+
+      dots.forEach(dot => {
+        dot.addEventListener('click', (e) => {
+          currentSlide = parseInt(e.target.getAttribute('data-index'));
+          updateSlider();
+          resetSlider();
+        });
+      });
+
+      startSlider();
+    }
+  </script>
+</body>
+</html>

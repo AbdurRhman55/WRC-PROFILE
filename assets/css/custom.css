@@ -1,0 +1,186 @@
+/* Custom styling and utilities for WRC (World Relief Committee) Website */
+/* Only CSS that Tailwind cannot replicate is kept here. */
+/* Animations (pulse-glow, progress) are now in Tailwind config. */
+
+/* Google Fonts Import */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&display=swap');
+
+:root {
+  font-family: 'Inter', sans-serif;
+  --color-primary: #ca0000;
+  --color-primary-hover: #a30000;
+}
+
+h1, h2, h3, h4, h5, h6, .font-heading {
+  font-family: 'Outfit', sans-serif;
+}
+
+/* Smooth Scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Custom Scrollbar (no Tailwind equivalent) */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #f8fafc;
+}
+::-webkit-scrollbar-thumb {
+  background: #ca0000;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #a30000;
+}
+
+/* Reveal animation for timeline section (state-based, requires CSS) */
+.reveal,
+.fade-up {
+  opacity: 0;
+  transform: translateY(18px);
+  transition: opacity .7s ease, transform .7s ease;
+}
+
+.reveal.is-visible,
+.fade-up.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+#spine-fill {
+  transform: scaleY(0);
+  transform-origin: top;
+  transition: transform .15s linear;
+}
+
+.timeline-track {
+  position: relative;
+}
+
+.node-dot {
+  box-shadow: 0 0 0 6px #f8fafc;
+}
+
+/* --- Clean White Mega Menu & Dropdown Styling (complex selectors) --- */
+
+.nav-item-dropdown {
+  position: relative;
+}
+
+.nav-link-item {
+  transition: color 0.2s ease, background-color 0.2s ease, transform 0.2s ease;
+}
+
+.nav-link-item:hover,
+.nav-item-dropdown:hover > .nav-link-item,
+.nav-item-dropdown:focus-within > .nav-link-item {
+  background-color: transparent !important;
+  color: var(--color-primary) !important;
+}
+
+.nav-item-dropdown:hover > .nav-link-item i,
+.nav-item-dropdown:focus-within > .nav-link-item i {
+  color: var(--color-primary) !important;
+}
+
+.dropdown-menu {
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(8px);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  pointer-events: none;
+  left: 0;
+  right: auto;
+  max-width: min(100vw, 360px);
+  box-sizing: border-box;
+}
+
+.nav-item-dropdown:hover .dropdown-menu,
+.nav-item-dropdown:focus-within .dropdown-menu {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+.nav-item-dropdown[data-align="right"] .dropdown-menu,
+.nav-item-dropdown.right-align .dropdown-menu {
+  left: auto;
+  right: 0;
+}
+
+/* Mega Menu Alignment for Desktop Viewports */
+@media (min-width: 1280px) {
+  .mega-menu-full {
+    width: min(1100px, calc(100vw - 3rem));
+    max-width: 700px;
+    left: 0;
+    right: auto;
+    transform: translateX(0) translateY(8px);
+  }
+  .nav-item-dropdown:hover .mega-menu-full {
+    transform: translateX(0) translateY(0);
+  }
+}
+
+.dropdown-menu a,
+.mega-menu a {
+  display: block;
+  padding: 0.75rem 0.9rem;
+  border-radius: 1rem;
+  border: 1px solid transparent;
+  color: #334155;
+  transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
+}
+
+.dropdown-menu a i,
+.mega-menu a i {
+  color: #ca0000;
+}
+
+.dropdown-menu a:hover,
+.mega-menu a:hover {
+  background: rgba(254, 226, 226, 0.95);
+  color: #0f172a;
+  border-color: rgba(202, 0, 0, 0.24);
+  transform: translateX(1px);
+}
+
+.dropdown-menu a:hover i,
+.mega-menu a:hover i {
+  color: #a30000;
+}
+
+.dropdown-menu a + a,
+.mega-menu a + a {
+  margin-top: 0.35rem;
+}
+
+/* Mobile submenu items match the desktop dropdown tone */
+.mobile-submenu a {
+  border-radius: 1rem;
+}
+.mobile-submenu a:hover {
+  background: rgba(254, 226, 226, 0.95);
+  color: #0f172a;
+}
+
+/* Mobile Accordion Smooth Collapse */
+.mobile-submenu {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease-in-out;
+}
+.mobile-submenu.open {
+  max-height: 800px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal,
+  .fade-up {
+    transition: none !important;
+    transform: none !important;
+  }
+}
