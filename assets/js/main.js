@@ -285,4 +285,220 @@ document.addEventListener('DOMContentLoaded', () => {
   window.addEventListener('scroll', updateSpine, { passive: true });
   window.addEventListener('resize', updateSpine);
   updateSpine();
+
+  // --- 7. Gallery Lightbox ---
+  const galleryItems = document.querySelectorAll('.gallery-item[data-src]');
+  if (galleryItems.length > 0) {
+    // Create lightbox overlay
+    const lightbox = document.createElement('div');
+    lightbox.id = 'gallery-lightbox';
+    lightbox.className = 'fixed inset-0 z-[200] bg-black/90 backdrop-blur-sm hidden items-center justify-center p-4';
+    lightbox.setAttribute('role', 'dialog');
+    lightbox.setAttribute('aria-modal', 'true');
+    lightbox.setAttribute('aria-label', 'Image viewer');
+    lightbox.innerHTML = `
+      <button class="absolute top-4 right-4 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-all z-10" id="lightbox-close" aria-label="Close lightbox">
+        <i class="fa-solid fa-xmark text-lg"></i>
+      </button>
+      <button class="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-all" id="lightbox-prev" aria-label="Previous image">
+        <i class="fa-solid fa-chevron-left"></i>
+      </button>
+      <button class="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-all" id="lightbox-next" aria-label="Next image">
+        <i class="fa-solid fa-chevron-right"></i>
+      </button>
+      <div class="max-w-4xl w-full text-center">
+        <img id="lightbox-img" src="" alt="" class="max-h-[80vh] mx-auto rounded-lg shadow-2xl object-contain" />
+        <p id="lightbox-caption" class="text-white/80 text-sm mt-4 hidden"></p>
+      </div>
+    `;
+    document.body.appendChild(lightbox);
+
+    const lbImg = document.getElementById('lightbox-img');
+    const lbCaption = document.getElementById('lightbox-caption');
+    const lbClose = document.getElementById('lightbox-close');
+    const lbPrev = document.getElementById('lightbox-prev');
+    const lbNext = document.getElementById('lightbox-next');
+    let currentIndex = 0;
+    const items = Array.from(galleryItems);
+
+    function showLightbox(index) {
+      currentIndex = index;
+      const item = items[index];
+      const src = item.getAttribute('data-src');
+      const caption = item.getAttribute('data-caption') || '';
+      lbImg.src = src;
+      lbImg.alt = caption;
+      if (caption) {
+        lbCaption.textContent = caption;
+        lbCaption.classList.remove('hidden');
+      } else {
+        lbCaption.classList.add('hidden');
+      }
+      lightbox.classList.remove('hidden');
+      lightbox.classList.add('flex');
+      document.body.style.overflow = 'hidden';
+      lbClose.focus();
+    }
+
+    function closeLightbox() {
+      lightbox.classList.add('hidden');
+      lightbox.classList.remove('flex');
+      document.body.style.overflow = '';
+    }
+
+    items.forEach((item, i) => {
+      item.addEventListener('click', () => showLightbox(i));
+      item.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          showLightbox(i);
+        }
+      });
+    });
+
+    lbClose.addEventListener('click', closeLightbox);
+    lightbox.addEventListener('click', (e) => { if (e.target === lightbox) closeLightbox(); });
+    lbPrev.addEventListener('click', (e) => { e.stopPropagation(); showLightbox((currentIndex - 1 + items.length) % items.length); });
+    lbNext.addEventListener('click', (e) => { e.stopPropagation(); showLightbox((currentIndex + 1) % items.length); });
+
+    document.addEventListener('keydown', (e) => {
+      if (lightbox.classList.contains('hidden')) return;
+      if (e.key === 'Escape') closeLightbox();
+      if (e.key === 'ArrowLeft') showLightbox((currentIndex - 1 + items.length) % items.length);
+      if (e.key === 'ArrowRight') showLightbox((currentIndex + 1) % items.length);
+    });
+  }
+
+  // --- WRC Program Detail Page Hydration ---
+  const programPage = document.getElementById('program-detail-page');
+  if (programPage && typeof WRC_PROGRAMS !== 'undefined') {
+    const slug = programPage.getAttribute('data-slug');
+    const program = WRC_PROGRAMS.find(p => p.slug === slug);
+    
+    if (program) {
+      // Populate Breadcrumbs
+      const breadcrumb = document.getElementById('program-breadcrumbs');
+      if (breadcrumb) {
+        breadcrumb.innerHTML = `
+          <div class="breadcrumb-item"><a href="../index.html">Home</a></div>
+          <div class="breadcrumb-separator"><i class="fa-solid fa-chevron-right text-[10px]"></i></div>
+          <div class="breadcrumb-item"><a href="index.html">Our Work</a></div>
+          <div class="breadcrumb-separator"><i class="fa-solid fa-chevron-right text-[10px]"></i></div>
+          <div class="breadcrumb-item text-slate-900 font-medium">${program.title}</div>
+        `;
+      }
+      
+      // Populate Hero Section
+      const heroTitle = document.getElementById('program-hero-title');
+      const heroDesc = document.getElementById('program-hero-desc');
+      const heroBg = document.getElementById('program-hero-bg');
+      if (heroTitle) heroTitle.textContent = program.fullTitle || program.title;
+      if (heroDesc) heroDesc.textContent = program.heroDescription;
+      if (heroBg) {
+        heroBg.style.backgroundImage = `url('${program.heroImage}')`;
+      }
+      
+      // Populate Overview & Why It Matters
+      const overviewText = document.getElementById('program-overview-text');
+      const whyText = document.getElementById('program-why-text');
+      const sideImage = document.getElementById('program-side-image');
+      if (overviewText) overviewText.textContent = program.overview;
+      if (whyText) whyText.textContent = program.whyItMatters;
+      if (sideImage) {
+        sideImage.src = program.heroImage;
+        sideImage.alt = program.title;
+      }
+      
+      // Populate Focus Areas
+      const focusAreasList = document.getElementById('program-focus-areas');
+      if (focusAreasList && program.focusAreas) {
+        focusAreasList.innerHTML = program.focusAreas.map(area => `
+          <span class="px-3 py-1.5 bg-slate-100 text-slate-800 text-xs font-semibold rounded-full border border-slate-200">${area}</span>
+        `).join('');
+      }
+      
+      // Populate Interventions (What We Do)
+      const interventionsGrid = document.getElementById('program-interventions');
+      if (interventionsGrid && program.interventions) {
+        interventionsGrid.innerHTML = program.interventions.map(item => `
+          <div class="p-6 bg-slate-50 rounded-2xl border border-slate-200/60 shadow-sm hover:shadow-md transition-shadow">
+            <div class="w-12 h-12 rounded-xl bg-red-50 text-brandRed flex items-center justify-center text-xl mb-4">
+              <i class="${item.icon}"></i>
+            </div>
+            <h4 class="font-bold text-slate-900 mb-2 text-sm">${item.title}</h4>
+            <p class="text-xs text-slate-600 leading-relaxed">${item.description}</p>
+          </div>
+        `).join('');
+      }
+      
+      // Populate Who We Serve (Target Groups)
+      const targetGroupsList = document.getElementById('program-target-groups');
+      if (targetGroupsList && program.targetGroups) {
+        targetGroupsList.innerHTML = program.targetGroups.map(group => `
+          <span class="px-4 py-2 bg-red-50 text-brandRed text-xs font-semibold rounded-full border border-red-100 flex items-center gap-1.5">
+            <i class="fa-solid fa-circle text-[6px]"></i> ${group}
+          </span>
+        `).join('');
+      }
+      
+      // Populate Projects list
+      const projectsGrid = document.getElementById('program-projects');
+      if (projectsGrid) {
+        projectsGrid.innerHTML = `
+          <div class="bg-white rounded-3xl border border-slate-200/60 shadow-sm overflow-hidden flex flex-col justify-between group hover:shadow-xl transition-all duration-300 max-w-md mx-auto lg:mx-0">
+            <div class="relative h-52 overflow-hidden">
+              <img src="${program.heroImage}" alt="${program.title} Project" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+              <span class="absolute top-4 left-4 text-[10px] font-bold uppercase tracking-wider px-3 py-1.5 bg-brandRed text-white rounded-full shadow-md">Active</span>
+            </div>
+            <div class="p-6 flex-grow flex flex-col justify-between">
+              <div>
+                <div class="flex items-center gap-2 text-slate-500 text-[10px] uppercase font-bold tracking-wider mb-2">
+                  <i class="${program.icon} text-brandRed"></i> ${program.title}
+                </div>
+                <h3 class="text-lg font-bold text-slate-900 font-heading mb-3 group-hover:text-brandRed transition-colors">Emergency ${program.title} Support Project</h3>
+                <p class="text-xs text-slate-600 leading-relaxed mb-6">Implementing key intervention services to support local community requirements and enhance long-term resilience.</p>
+              </div>
+              <div class="pt-4 border-t border-slate-100 flex items-center justify-between">
+                <span class="text-[10px] font-bold text-slate-500 uppercase"><i class="fa-solid fa-location-dot"></i> KP Province</span>
+                <a href="../projects/project-name.html" class="text-brandRed hover:text-brandRed-hover text-xs font-semibold hover:underline flex items-center gap-1">
+                  View Project &rarr;
+                </a>
+              </div>
+            </div>
+          </div>
+        `;
+      }
+      
+      // Populate Related Programs
+      const relatedGrid = document.getElementById('program-related');
+      if (relatedGrid && program.relatedPrograms) {
+        const related = program.relatedPrograms.map(rSlug => {
+          return WRC_PROGRAMS.find(p => p.slug === rSlug);
+        }).filter(Boolean);
+        
+        relatedGrid.innerHTML = related.map(rel => `
+          <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm hover:shadow-md transition-shadow flex flex-col justify-between group">
+            <div>
+              <div class="flex items-center gap-3 mb-4">
+                <div class="w-10 h-10 rounded-xl bg-slate-50 text-slate-700 flex items-center justify-center text-base group-hover:bg-brandRed group-hover:text-white transition-colors">
+                  <i class="${rel.icon}"></i>
+                </div>
+                <h4 class="font-bold text-slate-900 text-sm font-heading">${rel.title}</h4>
+              </div>
+              <p class="text-xs text-slate-600 leading-relaxed mb-6">${rel.description}</p>
+            </div>
+            <a href="${rel.slug}.html" class="text-brandRed hover:text-brandRed-hover text-xs font-semibold uppercase tracking-wider flex items-center gap-1.5">
+              Explore Sector <i class="fa-solid fa-arrow-right text-[10px]"></i>
+            </a>
+          </div>
+        `).join('');
+      }
+
+      // Populate CTA Section title
+      const ctaBtn = document.getElementById('program-cta-btn');
+      if (ctaBtn) {
+        ctaBtn.innerHTML = `<i class="fa-solid fa-handshake"></i> Support ${program.title} Initiatives`;
+      }
+    }
+  }
 });
