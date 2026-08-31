@@ -61,6 +61,9 @@
     }
   </script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../assets/css/custom.css">
 </head>
 <body class="bg-slate-50 text-slate-800 flex flex-col min-h-screen">
@@ -78,6 +81,7 @@
          <span class="flex items-center gap-2"><i class="fa-solid fa-location-dot text-white text-[11px]"></i>Flat#1, 3rd Floor, Shami Flats near Marbella Wedding Hall, Warsak Road, Peshawar, Pakistan</span>
       </div>
     </div>
+  </div>
 
 <!-- MAIN HEADER NAVIGATION -->
   <header class="sticky top-0 z-50 w-full bg-white/95 lg:bg-white/75 lg:backdrop-blur-xl border-b border-white/50 transition-all duration-300 shadow-sm">
@@ -107,16 +111,13 @@
               <a href="../about/who-we-are.html" class="block px-3 py-1.5 rounded-xl hover:bg-slate-800 hover:text-white transition-colors"><i class="fa-solid fa-circle-info w-4 text-center mr-1 text-slate-400"></i> Who We Are</a>
               <a href="../about/vision-mission-values.html" class="block px-3 py-1.5 rounded-xl hover:bg-slate-800 hover:text-white transition-colors"><i class="fa-solid fa-bullseye w-4 text-center mr-1 text-slate-400"></i> Vision, Mission & Values</a>
               <a href="../about/history.html" class="block px-3 py-1.5 rounded-xl hover:bg-slate-800 hover:text-white transition-colors"><i class="fa-solid fa-timeline w-4 text-center mr-1 text-slate-400"></i> Our History</a>
-              
               <div class="mt-2 mb-1 px-2 text-[10px] font-bold text-slate-400 uppercase tracking-wider">People & Governance</div>
               <a href="../about/leadership.html" class="block px-3 py-1.5 rounded-xl hover:bg-slate-800 hover:text-white transition-colors"><i class="fa-solid fa-user-tie w-4 text-center mr-1 text-slate-400"></i> Leadership</a>
               <a href="../about/organizational-structure.html" class="block px-3 py-1.5 rounded-xl hover:bg-slate-800 hover:text-white transition-colors"><i class="fa-solid fa-sitemap w-4 text-center mr-1 text-slate-400"></i> Organizational Structure</a>
               <a href="../about/team.html" class="block px-3 py-1.5 rounded-xl hover:bg-slate-800 hover:text-white transition-colors"><i class="fa-solid fa-users w-4 text-center mr-1 text-slate-400"></i> Our Team</a>
-              
               <div class="mt-2 mb-1 px-2 text-[10px] font-bold text-slate-400 uppercase tracking-wider">Transparency</div>
               <a href="../about/policies-compliance.html" class="block px-3 py-1.5 rounded-xl hover:bg-slate-800 hover:text-white transition-colors"><i class="fa-solid fa-shield-halved w-4 text-center mr-1 text-slate-400"></i> Policies & Compliance</a>
               <a href="../about/annual-reports.html" class="block px-3 py-1.5 rounded-xl hover:bg-slate-800 hover:text-white transition-colors"><i class="fa-solid fa-file-invoice w-4 text-center mr-1 text-slate-400"></i> Annual Reports</a>
-              
               <div class="mt-2 pt-2 border-t border-slate-100">
                 <a href="../contact/index.html" class="block px-3 py-1.5 rounded-xl hover:bg-slate-800 hover:text-white transition-colors font-medium"><i class="fa-solid fa-address-book w-4 text-center mr-1 text-slate-400"></i> Contact Us</a>
               </div>
@@ -205,7 +206,7 @@
 
           <!-- 6. IMPACT -->
           <div class="nav-item-dropdown">
-            <a href="../impact/index.html" class="nav-link-item px-2.5 py-2 rounded-lg hover:text-white hover:bg-slate-800/60 transition-all flex items-center gap-1">
+            <a href="../impact/index.html" class="nav-link-item px-2.5 py-2 rounded-lg text-brandRed font-semibold hover:bg-slate-800/60 transition-all flex items-center gap-1">
               IMPACT <i class="fa-solid fa-chevron-down text-[8px] opacity-60"></i>
             </a>
             <div class="dropdown-menu absolute top-full left-0 w-56 bg-white border border-gray-100 rounded-2xl shadow-xl p-2 text-slate-600 text-xs">
@@ -356,15 +357,6 @@
           <a href="../projects/index.html#dashboard">Project Dashboard</a>
         </div></div>
 
-        <button class="mobile-tray-accordion-btn" data-delay="0.20">
-          <span>PROCUREMENT</span>
-          <i class="acc-icon fa-solid fa-chevron-down"></i>
-        </button>
-        <div class="mobile-tray-submenu"><div>
-          <a href="../procurement.html#tenders">Open Tenders</a>
-          <a href="../procurement.html#vendor">Vendor Registration</a>
-        </div></div>
-
         <button class="mobile-tray-accordion-btn" data-delay="0.25">
           <span>WHERE WE WORK</span>
           <i class="acc-icon fa-solid fa-chevron-down"></i>
@@ -450,18 +442,494 @@
     </div>
   </div>
 
-<section class="relative w-full bg-slate-900 text-white min-h-[560px] flex items-center overflow-hidden group">
-    
-    <!-- Slider Wrapper -->
-    <div id="hero-slider" class="absolute inset-0 z-0 w-full h-full transition-transform duration-1000 ease-in-out flex">
-      <!-- Slide 1 -->
-      <div class="w-full h-full flex-shrink-0 relative">
-        <div class="absolute inset-0 opacity-40 mix-blend-luminosity bg-cover bg-center" style="background-image: url('../assets/images/hero.jpg');"></div>
+
+<!-- ============================================================ -->
+<!-- HERO SECTION -->
+<!-- ============================================================ -->
+<section class="relative w-full bg-slate-900 text-white min-h-[520px] flex items-center overflow-hidden">
+  <div class="absolute inset-0 z-0">
+    <div class="absolute inset-0 opacity-40 mix-blend-luminosity bg-cover bg-center" style="background-image: url('../assets/images/hero.jpg');"></div>
+    <div class="absolute inset-0 bg-gradient-to-br from-brandRed/80 via-slate-900/70 to-slate-950/90"></div>
+  </div>
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full py-20 lg:py-28">
+    <div class="max-w-3xl">
+      <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider bg-white/10 backdrop-blur-sm text-white border border-white/20 mb-6">
+        <i class="fa-solid fa-chart-column text-white"></i> Impact & SDG Center
+      </span>
+      <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-white leading-tight mb-6 font-heading drop-shadow-md">
+        Measuring What Matters,<br>Changing What Counts.
+      </h1>
+      <p class="text-base sm:text-lg text-white/80 mb-8 leading-relaxed drop-shadow-sm max-w-2xl">
+        Every data point represents a life touched. Our Impact & SDG Center tracks outcomes, ensures accountability, and drives continuous improvement across every WRC program.
+      </p>
+      <div class="flex flex-wrap gap-4 items-center">
+        <a href="#dashboard" class="bg-white hover:bg-slate-100 text-slate-900 font-bold text-sm px-7 py-3.5 rounded-xl shadow-lg transition-all flex items-center gap-2 transform hover:-translate-y-1">
+          <i class="fa-solid fa-arrow-down"></i> View Impact Dashboard
+        </a>
+        <a href="#sdgs" class="bg-white/10 hover:bg-white/25 backdrop-blur-md text-white border border-white/30 font-semibold text-sm px-6 py-3.5 rounded-xl transition-all flex items-center gap-2 transform hover:-translate-y-1">
+          <i class="fa-solid fa-globe"></i> SDG Contributions
+        </a>
+      </div>
     </div>
-  </section>
+  </div>
+</section>
 
-  
 
+<!-- ============================================================ -->
+<!-- IMPACT METRICS DASHBOARD -->
+<!-- ============================================================ -->
+<section id="dashboard" class="bg-slate-950 py-16 lg:py-20">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="text-center mb-12 lg:mb-16">
+      <p class="text-brandRed text-xs uppercase tracking-[0.35em] font-semibold mb-3">Our Impact in Numbers</p>
+      <h2 class="text-3xl sm:text-4xl font-extrabold text-white">Impact Metrics Dashboard</h2>
+      <p class="mt-4 mx-auto max-w-2xl text-slate-400 text-sm sm:text-base leading-7">Real-time tracking of WRC's reach, outcomes, and community transformation across all program sectors.</p>
+    </div>
+
+    <div class="grid grid-cols-2 md:grid-cols-3 gap-6 lg:gap-8">
+
+      <!-- Stat 1 -->
+      <div class="bg-white/5 backdrop-blur-sm border border-white/10 rounded-[2rem] p-6 lg:p-8 text-center group hover:bg-white/10 hover:border-brandRed/30 transition-all duration-300">
+        <div class="w-16 h-16 mx-auto mb-5 rounded-2xl bg-brandRed/15 flex items-center justify-center group-hover:scale-110 transition-transform">
+          <i class="fa-solid fa-heart-pulse text-2xl text-brandRed"></i>
+        </div>
+        <div class="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white mb-2 font-heading counter-val" data-target="150000">0</div>
+        <p class="text-slate-400 text-sm font-medium">Lives Impacted</p>
+        <p class="text-slate-500 text-xs mt-1">Across 4 provinces since inception</p>
+      </div>
+
+      <!-- Stat 2 -->
+      <div class="bg-white/5 backdrop-blur-sm border border-white/10 rounded-[2rem] p-6 lg:p-8 text-center group hover:bg-white/10 hover:border-brandRed/30 transition-all duration-300">
+        <div class="w-16 h-16 mx-auto mb-5 rounded-2xl bg-blue-500/15 flex items-center justify-center group-hover:scale-110 transition-transform">
+          <i class="fa-solid fa-faucet-drip text-2xl text-blue-400"></i>
+        </div>
+        <div class="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white mb-2 font-heading counter-val" data-target="1200">0</div>
+        <p class="text-slate-400 text-sm font-medium">Water Wells Installed</p>
+        <p class="text-slate-500 text-xs mt-1">Clean water access for rural families</p>
+      </div>
+
+      <!-- Stat 3 -->
+      <div class="bg-white/5 backdrop-blur-sm border border-white/10 rounded-[2rem] p-6 lg:p-8 text-center group hover:bg-white/10 hover:border-brandRed/30 transition-all duration-300">
+        <div class="w-16 h-16 mx-auto mb-5 rounded-2xl bg-amber-500/15 flex items-center justify-center group-hover:scale-110 transition-transform">
+          <i class="fa-solid fa-bowl-food text-2xl text-amber-400"></i>
+        </div>
+        <div class="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white mb-2 font-heading counter-val" data-target="85000">0</div>
+        <p class="text-slate-400 text-sm font-medium">Food Packages Distributed</p>
+        <p class="text-slate-500 text-xs mt-1">Emergency food relief to families in need</p>
+      </div>
+
+      <!-- Stat 4 -->
+      <div class="bg-white/5 backdrop-blur-sm border border-white/10 rounded-[2rem] p-6 lg:p-8 text-center group hover:bg-white/10 hover:border-brandRed/30 transition-all duration-300">
+        <div class="w-16 h-16 mx-auto mb-5 rounded-2xl bg-green-500/15 flex items-center justify-center group-hover:scale-110 transition-transform">
+          <i class="fa-solid fa-stethoscope text-2xl text-green-400"></i>
+        </div>
+        <div class="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white mb-2 font-heading counter-val" data-target="12000">0</div>
+        <p class="text-slate-400 text-sm font-medium">Healthcare Visits</p>
+        <p class="text-slate-500 text-xs mt-1">Free medical camps & clinical services</p>
+      </div>
+
+      <!-- Stat 5 -->
+      <div class="bg-white/5 backdrop-blur-sm border border-white/10 rounded-[2rem] p-6 lg:p-8 text-center group hover:bg-white/10 hover:border-brandRed/30 transition-all duration-300">
+        <div class="w-16 h-16 mx-auto mb-5 rounded-2xl bg-purple-500/15 flex items-center justify-center group-hover:scale-110 transition-transform">
+          <i class="fa-solid fa-graduation-cap text-2xl text-purple-400"></i>
+        </div>
+        <div class="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white mb-2 font-heading counter-val" data-target="45000">0</div>
+        <p class="text-slate-400 text-sm font-medium">Children Enrolled</p>
+        <p class="text-slate-500 text-xs mt-1">Schools & non-formal learning centers</p>
+      </div>
+
+      <!-- Stat 6 -->
+      <div class="bg-white/5 backdrop-blur-sm border border-white/10 rounded-[2rem] p-6 lg:p-8 text-center group hover:bg-white/10 hover:border-brandRed/30 transition-all duration-300">
+        <div class="w-16 h-16 mx-auto mb-5 rounded-2xl bg-teal-500/15 flex items-center justify-center group-hover:scale-110 transition-transform">
+          <i class="fa-solid fa-map-location-dot text-2xl text-teal-400"></i>
+        </div>
+        <div class="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white mb-2 font-heading counter-val" data-target="200">0</div>
+        <p class="text-slate-400 text-sm font-medium">Communities Served</p>
+        <p class="text-slate-500 text-xs mt-1">Rural & underserved regions reached</p>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+
+<!-- ============================================================ -->
+<!-- MONITORING & EVALUATION FRAMEWORK -->
+<!-- ============================================================ -->
+<section id="mne" class="bg-white py-16 lg:py-20">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="text-center mb-12 lg:mb-16">
+      <p class="text-brandRed text-xs uppercase tracking-[0.35em] font-semibold mb-3">How We Ensure Quality</p>
+      <h2 class="text-3xl sm:text-4xl font-extrabold text-slate-900">Monitoring &amp; Evaluation Framework</h2>
+      <p class="mt-4 mx-auto max-w-2xl text-slate-600 text-sm sm:text-base leading-7">A rigorous, multi-layered M&amp;E system that tracks every intervention from delivery to long-term outcome.</p>
+    </div>
+
+    <div class="relative max-w-4xl mx-auto">
+      <!-- Vertical line -->
+      <div class="hidden md:block absolute left-1/2 top-0 bottom-0 w-px -translate-x-1/2 bg-slate-200"></div>
+      <div class="md:hidden absolute left-[19px] top-0 bottom-0 w-px bg-slate-200"></div>
+
+      <div class="space-y-10 md:space-y-0">
+
+        <!-- Step 1 -->
+        <div class="relative md:grid md:grid-cols-2 md:gap-x-16 md:items-center md:pb-16">
+          <div class="pl-14 md:pl-0 md:pr-16 md:text-right">
+            <span class="text-sm uppercase tracking-[0.28em] font-semibold text-brandRed">Step 01</span>
+            <h3 class="mt-2 text-xl md:text-2xl font-semibold text-slate-900">Third-Party Audits</h3>
+            <p class="mt-3 text-sm md:text-[15px] text-slate-600 leading-relaxed">Independent auditors verify financial integrity, program delivery, and beneficiary outcomes against internationally recognized standards.</p>
+          </div>
+          <div class="hidden md:block"></div>
+          <span class="absolute left-[13px] md:left-1/2 top-1 md:top-1/2 -translate-x-1/2 md:-translate-y-1/2 w-10 h-10 rounded-full bg-brandRed flex items-center justify-center z-10 shadow-lg shadow-brandRed/30">
+            <i class="fa-solid fa-stamp text-white text-sm"></i>
+          </span>
+        </div>
+
+        <!-- Step 2 -->
+        <div class="relative md:grid md:grid-cols-2 md:gap-x-16 md:items-center md:pb-16">
+          <div class="hidden md:block"></div>
+          <div class="pl-14 md:pl-16">
+            <span class="text-sm uppercase tracking-[0.28em] font-semibold text-brandRed">Step 02</span>
+            <h3 class="mt-2 text-xl md:text-2xl font-semibold text-slate-900">Real-Time Data Tracking</h3>
+            <p class="mt-3 text-sm md:text-[15px] text-slate-600 leading-relaxed">Digital dashboards capture field data as it happens, enabling rapid response to emerging needs and evidence-based decision making.</p>
+          </div>
+          <span class="absolute left-[13px] md:left-1/2 top-1 md:top-1/2 -translate-x-1/2 md:-translate-y-1/2 w-10 h-10 rounded-full bg-brandRed flex items-center justify-center z-10 shadow-lg shadow-brandRed/30">
+            <i class="fa-solid fa-database text-white text-sm"></i>
+          </span>
+        </div>
+
+        <!-- Step 3 -->
+        <div class="relative md:grid md:grid-cols-2 md:gap-x-16 md:items-center md:pb-16">
+          <div class="pl-14 md:pl-0 md:pr-16 md:text-right">
+            <span class="text-sm uppercase tracking-[0.28em] font-semibold text-brandRed">Step 03</span>
+            <h3 class="mt-2 text-xl md:text-2xl font-semibold text-slate-900">Quality Standards (ISO Compliance)</h3>
+            <p class="mt-3 text-sm md:text-[15px] text-slate-600 leading-relaxed">Programs are aligned with ISO 9001 and ISO 22000 quality management systems to ensure consistent, reliable delivery across all sectors.</p>
+          </div>
+          <div class="hidden md:block"></div>
+          <span class="absolute left-[13px] md:left-1/2 top-1 md:top-1/2 -translate-x-1/2 md:-translate-y-1/2 w-10 h-10 rounded-full bg-brandRed flex items-center justify-center z-10 shadow-lg shadow-brandRed/30">
+            <i class="fa-solid fa-certificate text-white text-sm"></i>
+          </span>
+        </div>
+
+        <!-- Step 4 -->
+        <div class="relative md:grid md:grid-cols-2 md:gap-x-16 md:items-center md:pb-16">
+          <div class="hidden md:block"></div>
+          <div class="pl-14 md:pl-16">
+            <span class="text-sm uppercase tracking-[0.28em] font-semibold text-brandRed">Step 04</span>
+            <h3 class="mt-2 text-xl md:text-2xl font-semibold text-slate-900">Community Feedback Loops</h3>
+            <p class="mt-3 text-sm md:text-[15px] text-slate-600 leading-relaxed">Beneficiary satisfaction surveys, community scorecards, and grievance mechanisms ensure programs remain responsive and community-driven.</p>
+          </div>
+          <span class="absolute left-[13px] md:left-1/2 top-1 md:top-1/2 -translate-x-1/2 md:-translate-y-1/2 w-10 h-10 rounded-full bg-brandRed flex items-center justify-center z-10 shadow-lg shadow-brandRed/30">
+            <i class="fa-solid fa-comments text-white text-sm"></i>
+          </span>
+        </div>
+
+        <!-- Step 5 -->
+        <div class="relative md:grid md:grid-cols-2 md:gap-x-16 md:items-center">
+          <div class="pl-14 md:pl-0 md:pr-16 md:text-right">
+            <span class="text-sm uppercase tracking-[0.28em] font-semibold text-brandRed">Step 05</span>
+            <h3 class="mt-2 text-xl md:text-2xl font-semibold text-slate-900">Annual Impact Assessments</h3>
+            <p class="mt-3 text-sm md:text-[15px] text-slate-600 leading-relaxed">Comprehensive annual evaluations synthesize data across sectors to measure long-term outcomes and inform strategic planning.</p>
+          </div>
+          <div class="hidden md:block"></div>
+          <span class="absolute left-[13px] md:left-1/2 top-1 md:top-1/2 -translate-x-1/2 md:-translate-y-1/2 w-10 h-10 rounded-full bg-brandRed flex items-center justify-center z-10 shadow-lg shadow-brandRed/30">
+            <i class="fa-solid fa-chart-line text-white text-sm"></i>
+          </span>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ============================================================ -->
+<!-- SDG CONTRIBUTION MAP -->
+<!-- ============================================================ -->
+<section id="sdgs" class="bg-slate-50 py-16 lg:py-20">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="text-center mb-12 lg:mb-16">
+      <p class="text-brandRed text-xs uppercase tracking-[0.35em] font-semibold mb-3">Global Goals Alignment</p>
+      <h2 class="text-3xl sm:text-4xl font-extrabold text-slate-900">SDG Contribution Map</h2>
+      <p class="mt-4 mx-auto max-w-2xl text-slate-600 text-sm sm:text-base leading-7">WRC programs directly contribute to the United Nations Sustainable Development Goals, creating measurable progress toward a more equitable world.</p>
+    </div>
+
+    <div class="grid gap-6 lg:grid-cols-2">
+
+      <!-- SDG 3 - Good Health -->
+      <div class="bg-white rounded-[2rem] border border-slate-200 shadow-sm overflow-hidden group hover:shadow-xl transition-all duration-300">
+        <div class="flex items-stretch">
+          <div class="w-28 sm:w-32 shrink-0 bg-green-600 flex flex-col items-center justify-center p-4 text-white">
+            <i class="fa-solid fa-heart-pulse text-3xl sm:text-4xl mb-2"></i>
+            <span class="text-xs font-bold uppercase tracking-wider">SDG 3</span>
+            <span class="text-[10px] text-white/80 text-center mt-1 leading-tight">Good Health<br>&amp; Well-Being</span>
+          </div>
+          <div class="flex-1 p-5 sm:p-6">
+            <h3 class="text-lg font-bold text-slate-900 mb-2">Good Health &amp; Well-Being</h3>
+            <p class="text-slate-600 text-sm leading-6 mb-4">WRC operates free medical camps, maternal health clinics, and emergency healthcare services reaching underserved populations across Pakistan.</p>
+            <div class="space-y-2">
+              <div class="flex items-center justify-between text-xs">
+                <span class="text-slate-500">Progress toward target</span>
+                <span class="font-semibold text-green-600">78%</span>
+              </div>
+              <div class="w-full bg-slate-100 rounded-full h-2">
+                <div class="bg-green-600 h-2 rounded-full animate-[progress_1.5s_ease-out_forwards]" style="width: 78%;"></div>
+              </div>
+            </div>
+            <div class="flex flex-wrap gap-2 mt-4">
+              <span class="px-2.5 py-1 rounded-full bg-green-50 text-green-700 text-[11px] font-medium border border-green-100">12,000+ Healthcare Visits</span>
+              <span class="px-2.5 py-1 rounded-full bg-green-50 text-green-700 text-[11px] font-medium border border-green-100">45 Medical Camps</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SDG 4 - Quality Education -->
+      <div class="bg-white rounded-[2rem] border border-slate-200 shadow-sm overflow-hidden group hover:shadow-xl transition-all duration-300">
+        <div class="flex items-stretch">
+          <div class="w-28 sm:w-32 shrink-0 bg-red-600 flex flex-col items-center justify-center p-4 text-white">
+            <i class="fa-solid fa-graduation-cap text-3xl sm:text-4xl mb-2"></i>
+            <span class="text-xs font-bold uppercase tracking-wider">SDG 4</span>
+            <span class="text-[10px] text-white/80 text-center mt-1 leading-tight">Quality<br>Education</span>
+          </div>
+          <div class="flex-1 p-5 sm:p-6">
+            <h3 class="text-lg font-bold text-slate-900 mb-2">Quality Education</h3>
+            <p class="text-slate-600 text-sm leading-6 mb-4">Through schools, non-formal learning centers, and orphan education sponsorships, WRC ensures children access quality learning opportunities.</p>
+            <div class="space-y-2">
+              <div class="flex items-center justify-between text-xs">
+                <span class="text-slate-500">Progress toward target</span>
+                <span class="font-semibold text-red-600">72%</span>
+              </div>
+              <div class="w-full bg-slate-100 rounded-full h-2">
+                <div class="bg-red-600 h-2 rounded-full animate-[progress_1.5s_ease-out_forwards]" style="width: 72%;"></div>
+              </div>
+            </div>
+            <div class="flex flex-wrap gap-2 mt-4">
+              <span class="px-2.5 py-1 rounded-full bg-red-50 text-red-700 text-[11px] font-medium border border-red-100">45,000+ Children Enrolled</span>
+              <span class="px-2.5 py-1 rounded-full bg-red-50 text-red-700 text-[11px] font-medium border border-red-100">120 Learning Centers</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SDG 6 - Clean Water -->
+      <div class="bg-white rounded-[2rem] border border-slate-200 shadow-sm overflow-hidden group hover:shadow-xl transition-all duration-300">
+        <div class="flex items-stretch">
+          <div class="w-28 sm:w-32 shrink-0 bg-blue-600 flex flex-col items-center justify-center p-4 text-white">
+            <i class="fa-solid fa-faucet-drip text-3xl sm:text-4xl mb-2"></i>
+            <span class="text-xs font-bold uppercase tracking-wider">SDG 6</span>
+            <span class="text-[10px] text-white/80 text-center mt-1 leading-tight">Clean Water<br>&amp; Sanitation</span>
+          </div>
+          <div class="flex-1 p-5 sm:p-6">
+            <h3 class="text-lg font-bold text-slate-900 mb-2">Clean Water &amp; Sanitation</h3>
+            <p class="text-slate-600 text-sm leading-6 mb-4">WRC installs hand pumps, deep tube wells, and water purification systems, while training communities in hygiene practices and sanitation management.</p>
+            <div class="space-y-2">
+              <div class="flex items-center justify-between text-xs">
+                <span class="text-slate-500">Progress toward target</span>
+                <span class="font-semibold text-blue-600">85%</span>
+              </div>
+              <div class="w-full bg-slate-100 rounded-full h-2">
+                <div class="bg-blue-600 h-2 rounded-full animate-[progress_1.5s_ease-out_forwards]" style="width: 85%;"></div>
+              </div>
+            </div>
+            <div class="flex flex-wrap gap-2 mt-4">
+              <span class="px-2.5 py-1 rounded-full bg-blue-50 text-blue-700 text-[11px] font-medium border border-blue-100">1,200+ Water Wells</span>
+              <span class="px-2.5 py-1 rounded-full bg-blue-50 text-blue-700 text-[11px] font-medium border border-blue-100">180 WASH Committees</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SDG 13 - Climate Action -->
+      <div class="bg-white rounded-[2rem] border border-slate-200 shadow-sm overflow-hidden group hover:shadow-xl transition-all duration-300">
+        <div class="flex items-stretch">
+          <div class="w-28 sm:w-32 shrink-0 bg-emerald-700 flex flex-col items-center justify-center p-4 text-white">
+            <i class="fa-solid fa-leaf text-3xl sm:text-4xl mb-2"></i>
+            <span class="text-xs font-bold uppercase tracking-wider">SDG 13</span>
+            <span class="text-[10px] text-white/80 text-center mt-1 leading-tight">Climate<br>Action</span>
+          </div>
+          <div class="flex-1 p-5 sm:p-6">
+            <h3 class="text-lg font-bold text-slate-900 mb-2">Climate Action</h3>
+            <p class="text-slate-600 text-sm leading-6 mb-4">WRC integrates climate resilience into disaster preparedness, promotes renewable energy access, and supports reforestation and environmental restoration projects.</p>
+            <div class="space-y-2">
+              <div class="flex items-center justify-between text-xs">
+                <span class="text-slate-500">Progress toward target</span>
+                <span class="font-semibold text-emerald-600">64%</span>
+              </div>
+              <div class="w-full bg-slate-100 rounded-full h-2">
+                <div class="bg-emerald-700 h-2 rounded-full animate-[progress_1.5s_ease-out_forwards]" style="width: 64%;"></div>
+              </div>
+            </div>
+            <div class="flex flex-wrap gap-2 mt-4">
+              <span class="px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 text-[11px] font-medium border border-emerald-100">50,000 Trees Planted</span>
+              <span class="px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 text-[11px] font-medium border border-emerald-100">15 Solar Installations</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+
+<!-- ============================================================ -->
+<!-- CASE STUDIES -->
+<!-- ============================================================ -->
+<section id="case-studies" class="bg-white py-16 lg:py-20">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="text-center mb-12 lg:mb-16">
+      <p class="text-brandRed text-xs uppercase tracking-[0.35em] font-semibold mb-3">Real Stories, Real Impact</p>
+      <h2 class="text-3xl sm:text-4xl font-extrabold text-slate-900">Case Studies</h2>
+      <p class="mt-4 mx-auto max-w-2xl text-slate-600 text-sm sm:text-base leading-7">In-depth look at how WRC programs transform lives, backed by data and beneficiary voices.</p>
+    </div>
+
+    <div class="grid gap-8 lg:grid-cols-3">
+
+      <!-- Case Study 1 -->
+      <article class="bg-slate-50 rounded-[2rem] border border-slate-200 overflow-hidden group hover:shadow-xl transition-all duration-300 hover:-translate-y-1 flex flex-col">
+        <div class="relative h-56 overflow-hidden">
+          <img src="../assets/images/water.jpg" alt="Clean water well in rural Khyber Pakhtunkhwa" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+          <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/20 to-transparent"></div>
+          <div class="absolute top-4 left-4">
+            <span class="px-3 py-1 rounded-full bg-blue-500 text-white text-[11px] font-semibold uppercase tracking-wider">WASH</span>
+          </div>
+          <div class="absolute bottom-4 left-4 right-4">
+            <h3 class="text-xl font-bold text-white leading-tight">Clean Water for Nowshera: A Community Transformed</h3>
+          </div>
+        </div>
+        <div class="p-5 sm:p-6 flex-1 flex flex-col">
+          <p class="text-slate-600 text-sm leading-6 mb-4">In 2023, WRC installed 35 deep tube wells across 12 villages in Nowshera District, providing clean drinking water to over 8,000 residents previously dependent on contaminated sources.</p>
+
+          <div class="grid grid-cols-3 gap-3 mb-4">
+            <div class="text-center p-2 bg-white rounded-xl border border-slate-100">
+              <div class="text-lg font-bold text-slate-900">8,200</div>
+              <div class="text-[10px] text-slate-500">People Served</div>
+            </div>
+            <div class="text-center p-2 bg-white rounded-xl border border-slate-100">
+              <div class="text-lg font-bold text-slate-900">35</div>
+              <div class="text-[10px] text-slate-500">Wells Built</div>
+            </div>
+            <div class="text-center p-2 bg-white rounded-xl border border-slate-100">
+              <div class="text-lg font-bold text-slate-900">12</div>
+              <div class="text-[10px] text-slate-500">Villages</div>
+            </div>
+          </div>
+
+          <div class="bg-white border-l-4 border-brandRed rounded-r-xl p-3 mb-4">
+            <p class="text-slate-600 text-xs italic leading-relaxed">"Before the wells, my children walked 3 km daily for water that made them sick. Now they have clean water at school and more time to study."</p>
+            <p class="text-slate-900 text-xs font-semibold mt-2">— Fatima Bibi, Mother of 4, Nowshera</p>
+          </div>
+
+          <div class="mt-auto pt-3 border-t border-slate-200">
+            <p class="text-[11px] text-green-600 font-semibold"><i class="fa-solid fa-check-circle mr-1"></i> Outcome: Waterborne diseases reduced by 62% in target villages.</p>
+          </div>
+        </div>
+      </article>
+
+      <!-- Case Study 2 -->
+      <article class="bg-slate-50 rounded-[2rem] border border-slate-200 overflow-hidden group hover:shadow-xl transition-all duration-300 hover:-translate-y-1 flex flex-col">
+        <div class="relative h-56 overflow-hidden">
+          <img src="../assets/images/hero-slider-3.jpg" alt="Children in WRC school program" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+          <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/20 to-transparent"></div>
+          <div class="absolute top-4 left-4">
+            <span class="px-3 py-1 rounded-full bg-red-600 text-white text-[11px] font-semibold uppercase tracking-wider">Education</span>
+          </div>
+          <div class="absolute bottom-4 left-4 right-4">
+            <h3 class="text-xl font-bold text-white leading-tight">Bright Futures: Orphan Education in Peshawar</h3>
+          </div>
+        </div>
+        <div class="p-5 sm:p-6 flex-1 flex flex-col">
+          <p class="text-slate-600 text-sm leading-6 mb-4">WRC's orphan sponsorship program enrolled 1,200 children in Peshawar, providing school kits, uniforms, tuition support, and after-school tutoring for 18 months.</p>
+
+          <div class="grid grid-cols-3 gap-3 mb-4">
+            <div class="text-center p-2 bg-white rounded-xl border border-slate-100">
+              <div class="text-lg font-bold text-slate-900">1,200</div>
+              <div class="text-[10px] text-slate-500">Children Enrolled</div>
+            </div>
+            <div class="text-center p-2 bg-white rounded-xl border border-slate-100">
+              <div class="text-lg font-bold text-slate-900">92%</div>
+              <div class="text-[10px] text-slate-500">Pass Rate</div>
+            </div>
+            <div class="text-center p-2 bg-white rounded-xl border border-slate-100">
+              <div class="text-lg font-bold text-slate-900">8</div>
+              <div class="text-[10px] text-slate-500">Schools</div>
+            </div>
+          </div>
+
+          <div class="bg-white border-l-4 border-brandRed rounded-r-xl p-3 mb-4">
+            <p class="text-slate-600 text-xs italic leading-relaxed">"I want to become a doctor. WRC helped me stay in school when my family could not afford it. I am now first in my class."</p>
+            <p class="text-slate-900 text-xs font-semibold mt-2">— Ayesha Khan, Student, Grade 8</p>
+          </div>
+
+          <div class="mt-auto pt-3 border-t border-slate-200">
+            <p class="text-[11px] text-green-600 font-semibold"><i class="fa-solid fa-check-circle mr-1"></i> Outcome: 92% exam pass rate; dropout rate reduced from 34% to 4%.</p>
+          </div>
+        </div>
+      </article>
+
+      <!-- Case Study 3 -->
+      <article class="bg-slate-50 rounded-[2rem] border border-slate-200 overflow-hidden group hover:shadow-xl transition-all duration-300 hover:-translate-y-1 flex flex-col">
+        <div class="relative h-56 overflow-hidden">
+          <img src="../assets/images/food.jpg" alt="WRC food distribution in flood-affected Sindh" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+          <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/20 to-transparent"></div>
+          <div class="absolute top-4 left-4">
+            <span class="px-3 py-1 rounded-full bg-amber-500 text-white text-[11px] font-semibold uppercase tracking-wider">Food Security</span>
+          </div>
+          <div class="absolute bottom-4 left-4 right-4">
+            <h3 class="text-xl font-bold text-white leading-tight">Emergency Flood Relief in Sindh: Feeding Thousands</h3>
+          </div>
+        </div>
+        <div class="p-5 sm:p-6 flex-1 flex flex-col">
+          <p class="text-slate-600 text-sm leading-6 mb-4">During the 2023 Pakistan floods, WRC distributed 12,000 emergency food packages and set up 8 community kitchens in Sukkhur and Dadu districts within 72 hours.</p>
+
+          <div class="grid grid-cols-3 gap-3 mb-4">
+            <div class="text-center p-2 bg-white rounded-xl border border-slate-100">
+              <div class="text-lg font-bold text-slate-900">12,000</div>
+              <div class="text-[10px] text-slate-500">Food Packages</div>
+            </div>
+            <div class="text-center p-2 bg-white rounded-xl border border-slate-100">
+              <div class="text-lg font-bold text-slate-900">48,000</div>
+              <div class="text-[10px] text-slate-500">People Fed</div>
+            </div>
+            <div class="text-center p-2 bg-white rounded-xl border border-slate-100">
+              <div class="text-lg font-bold text-slate-900">72 hrs</div>
+              <div class="text-[10px] text-slate-500">Response Time</div>
+            </div>
+          </div>
+
+          <div class="bg-white border-l-4 border-brandRed rounded-r-xl p-3 mb-4">
+            <p class="text-slate-600 text-xs italic leading-relaxed">"When the flood destroyed everything, WRC arrived with food for our entire village within three days. They saved us from starvation."</p>
+            <p class="text-slate-900 text-xs font-semibold mt-2">— Muhammad Raza, Farmer, Sukkur</p>
+          </div>
+
+          <div class="mt-auto pt-3 border-t border-slate-200">
+            <p class="text-[11px] text-green-600 font-semibold"><i class="fa-solid fa-check-circle mr-1"></i> Outcome: Zero malnutrition deaths in target areas; 100% distribution transparency.</p>
+          </div>
+        </div>
+      </article>
+
+    </div>
+  </div>
+</section>
+
+
+<!-- ============================================================ -->
+<!-- CTA BANNER -->
+<!-- ============================================================ -->
+<section class="bg-brandRed py-14 lg:py-16">
+  <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+    <h2 class="text-3xl sm:text-4xl font-extrabold text-white mb-4 font-heading">Your Support Fuels Every Number</h2>
+    <p class="text-white/80 text-sm sm:text-base max-w-2xl mx-auto mb-8 leading-relaxed">Behind every statistic is a family, a child, a community whose future is shaped by your generosity. Join us in turning data into dignity.</p>
+    <div class="flex flex-wrap justify-center gap-4">
+      <a href="../get-involved/contribute-with-us.html" class="bg-white hover:bg-slate-100 text-brandRed font-bold text-sm px-8 py-3.5 rounded-xl shadow-lg transition-all flex items-center gap-2 transform hover:-translate-y-1">
+        <i class="fa-solid fa-handshake"></i> Contribute With Us
+      </a>
+      <a href="../contact/index.html" class="bg-white/10 hover:bg-white/25 backdrop-blur-md text-white border border-white/30 font-semibold text-sm px-7 py-3.5 rounded-xl transition-all flex items-center gap-2 transform hover:-translate-y-1">
+        <i class="fa-solid fa-phone"></i> Contact Us
+      </a>
+    </div>
+  </div>
+</section>
 
 
 <!-- FOOTER -->
@@ -526,7 +994,7 @@
       </div>
 
       <div class="border-t border-slate-800/70 mt-10 pt-6 flex flex-col gap-4 md:flex-row md:items-center md:justify-between text-slate-500 text-xs">
-        <p>© 2026 World Relief Committee. All rights reserved.</p>
+        <p>&copy; 2026 World Relief Committee. All rights reserved.</p>
         <div class="flex flex-wrap items-center gap-3 justify-center md:justify-end text-slate-400">
           <a href="../privacy.html" class="hover:text-white transition">Privacy Policy</a>
           <a href="../terms.html" class="hover:text-white transition">Terms of Use</a>
@@ -538,5 +1006,59 @@
 
 
   <script src="../assets/js/main.js"></script>
+
+  <!-- Counter Animation -->
+  <script>
+    (function () {
+      const counters = document.querySelectorAll('.counter-val');
+
+      function animateCounter(el) {
+        const target = parseInt(el.getAttribute('data-target'), 10);
+        const duration = 2000;
+        const startTime = performance.now();
+        const suffix = target >= 1000 ? '+' : '';
+
+        function easeOutExpo(t) {
+          return t === 1 ? 1 : 1 - Math.pow(2, -10 * t);
+        }
+
+        function update(currentTime) {
+          const elapsed = currentTime - startTime;
+          const progress = Math.min(elapsed / duration, 1);
+          const easedProgress = easeOutExpo(progress);
+          const current = Math.floor(easedProgress * target);
+
+          if (target >= 1000) {
+            el.textContent = current.toLocaleString() + suffix;
+          } else {
+            el.textContent = current + suffix;
+          }
+
+          if (progress < 1) {
+            requestAnimationFrame(update);
+          }
+        }
+
+        requestAnimationFrame(update);
+      }
+
+      const observer = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+          if (entry.isIntersecting) {
+            animateCounter(entry.target);
+            observer.unobserve(entry.target);
+          }
+        });
+      }, {
+        threshold: 0.3,
+        rootMargin: '0px 0px -50px 0px'
+      });
+
+      counters.forEach(function (counter) {
+        observer.observe(counter);
+      });
+    })();
+  </script>
+
 </body>
 </html>

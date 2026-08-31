@@ -61,7 +61,21 @@
     }
   </script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../assets/css/custom.css">
+  <style>
+    .province-path { cursor: pointer; transition: fill 0.3s ease, filter 0.3s ease; }
+    .province-path:hover { filter: brightness(1.15); }
+    .province-label { pointer-events: none; font-family: 'Inter', sans-serif; font-weight: 600; fill: #1e293b; }
+    .province-dot { pointer-events: none; }
+    #map-tooltip { transition: opacity 0.2s ease; }
+    .district-row:hover { background-color: #fef2f2; }
+    .search-input:focus { outline: none; box-shadow: 0 0 0 3px rgba(202,0,0,0.15); border-color: #ca0000; }
+    .tab-btn.active { background-color: #ca0000; color: white; }
+    .stat-counter { font-variant-numeric: tabular-nums; }
+  </style>
 </head>
 <body class="bg-slate-50 text-slate-800 flex flex-col min-h-screen">
 
@@ -78,6 +92,7 @@
          <span class="flex items-center gap-2"><i class="fa-solid fa-location-dot text-white text-[11px]"></i>Flat#1, 3rd Floor, Shami Flats near Marbella Wedding Hall, Warsak Road, Peshawar, Pakistan</span>
       </div>
     </div>
+  </div>
 
 <!-- MAIN HEADER NAVIGATION -->
   <header class="sticky top-0 z-50 w-full bg-white/95 lg:bg-white/75 lg:backdrop-blur-xl border-b border-white/50 transition-all duration-300 shadow-sm">
@@ -107,16 +122,13 @@
               <a href="../about/who-we-are.html" class="block px-3 py-1.5 rounded-xl hover:bg-slate-800 hover:text-white transition-colors"><i class="fa-solid fa-circle-info w-4 text-center mr-1 text-slate-400"></i> Who We Are</a>
               <a href="../about/vision-mission-values.html" class="block px-3 py-1.5 rounded-xl hover:bg-slate-800 hover:text-white transition-colors"><i class="fa-solid fa-bullseye w-4 text-center mr-1 text-slate-400"></i> Vision, Mission & Values</a>
               <a href="../about/history.html" class="block px-3 py-1.5 rounded-xl hover:bg-slate-800 hover:text-white transition-colors"><i class="fa-solid fa-timeline w-4 text-center mr-1 text-slate-400"></i> Our History</a>
-              
               <div class="mt-2 mb-1 px-2 text-[10px] font-bold text-slate-400 uppercase tracking-wider">People & Governance</div>
               <a href="../about/leadership.html" class="block px-3 py-1.5 rounded-xl hover:bg-slate-800 hover:text-white transition-colors"><i class="fa-solid fa-user-tie w-4 text-center mr-1 text-slate-400"></i> Leadership</a>
               <a href="../about/organizational-structure.html" class="block px-3 py-1.5 rounded-xl hover:bg-slate-800 hover:text-white transition-colors"><i class="fa-solid fa-sitemap w-4 text-center mr-1 text-slate-400"></i> Organizational Structure</a>
               <a href="../about/team.html" class="block px-3 py-1.5 rounded-xl hover:bg-slate-800 hover:text-white transition-colors"><i class="fa-solid fa-users w-4 text-center mr-1 text-slate-400"></i> Our Team</a>
-              
               <div class="mt-2 mb-1 px-2 text-[10px] font-bold text-slate-400 uppercase tracking-wider">Transparency</div>
               <a href="../about/policies-compliance.html" class="block px-3 py-1.5 rounded-xl hover:bg-slate-800 hover:text-white transition-colors"><i class="fa-solid fa-shield-halved w-4 text-center mr-1 text-slate-400"></i> Policies & Compliance</a>
               <a href="../about/annual-reports.html" class="block px-3 py-1.5 rounded-xl hover:bg-slate-800 hover:text-white transition-colors"><i class="fa-solid fa-file-invoice w-4 text-center mr-1 text-slate-400"></i> Annual Reports</a>
-              
               <div class="mt-2 pt-2 border-t border-slate-100">
                 <a href="../contact/index.html" class="block px-3 py-1.5 rounded-xl hover:bg-slate-800 hover:text-white transition-colors font-medium"><i class="fa-solid fa-address-book w-4 text-center mr-1 text-slate-400"></i> Contact Us</a>
               </div>
@@ -190,7 +202,7 @@
 
           <!-- 5. WHERE WE WORK -->
           <div class="nav-item-dropdown">
-            <a href="../where-we-work/index.html" class="nav-link-item px-2.5 py-2 rounded-lg hover:text-white hover:bg-slate-800/60 transition-all flex items-center gap-1">
+            <a href="../where-we-work/index.html" class="nav-link-item px-2.5 py-2 rounded-lg text-brandRed font-semibold hover:bg-slate-800/60 transition-all flex items-center gap-1">
               WHERE WE WORK <i class="fa-solid fa-chevron-down text-[8px] opacity-60"></i>
             </a>
             <div class="dropdown-menu absolute top-full left-0 w-56 bg-white border border-gray-100 rounded-2xl shadow-xl p-2 text-slate-600 text-xs">
@@ -217,7 +229,7 @@
             </div>
           </div>
 
-          <!-- 8. RESOURCES -->
+          <!-- 7. RESOURCES -->
           <div class="nav-item-dropdown">
             <a href="../resources/index.html" class="nav-link-item px-2.5 py-2 rounded-lg hover:text-white hover:bg-slate-800/60 transition-all flex items-center gap-1">
               RESOURCES <i class="fa-solid fa-chevron-down text-[8px] opacity-60"></i>
@@ -233,7 +245,7 @@
             </div>
           </div>
 
-          <!-- 9. NEWS & MEDIA -->
+          <!-- 8. NEWS & MEDIA -->
           <div class="nav-item-dropdown">
             <a href="../news/index.html" class="nav-link-item px-2.5 py-2 rounded-lg hover:text-white hover:bg-slate-800/60 transition-all flex items-center gap-1">
               NEWS & MEDIA <i class="fa-solid fa-chevron-down text-[8px] opacity-60"></i>
@@ -248,7 +260,7 @@
             </div>
           </div>
 
-          <!-- 10. GET INVOLVED -->
+          <!-- 9. GET INVOLVED -->
           <div class="nav-item-dropdown">
             <a href="../get-involved/index.html" class="nav-link-item px-2.5 py-2 rounded-lg hover:text-white hover:bg-slate-800/60 transition-all flex items-center gap-1">
               GET INVOLVED <i class="fa-solid fa-chevron-down text-[8px] opacity-60"></i>
@@ -263,7 +275,7 @@
             </div>
           </div>
 
-          <!-- 11. CONTACT -->
+          <!-- 10. CONTACT -->
           <div class="nav-item-dropdown">
             <a href="../contact/index.html" class="nav-link-item px-2.5 py-2 rounded-lg hover:text-white hover:bg-slate-800/60 transition-all flex items-center gap-1">
               CONTACT <i class="fa-solid fa-chevron-down text-[8px] opacity-60"></i>
@@ -356,15 +368,6 @@
           <a href="../projects/index.html#dashboard">Project Dashboard</a>
         </div></div>
 
-        <button class="mobile-tray-accordion-btn" data-delay="0.20">
-          <span>PROCUREMENT</span>
-          <i class="acc-icon fa-solid fa-chevron-down"></i>
-        </button>
-        <div class="mobile-tray-submenu"><div>
-          <a href="../procurement.html#tenders">Open Tenders</a>
-          <a href="../procurement.html#vendor">Vendor Registration</a>
-        </div></div>
-
         <button class="mobile-tray-accordion-btn" data-delay="0.25">
           <span>WHERE WE WORK</span>
           <i class="acc-icon fa-solid fa-chevron-down"></i>
@@ -450,17 +453,733 @@
     </div>
   </div>
 
-<section class="relative w-full bg-slate-900 text-white min-h-[560px] flex items-center overflow-hidden group">
-    
-    <!-- Slider Wrapper -->
-    <div id="hero-slider" class="absolute inset-0 z-0 w-full h-full transition-transform duration-1000 ease-in-out flex">
-      <!-- Slide 1 -->
-      <div class="w-full h-full flex-shrink-0 relative">
-        <div class="absolute inset-0 opacity-40 mix-blend-luminosity bg-cover bg-center" style="background-image: url('../assets/images/hero.jpg');"></div>
-  </section>
 
-  
+<!-- ======================== PAGE CONTENT ======================== -->
 
+<!-- HERO SECTION -->
+<section class="relative w-full bg-slate-900 text-white min-h-[420px] flex items-center overflow-hidden">
+  <div class="absolute inset-0 z-0">
+    <div class="absolute inset-0 opacity-30 bg-cover bg-center" style="background-image: url('../assets/images/hero.jpg');"></div>
+    <div class="absolute inset-0 bg-gradient-to-r from-slate-950/95 via-slate-900/80 to-slate-900/60"></div>
+  </div>
+  <div class="relative z-10 w-full px-4 sm:px-6 lg:px-8 py-20">
+    <div class="max-w-7xl mx-auto">
+      <div class="flex items-center gap-2 text-white/60 text-xs font-medium uppercase tracking-widest mb-4">
+        <a href="../index.html" class="hover:text-white transition">Home</a>
+        <i class="fa-solid fa-chevron-right text-[8px]"></i>
+        <span class="text-white">Where We Work</span>
+      </div>
+      <h1 class="text-4xl sm:text-5xl lg:text-6xl font-display font-bold text-white leading-tight mb-4">Where We Work</h1>
+      <p class="text-lg text-white/80 max-w-2xl leading-relaxed mb-8">WRC operates across four provinces of Pakistan, delivering life-saving relief and sustainable development programs to communities most in need.</p>
+      <div class="flex flex-wrap gap-3">
+        <a href="#map" class="inline-flex items-center gap-2 bg-brandRed hover:bg-brandRed-hover text-white text-sm font-semibold px-6 py-3 rounded-xl transition-all shadow-lg shadow-brandRed/20">
+          <i class="fa-solid fa-map-location-dot text-xs"></i> Explore Our Map
+        </a>
+        <a href="#districts" class="inline-flex items-center gap-2 bg-white/10 hover:bg-white/20 text-white text-sm font-semibold px-6 py-3 rounded-xl border border-white/20 transition-all">
+          <i class="fa-solid fa-table-list text-xs"></i> District Coverage
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- STATS OVERVIEW BAR -->
+<section class="bg-white border-b border-slate-200">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+      <div class="text-center">
+        <div class="text-3xl font-bold text-brandRed stat-counter">4</div>
+        <div class="text-xs text-slate-500 font-medium uppercase tracking-wider mt-1">Provinces Covered</div>
+      </div>
+      <div class="text-center">
+        <div class="text-3xl font-bold text-brandRed stat-counter">24+</div>
+        <div class="text-xs text-slate-500 font-medium uppercase tracking-wider mt-1">Districts Reached</div>
+      </div>
+      <div class="text-center">
+        <div class="text-3xl font-bold text-brandRed stat-counter">185,000+</div>
+        <div class="text-xs text-slate-500 font-medium uppercase tracking-wider mt-1">Total Beneficiaries</div>
+      </div>
+      <div class="text-center">
+        <div class="text-3xl font-bold text-brandRed stat-counter">9</div>
+        <div class="text-xs text-slate-500 font-medium uppercase tracking-wider mt-1">Active Programs</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- INTERACTIVE PAKISTAN SVG MAP -->
+<section id="map" class="py-20 bg-white scroll-mt-24">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="text-center mb-12">
+      <span class="text-xs font-bold text-brandRed uppercase tracking-widest mb-2 block">Geographic Footprint</span>
+      <h2 class="text-3xl sm:text-4xl font-display font-bold text-slate-900 mb-3">Pakistan Operations Map</h2>
+      <p class="text-slate-500 max-w-xl mx-auto">Click on any province to learn more about WRC's programs, districts, and impact on the ground.</p>
+    </div>
+
+    <div class="flex flex-col lg:flex-row gap-10 items-center">
+      <!-- SVG Map -->
+      <div class="relative w-full lg:w-2/3 bg-slate-50 rounded-[2rem] border border-slate-200 p-6 sm:p-10 flex items-center justify-center min-h-[450px]">
+        <div id="map-tooltip" class="absolute hidden bg-slate-900 text-white text-xs font-semibold px-3 py-2 rounded-lg shadow-xl z-20 pointer-events-none whitespace-nowrap"></div>
+
+        <svg viewBox="0 0 600 700" class="w-full max-w-lg" xmlns="http://www.w3.org/2000/svg">
+          <!-- Balochistan -->
+          <path id="path-balochistan" class="province-path" data-province="balochistan"
+            d="M 60,350 L 80,320 L 110,310 L 140,290 L 170,280 L 200,260 L 230,250 L 250,230 L 260,210 L 270,200 L 280,190 L 290,185 L 310,210 L 320,240 L 330,270 L 340,290 L 350,310 L 360,330 L 370,360 L 380,380 L 390,400 L 400,420 L 390,440 L 380,460 L 370,480 L 350,490 L 330,500 L 310,510 L 290,520 L 270,530 L 250,540 L 230,535 L 210,520 L 190,510 L 170,500 L 150,490 L 130,480 L 110,470 L 90,450 L 75,420 L 65,390 L 60,350 Z"
+            fill="#cbd5e1" stroke="#94a3b8" stroke-width="1.5" />
+          <text class="province-label" x="210" y="400" text-anchor="middle" font-size="14">Balochistan</text>
+          <circle class="province-dot" cx="210" cy="415" r="4" fill="#ca0000" />
+
+          <!-- Sindh -->
+          <path id="path-sindh" class="province-path" data-province="sindh"
+            d="M 400,420 L 420,400 L 440,390 L 460,380 L 475,370 L 490,355 L 500,340 L 510,320 L 520,300 L 530,290 L 540,280 L 550,270 L 560,280 L 570,300 L 575,320 L 580,350 L 580,380 L 575,410 L 570,440 L 560,470 L 550,490 L 535,505 L 520,520 L 500,530 L 480,535 L 460,530 L 440,520 L 420,510 L 400,500 L 380,490 L 370,480 L 380,460 L 390,440 Z"
+            fill="#d1d5db" stroke="#94a3b8" stroke-width="1.5" />
+          <text class="province-label" x="480" y="420" text-anchor="middle" font-size="14">Sindh</text>
+          <circle class="province-dot" cx="480" cy="435" r="4" fill="#ca0000" />
+
+          <!-- Punjab -->
+          <path id="path-punjab" class="province-path" data-province="punjab"
+            d="M 310,210 L 330,195 L 350,180 L 370,165 L 390,155 L 410,150 L 430,155 L 450,160 L 470,170 L 490,180 L 510,195 L 520,210 L 530,230 L 540,250 L 550,270 L 540,280 L 530,290 L 520,300 L 510,320 L 500,340 L 490,355 L 475,370 L 460,380 L 440,390 L 420,400 L 400,420 L 390,400 L 380,380 L 370,360 L 360,330 L 350,310 L 340,290 L 330,270 L 320,240 Z"
+            fill="#e2e8f0" stroke="#94a3b8" stroke-width="1.5" />
+          <text class="province-label" x="430" y="290" text-anchor="middle" font-size="14">Punjab</text>
+          <circle class="province-dot" cx="430" cy="305" r="4" fill="#ca0000" />
+
+          <!-- Khyber Pakhtunkhwa -->
+          <path id="path-kp" class="province-path" data-province="kp"
+            d="M 270,200 L 280,190 L 290,185 L 310,195 L 330,195 L 350,180 L 370,165 L 360,145 L 350,130 L 340,115 L 330,100 L 320,90 L 310,85 L 300,80 L 290,85 L 280,95 L 270,110 L 260,125 L 250,140 L 245,155 L 250,170 L 260,185 L 270,200 Z"
+            fill="#f1f5f9" stroke="#94a3b8" stroke-width="1.5" />
+          <text class="province-label" x="305" y="140" text-anchor="middle" font-size="13">KPK</text>
+          <circle class="province-dot" cx="305" cy="155" r="4" fill="#ca0000" />
+
+          <!-- Province labels for legend dots -->
+          <line x1="15" y1="600" x2="25" y2="600" stroke="#cbd5e1" stroke-width="3" stroke-linecap="round" />
+          <line x1="15" y1="618" x2="25" y2="618" stroke="#d1d5db" stroke-width="3" stroke-linecap="round" />
+          <line x1="15" y1="636" x2="25" y2="636" stroke="#e2e8f0" stroke-width="3" stroke-linecap="round" />
+          <line x1="15" y1="654" x2="25" y2="654" stroke="#f1f5f9" stroke-width="3" stroke-linecap="round" />
+          <text x="30" y="603" font-size="10" fill="#64748b" font-family="Inter">Balochistan</text>
+          <text x="30" y="621" font-size="10" fill="#64748b" font-family="Inter">Sindh</text>
+          <text x="30" y="639" font-size="10" fill="#64748b" font-family="Inter">Punjab</text>
+          <text x="30" y="657" font-size="10" fill="#64748b" font-family="Inter">KPK</text>
+        </svg>
+      </div>
+
+      <!-- Province Quick Links -->
+      <div class="w-full lg:w-1/3 space-y-4">
+        <h3 class="text-lg font-bold text-slate-900 mb-2">Quick Navigation</h3>
+        <a href="#kp" class="group flex items-center gap-4 p-4 rounded-2xl border border-slate-200 hover:border-brandRed/30 hover:bg-brandRed-light transition-all">
+          <div class="w-12 h-12 rounded-xl bg-slate-100 group-hover:bg-brandRed flex items-center justify-center shrink-0 transition-colors">
+            <i class="fa-solid fa-mountain text-slate-500 group-hover:text-white transition-colors"></i>
+          </div>
+          <div>
+            <div class="font-bold text-slate-900 group-hover:text-brandRed transition-colors">Khyber Pakhtunkhwa</div>
+            <div class="text-xs text-slate-500">Swat, Peshawar & mountain flood reliefs</div>
+          </div>
+          <i class="fa-solid fa-arrow-right text-slate-300 group-hover:text-brandRed ml-auto transition-colors"></i>
+        </a>
+        <a href="#punjab" class="group flex items-center gap-4 p-4 rounded-2xl border border-slate-200 hover:border-brandRed/30 hover:bg-brandRed-light transition-all">
+          <div class="w-12 h-12 rounded-xl bg-slate-100 group-hover:bg-brandRed flex items-center justify-center shrink-0 transition-colors">
+            <i class="fa-solid fa-wheat-awn text-slate-500 group-hover:text-white transition-colors"></i>
+          </div>
+          <div>
+            <div class="font-bold text-slate-900 group-hover:text-brandRed transition-colors">Punjab</div>
+            <div class="text-xs text-slate-500">South Punjab WASH & food aid</div>
+          </div>
+          <i class="fa-solid fa-arrow-right text-slate-300 group-hover:text-brandRed ml-auto transition-colors"></i>
+        </a>
+        <a href="#sindh" class="group flex items-center gap-4 p-4 rounded-2xl border border-slate-200 hover:border-brandRed/30 hover:bg-brandRed-light transition-all">
+          <div class="w-12 h-12 rounded-xl bg-slate-100 group-hover:bg-brandRed flex items-center justify-center shrink-0 transition-colors">
+            <i class="fa-solid fa-water text-slate-500 group-hover:text-white transition-colors"></i>
+          </div>
+          <div>
+            <div class="font-bold text-slate-900 group-hover:text-brandRed transition-colors">Sindh</div>
+            <div class="text-xs text-slate-500">Drought relief & mobile health units</div>
+          </div>
+          <i class="fa-solid fa-arrow-right text-slate-300 group-hover:text-brandRed ml-auto transition-colors"></i>
+        </a>
+        <a href="#balochistan" class="group flex items-center gap-4 p-4 rounded-2xl border border-slate-200 hover:border-brandRed/30 hover:bg-brandRed-light transition-all">
+          <div class="w-12 h-12 rounded-xl bg-slate-100 group-hover:bg-brandRed flex items-center justify-center shrink-0 transition-colors">
+            <i class="fa-solid fa-sun text-slate-500 group-hover:text-white transition-colors"></i>
+          </div>
+          <div>
+            <div class="font-bold text-slate-900 group-hover:text-brandRed transition-colors">Balochistan</div>
+            <div class="text-xs text-slate-500">Clean water wells & solar energy</div>
+          </div>
+          <i class="fa-solid fa-arrow-right text-slate-300 group-hover:text-brandRed ml-auto transition-colors"></i>
+        </a>
+        <a href="#districts" class="group flex items-center gap-4 p-4 rounded-2xl border border-slate-200 hover:border-brandRed/30 hover:bg-brandRed-light transition-all">
+          <div class="w-12 h-12 rounded-xl bg-slate-100 group-hover:bg-brandRed flex items-center justify-center shrink-0 transition-colors">
+            <i class="fa-solid fa-layer-group text-slate-500 group-hover:text-white transition-colors"></i>
+          </div>
+          <div>
+            <div class="font-bold text-slate-900 group-hover:text-brandRed transition-colors">District Coverage</div>
+            <div class="text-xs text-slate-500">Full breakdown by district & program</div>
+          </div>
+          <i class="fa-solid fa-arrow-right text-slate-300 group-hover:text-brandRed ml-auto transition-colors"></i>
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ======================== PROVINCE: KP ======================== -->
+<section id="kp" class="py-20 bg-slate-50 scroll-mt-24">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex items-center gap-2 text-xs font-bold text-brandRed uppercase tracking-widest mb-2">
+      <i class="fa-solid fa-mountain"></i> Province Spotlight
+    </div>
+    <h2 class="text-3xl sm:text-4xl font-display font-bold text-slate-900 mb-3">Khyber Pakhtunkhwa</h2>
+    <p class="text-slate-500 max-w-2xl mb-12">From the mountain valleys of Swat to urban Peshawar, WRC delivers emergency flood relief, healthcare, and education programs across KP's most vulnerable communities.</p>
+
+    <!-- Focus Areas Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+      <div class="bg-white rounded-[2rem] p-6 border border-slate-200 shadow-sm hover:shadow-md transition-all">
+        <div class="w-12 h-12 rounded-xl bg-brandRed/10 flex items-center justify-center mb-4">
+          <i class="fa-solid fa-house-flood-water text-brandRed text-xl"></i>
+        </div>
+        <h3 class="font-bold text-slate-900 mb-2">Mountain Flood Relief</h3>
+        <p class="text-sm text-slate-500 leading-relaxed">Emergency shelter, food, and medical aid for flood-hit communities in Swat, Dir, and Chitral valleys.</p>
+      </div>
+      <div class="bg-white rounded-[2rem] p-6 border border-slate-200 shadow-sm hover:shadow-md transition-all">
+        <div class="w-12 h-12 rounded-xl bg-brandRed/10 flex items-center justify-center mb-4">
+          <i class="fa-solid fa-heart-pulse text-brandRed text-xl"></i>
+        </div>
+        <h3 class="font-bold text-slate-900 mb-2">Healthcare Access</h3>
+        <p class="text-sm text-slate-500 leading-relaxed">Free medical camps, mobile clinics, and maternal health services in remote mountain villages.</p>
+      </div>
+      <div class="bg-white rounded-[2rem] p-6 border border-slate-200 shadow-sm hover:shadow-md transition-all">
+        <div class="w-12 h-12 rounded-xl bg-brandRed/10 flex items-center justify-center mb-4">
+          <i class="fa-solid fa-graduation-cap text-brandRed text-xl"></i>
+        </div>
+        <h3 class="font-bold text-slate-900 mb-2">Education Initiatives</h3>
+        <p class="text-sm text-slate-500 leading-relaxed">School rebuilding, orphan sponsorship, and education kits for children displaced by conflict and disasters.</p>
+      </div>
+    </div>
+
+    <!-- District Cards -->
+    <h3 class="text-lg font-bold text-slate-900 mb-4">Key Districts</h3>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div class="bg-white rounded-2xl p-5 border border-slate-200 hover:border-brandRed/30 transition-all">
+        <div class="flex items-center gap-3 mb-3">
+          <div class="w-8 h-8 rounded-lg bg-brandRed/10 flex items-center justify-center"><i class="fa-solid fa-location-dot text-brandRed text-xs"></i></div>
+          <span class="font-bold text-slate-900 text-sm">Swat</span>
+        </div>
+        <div class="space-y-2 text-xs text-slate-500">
+          <div class="flex justify-between"><span>Flood Relief</span><span class="font-semibold text-slate-700">Active</span></div>
+          <div class="flex justify-between"><span>Beneficiaries</span><span class="font-semibold text-slate-700">18,500</span></div>
+          <div class="flex justify-between"><span>Since</span><span class="font-semibold text-slate-700">2022</span></div>
+        </div>
+      </div>
+      <div class="bg-white rounded-2xl p-5 border border-slate-200 hover:border-brandRed/30 transition-all">
+        <div class="flex items-center gap-3 mb-3">
+          <div class="w-8 h-8 rounded-lg bg-brandRed/10 flex items-center justify-center"><i class="fa-solid fa-location-dot text-brandRed text-xs"></i></div>
+          <span class="font-bold text-slate-900 text-sm">Peshawar</span>
+        </div>
+        <div class="space-y-2 text-xs text-slate-500">
+          <div class="flex justify-between"><span>Health & Education</span><span class="font-semibold text-slate-700">Active</span></div>
+          <div class="flex justify-between"><span>Beneficiaries</span><span class="font-semibold text-slate-700">22,300</span></div>
+          <div class="flex justify-between"><span>Since</span><span class="font-semibold text-slate-700">2020</span></div>
+        </div>
+      </div>
+      <div class="bg-white rounded-2xl p-5 border border-slate-200 hover:border-brandRed/30 transition-all">
+        <div class="flex items-center gap-3 mb-3">
+          <div class="w-8 h-8 rounded-lg bg-brandRed/10 flex items-center justify-center"><i class="fa-solid fa-location-dot text-brandRed text-xs"></i></div>
+          <span class="font-bold text-slate-900 text-sm">Dir</span>
+        </div>
+        <div class="space-y-2 text-xs text-slate-500">
+          <div class="flex justify-between"><span>Emergency Relief</span><span class="font-semibold text-slate-700">Active</span></div>
+          <div class="flex justify-between"><span>Beneficiaries</span><span class="font-semibold text-slate-700">9,200</span></div>
+          <div class="flex justify-between"><span>Since</span><span class="font-semibold text-slate-700">2023</span></div>
+        </div>
+      </div>
+      <div class="bg-white rounded-2xl p-5 border border-slate-200 hover:border-brandRed/30 transition-all">
+        <div class="flex items-center gap-3 mb-3">
+          <div class="w-8 h-8 rounded-lg bg-brandRed/10 flex items-center justify-center"><i class="fa-solid fa-location-dot text-brandRed text-xs"></i></div>
+          <span class="font-bold text-slate-900 text-sm">Chitral</span>
+        </div>
+        <div class="space-y-2 text-xs text-slate-500">
+          <div class="flex justify-between"><span>Winter Aid</span><span class="font-semibold text-slate-700">Active</span></div>
+          <div class="flex justify-between"><span>Beneficiaries</span><span class="font-semibold text-slate-700">7,800</span></div>
+          <div class="flex justify-between"><span>Since</span><span class="font-semibold text-slate-700">2023</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ======================== PROVINCE: PUNJAB ======================== -->
+<section id="punjab" class="py-20 bg-white scroll-mt-24">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex items-center gap-2 text-xs font-bold text-brandRed uppercase tracking-widest mb-2">
+      <i class="fa-solid fa-wheat-awn"></i> Province Spotlight
+    </div>
+    <h2 class="text-3xl sm:text-4xl font-display font-bold text-slate-900 mb-3">Punjab</h2>
+    <p class="text-slate-500 max-w-2xl mb-12">WRC's South Punjab operations focus on WASH infrastructure, emergency food distribution, and nutrition support for rural farming communities.</p>
+
+    <!-- Focus Areas Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+      <div class="bg-white rounded-[2rem] p-6 border border-slate-200 shadow-sm hover:shadow-md transition-all">
+        <div class="w-12 h-12 rounded-xl bg-brandRed/10 flex items-center justify-center mb-4">
+          <i class="fa-solid fa-faucet-drip text-brandRed text-xl"></i>
+        </div>
+        <h3 class="font-bold text-slate-900 mb-2">WASH Infrastructure</h3>
+        <p class="text-sm text-slate-500 leading-relaxed">Bore wells, hand pumps, and sanitation facilities for underserved rural villages in South Punjab.</p>
+      </div>
+      <div class="bg-white rounded-[2rem] p-6 border border-slate-200 shadow-sm hover:shadow-md transition-all">
+        <div class="w-12 h-12 rounded-xl bg-brandRed/10 flex items-center justify-center mb-4">
+          <i class="fa-solid fa-bowl-food text-brandRed text-xl"></i>
+        </div>
+        <h3 class="font-bold text-slate-900 mb-2">Food Aid</h3>
+        <p class="text-sm text-slate-500 leading-relaxed">Emergency ration packs and seasonal food distribution for flood-affected and food-insecure families.</p>
+      </div>
+      <div class="bg-white rounded-[2rem] p-6 border border-slate-200 shadow-sm hover:shadow-md transition-all">
+        <div class="w-12 h-12 rounded-xl bg-brandRed/10 flex items-center justify-center mb-4">
+          <i class="fa-solid fa-apple-whole text-brandRed text-xl"></i>
+        </div>
+        <h3 class="font-bold text-slate-900 mb-2">Nutrition Programs</h3>
+        <p class="text-sm text-slate-500 leading-relaxed">Therapeutic feeding centers and maternal nutrition education to combat malnutrition in children under 5.</p>
+      </div>
+    </div>
+
+    <!-- District Cards -->
+    <h3 class="text-lg font-bold text-slate-900 mb-4">Key Districts</h3>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div class="bg-white rounded-2xl p-5 border border-slate-200 hover:border-brandRed/30 transition-all">
+        <div class="flex items-center gap-3 mb-3">
+          <div class="w-8 h-8 rounded-lg bg-brandRed/10 flex items-center justify-center"><i class="fa-solid fa-location-dot text-brandRed text-xs"></i></div>
+          <span class="font-bold text-slate-900 text-sm">Rahim Yar Khan</span>
+        </div>
+        <div class="space-y-2 text-xs text-slate-500">
+          <div class="flex justify-between"><span>WASH & Food Aid</span><span class="font-semibold text-slate-700">Active</span></div>
+          <div class="flex justify-between"><span>Beneficiaries</span><span class="font-semibold text-slate-700">14,600</span></div>
+          <div class="flex justify-between"><span>Since</span><span class="font-semibold text-slate-700">2021</span></div>
+        </div>
+      </div>
+      <div class="bg-white rounded-2xl p-5 border border-slate-200 hover:border-brandRed/30 transition-all">
+        <div class="flex items-center gap-3 mb-3">
+          <div class="w-8 h-8 rounded-lg bg-brandRed/10 flex items-center justify-center"><i class="fa-solid fa-location-dot text-brandRed text-xs"></i></div>
+          <span class="font-bold text-slate-900 text-sm">Dera Ghazi Khan</span>
+        </div>
+        <div class="space-y-2 text-xs text-slate-500">
+          <div class="flex justify-between"><span>Food Security</span><span class="font-semibold text-slate-700">Active</span></div>
+          <div class="flex justify-between"><span>Beneficiaries</span><span class="font-semibold text-slate-700">11,200</span></div>
+          <div class="flex justify-between"><span>Since</span><span class="font-semibold text-slate-700">2022</span></div>
+        </div>
+      </div>
+      <div class="bg-white rounded-2xl p-5 border border-slate-200 hover:border-brandRed/30 transition-all">
+        <div class="flex items-center gap-3 mb-3">
+          <div class="w-8 h-8 rounded-lg bg-brandRed/10 flex items-center justify-center"><i class="fa-solid fa-location-dot text-brandRed text-xs"></i></div>
+          <span class="font-bold text-slate-900 text-sm">Muzaffargarh</span>
+        </div>
+        <div class="space-y-2 text-xs text-slate-500">
+          <div class="flex justify-between"><span>Nutrition</span><span class="font-semibold text-slate-700">Active</span></div>
+          <div class="flex justify-between"><span>Beneficiaries</span><span class="font-semibold text-slate-700">8,900</span></div>
+          <div class="flex justify-between"><span>Since</span><span class="font-semibold text-slate-700">2023</span></div>
+        </div>
+      </div>
+      <div class="bg-white rounded-2xl p-5 border border-slate-200 hover:border-brandRed/30 transition-all">
+        <div class="flex items-center gap-3 mb-3">
+          <div class="w-8 h-8 rounded-lg bg-brandRed/10 flex items-center justify-center"><i class="fa-solid fa-location-dot text-brandRed text-xs"></i></div>
+          <span class="font-bold text-slate-900 text-sm">Bahawalpur</span>
+        </div>
+        <div class="space-y-2 text-xs text-slate-500">
+          <div class="flex justify-between"><span>WASH</span><span class="font-semibold text-slate-700">Active</span></div>
+          <div class="flex justify-between"><span>Beneficiaries</span><span class="font-semibold text-slate-700">6,400</span></div>
+          <div class="flex justify-between"><span>Since</span><span class="font-semibold text-slate-700">2024</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ======================== PROVINCE: SINDH ======================== -->
+<section id="sindh" class="py-20 bg-slate-50 scroll-mt-24">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex items-center gap-2 text-xs font-bold text-brandRed uppercase tracking-widest mb-2">
+      <i class="fa-solid fa-water"></i> Province Spotlight
+    </div>
+    <h2 class="text-3xl sm:text-4xl font-display font-bold text-slate-900 mb-3">Sindh</h2>
+    <p class="text-slate-500 max-w-2xl mb-12">In Sindh's desert belt, WRC combats drought and heat with mobile health units, water trucking, and community resilience programs across Tharparkar and surrounding districts.</p>
+
+    <!-- Focus Areas Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+      <div class="bg-white rounded-[2rem] p-6 border border-slate-200 shadow-sm hover:shadow-md transition-all">
+        <div class="w-12 h-12 rounded-xl bg-brandRed/10 flex items-center justify-center mb-4">
+          <i class="fa-solid fa-truck-medical text-brandRed text-xl"></i>
+        </div>
+        <h3 class="font-bold text-slate-900 mb-2">Mobile Health Units</h3>
+        <p class="text-sm text-slate-500 leading-relaxed">Equipped vans providing free consultations, medicines, and maternal care in remote desert settlements.</p>
+      </div>
+      <div class="bg-white rounded-[2rem] p-6 border border-slate-200 shadow-sm hover:shadow-md transition-all">
+        <div class="w-12 h-12 rounded-xl bg-brandRed/10 flex items-center justify-center mb-4">
+          <i class="fa-solid fa-droplet text-brandRed text-xl"></i>
+        </div>
+        <h3 class="font-bold text-slate-900 mb-2">Drought Relief</h3>
+        <p class="text-sm text-slate-500 leading-relaxed">Emergency water trucking, livestock support, and drought-resistant crop distribution for farming families.</p>
+      </div>
+      <div class="bg-white rounded-[2rem] p-6 border border-slate-200 shadow-sm hover:shadow-md transition-all">
+        <div class="w-12 h-12 rounded-xl bg-brandRed/10 flex items-center justify-center mb-4">
+          <i class="fa-solid fa-shield-halved text-brandRed text-xl"></i>
+        </div>
+        <h3 class="font-bold text-slate-900 mb-2">Community Resilience</h3>
+        <p class="text-sm text-slate-500 leading-relaxed">Disaster preparedness training, early warning systems, and community-led emergency response teams.</p>
+      </div>
+    </div>
+
+    <!-- District Cards -->
+    <h3 class="text-lg font-bold text-slate-900 mb-4">Key Districts</h3>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div class="bg-white rounded-2xl p-5 border border-slate-200 hover:border-brandRed/30 transition-all">
+        <div class="flex items-center gap-3 mb-3">
+          <div class="w-8 h-8 rounded-lg bg-brandRed/10 flex items-center justify-center"><i class="fa-solid fa-location-dot text-brandRed text-xs"></i></div>
+          <span class="font-bold text-slate-900 text-sm">Tharparkar</span>
+        </div>
+        <div class="space-y-2 text-xs text-slate-500">
+          <div class="flex justify-between"><span>Mobile Health & Drought</span><span class="font-semibold text-slate-700">Active</span></div>
+          <div class="flex justify-between"><span>Beneficiaries</span><span class="font-semibold text-slate-700">16,800</span></div>
+          <div class="flex justify-between"><span>Since</span><span class="font-semibold text-slate-700">2019</span></div>
+        </div>
+      </div>
+      <div class="bg-white rounded-2xl p-5 border border-slate-200 hover:border-brandRed/30 transition-all">
+        <div class="flex items-center gap-3 mb-3">
+          <div class="w-8 h-8 rounded-lg bg-brandRed/10 flex items-center justify-center"><i class="fa-solid fa-location-dot text-brandRed text-xs"></i></div>
+          <span class="font-bold text-slate-900 text-sm">Umerkot</span>
+        </div>
+        <div class="space-y-2 text-xs text-slate-500">
+          <div class="flex justify-between"><span>Health & WASH</span><span class="font-semibold text-slate-700">Active</span></div>
+          <div class="flex justify-between"><span>Beneficiaries</span><span class="font-semibold text-slate-700">10,400</span></div>
+          <div class="flex justify-between"><span>Since</span><span class="font-semibold text-slate-700">2021</span></div>
+        </div>
+      </div>
+      <div class="bg-white rounded-2xl p-5 border border-slate-200 hover:border-brandRed/30 transition-all">
+        <div class="flex items-center gap-3 mb-3">
+          <div class="w-8 h-8 rounded-lg bg-brandRed/10 flex items-center justify-center"><i class="fa-solid fa-location-dot text-brandRed text-xs"></i></div>
+          <span class="font-bold text-slate-900 text-sm">Jamshoro</span>
+        </div>
+        <div class="space-y-2 text-xs text-slate-500">
+          <div class="flex justify-between"><span>Community Resilience</span><span class="font-semibold text-slate-700">Active</span></div>
+          <div class="flex justify-between"><span>Beneficiaries</span><span class="font-semibold text-slate-700">5,600</span></div>
+          <div class="flex justify-between"><span>Since</span><span class="font-semibold text-slate-700">2024</span></div>
+        </div>
+      </div>
+      <div class="bg-white rounded-2xl p-5 border border-slate-200 hover:border-brandRed/30 transition-all">
+        <div class="flex items-center gap-3 mb-3">
+          <div class="w-8 h-8 rounded-lg bg-brandRed/10 flex items-center justify-center"><i class="fa-solid fa-location-dot text-brandRed text-xs"></i></div>
+          <span class="font-bold text-slate-900 text-sm">Sanghar</span>
+        </div>
+        <div class="space-y-2 text-xs text-slate-500">
+          <div class="flex justify-between"><span>Drought Relief</span><span class="font-semibold text-slate-700">Active</span></div>
+          <div class="flex justify-between"><span>Beneficiaries</span><span class="font-semibold text-slate-700">7,300</span></div>
+          <div class="flex justify-between"><span>Since</span><span class="font-semibold text-slate-700">2023</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ======================== PROVINCE: BALOCHISTAN ======================== -->
+<section id="balochistan" class="py-20 bg-white scroll-mt-24">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex items-center gap-2 text-xs font-bold text-brandRed uppercase tracking-widest mb-2">
+      <i class="fa-solid fa-sun"></i> Province Spotlight
+    </div>
+    <h2 class="text-3xl sm:text-4xl font-display font-bold text-slate-900 mb-3">Balochistan</h2>
+    <p class="text-slate-500 max-w-2xl mb-12">In Pakistan's most underserved province, WRC provides clean water through hand-dug wells and solar-powered water systems, bringing reliable water access to remote desert communities.</p>
+
+    <!-- Focus Areas Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+      <div class="bg-white rounded-[2rem] p-6 border border-slate-200 shadow-sm hover:shadow-md transition-all">
+        <div class="w-12 h-12 rounded-xl bg-brandRed/10 flex items-center justify-center mb-4">
+          <i class="fa-solid fa-well-known text-brandRed text-xl" style="font-family: 'Font Awesome 6 Free'; font-weight: 900;">
+            <i class="fa-solid fa-droplet"></i>
+          </i>
+        </div>
+        <h3 class="font-bold text-slate-900 mb-2">Clean Water Wells</h3>
+        <p class="text-sm text-slate-500 leading-relaxed">Hand-dug and mechanized wells providing year-round clean drinking water to villages with no prior water infrastructure.</p>
+      </div>
+      <div class="bg-white rounded-[2rem] p-6 border border-slate-200 shadow-sm hover:shadow-md transition-all">
+        <div class="w-12 h-12 rounded-xl bg-brandRed/10 flex items-center justify-center mb-4">
+          <i class="fa-solid fa-solar-panel text-brandRed text-xl"></i>
+        </div>
+        <h3 class="font-bold text-slate-900 mb-2">Solar Energy Solutions</h3>
+        <p class="text-sm text-slate-500 leading-relaxed">Solar-powered water pumps and community lighting systems for off-grid settlements in remote areas.</p>
+      </div>
+      <div class="bg-white rounded-[2rem] p-6 border border-slate-200 shadow-sm hover:shadow-md transition-all">
+        <div class="w-12 h-12 rounded-xl bg-brandRed/10 flex items-center justify-center mb-4">
+          <i class="fa-solid fa-hand-holding-heart text-brandRed text-xl"></i>
+        </div>
+        <h3 class="font-bold text-slate-900 mb-2">Community Health</h3>
+        <p class="text-sm text-slate-500 leading-relaxed">Basic health units, maternal care, and nutrition support for nomadic and semi-nomadic populations.</p>
+      </div>
+    </div>
+
+    <!-- District Cards -->
+    <h3 class="text-lg font-bold text-slate-900 mb-4">Key Districts</h3>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div class="bg-white rounded-2xl p-5 border border-slate-200 hover:border-brandRed/30 transition-all">
+        <div class="flex items-center gap-3 mb-3">
+          <div class="w-8 h-8 rounded-lg bg-brandRed/10 flex items-center justify-center"><i class="fa-solid fa-location-dot text-brandRed text-xs"></i></div>
+          <span class="font-bold text-slate-900 text-sm">Quetta</span>
+        </div>
+        <div class="space-y-2 text-xs text-slate-500">
+          <div class="flex justify-between"><span>Water Wells</span><span class="font-semibold text-slate-700">Active</span></div>
+          <div class="flex justify-between"><span>Beneficiaries</span><span class="font-semibold text-slate-700">9,500</span></div>
+          <div class="flex justify-between"><span>Since</span><span class="font-semibold text-slate-700">2021</span></div>
+        </div>
+      </div>
+      <div class="bg-white rounded-2xl p-5 border border-slate-200 hover:border-brandRed/30 transition-all">
+        <div class="flex items-center gap-3 mb-3">
+          <div class="w-8 h-8 rounded-lg bg-brandRed/10 flex items-center justify-center"><i class="fa-solid fa-location-dot text-brandRed text-xs"></i></div>
+          <span class="font-bold text-slate-900 text-sm">Turbat</span>
+        </div>
+        <div class="space-y-2 text-xs text-slate-500">
+          <div class="flex justify-between"><span>Solar & Water</span><span class="font-semibold text-slate-700">Active</span></div>
+          <div class="flex justify-between"><span>Beneficiaries</span><span class="font-semibold text-slate-700">6,200</span></div>
+          <div class="flex justify-between"><span>Since</span><span class="font-semibold text-slate-700">2022</span></div>
+        </div>
+      </div>
+      <div class="bg-white rounded-2xl p-5 border border-slate-200 hover:border-brandRed/30 transition-all">
+        <div class="flex items-center gap-3 mb-3">
+          <div class="w-8 h-8 rounded-lg bg-brandRed/10 flex items-center justify-center"><i class="fa-solid fa-location-dot text-brandRed text-xs"></i></div>
+          <span class="font-bold text-slate-900 text-sm">Zhob</span>
+        </div>
+        <div class="space-y-2 text-xs text-slate-500">
+          <div class="flex justify-between"><span>Community Health</span><span class="font-semibold text-slate-700">Active</span></div>
+          <div class="flex justify-between"><span>Beneficiaries</span><span class="font-semibold text-slate-700">4,100</span></div>
+          <div class="flex justify-between"><span>Since</span><span class="font-semibold text-slate-700">2023</span></div>
+        </div>
+      </div>
+      <div class="bg-white rounded-2xl p-5 border border-slate-200 hover:border-brandRed/30 transition-all">
+        <div class="flex items-center gap-3 mb-3">
+          <div class="w-8 h-8 rounded-lg bg-brandRed/10 flex items-center justify-center"><i class="fa-solid fa-location-dot text-brandRed text-xs"></i></div>
+          <span class="font-bold text-slate-900 text-sm">Gwadar</span>
+        </div>
+        <div class="space-y-2 text-xs text-slate-500">
+          <div class="flex justify-between"><span>Water & Solar</span><span class="font-semibold text-slate-700">Active</span></div>
+          <div class="flex justify-between"><span>Beneficiaries</span><span class="font-semibold text-slate-700">3,800</span></div>
+          <div class="flex justify-between"><span>Since</span><span class="font-semibold text-slate-700">2024</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ======================== DISTRICT COVERAGE TABLE ======================== -->
+<section id="districts" class="py-20 bg-slate-50 scroll-mt-24">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="text-center mb-10">
+      <span class="text-xs font-bold text-brandRed uppercase tracking-widest mb-2 block">Detailed Breakdown</span>
+      <h2 class="text-3xl sm:text-4xl font-display font-bold text-slate-900 mb-3">District Coverage</h2>
+      <p class="text-slate-500 max-w-xl mx-auto">Filter and search across all WRC operational districts to find specific program data and beneficiary statistics.</p>
+    </div>
+
+    <!-- Filter Tabs -->
+    <div class="flex flex-wrap justify-center gap-2 mb-6">
+      <button class="tab-btn active px-4 py-2 rounded-xl text-xs font-semibold border border-slate-200 bg-brandRed text-white transition-all" data-filter="all">All Provinces</button>
+      <button class="tab-btn px-4 py-2 rounded-xl text-xs font-semibold border border-slate-200 bg-white text-slate-600 hover:border-brandRed/30 transition-all" data-filter="Khyber Pakhtunkhwa">KPK</button>
+      <button class="tab-btn px-4 py-2 rounded-xl text-xs font-semibold border border-slate-200 bg-white text-slate-600 hover:border-brandRed/30 transition-all" data-filter="Punjab">Punjab</button>
+      <button class="tab-btn px-4 py-2 rounded-xl text-xs font-semibold border border-slate-200 bg-white text-slate-600 hover:border-brandRed/30 transition-all" data-filter="Sindh">Sindh</button>
+      <button class="tab-btn px-4 py-2 rounded-xl text-xs font-semibold border border-slate-200 bg-white text-slate-600 hover:border-brandRed/30 transition-all" data-filter="Balochistan">Balochistan</button>
+    </div>
+
+    <!-- Search -->
+    <div class="max-w-md mx-auto mb-8">
+      <div class="relative">
+        <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+        <input id="district-search" type="text" placeholder="Search by district name..." class="search-input w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 bg-white text-sm text-slate-700 transition-all" />
+      </div>
+    </div>
+
+    <!-- Table -->
+    <div class="bg-white rounded-[2rem] border border-slate-200 shadow-sm overflow-hidden">
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="bg-slate-50 border-b border-slate-200">
+              <th class="text-left px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">District</th>
+              <th class="text-left px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Province</th>
+              <th class="text-left px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Programs Active</th>
+              <th class="text-right px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Beneficiaries</th>
+              <th class="text-right px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Year Started</th>
+            </tr>
+          </thead>
+          <tbody id="district-table-body">
+            <tr class="district-row border-b border-slate-100 transition-colors" data-province="Khyber Pakhtunkhwa">
+              <td class="px-6 py-4 font-semibold text-slate-900">Swat</td>
+              <td class="px-6 py-4 text-slate-600">Khyber Pakhtunkhwa</td>
+              <td class="px-6 py-4"><span class="inline-block bg-brandRed/10 text-brandRed text-xs font-semibold px-2.5 py-1 rounded-lg">Flood Relief, Health</span></td>
+              <td class="px-6 py-4 text-right font-semibold text-slate-700">18,500</td>
+              <td class="px-6 py-4 text-right text-slate-500">2022</td>
+            </tr>
+            <tr class="district-row border-b border-slate-100 transition-colors" data-province="Khyber Pakhtunkhwa">
+              <td class="px-6 py-4 font-semibold text-slate-900">Peshawar</td>
+              <td class="px-6 py-4 text-slate-600">Khyber Pakhtunkhwa</td>
+              <td class="px-6 py-4"><span class="inline-block bg-brandRed/10 text-brandRed text-xs font-semibold px-2.5 py-1 rounded-lg">Health, Education</span></td>
+              <td class="px-6 py-4 text-right font-semibold text-slate-700">22,300</td>
+              <td class="px-6 py-4 text-right text-slate-500">2020</td>
+            </tr>
+            <tr class="district-row border-b border-slate-100 transition-colors" data-province="Khyber Pakhtunkhwa">
+              <td class="px-6 py-4 font-semibold text-slate-900">Dir</td>
+              <td class="px-6 py-4 text-slate-600">Khyber Pakhtunkhwa</td>
+              <td class="px-6 py-4"><span class="inline-block bg-brandRed/10 text-brandRed text-xs font-semibold px-2.5 py-1 rounded-lg">Emergency Relief</span></td>
+              <td class="px-6 py-4 text-right font-semibold text-slate-700">9,200</td>
+              <td class="px-6 py-4 text-right text-slate-500">2023</td>
+            </tr>
+            <tr class="district-row border-b border-slate-100 transition-colors" data-province="Khyber Pakhtunkhwa">
+              <td class="px-6 py-4 font-semibold text-slate-900">Chitral</td>
+              <td class="px-6 py-4 text-slate-600">Khyber Pakhtunkhwa</td>
+              <td class="px-6 py-4"><span class="inline-block bg-brandRed/10 text-brandRed text-xs font-semibold px-2.5 py-1 rounded-lg">Winter Aid</span></td>
+              <td class="px-6 py-4 text-right font-semibold text-slate-700">7,800</td>
+              <td class="px-6 py-4 text-right text-slate-500">2023</td>
+            </tr>
+            <tr class="district-row border-b border-slate-100 transition-colors" data-province="Khyber Pakhtunkhwa">
+              <td class="px-6 py-4 font-semibold text-slate-900">Mardan</td>
+              <td class="px-6 py-4 text-slate-600">Khyber Pakhtunkhwa</td>
+              <td class="px-6 py-4"><span class="inline-block bg-brandRed/10 text-brandRed text-xs font-semibold px-2.5 py-1 rounded-lg">Education, WASH</span></td>
+              <td class="px-6 py-4 text-right font-semibold text-slate-700">5,400</td>
+              <td class="px-6 py-4 text-right text-slate-500">2024</td>
+            </tr>
+            <tr class="district-row border-b border-slate-100 transition-colors" data-province="Khyber Pakhtunkhwa">
+              <td class="px-6 py-4 font-semibold text-slate-900">Kohat</td>
+              <td class="px-6 py-4 text-slate-600">Khyber Pakhtunkhwa</td>
+              <td class="px-6 py-4"><span class="inline-block bg-brandRed/10 text-brandRed text-xs font-semibold px-2.5 py-1 rounded-lg">Health</span></td>
+              <td class="px-6 py-4 text-right font-semibold text-slate-700">3,100</td>
+              <td class="px-6 py-4 text-right text-slate-500">2024</td>
+            </tr>
+            <tr class="district-row border-b border-slate-100 transition-colors" data-province="Punjab">
+              <td class="px-6 py-4 font-semibold text-slate-900">Rahim Yar Khan</td>
+              <td class="px-6 py-4 text-slate-600">Punjab</td>
+              <td class="px-6 py-4"><span class="inline-block bg-brandRed/10 text-brandRed text-xs font-semibold px-2.5 py-1 rounded-lg">WASH, Food Aid</span></td>
+              <td class="px-6 py-4 text-right font-semibold text-slate-700">14,600</td>
+              <td class="px-6 py-4 text-right text-slate-500">2021</td>
+            </tr>
+            <tr class="district-row border-b border-slate-100 transition-colors" data-province="Punjab">
+              <td class="px-6 py-4 font-semibold text-slate-900">Dera Ghazi Khan</td>
+              <td class="px-6 py-4 text-slate-600">Punjab</td>
+              <td class="px-6 py-4"><span class="inline-block bg-brandRed/10 text-brandRed text-xs font-semibold px-2.5 py-1 rounded-lg">Food Security</span></td>
+              <td class="px-6 py-4 text-right font-semibold text-slate-700">11,200</td>
+              <td class="px-6 py-4 text-right text-slate-500">2022</td>
+            </tr>
+            <tr class="district-row border-b border-slate-100 transition-colors" data-province="Punjab">
+              <td class="px-6 py-4 font-semibold text-slate-900">Muzaffargarh</td>
+              <td class="px-6 py-4 text-slate-600">Punjab</td>
+              <td class="px-6 py-4"><span class="inline-block bg-brandRed/10 text-brandRed text-xs font-semibold px-2.5 py-1 rounded-lg">Nutrition</span></td>
+              <td class="px-6 py-4 text-right font-semibold text-slate-700">8,900</td>
+              <td class="px-6 py-4 text-right text-slate-500">2023</td>
+            </tr>
+            <tr class="district-row border-b border-slate-100 transition-colors" data-province="Punjab">
+              <td class="px-6 py-4 font-semibold text-slate-900">Bahawalpur</td>
+              <td class="px-6 py-4 text-slate-600">Punjab</td>
+              <td class="px-6 py-4"><span class="inline-block bg-brandRed/10 text-brandRed text-xs font-semibold px-2.5 py-1 rounded-lg">WASH</span></td>
+              <td class="px-6 py-4 text-right font-semibold text-slate-700">6,400</td>
+              <td class="px-6 py-4 text-right text-slate-500">2024</td>
+            </tr>
+            <tr class="district-row border-b border-slate-100 transition-colors" data-province="Punjab">
+              <td class="px-6 py-4 font-semibold text-slate-900">Lodhran</td>
+              <td class="px-6 py-4 text-slate-600">Punjab</td>
+              <td class="px-6 py-4"><span class="inline-block bg-brandRed/10 text-brandRed text-xs font-semibold px-2.5 py-1 rounded-lg">Food Aid, Nutrition</span></td>
+              <td class="px-6 py-4 text-right font-semibold text-slate-700">4,300</td>
+              <td class="px-6 py-4 text-right text-slate-500">2024</td>
+            </tr>
+            <tr class="district-row border-b border-slate-100 transition-colors" data-province="Punjab">
+              <td class="px-6 py-4 font-semibold text-slate-900">Rajpur</td>
+              <td class="px-6 py-4 text-slate-600">Punjab</td>
+              <td class="px-6 py-4"><span class="inline-block bg-brandRed/10 text-brandRed text-xs font-semibold px-2.5 py-1 rounded-lg">WASH, Education</span></td>
+              <td class="px-6 py-4 text-right font-semibold text-slate-700">3,800</td>
+              <td class="px-6 py-4 text-right text-slate-500">2025</td>
+            </tr>
+            <tr class="district-row border-b border-slate-100 transition-colors" data-province="Sindh">
+              <td class="px-6 py-4 font-semibold text-slate-900">Tharparkar</td>
+              <td class="px-6 py-4 text-slate-600">Sindh</td>
+              <td class="px-6 py-4"><span class="inline-block bg-brandRed/10 text-brandRed text-xs font-semibold px-2.5 py-1 rounded-lg">Mobile Health, Drought</span></td>
+              <td class="px-6 py-4 text-right font-semibold text-slate-700">16,800</td>
+              <td class="px-6 py-4 text-right text-slate-500">2019</td>
+            </tr>
+            <tr class="district-row border-b border-slate-100 transition-colors" data-province="Sindh">
+              <td class="px-6 py-4 font-semibold text-slate-900">Umerkot</td>
+              <td class="px-6 py-4 text-slate-600">Sindh</td>
+              <td class="px-6 py-4"><span class="inline-block bg-brandRed/10 text-brandRed text-xs font-semibold px-2.5 py-1 rounded-lg">Health, WASH</span></td>
+              <td class="px-6 py-4 text-right font-semibold text-slate-700">10,400</td>
+              <td class="px-6 py-4 text-right text-slate-500">2021</td>
+            </tr>
+            <tr class="district-row border-b border-slate-100 transition-colors" data-province="Sindh">
+              <td class="px-6 py-4 font-semibold text-slate-900">Jamshoro</td>
+              <td class="px-6 py-4 text-slate-600">Sindh</td>
+              <td class="px-6 py-4"><span class="inline-block bg-brandRed/10 text-brandRed text-xs font-semibold px-2.5 py-1 rounded-lg">Community Resilience</span></td>
+              <td class="px-6 py-4 text-right font-semibold text-slate-700">5,600</td>
+              <td class="px-6 py-4 text-right text-slate-500">2024</td>
+            </tr>
+            <tr class="district-row border-b border-slate-100 transition-colors" data-province="Sindh">
+              <td class="px-6 py-4 font-semibold text-slate-900">Sanghar</td>
+              <td class="px-6 py-4 text-slate-600">Sindh</td>
+              <td class="px-6 py-4"><span class="inline-block bg-brandRed/10 text-brandRed text-xs font-semibold px-2.5 py-1 rounded-lg">Drought Relief</span></td>
+              <td class="px-6 py-4 text-right font-semibold text-slate-700">7,300</td>
+              <td class="px-6 py-4 text-right text-slate-500">2023</td>
+            </tr>
+            <tr class="district-row border-b border-slate-100 transition-colors" data-province="Sindh">
+              <td class="px-6 py-4 font-semibold text-slate-900">Mirpur Khas</td>
+              <td class="px-6 py-4 text-slate-600">Sindh</td>
+              <td class="px-6 py-4"><span class="inline-block bg-brandRed/10 text-brandRed text-xs font-semibold px-2.5 py-1 rounded-lg">Health, Nutrition</span></td>
+              <td class="px-6 py-4 text-right font-semibold text-slate-700">4,200</td>
+              <td class="px-6 py-4 text-right text-slate-500">2024</td>
+            </tr>
+            <tr class="district-row border-b border-slate-100 transition-colors" data-province="Balochistan">
+              <td class="px-6 py-4 font-semibold text-slate-900">Quetta</td>
+              <td class="px-6 py-4 text-slate-600">Balochistan</td>
+              <td class="px-6 py-4"><span class="inline-block bg-brandRed/10 text-brandRed text-xs font-semibold px-2.5 py-1 rounded-lg">Water Wells</span></td>
+              <td class="px-6 py-4 text-right font-semibold text-slate-700">9,500</td>
+              <td class="px-6 py-4 text-right text-slate-500">2021</td>
+            </tr>
+            <tr class="district-row border-b border-slate-100 transition-colors" data-province="Balochistan">
+              <td class="px-6 py-4 font-semibold text-slate-900">Turbat</td>
+              <td class="px-6 py-4 text-slate-600">Balochistan</td>
+              <td class="px-6 py-4"><span class="inline-block bg-brandRed/10 text-brandRed text-xs font-semibold px-2.5 py-1 rounded-lg">Solar, Water</span></td>
+              <td class="px-6 py-4 text-right font-semibold text-slate-700">6,200</td>
+              <td class="px-6 py-4 text-right text-slate-500">2022</td>
+            </tr>
+            <tr class="district-row border-b border-slate-100 transition-colors" data-province="Balochistan">
+              <td class="px-6 py-4 font-semibold text-slate-900">Zhob</td>
+              <td class="px-6 py-4 text-slate-600">Balochistan</td>
+              <td class="px-6 py-4"><span class="inline-block bg-brandRed/10 text-brandRed text-xs font-semibold px-2.5 py-1 rounded-lg">Community Health</span></td>
+              <td class="px-6 py-4 text-right font-semibold text-slate-700">4,100</td>
+              <td class="px-6 py-4 text-right text-slate-500">2023</td>
+            </tr>
+            <tr class="district-row border-b border-slate-100 transition-colors" data-province="Balochistan">
+              <td class="px-6 py-4 font-semibold text-slate-900">Gwadar</td>
+              <td class="px-6 py-4 text-slate-600">Balochistan</td>
+              <td class="px-6 py-4"><span class="inline-block bg-brandRed/10 text-brandRed text-xs font-semibold px-2.5 py-1 rounded-lg">Water, Solar</span></td>
+              <td class="px-6 py-4 text-right font-semibold text-slate-700">3,800</td>
+              <td class="px-6 py-4 text-right text-slate-500">2024</td>
+            </tr>
+            <tr class="district-row transition-colors" data-province="Balochistan">
+              <td class="px-6 py-4 font-semibold text-slate-900">Lasbela</td>
+              <td class="px-6 py-4 text-slate-600">Balochistan</td>
+              <td class="px-6 py-4"><span class="inline-block bg-brandRed/10 text-brandRed text-xs font-semibold px-2.5 py-1 rounded-lg">WASH, Health</span></td>
+              <td class="px-6 py-4 text-right font-semibold text-slate-700">2,900</td>
+              <td class="px-6 py-4 text-right text-slate-500">2025</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div id="no-results" class="hidden text-center py-12 text-slate-400 text-sm">
+        <i class="fa-solid fa-magnifying-glass text-2xl mb-3 block text-slate-300"></i>
+        No districts match your search. Try a different keyword.
+      </div>
+      <div class="bg-slate-50 px-6 py-4 border-t border-slate-200 flex flex-wrap items-center justify-between gap-4 text-xs text-slate-500">
+        <span id="table-count">Showing 22 districts</span>
+        <div class="flex items-center gap-2">
+          <span>Total Beneficiaries:</span>
+          <span class="font-bold text-brandRed">185,000+</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
 
 
 <!-- FOOTER -->
@@ -525,7 +1244,7 @@
       </div>
 
       <div class="border-t border-slate-800/70 mt-10 pt-6 flex flex-col gap-4 md:flex-row md:items-center md:justify-between text-slate-500 text-xs">
-        <p>© 2026 World Relief Committee. All rights reserved.</p>
+        <p>&copy; 2026 World Relief Committee. All rights reserved.</p>
         <div class="flex flex-wrap items-center gap-3 justify-center md:justify-end text-slate-400">
           <a href="../privacy.html" class="hover:text-white transition">Privacy Policy</a>
           <a href="../terms.html" class="hover:text-white transition">Terms of Use</a>
@@ -535,6 +1254,90 @@
     </div>
   </footer>
 
+
+  <!-- INTERACTIVE MAP + TABLE SCRIPTS -->
+  <script>
+    // Province map click + hover interactions
+    (function() {
+      const provinces = document.querySelectorAll('.province-path');
+      const tooltip = document.getElementById('map-tooltip');
+      const originalColors = { kp: '#f1f5f9', punjab: '#e2e8f0', sindh: '#d1d5db', balochistan: '#cbd5e1' };
+      const hoverColor = '#ca0000';
+
+      provinces.forEach(function(path) {
+        path.addEventListener('mouseenter', function(e) {
+          const id = this.getAttribute('data-province');
+          this.setAttribute('fill', hoverColor);
+          var name = id.charAt(0).toUpperCase() + id.slice(1);
+          if (id === 'kp') name = 'Khyber Pakhtunkhwa';
+          tooltip.textContent = name + ' \u2014 Click to explore';
+          tooltip.classList.remove('hidden');
+        });
+
+        path.addEventListener('mousemove', function(e) {
+          var mapContainer = document.querySelector('#map .relative');
+          var rect = mapContainer.getBoundingClientRect();
+          tooltip.style.left = (e.clientX - rect.left + 12) + 'px';
+          tooltip.style.top = (e.clientY - rect.top - 36) + 'px';
+        });
+
+        path.addEventListener('mouseleave', function() {
+          var id = this.getAttribute('data-province');
+          this.setAttribute('fill', originalColors[id] || '#e2e8f0');
+          tooltip.classList.add('hidden');
+        });
+
+        path.addEventListener('click', function() {
+          var id = this.getAttribute('data-province');
+          var section = document.getElementById(id);
+          if (section) {
+            section.scrollIntoView({ behavior: 'smooth' });
+          }
+        });
+      });
+    })();
+
+    // District table filter + search
+    (function() {
+      var tabs = document.querySelectorAll('.tab-btn');
+      var rows = document.querySelectorAll('.district-row');
+      var searchInput = document.getElementById('district-search');
+      var noResults = document.getElementById('no-results');
+      var tableCount = document.getElementById('table-count');
+      var activeFilter = 'all';
+
+      function filterTable() {
+        var query = searchInput.value.toLowerCase().trim();
+        var visible = 0;
+        rows.forEach(function(row) {
+          var province = row.getAttribute('data-province');
+          var district = row.querySelector('td:first-child').textContent.toLowerCase();
+          var matchProvince = (activeFilter === 'all' || province === activeFilter);
+          var matchSearch = !query || district.indexOf(query) !== -1;
+          if (matchProvince && matchSearch) {
+            row.style.display = '';
+            visible++;
+          } else {
+            row.style.display = 'none';
+          }
+        });
+        noResults.classList.toggle('hidden', visible > 0);
+        tableCount.textContent = 'Showing ' + visible + ' district' + (visible !== 1 ? 's' : '');
+      }
+
+      tabs.forEach(function(tab) {
+        tab.addEventListener('click', function() {
+          tabs.forEach(function(t) { t.classList.remove('active', 'bg-brandRed', 'text-white'); t.classList.add('bg-white', 'text-slate-600'); });
+          this.classList.add('active', 'bg-brandRed', 'text-white');
+          this.classList.remove('bg-white', 'text-slate-600');
+          activeFilter = this.getAttribute('data-filter');
+          filterTable();
+        });
+      });
+
+      searchInput.addEventListener('input', filterTable);
+    })();
+  </script>
 
   <script src="../assets/js/main.js"></script>
 </body>

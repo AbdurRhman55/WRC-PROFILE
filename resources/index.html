@@ -62,10 +62,17 @@
   </script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <link rel="stylesheet" href="../assets/css/custom.css">
+  <style>
+    .tab-btn.active { background-color: #ca0000; color: #fff; }
+    .resource-card { transition: opacity 0.3s ease, transform 0.3s ease; }
+    .resource-card.hidden-card { opacity: 0; transform: scale(0.95); position: absolute; pointer-events: none; }
+    .resource-card.visible-card { opacity: 1; transform: scale(1); position: relative; pointer-events: auto; }
+    .filter-grid { position: relative; }
+  </style>
 </head>
 <body class="bg-slate-50 text-slate-800 flex flex-col min-h-screen">
 
-<!-- TOP UTILITY BAR -->
+  <!-- TOP UTILITY BAR -->
   <div class="bg-brandRed text-white text-xs py-2 border-b border-brandRed/80 hidden lg:block w-full">
     <div class="w-full px-4 sm:px-6 lg:px-8 flex justify-between items-center">
       <div class="flex items-center gap-6">
@@ -75,11 +82,12 @@
         <span class="text-white/90 font-medium"><i class="fa-solid fa-bullhorn text-white mr-1 text-[11px]"></i> Emergency Flood & Winter Aid Active</span>
       </div>
       <div class="flex items-center gap-4 text-xs text-white">
-         <span class="flex items-center gap-2"><i class="fa-solid fa-location-dot text-white text-[11px]"></i>Flat#1, 3rd Floor, Shami Flats near Marbella Wedding Hall, Warsak Road, Peshawar, Pakistan</span>
+        <span class="flex items-center gap-2"><i class="fa-solid fa-location-dot text-white text-[11px]"></i>Flat#1, 3rd Floor, Shami Flats near Marbella Wedding Hall, Warsak Road, Peshawar, Pakistan</span>
       </div>
     </div>
+  </div>
 
-<!-- MAIN HEADER NAVIGATION -->
+  <!-- MAIN HEADER NAVIGATION -->
   <header class="sticky top-0 z-50 w-full bg-white/95 lg:bg-white/75 lg:backdrop-blur-xl border-b border-white/50 transition-all duration-300 shadow-sm">
     <div class="w-full px-4 sm:px-6 lg:px-8">
       <div class="flex items-center justify-between h-20 gap-4">
@@ -107,23 +115,20 @@
               <a href="../about/who-we-are.html" class="block px-3 py-1.5 rounded-xl hover:bg-slate-800 hover:text-white transition-colors"><i class="fa-solid fa-circle-info w-4 text-center mr-1 text-slate-400"></i> Who We Are</a>
               <a href="../about/vision-mission-values.html" class="block px-3 py-1.5 rounded-xl hover:bg-slate-800 hover:text-white transition-colors"><i class="fa-solid fa-bullseye w-4 text-center mr-1 text-slate-400"></i> Vision, Mission & Values</a>
               <a href="../about/history.html" class="block px-3 py-1.5 rounded-xl hover:bg-slate-800 hover:text-white transition-colors"><i class="fa-solid fa-timeline w-4 text-center mr-1 text-slate-400"></i> Our History</a>
-              
               <div class="mt-2 mb-1 px-2 text-[10px] font-bold text-slate-400 uppercase tracking-wider">People & Governance</div>
               <a href="../about/leadership.html" class="block px-3 py-1.5 rounded-xl hover:bg-slate-800 hover:text-white transition-colors"><i class="fa-solid fa-user-tie w-4 text-center mr-1 text-slate-400"></i> Leadership</a>
               <a href="../about/organizational-structure.html" class="block px-3 py-1.5 rounded-xl hover:bg-slate-800 hover:text-white transition-colors"><i class="fa-solid fa-sitemap w-4 text-center mr-1 text-slate-400"></i> Organizational Structure</a>
               <a href="../about/team.html" class="block px-3 py-1.5 rounded-xl hover:bg-slate-800 hover:text-white transition-colors"><i class="fa-solid fa-users w-4 text-center mr-1 text-slate-400"></i> Our Team</a>
-              
               <div class="mt-2 mb-1 px-2 text-[10px] font-bold text-slate-400 uppercase tracking-wider">Transparency</div>
               <a href="../about/policies-compliance.html" class="block px-3 py-1.5 rounded-xl hover:bg-slate-800 hover:text-white transition-colors"><i class="fa-solid fa-shield-halved w-4 text-center mr-1 text-slate-400"></i> Policies & Compliance</a>
               <a href="../about/annual-reports.html" class="block px-3 py-1.5 rounded-xl hover:bg-slate-800 hover:text-white transition-colors"><i class="fa-solid fa-file-invoice w-4 text-center mr-1 text-slate-400"></i> Annual Reports</a>
-              
               <div class="mt-2 pt-2 border-t border-slate-100">
                 <a href="../contact/index.html" class="block px-3 py-1.5 rounded-xl hover:bg-slate-800 hover:text-white transition-colors font-medium"><i class="fa-solid fa-address-book w-4 text-center mr-1 text-slate-400"></i> Contact Us</a>
               </div>
             </div>
           </div>
 
-          <!-- 3. OUR WORK (MEGA MENU) -->
+          <!-- 3. OUR WORK -->
           <div class="nav-item-dropdown">
             <a href="../our-work/index.html" class="nav-link-item px-2.5 py-2 rounded-lg hover:text-white hover:bg-slate-800/60 transition-all flex items-center gap-1">
               OUR WORK <i class="fa-solid fa-chevron-down text-[8px] opacity-60"></i>
@@ -217,23 +222,23 @@
             </div>
           </div>
 
-          <!-- 8. RESOURCES -->
+          <!-- 7. RESOURCES -->
           <div class="nav-item-dropdown">
             <a href="../resources/index.html" class="nav-link-item px-2.5 py-2 rounded-lg hover:text-white hover:bg-slate-800/60 transition-all flex items-center gap-1">
               RESOURCES <i class="fa-solid fa-chevron-down text-[8px] opacity-60"></i>
             </a>
             <div class="dropdown-menu absolute top-full right-0 w-56 bg-white border border-gray-100 rounded-2xl shadow-xl p-2 text-slate-600 text-xs">
               <a href="../resources/index.html#publications" class="block px-3 py-2 rounded-xl hover:bg-slate-800 hover:text-white transition-colors"><i class="fa-solid fa-book mr-2 text-slate-400"></i> Publications</a>
-              <a href="../resources/index.html#annual-reports" class="block px-3 py-2 rounded-xl hover:bg-slate-800 hover:text-white transition-colors"><i class="fa-solid fa-file-pdf mr-2 text-slate-400"></i> Annual Reports</a>
-              <a href="../resources/index.html#financial-reports" class="block px-3 py-2 rounded-xl hover:bg-slate-800 hover:text-white transition-colors"><i class="fa-solid fa-coins mr-2 text-slate-400"></i> Financial Reports</a>
-              <a href="../resources/index.html#audit-reports" class="block px-3 py-2 rounded-xl hover:bg-slate-800 hover:text-white transition-colors"><i class="fa-solid fa-magnifying-glass-chart mr-2 text-slate-400"></i> Audit Reports</a>
+              <a href="../resources/index.html#publications" class="block px-3 py-2 rounded-xl hover:bg-slate-800 hover:text-white transition-colors"><i class="fa-solid fa-file-pdf mr-2 text-slate-400"></i> Annual Reports</a>
+              <a href="../resources/index.html#publications" class="block px-3 py-2 rounded-xl hover:bg-slate-800 hover:text-white transition-colors"><i class="fa-solid fa-coins mr-2 text-slate-400"></i> Financial Reports</a>
+              <a href="../resources/index.html#publications" class="block px-3 py-2 rounded-xl hover:bg-slate-800 hover:text-white transition-colors"><i class="fa-solid fa-magnifying-glass-chart mr-2 text-slate-400"></i> Audit Reports</a>
               <a href="../resources/index.html#policies" class="block px-3 py-2 rounded-xl hover:bg-slate-800 hover:text-white transition-colors"><i class="fa-solid fa-shield-halved mr-2 text-slate-400"></i> Policies</a>
               <a href="../resources/index.html#downloads" class="block px-3 py-2 rounded-xl hover:bg-slate-800 hover:text-white transition-colors"><i class="fa-solid fa-download mr-2 text-slate-400"></i> Downloads</a>
               <a href="../resources/index.html#media-kit" class="block px-3 py-2 rounded-xl hover:bg-slate-800 hover:text-white transition-colors"><i class="fa-solid fa-photo-film mr-2 text-slate-400"></i> Media Kit</a>
             </div>
           </div>
 
-          <!-- 9. NEWS & MEDIA -->
+          <!-- 8. NEWS & MEDIA -->
           <div class="nav-item-dropdown">
             <a href="../news/index.html" class="nav-link-item px-2.5 py-2 rounded-lg hover:text-white hover:bg-slate-800/60 transition-all flex items-center gap-1">
               NEWS & MEDIA <i class="fa-solid fa-chevron-down text-[8px] opacity-60"></i>
@@ -248,7 +253,7 @@
             </div>
           </div>
 
-          <!-- 10. GET INVOLVED -->
+          <!-- 9. GET INVOLVED -->
           <div class="nav-item-dropdown">
             <a href="../get-involved/index.html" class="nav-link-item px-2.5 py-2 rounded-lg hover:text-white hover:bg-slate-800/60 transition-all flex items-center gap-1">
               GET INVOLVED <i class="fa-solid fa-chevron-down text-[8px] opacity-60"></i>
@@ -263,7 +268,7 @@
             </div>
           </div>
 
-          <!-- 11. CONTACT -->
+          <!-- 10. CONTACT -->
           <div class="nav-item-dropdown">
             <a href="../contact/index.html" class="nav-link-item px-2.5 py-2 rounded-lg hover:text-white hover:bg-slate-800/60 transition-all flex items-center gap-1">
               CONTACT <i class="fa-solid fa-chevron-down text-[8px] opacity-60"></i>
@@ -295,7 +300,7 @@
     </div>
   </header>
 
-<!-- MOBILE SIDE TRAY -->
+  <!-- MOBILE SIDE TRAY -->
   <div id="mobile-tray-overlay" class="mobile-tray-overlay"></div>
   <div id="mobile-tray" class="mobile-tray" role="dialog" aria-modal="true" aria-label="Navigation menu">
     <div class="mobile-tray-header">
@@ -356,15 +361,6 @@
           <a href="../projects/index.html#dashboard">Project Dashboard</a>
         </div></div>
 
-        <button class="mobile-tray-accordion-btn" data-delay="0.20">
-          <span>PROCUREMENT</span>
-          <i class="acc-icon fa-solid fa-chevron-down"></i>
-        </button>
-        <div class="mobile-tray-submenu"><div>
-          <a href="../procurement.html#tenders">Open Tenders</a>
-          <a href="../procurement.html#vendor">Vendor Registration</a>
-        </div></div>
-
         <button class="mobile-tray-accordion-btn" data-delay="0.25">
           <span>WHERE WE WORK</span>
           <i class="acc-icon fa-solid fa-chevron-down"></i>
@@ -397,11 +393,12 @@
         </button>
         <div class="mobile-tray-submenu"><div>
           <a href="../resources/index.html">Publications</a>
-          <a href="../resources/index.html#annual-reports">Annual Reports</a>
-          <a href="../resources/index.html#financial-reports">Financial Reports</a>
-          <a href="../resources/index.html#audit-reports">Audit Reports</a>
+          <a href="../resources/index.html#publications">Annual Reports</a>
+          <a href="../resources/index.html#publications">Financial Reports</a>
+          <a href="../resources/index.html#publications">Audit Reports</a>
           <a href="../resources/index.html#policies">Policies</a>
           <a href="../resources/index.html#downloads">Downloads</a>
+          <a href="../resources/index.html#media-kit">Media Kit</a>
         </div></div>
 
         <button class="mobile-tray-accordion-btn" data-delay="0.40">
@@ -450,34 +447,696 @@
     </div>
   </div>
 
-<section class="relative w-full bg-slate-900 text-white min-h-[560px] flex items-center overflow-hidden group">
-    
-    <!-- Slider Wrapper -->
-    <div id="hero-slider" class="absolute inset-0 z-0 w-full h-full transition-transform duration-1000 ease-in-out flex">
-      <!-- Slide 1 -->
-      <div class="w-full h-full flex-shrink-0 relative">
-        <div class="absolute inset-0 opacity-40 mix-blend-luminosity bg-cover bg-center" style="background-image: url('../assets/images/hero.jpg');"></div>
-        <a href="#" class="bg-slate-900 hover:bg-brandRed text-white text-xs font-bold px-4 py-2 rounded-xl transition-colors">Download</a>
-      </div>
 
-      <div id="financial-reports" class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
-        <div class="flex items-center gap-3">
-          <i class="fa-solid fa-coins text-brandRed text-2xl"></i>
-          <div>
-            <div class="font-bold text-slate-900 text-sm">Audited Financial Statement FY2025</div>
-            <div class="text-xs text-slate-500">PDF Document • 2.8 MB</div>
-          </div>
+  <!-- ==================== HERO SECTION ==================== -->
+  <section class="relative w-full bg-ink-900 text-white overflow-hidden">
+    <div class="absolute inset-0 z-0">
+      <div class="absolute inset-0 bg-cover bg-center opacity-30" style="background-image: url('../assets/images/hero.jpg');"></div>
+      <div class="absolute inset-0 bg-gradient-to-br from-ink-900 via-ink-900/95 to-brandRed/20"></div>
+    </div>
+    <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-28">
+      <div class="flex items-center gap-3 mb-6">
+        <span class="inline-block w-12 h-1 bg-brandRed rounded-full"></span>
+        <span class="text-brandRed text-xs font-bold uppercase tracking-[0.25em]">Knowledge Hub</span>
+      </div>
+      <h1 class="font-display text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight mb-5">
+        Resources &<br><span class="text-brandRed">Publications</span>
+      </h1>
+      <p class="text-slate-300 text-base sm:text-lg max-w-2xl leading-relaxed mb-8">
+        Access our annual reports, financial statements, policies, and downloadable materials. Transparency and accountability at every level.
+      </p>
+      <div class="flex flex-wrap gap-3">
+        <a href="#publications" class="inline-flex items-center gap-2 bg-brandRed hover:bg-brandRed-hover text-white font-semibold text-sm px-6 py-3 rounded-xl transition-all shadow-lg shadow-brandRed/20">
+          <i class="fa-solid fa-book text-xs"></i> Browse Publications
+        </a>
+        <a href="#downloads" class="inline-flex items-center gap-2 border border-white/30 text-white font-semibold text-sm px-6 py-3 rounded-xl hover:bg-white/10 transition-all">
+          <i class="fa-solid fa-download text-xs"></i> Quick Downloads
+        </a>
+      </div>
+      <div class="flex flex-wrap items-center gap-6 mt-12 pt-8 border-t border-white/10">
+        <div class="text-center">
+          <div class="text-2xl font-bold text-white">12+</div>
+          <div class="text-xs text-slate-400">Publications</div>
         </div>
-        <a href="#" class="bg-slate-900 hover:bg-brandRed text-white text-xs font-bold px-4 py-2 rounded-xl transition-colors">Download</a>
+        <div class="w-px h-10 bg-white/10"></div>
+        <div class="text-center">
+          <div class="text-2xl font-bold text-white">5</div>
+          <div class="text-xs text-slate-400">Policy Documents</div>
+        </div>
+        <div class="w-px h-10 bg-white/10"></div>
+        <div class="text-center">
+          <div class="text-2xl font-bold text-white">4</div>
+          <div class="text-xs text-slate-400">Report Categories</div>
+        </div>
       </div>
     </div>
   </section>
 
-  
+
+  <!-- ==================== TABBED RESOURCE NAVIGATOR ==================== -->
+  <section id="publications" class="py-16 lg:py-24 bg-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+      <div class="text-center mb-12">
+        <span class="inline-block text-brandRed text-xs font-bold uppercase tracking-[0.2em] mb-3">Document Library</span>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold text-slate-900 mb-4">Browse Our Reports & Documents</h2>
+        <p class="text-slate-500 max-w-xl mx-auto">Filter by category to find exactly what you need. All documents are available for free download.</p>
+      </div>
+
+      <!-- TAB BUTTONS -->
+      <div class="flex flex-wrap justify-center gap-2 mb-12" id="filter-tabs">
+        <button class="tab-btn active px-5 py-2.5 rounded-xl text-sm font-semibold border border-slate-200 bg-brandRed text-white transition-all hover:shadow-md" data-filter="all">
+          <i class="fa-solid fa-layer-group mr-1.5 text-xs"></i> All
+        </button>
+        <button class="tab-btn px-5 py-2.5 rounded-xl text-sm font-semibold border border-slate-200 bg-white text-slate-600 transition-all hover:border-brandRed hover:text-brandRed hover:shadow-md" data-filter="annual-report">
+          <i class="fa-solid fa-chart-line mr-1.5 text-xs"></i> Annual Reports
+        </button>
+        <button class="tab-btn px-5 py-2.5 rounded-xl text-sm font-semibold border border-slate-200 bg-white text-slate-600 transition-all hover:border-brandRed hover:text-brandRed hover:shadow-md" data-filter="financial-report">
+          <i class="fa-solid fa-coins mr-1.5 text-xs"></i> Financial Reports
+        </button>
+        <button class="tab-btn px-5 py-2.5 rounded-xl text-sm font-semibold border border-slate-200 bg-white text-slate-600 transition-all hover:border-brandRed hover:text-brandRed hover:shadow-md" data-filter="audit-report">
+          <i class="fa-solid fa-magnifying-glass-chart mr-1.5 text-xs"></i> Audit Reports
+        </button>
+        <button class="tab-btn px-5 py-2.5 rounded-xl text-sm font-semibold border border-slate-200 bg-white text-slate-600 transition-all hover:border-brandRed hover:text-brandRed hover:shadow-md" data-filter="policy">
+          <i class="fa-solid fa-shield-halved mr-1.5 text-xs"></i> Policies
+        </button>
+        <button class="tab-btn px-5 py-2.5 rounded-xl text-sm font-semibold border border-slate-200 bg-white text-slate-600 transition-all hover:border-brandRed hover:text-brandRed hover:shadow-md" data-filter="download">
+          <i class="fa-solid fa-download mr-1.5 text-xs"></i> Downloads
+        </button>
+        <button class="tab-btn px-5 py-2.5 rounded-xl text-sm font-semibold border border-slate-200 bg-white text-slate-600 transition-all hover:border-brandRed hover:text-brandRed hover:shadow-md" data-filter="media-kit">
+          <i class="fa-solid fa-photo-film mr-1.5 text-xs"></i> Media Kit
+        </button>
+      </div>
+
+      <!-- DOCUMENT CARDS GRID -->
+      <div class="filter-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="resource-grid">
+
+        <!-- Card 1: Annual Report 2024 -->
+        <div class="resource-card visible-card" data-category="annual-report">
+          <div class="bg-white rounded-2xl border border-slate-200 p-6 hover:shadow-xl hover:border-brandRed/30 transition-all duration-300 group h-full flex flex-col">
+            <div class="flex items-start justify-between mb-4">
+              <div class="w-14 h-14 rounded-xl bg-brandRed/10 flex items-center justify-center shrink-0 group-hover:bg-brandRed/20 transition-colors">
+                <i class="fa-solid fa-chart-line text-brandRed text-xl"></i>
+              </div>
+              <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-brandRed/10 text-brandRed text-[10px] font-bold uppercase tracking-wider">PDF</span>
+            </div>
+            <h3 class="font-bold text-slate-900 text-base mb-2 group-hover:text-brandRed transition-colors">WRC Annual Report 2024</h3>
+            <p class="text-slate-500 text-sm leading-relaxed mb-4 flex-1">Comprehensive overview of WRC's humanitarian programs, impact metrics, and financial performance for the fiscal year 2024.</p>
+            <div class="flex items-center justify-between pt-4 border-t border-slate-100">
+              <span class="text-xs text-slate-400"><i class="fa-solid fa-file mr-1"></i> 4.2 MB</span>
+              <a href="#" class="inline-flex items-center gap-1.5 bg-slate-900 hover:bg-brandRed text-white text-xs font-semibold px-4 py-2 rounded-lg transition-colors">
+                <i class="fa-solid fa-download text-[10px]"></i> Download
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 2: Annual Report 2023 -->
+        <div class="resource-card visible-card" data-category="annual-report">
+          <div class="bg-white rounded-2xl border border-slate-200 p-6 hover:shadow-xl hover:border-brandRed/30 transition-all duration-300 group h-full flex flex-col">
+            <div class="flex items-start justify-between mb-4">
+              <div class="w-14 h-14 rounded-xl bg-brandRed/10 flex items-center justify-center shrink-0 group-hover:bg-brandRed/20 transition-colors">
+                <i class="fa-solid fa-chart-line text-brandRed text-xl"></i>
+              </div>
+              <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-brandRed/10 text-brandRed text-[10px] font-bold uppercase tracking-wider">PDF</span>
+            </div>
+            <h3 class="font-bold text-slate-900 text-base mb-2 group-hover:text-brandRed transition-colors">WRC Annual Report 2023</h3>
+            <p class="text-slate-500 text-sm leading-relaxed mb-4 flex-1">Year-end summary covering project outcomes, beneficiary reach across Pakistan, and organizational milestones achieved in 2023.</p>
+            <div class="flex items-center justify-between pt-4 border-t border-slate-100">
+              <span class="text-xs text-slate-400"><i class="fa-solid fa-file mr-1"></i> 3.8 MB</span>
+              <a href="#" class="inline-flex items-center gap-1.5 bg-slate-900 hover:bg-brandRed text-white text-xs font-semibold px-4 py-2 rounded-lg transition-colors">
+                <i class="fa-solid fa-download text-[10px]"></i> Download
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 3: Financial Statement FY2025 -->
+        <div class="resource-card visible-card" data-category="financial-report">
+          <div class="bg-white rounded-2xl border border-slate-200 p-6 hover:shadow-xl hover:border-brandRed/30 transition-all duration-300 group h-full flex flex-col">
+            <div class="flex items-start justify-between mb-4">
+              <div class="w-14 h-14 rounded-xl bg-emerald-50 flex items-center justify-center shrink-0 group-hover:bg-emerald-100 transition-colors">
+                <i class="fa-solid fa-coins text-emerald-600 text-xl"></i>
+              </div>
+              <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-brandRed/10 text-brandRed text-[10px] font-bold uppercase tracking-wider">PDF</span>
+            </div>
+            <h3 class="font-bold text-slate-900 text-base mb-2 group-hover:text-brandRed transition-colors">Audited Financial Statement FY2025</h3>
+            <p class="text-slate-500 text-sm leading-relaxed mb-4 flex-1">Complete audited financial records including income statements, balance sheets, and fund allocation details for FY2025.</p>
+            <div class="flex items-center justify-between pt-4 border-t border-slate-100">
+              <span class="text-xs text-slate-400"><i class="fa-solid fa-file mr-1"></i> 2.8 MB</span>
+              <a href="#" class="inline-flex items-center gap-1.5 bg-slate-900 hover:bg-brandRed text-white text-xs font-semibold px-4 py-2 rounded-lg transition-colors">
+                <i class="fa-solid fa-download text-[10px]"></i> Download
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 4: Quarterly Financial Review Q4 2025 -->
+        <div class="resource-card visible-card" data-category="financial-report">
+          <div class="bg-white rounded-2xl border border-slate-200 p-6 hover:shadow-xl hover:border-brandRed/30 transition-all duration-300 group h-full flex flex-col">
+            <div class="flex items-start justify-between mb-4">
+              <div class="w-14 h-14 rounded-xl bg-emerald-50 flex items-center justify-center shrink-0 group-hover:bg-emerald-100 transition-colors">
+                <i class="fa-solid fa-coins text-emerald-600 text-xl"></i>
+              </div>
+              <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-brandRed/10 text-brandRed text-[10px] font-bold uppercase tracking-wider">PDF</span>
+            </div>
+            <h3 class="font-bold text-slate-900 text-base mb-2 group-hover:text-brandRed transition-colors">Quarterly Financial Review Q4 2025</h3>
+            <p class="text-slate-500 text-sm leading-relaxed mb-4 flex-1">Fourth quarter financial performance review with expenditure breakdowns, donor contributions, and projected budget for the next quarter.</p>
+            <div class="flex items-center justify-between pt-4 border-t border-slate-100">
+              <span class="text-xs text-slate-400"><i class="fa-solid fa-file mr-1"></i> 1.5 MB</span>
+              <a href="#" class="inline-flex items-center gap-1.5 bg-slate-900 hover:bg-brandRed text-white text-xs font-semibold px-4 py-2 rounded-lg transition-colors">
+                <i class="fa-solid fa-download text-[10px]"></i> Download
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 5: External Audit Report 2024 -->
+        <div class="resource-card visible-card" data-category="audit-report">
+          <div class="bg-white rounded-2xl border border-slate-200 p-6 hover:shadow-xl hover:border-brandRed/30 transition-all duration-300 group h-full flex flex-col">
+            <div class="flex items-start justify-between mb-4">
+              <div class="w-14 h-14 rounded-xl bg-amber-50 flex items-center justify-center shrink-0 group-hover:bg-amber-100 transition-colors">
+                <i class="fa-solid fa-magnifying-glass-chart text-amber-600 text-xl"></i>
+              </div>
+              <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-brandRed/10 text-brandRed text-[10px] font-bold uppercase tracking-wider">PDF</span>
+            </div>
+            <h3 class="font-bold text-slate-900 text-base mb-2 group-hover:text-brandRed transition-colors">External Audit Report 2024</h3>
+            <p class="text-slate-500 text-sm leading-relaxed mb-4 flex-1">Independent external audit findings, compliance assessments, and recommendations for financial governance improvements for 2024.</p>
+            <div class="flex items-center justify-between pt-4 border-t border-slate-100">
+              <span class="text-xs text-slate-400"><i class="fa-solid fa-file mr-1"></i> 2.1 MB</span>
+              <a href="#" class="inline-flex items-center gap-1.5 bg-slate-900 hover:bg-brandRed text-white text-xs font-semibold px-4 py-2 rounded-lg transition-colors">
+                <i class="fa-solid fa-download text-[10px]"></i> Download
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 6: Internal Compliance Audit 2024 -->
+        <div class="resource-card visible-card" data-category="audit-report">
+          <div class="bg-white rounded-2xl border border-slate-200 p-6 hover:shadow-xl hover:border-brandRed/30 transition-all duration-300 group h-full flex flex-col">
+            <div class="flex items-start justify-between mb-4">
+              <div class="w-14 h-14 rounded-xl bg-amber-50 flex items-center justify-center shrink-0 group-hover:bg-amber-100 transition-colors">
+                <i class="fa-solid fa-clipboard-check text-amber-600 text-xl"></i>
+              </div>
+              <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-brandRed/10 text-brandRed text-[10px] font-bold uppercase tracking-wider">PDF</span>
+            </div>
+            <h3 class="font-bold text-slate-900 text-base mb-2 group-hover:text-brandRed transition-colors">Internal Compliance Audit 2024</h3>
+            <p class="text-slate-500 text-sm leading-relaxed mb-4 flex-1">Internal audit of organizational policies, procedural compliance, and operational risk management across all WRC programs.</p>
+            <div class="flex items-center justify-between pt-4 border-t border-slate-100">
+              <span class="text-xs text-slate-400"><i class="fa-solid fa-file mr-1"></i> 1.9 MB</span>
+              <a href="#" class="inline-flex items-center gap-1.5 bg-slate-900 hover:bg-brandRed text-white text-xs font-semibold px-4 py-2 rounded-lg transition-colors">
+                <i class="fa-solid fa-download text-[10px]"></i> Download
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 7: Child Protection Policy -->
+        <div class="resource-card visible-card" data-category="policy">
+          <div class="bg-white rounded-2xl border border-slate-200 p-6 hover:shadow-xl hover:border-brandRed/30 transition-all duration-300 group h-full flex flex-col">
+            <div class="flex items-start justify-between mb-4">
+              <div class="w-14 h-14 rounded-xl bg-violet-50 flex items-center justify-center shrink-0 group-hover:bg-violet-100 transition-colors">
+                <i class="fa-solid fa-child-reaching text-violet-600 text-xl"></i>
+              </div>
+              <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-brandRed/10 text-brandRed text-[10px] font-bold uppercase tracking-wider">PDF</span>
+            </div>
+            <h3 class="font-bold text-slate-900 text-base mb-2 group-hover:text-brandRed transition-colors">Child Protection Policy</h3>
+            <p class="text-slate-500 text-sm leading-relaxed mb-4 flex-1">WRC's commitment to safeguarding children through prevention, reporting mechanisms, and response protocols across all programs.</p>
+            <div class="flex items-center justify-between pt-4 border-t border-slate-100">
+              <span class="text-xs text-slate-400"><i class="fa-solid fa-file mr-1"></i> 890 KB</span>
+              <a href="#" class="inline-flex items-center gap-1.5 bg-slate-900 hover:bg-brandRed text-white text-xs font-semibold px-4 py-2 rounded-lg transition-colors">
+                <i class="fa-solid fa-download text-[10px]"></i> Download
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 8: Whistleblower Policy -->
+        <div class="resource-card visible-card" data-category="policy">
+          <div class="bg-white rounded-2xl border border-slate-200 p-6 hover:shadow-xl hover:border-brandRed/30 transition-all duration-300 group h-full flex flex-col">
+            <div class="flex items-start justify-between mb-4">
+              <div class="w-14 h-14 rounded-xl bg-violet-50 flex items-center justify-center shrink-0 group-hover:bg-violet-100 transition-colors">
+                <i class="fa-solid fa-bell text-violet-600 text-xl"></i>
+              </div>
+              <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-brandRed/10 text-brandRed text-[10px] font-bold uppercase tracking-wider">PDF</span>
+            </div>
+            <h3 class="font-bold text-slate-900 text-base mb-2 group-hover:text-brandRed transition-colors">Whistleblower Policy</h3>
+            <p class="text-slate-500 text-sm leading-relaxed mb-4 flex-1">Confidential reporting framework for fraud, corruption, and misconduct. Protects reporters and ensures accountability at every level.</p>
+            <div class="flex items-center justify-between pt-4 border-t border-slate-100">
+              <span class="text-xs text-slate-400"><i class="fa-solid fa-file mr-1"></i> 720 KB</span>
+              <a href="#" class="inline-flex items-center gap-1.5 bg-slate-900 hover:bg-brandRed text-white text-xs font-semibold px-4 py-2 rounded-lg transition-colors">
+                <i class="fa-solid fa-download text-[10px]"></i> Download
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 9: Gender Equality Policy -->
+        <div class="resource-card visible-card" data-category="policy">
+          <div class="bg-white rounded-2xl border border-slate-200 p-6 hover:shadow-xl hover:border-brandRed/30 transition-all duration-300 group h-full flex flex-col">
+            <div class="flex items-start justify-between mb-4">
+              <div class="w-14 h-14 rounded-xl bg-violet-50 flex items-center justify-center shrink-0 group-hover:bg-violet-100 transition-colors">
+                <i class="fa-solid fa-venus text-violet-600 text-xl"></i>
+              </div>
+              <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-brandRed/10 text-brandRed text-[10px] font-bold uppercase tracking-wider">PDF</span>
+            </div>
+            <h3 class="font-bold text-slate-900 text-base mb-2 group-hover:text-brandRed transition-colors">Gender Equality Policy</h3>
+            <p class="text-slate-500 text-sm leading-relaxed mb-4 flex-1">Framework for promoting gender equality, women's empowerment, and inclusion in all WRC humanitarian operations and hiring practices.</p>
+            <div class="flex items-center justify-between pt-4 border-t border-slate-100">
+              <span class="text-xs text-slate-400"><i class="fa-solid fa-file mr-1"></i> 950 KB</span>
+              <a href="#" class="inline-flex items-center gap-1.5 bg-slate-900 hover:bg-brandRed text-white text-xs font-semibold px-4 py-2 rounded-lg transition-colors">
+                <i class="fa-solid fa-download text-[10px]"></i> Download
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 10: Anti-Corruption Policy -->
+        <div class="resource-card visible-card" data-category="policy">
+          <div class="bg-white rounded-2xl border border-slate-200 p-6 hover:shadow-xl hover:border-brandRed/30 transition-all duration-300 group h-full flex flex-col">
+            <div class="flex items-start justify-between mb-4">
+              <div class="w-14 h-14 rounded-xl bg-violet-50 flex items-center justify-center shrink-0 group-hover:bg-violet-100 transition-colors">
+                <i class="fa-solid fa-scale-balanced text-violet-600 text-xl"></i>
+              </div>
+              <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-brandRed/10 text-brandRed text-[10px] font-bold uppercase tracking-wider">PDF</span>
+            </div>
+            <h3 class="font-bold text-slate-900 text-base mb-2 group-hover:text-brandRed transition-colors">Anti-Corruption Policy</h3>
+            <p class="text-slate-500 text-sm leading-relaxed mb-4 flex-1">Zero-tolerance approach to bribery, fraud, and corruption. Defines prohibited conduct, reporting channels, and disciplinary procedures.</p>
+            <div class="flex items-center justify-between pt-4 border-t border-slate-100">
+              <span class="text-xs text-slate-400"><i class="fa-solid fa-file mr-1"></i> 780 KB</span>
+              <a href="#" class="inline-flex items-center gap-1.5 bg-slate-900 hover:bg-brandRed text-white text-xs font-semibold px-4 py-2 rounded-lg transition-colors">
+                <i class="fa-solid fa-download text-[10px]"></i> Download
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 11: Code of Conduct -->
+        <div class="resource-card visible-card" data-category="policy">
+          <div class="bg-white rounded-2xl border border-slate-200 p-6 hover:shadow-xl hover:border-brandRed/30 transition-all duration-300 group h-full flex flex-col">
+            <div class="flex items-start justify-between mb-4">
+              <div class="w-14 h-14 rounded-xl bg-violet-50 flex items-center justify-center shrink-0 group-hover:bg-violet-100 transition-colors">
+                <i class="fa-solid fa-book-open text-violet-600 text-xl"></i>
+              </div>
+              <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-brandRed/10 text-brandRed text-[10px] font-bold uppercase tracking-wider">PDF</span>
+            </div>
+            <h3 class="font-bold text-slate-900 text-base mb-2 group-hover:text-brandRed transition-colors">Code of Conduct</h3>
+            <p class="text-slate-500 text-sm leading-relaxed mb-4 flex-1">Professional ethics and behavioral standards expected from all WRC staff, volunteers, partners, and implementing agencies.</p>
+            <div class="flex items-center justify-between pt-4 border-t border-slate-100">
+              <span class="text-xs text-slate-400"><i class="fa-solid fa-file mr-1"></i> 650 KB</span>
+              <a href="#" class="inline-flex items-center gap-1.5 bg-slate-900 hover:bg-brandRed text-white text-xs font-semibold px-4 py-2 rounded-lg transition-colors">
+                <i class="fa-solid fa-download text-[10px]"></i> Download
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 12: WRC Brochure -->
+        <div class="resource-card visible-card" data-category="download">
+          <div class="bg-white rounded-2xl border border-slate-200 p-6 hover:shadow-xl hover:border-brandRed/30 transition-all duration-300 group h-full flex flex-col">
+            <div class="flex items-start justify-between mb-4">
+              <div class="w-14 h-14 rounded-xl bg-cyan-50 flex items-center justify-center shrink-0 group-hover:bg-cyan-100 transition-colors">
+                <i class="fa-solid fa-file-lines text-cyan-600 text-xl"></i>
+              </div>
+              <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-brandRed/10 text-brandRed text-[10px] font-bold uppercase tracking-wider">PDF</span>
+            </div>
+            <h3 class="font-bold text-slate-900 text-base mb-2 group-hover:text-brandRed transition-colors">WRC Organizational Brochure</h3>
+            <p class="text-slate-500 text-sm leading-relaxed mb-4 flex-1">Quick overview of WRC's mission, programs, and impact. Ideal for sharing with potential donors and partner organizations.</p>
+            <div class="flex items-center justify-between pt-4 border-t border-slate-100">
+              <span class="text-xs text-slate-400"><i class="fa-solid fa-file mr-1"></i> 3.1 MB</span>
+              <a href="#" class="inline-flex items-center gap-1.5 bg-slate-900 hover:bg-brandRed text-white text-xs font-semibold px-4 py-2 rounded-lg transition-colors">
+                <i class="fa-solid fa-download text-[10px]"></i> Download
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 13: Factsheet -->
+        <div class="resource-card visible-card" data-category="download">
+          <div class="bg-white rounded-2xl border border-slate-200 p-6 hover:shadow-xl hover:border-brandRed/30 transition-all duration-300 group h-full flex flex-col">
+            <div class="flex items-start justify-between mb-4">
+              <div class="w-14 h-14 rounded-xl bg-cyan-50 flex items-center justify-center shrink-0 group-hover:bg-cyan-100 transition-colors">
+                <i class="fa-solid fa-newspaper text-cyan-600 text-xl"></i>
+              </div>
+              <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-brandRed/10 text-brandRed text-[10px] font-bold uppercase tracking-wider">PDF</span>
+            </div>
+            <h3 class="font-bold text-slate-900 text-base mb-2 group-hover:text-brandRed transition-colors">WRC Quick Factsheet 2025</h3>
+            <p class="text-slate-500 text-sm leading-relaxed mb-4 flex-1">At-a-glance statistics on beneficiaries served, programs active, and funds deployed. Perfect for presentations and briefings.</p>
+            <div class="flex items-center justify-between pt-4 border-t border-slate-100">
+              <span class="text-xs text-slate-400"><i class="fa-solid fa-file mr-1"></i> 1.2 MB</span>
+              <a href="#" class="inline-flex items-center gap-1.5 bg-slate-900 hover:bg-brandRed text-white text-xs font-semibold px-4 py-2 rounded-lg transition-colors">
+                <i class="fa-solid fa-download text-[10px]"></i> Download
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 14: Infographic -->
+        <div class="resource-card visible-card" data-category="download">
+          <div class="bg-white rounded-2xl border border-slate-200 p-6 hover:shadow-xl hover:border-brandRed/30 transition-all duration-300 group h-full flex flex-col">
+            <div class="flex items-start justify-between mb-4">
+              <div class="w-14 h-14 rounded-xl bg-cyan-50 flex items-center justify-center shrink-0 group-hover:bg-cyan-100 transition-colors">
+                <i class="fa-solid fa-chart-bar text-cyan-600 text-xl"></i>
+              </div>
+              <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-brandRed/10 text-brandRed text-[10px] font-bold uppercase tracking-wider">PDF</span>
+            </div>
+            <h3 class="font-bold text-slate-900 text-base mb-2 group-hover:text-brandRed transition-colors">2024 Impact Infographic</h3>
+            <p class="text-slate-500 text-sm leading-relaxed mb-4 flex-1">Visual summary of WRC's 2024 achievements — lives touched, funds raised, and geographic reach across Pakistan.</p>
+            <div class="flex items-center justify-between pt-4 border-t border-slate-100">
+              <span class="text-xs text-slate-400"><i class="fa-solid fa-file mr-1"></i> 2.4 MB</span>
+              <a href="#" class="inline-flex items-center gap-1.5 bg-slate-900 hover:bg-brandRed text-white text-xs font-semibold px-4 py-2 rounded-lg transition-colors">
+                <i class="fa-solid fa-download text-[10px]"></i> Download
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 15: Brand Logo Pack -->
+        <div class="resource-card visible-card" data-category="media-kit">
+          <div class="bg-white rounded-2xl border border-slate-200 p-6 hover:shadow-xl hover:border-brandRed/30 transition-all duration-300 group h-full flex flex-col">
+            <div class="flex items-start justify-between mb-4">
+              <div class="w-14 h-14 rounded-xl bg-rose-50 flex items-center justify-center shrink-0 group-hover:bg-rose-100 transition-colors">
+                <i class="fa-solid fa-image text-rose-600 text-xl"></i>
+              </div>
+              <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-rose-100 text-rose-600 text-[10px] font-bold uppercase tracking-wider">ZIP</span>
+            </div>
+            <h3 class="font-bold text-slate-900 text-base mb-2 group-hover:text-brandRed transition-colors">WRC Logo Pack (All Formats)</h3>
+            <p class="text-slate-500 text-sm leading-relaxed mb-4 flex-1">Download the official WRC logo in PNG, SVG, and EPS formats. Includes dark, light, and color variations for print and digital use.</p>
+            <div class="flex items-center justify-between pt-4 border-t border-slate-100">
+              <span class="text-xs text-slate-400"><i class="fa-solid fa-file-zipper mr-1"></i> 8.6 MB</span>
+              <a href="#" class="inline-flex items-center gap-1.5 bg-slate-900 hover:bg-brandRed text-white text-xs font-semibold px-4 py-2 rounded-lg transition-colors">
+                <i class="fa-solid fa-download text-[10px]"></i> Download
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 16: Brand Guidelines -->
+        <div class="resource-card visible-card" data-category="media-kit">
+          <div class="bg-white rounded-2xl border border-slate-200 p-6 hover:shadow-xl hover:border-brandRed/30 transition-all duration-300 group h-full flex flex-col">
+            <div class="flex items-start justify-between mb-4">
+              <div class="w-14 h-14 rounded-xl bg-rose-50 flex items-center justify-center shrink-0 group-hover:bg-rose-100 transition-colors">
+                <i class="fa-solid fa-palette text-rose-600 text-xl"></i>
+              </div>
+              <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-brandRed/10 text-brandRed text-[10px] font-bold uppercase tracking-wider">PDF</span>
+            </div>
+            <h3 class="font-bold text-slate-900 text-base mb-2 group-hover:text-brandRed transition-colors">Brand Guidelines Document</h3>
+            <p class="text-slate-500 text-sm leading-relaxed mb-4 flex-1">Complete guide to WRC's visual identity — colors, typography, logo usage rules, and co-branding requirements for partners.</p>
+            <div class="flex items-center justify-between pt-4 border-t border-slate-100">
+              <span class="text-xs text-slate-400"><i class="fa-solid fa-file mr-1"></i> 5.3 MB</span>
+              <a href="#" class="inline-flex items-center gap-1.5 bg-slate-900 hover:bg-brandRed text-white text-xs font-semibold px-4 py-2 rounded-lg transition-colors">
+                <i class="fa-solid fa-download text-[10px]"></i> Download
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 17: High-Resolution Photos -->
+        <div class="resource-card visible-card" data-category="media-kit">
+          <div class="bg-white rounded-2xl border border-slate-200 p-6 hover:shadow-xl hover:border-brandRed/30 transition-all duration-300 group h-full flex flex-col">
+            <div class="flex items-start justify-between mb-4">
+              <div class="w-14 h-14 rounded-xl bg-rose-50 flex items-center justify-center shrink-0 group-hover:bg-rose-100 transition-colors">
+                <i class="fa-solid fa-camera text-rose-600 text-xl"></i>
+              </div>
+              <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-rose-100 text-rose-600 text-[10px] font-bold uppercase tracking-wider">ZIP</span>
+            </div>
+            <h3 class="font-bold text-slate-900 text-base mb-2 group-hover:text-brandRed transition-colors">High-Resolution Photo Archive</h3>
+            <p class="text-slate-500 text-sm leading-relaxed mb-4 flex-1">Curated selection of high-resolution photos from WRC field operations, events, and humanitarian activities for media use.</p>
+            <div class="flex items-center justify-between pt-4 border-t border-slate-100">
+              <span class="text-xs text-slate-400"><i class="fa-solid fa-file-zipper mr-1"></i> 42.5 MB</span>
+              <a href="#" class="inline-flex items-center gap-1.5 bg-slate-900 hover:bg-brandRed text-white text-xs font-semibold px-4 py-2 rounded-lg transition-colors">
+                <i class="fa-solid fa-download text-[10px]"></i> Download
+              </a>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- NO RESULTS MESSAGE (hidden by default) -->
+      <div id="no-results" class="hidden text-center py-16">
+        <div class="w-20 h-20 rounded-full bg-slate-100 flex items-center justify-center mx-auto mb-4">
+          <i class="fa-solid fa-folder-open text-slate-300 text-3xl"></i>
+        </div>
+        <h3 class="text-lg font-semibold text-slate-700 mb-2">No documents found</h3>
+        <p class="text-slate-500 text-sm">Try selecting a different category tab.</p>
+      </div>
+
+    </div>
+  </section>
 
 
+  <!-- ==================== POLICIES LIBRARY ==================== -->
+  <section id="policies" class="py-16 lg:py-24 bg-slate-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
-<!-- FOOTER -->
+      <div class="text-center mb-12">
+        <span class="inline-block text-brandRed text-xs font-bold uppercase tracking-[0.2em] mb-3">Governance</span>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold text-slate-900 mb-4">Policies Library</h2>
+        <p class="text-slate-500 max-w-xl mx-auto">Download our core governance and compliance policies. These documents define our commitments to ethical operations.</p>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+
+        <!-- Policy 1 -->
+        <div class="bg-white rounded-2xl border border-slate-200 p-6 hover:shadow-lg hover:border-brandRed/30 transition-all duration-300 group">
+          <div class="flex items-center gap-4 mb-4">
+            <div class="w-12 h-12 rounded-xl bg-brandRed/10 flex items-center justify-center shrink-0 group-hover:bg-brandRed/20 transition-colors">
+              <i class="fa-solid fa-child-reaching text-brandRed text-lg"></i>
+            </div>
+            <div>
+              <h3 class="font-bold text-slate-900 text-sm group-hover:text-brandRed transition-colors">Child Protection Policy</h3>
+              <span class="text-[11px] text-slate-400">PDF • 890 KB</span>
+            </div>
+          </div>
+          <p class="text-slate-500 text-xs leading-relaxed mb-4">Safeguarding children from harm through prevention, reporting, and response protocols.</p>
+          <a href="#" class="inline-flex items-center gap-1.5 text-brandRed text-xs font-semibold hover:underline">
+            <i class="fa-solid fa-download text-[10px]"></i> Download Policy
+          </a>
+        </div>
+
+        <!-- Policy 2 -->
+        <div class="bg-white rounded-2xl border border-slate-200 p-6 hover:shadow-lg hover:border-brandRed/30 transition-all duration-300 group">
+          <div class="flex items-center gap-4 mb-4">
+            <div class="w-12 h-12 rounded-xl bg-brandRed/10 flex items-center justify-center shrink-0 group-hover:bg-brandRed/20 transition-colors">
+              <i class="fa-solid fa-bell text-brandRed text-lg"></i>
+            </div>
+            <div>
+              <h3 class="font-bold text-slate-900 text-sm group-hover:text-brandRed transition-colors">Whistleblower Policy</h3>
+              <span class="text-[11px] text-slate-400">PDF • 720 KB</span>
+            </div>
+          </div>
+          <p class="text-slate-500 text-xs leading-relaxed mb-4">Confidential reporting channels for fraud, corruption, and organizational misconduct.</p>
+          <a href="#" class="inline-flex items-center gap-1.5 text-brandRed text-xs font-semibold hover:underline">
+            <i class="fa-solid fa-download text-[10px]"></i> Download Policy
+          </a>
+        </div>
+
+        <!-- Policy 3 -->
+        <div class="bg-white rounded-2xl border border-slate-200 p-6 hover:shadow-lg hover:border-brandRed/30 transition-all duration-300 group">
+          <div class="flex items-center gap-4 mb-4">
+            <div class="w-12 h-12 rounded-xl bg-brandRed/10 flex items-center justify-center shrink-0 group-hover:bg-brandRed/20 transition-colors">
+              <i class="fa-solid fa-venus text-brandRed text-lg"></i>
+            </div>
+            <div>
+              <h3 class="font-bold text-slate-900 text-sm group-hover:text-brandRed transition-colors">Gender Equality Policy</h3>
+              <span class="text-[11px] text-slate-400">PDF • 950 KB</span>
+            </div>
+          </div>
+          <p class="text-slate-500 text-xs leading-relaxed mb-4">Promoting gender equity and women's empowerment across all humanitarian programs.</p>
+          <a href="#" class="inline-flex items-center gap-1.5 text-brandRed text-xs font-semibold hover:underline">
+            <i class="fa-solid fa-download text-[10px]"></i> Download Policy
+          </a>
+        </div>
+
+        <!-- Policy 4 -->
+        <div class="bg-white rounded-2xl border border-slate-200 p-6 hover:shadow-lg hover:border-brandRed/30 transition-all duration-300 group">
+          <div class="flex items-center gap-4 mb-4">
+            <div class="w-12 h-12 rounded-xl bg-brandRed/10 flex items-center justify-center shrink-0 group-hover:bg-brandRed/20 transition-colors">
+              <i class="fa-solid fa-scale-balanced text-brandRed text-lg"></i>
+            </div>
+            <div>
+              <h3 class="font-bold text-slate-900 text-sm group-hover:text-brandRed transition-colors">Anti-Corruption Policy</h3>
+              <span class="text-[11px] text-slate-400">PDF • 780 KB</span>
+            </div>
+          </div>
+          <p class="text-slate-500 text-xs leading-relaxed mb-4">Zero-tolerance framework against bribery, fraud, and corrupt practices.</p>
+          <a href="#" class="inline-flex items-center gap-1.5 text-brandRed text-xs font-semibold hover:underline">
+            <i class="fa-solid fa-download text-[10px]"></i> Download Policy
+          </a>
+        </div>
+
+        <!-- Policy 5 -->
+        <div class="bg-white rounded-2xl border border-slate-200 p-6 hover:shadow-lg hover:border-brandRed/30 transition-all duration-300 group">
+          <div class="flex items-center gap-4 mb-4">
+            <div class="w-12 h-12 rounded-xl bg-brandRed/10 flex items-center justify-center shrink-0 group-hover:bg-brandRed/20 transition-colors">
+              <i class="fa-solid fa-book-open text-brandRed text-lg"></i>
+            </div>
+            <div>
+              <h3 class="font-bold text-slate-900 text-sm group-hover:text-brandRed transition-colors">Code of Conduct</h3>
+              <span class="text-[11px] text-slate-400">PDF • 650 KB</span>
+            </div>
+          </div>
+          <p class="text-slate-500 text-xs leading-relaxed mb-4">Ethical standards and behavioral expectations for all staff, partners, and volunteers.</p>
+          <a href="#" class="inline-flex items-center gap-1.5 text-brandRed text-xs font-semibold hover:underline">
+            <i class="fa-solid fa-download text-[10px]"></i> Download Policy
+          </a>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ==================== MEDIA KIT ==================== -->
+  <section id="media-kit" class="py-16 lg:py-24 bg-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+      <div class="text-center mb-12">
+        <span class="inline-block text-brandRed text-xs font-bold uppercase tracking-[0.2em] mb-3">For Media & Partners</span>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold text-slate-900 mb-4">Media Kit & Brand Assets</h2>
+        <p class="text-slate-500 max-w-xl mx-auto">Everything you need to represent WRC in publications, broadcasts, and digital content. All assets are free to use with proper attribution.</p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+        <!-- Logo Downloads -->
+        <div class="bg-gradient-to-br from-slate-50 to-white rounded-2xl border border-slate-200 p-8 text-center hover:shadow-xl hover:border-brandRed/30 transition-all duration-300 group">
+          <div class="w-16 h-16 rounded-2xl bg-brandRed/10 flex items-center justify-center mx-auto mb-5 group-hover:bg-brandRed/20 transition-colors">
+            <i class="fa-solid fa-image text-brandRed text-2xl"></i>
+          </div>
+          <h3 class="font-bold text-slate-900 text-lg mb-2">Logo Downloads</h3>
+          <p class="text-slate-500 text-sm mb-6 leading-relaxed">Official WRC logos in PNG, SVG, and EPS formats. Includes color, mono, and reversed versions.</p>
+          <a href="#" class="inline-flex items-center gap-2 bg-brandRed hover:bg-brandRed-hover text-white font-semibold text-sm px-6 py-3 rounded-xl transition-all shadow-md shadow-brandRed/20">
+            <i class="fa-solid fa-download text-xs"></i> Download Logo Pack
+          </a>
+          <p class="text-[11px] text-slate-400 mt-3">ZIP file • 8.6 MB</p>
+        </div>
+
+        <!-- Brand Guidelines -->
+        <div class="bg-gradient-to-br from-slate-50 to-white rounded-2xl border border-slate-200 p-8 text-center hover:shadow-xl hover:border-brandRed/30 transition-all duration-300 group">
+          <div class="w-16 h-16 rounded-2xl bg-brandRed/10 flex items-center justify-center mx-auto mb-5 group-hover:bg-brandRed/20 transition-colors">
+            <i class="fa-solid fa-palette text-brandRed text-2xl"></i>
+          </div>
+          <h3 class="font-bold text-slate-900 text-lg mb-2">Brand Guidelines</h3>
+          <p class="text-slate-500 text-sm mb-6 leading-relaxed">Complete visual identity guide — colors, typography, spacing rules, and co-branding requirements.</p>
+          <a href="#" class="inline-flex items-center gap-2 bg-brandRed hover:bg-brandRed-hover text-white font-semibold text-sm px-6 py-3 rounded-xl transition-all shadow-md shadow-brandRed/20">
+            <i class="fa-solid fa-download text-xs"></i> Download Guidelines
+          </a>
+          <p class="text-[11px] text-slate-400 mt-3">PDF document • 5.3 MB</p>
+        </div>
+
+        <!-- High-Resolution Photos -->
+        <div class="bg-gradient-to-br from-slate-50 to-white rounded-2xl border border-slate-200 p-8 text-center hover:shadow-xl hover:border-brandRed/30 transition-all duration-300 group">
+          <div class="w-16 h-16 rounded-2xl bg-brandRed/10 flex items-center justify-center mx-auto mb-5 group-hover:bg-brandRed/20 transition-colors">
+            <i class="fa-solid fa-camera text-brandRed text-2xl"></i>
+          </div>
+          <h3 class="font-bold text-slate-900 text-lg mb-2">High-Resolution Photos</h3>
+          <p class="text-slate-500 text-sm mb-6 leading-relaxed">Curated field photos from WRC operations, events, and humanitarian activities for media use.</p>
+          <a href="#" class="inline-flex items-center gap-2 bg-brandRed hover:bg-brandRed-hover text-white font-semibold text-sm px-6 py-3 rounded-xl transition-all shadow-md shadow-brandRed/20">
+            <i class="fa-solid fa-download text-xs"></i> Download Photos
+          </a>
+          <p class="text-[11px] text-slate-400 mt-3">ZIP archive • 42.5 MB</p>
+        </div>
+
+      </div>
+
+      <!-- Media Contact -->
+      <div class="mt-12 bg-ink-900 rounded-2xl p-8 lg:p-10 text-center">
+        <h3 class="font-display text-xl font-bold text-white mb-3">Need Custom Assets?</h3>
+        <p class="text-slate-400 text-sm mb-6 max-w-lg mx-auto">For press inquiries, custom logo requests, or high-resolution image needs, contact our communications team directly.</p>
+        <a href="../contact/index.html" class="inline-flex items-center gap-2 bg-white text-ink-900 font-semibold text-sm px-6 py-3 rounded-xl hover:bg-slate-100 transition-all">
+          <i class="fa-solid fa-envelope text-xs"></i> Contact Communications Team
+        </a>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ==================== DOWNLOADS SECTION ==================== -->
+  <section id="downloads" class="py-16 lg:py-24 bg-slate-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+      <div class="text-center mb-12">
+        <span class="inline-block text-brandRed text-xs font-bold uppercase tracking-[0.2em] mb-3">Free Downloads</span>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold text-slate-900 mb-4">Brochures, Factsheets & Infographics</h2>
+        <p class="text-slate-500 max-w-xl mx-auto">Shareable materials to help spread awareness about WRC's work. Download, print, and distribute freely.</p>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+
+        <!-- Brochure 1 -->
+        <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden hover:shadow-lg hover:border-brandRed/30 transition-all duration-300 group">
+          <div class="h-40 bg-gradient-to-br from-brandRed/5 to-brandRed/10 flex items-center justify-center">
+            <i class="fa-solid fa-file-lines text-brandRed/40 text-5xl group-hover:text-brandRed/60 transition-colors"></i>
+          </div>
+          <div class="p-5">
+            <span class="inline-block px-2 py-0.5 rounded-full bg-brandRed/10 text-brandRed text-[10px] font-bold uppercase tracking-wider mb-2">Brochure</span>
+            <h3 class="font-bold text-slate-900 text-sm mb-1 group-hover:text-brandRed transition-colors">WRC Overview Brochure</h3>
+            <p class="text-slate-500 text-xs mb-3">Complete organizational introduction with program highlights and contact details.</p>
+            <div class="flex items-center justify-between">
+              <span class="text-[11px] text-slate-400">PDF • 3.1 MB</span>
+              <a href="#" class="text-brandRed text-xs font-semibold hover:underline flex items-center gap-1"><i class="fa-solid fa-download text-[10px]"></i> Get</a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Brochure 2 -->
+        <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden hover:shadow-lg hover:border-brandRed/30 transition-all duration-300 group">
+          <div class="h-40 bg-gradient-to-br from-emerald-50 to-emerald-100 flex items-center justify-center">
+            <i class="fa-solid fa-file-lines text-emerald-400/60 text-5xl group-hover:text-emerald-600/80 transition-colors"></i>
+          </div>
+          <div class="p-5">
+            <span class="inline-block px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 text-[10px] font-bold uppercase tracking-wider mb-2">Brochure</span>
+            <h3 class="font-bold text-slate-900 text-sm mb-1 group-hover:text-brandRed transition-colors">WASH Program Brochure</h3>
+            <p class="text-slate-500 text-xs mb-3">Overview of water, sanitation, and hygiene projects across Pakistan.</p>
+            <div class="flex items-center justify-between">
+              <span class="text-[11px] text-slate-400">PDF • 2.4 MB</span>
+              <a href="#" class="text-brandRed text-xs font-semibold hover:underline flex items-center gap-1"><i class="fa-solid fa-download text-[10px]"></i> Get</a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Factsheet 1 -->
+        <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden hover:shadow-lg hover:border-brandRed/30 transition-all duration-300 group">
+          <div class="h-40 bg-gradient-to-br from-amber-50 to-amber-100 flex items-center justify-center">
+            <i class="fa-solid fa-newspaper text-amber-400/60 text-5xl group-hover:text-amber-600/80 transition-colors"></i>
+          </div>
+          <div class="p-5">
+            <span class="inline-block px-2 py-0.5 rounded-full bg-amber-100 text-amber-700 text-[10px] font-bold uppercase tracking-wider mb-2">Factsheet</span>
+            <h3 class="font-bold text-slate-900 text-sm mb-1 group-hover:text-brandRed transition-colors">Quick Factsheet 2025</h3>
+            <p class="text-slate-500 text-xs mb-3">At-a-glance statistics on programs, beneficiaries, and geographic reach.</p>
+            <div class="flex items-center justify-between">
+              <span class="text-[11px] text-slate-400">PDF • 1.2 MB</span>
+              <a href="#" class="text-brandRed text-xs font-semibold hover:underline flex items-center gap-1"><i class="fa-solid fa-download text-[10px]"></i> Get</a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Infographic -->
+        <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden hover:shadow-lg hover:border-brandRed/30 transition-all duration-300 group">
+          <div class="h-40 bg-gradient-to-br from-violet-50 to-violet-100 flex items-center justify-center">
+            <i class="fa-solid fa-chart-bar text-violet-400/60 text-5xl group-hover:text-violet-600/80 transition-colors"></i>
+          </div>
+          <div class="p-5">
+            <span class="inline-block px-2 py-0.5 rounded-full bg-violet-100 text-violet-700 text-[10px] font-bold uppercase tracking-wider mb-2">Infographic</span>
+            <h3 class="font-bold text-slate-900 text-sm mb-1 group-hover:text-brandRed transition-colors">2024 Impact Infographic</h3>
+            <p class="text-slate-500 text-xs mb-3">Visual summary of key achievements, funds raised, and lives impacted.</p>
+            <div class="flex items-center justify-between">
+              <span class="text-[11px] text-slate-400">PDF • 2.4 MB</span>
+              <a href="#" class="text-brandRed text-xs font-semibold hover:underline flex items-center gap-1"><i class="fa-solid fa-download text-[10px]"></i> Get</a>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ==================== FOOTER ==================== -->
   <footer class="bg-slate-950 text-slate-300 text-sm mt-auto border-t border-slate-800">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14">
       <div class="grid grid-cols-1 xl:grid-cols-12 gap-10">
@@ -539,7 +1198,7 @@
       </div>
 
       <div class="border-t border-slate-800/70 mt-10 pt-6 flex flex-col gap-4 md:flex-row md:items-center md:justify-between text-slate-500 text-xs">
-        <p>© 2026 World Relief Committee. All rights reserved.</p>
+        <p>&copy; 2026 World Relief Committee. All rights reserved.</p>
         <div class="flex flex-wrap items-center gap-3 justify-center md:justify-end text-slate-400">
           <a href="../privacy.html" class="hover:text-white transition">Privacy Policy</a>
           <a href="../terms.html" class="hover:text-white transition">Terms of Use</a>
@@ -551,5 +1210,49 @@
 
 
   <script src="../assets/js/main.js"></script>
+
+  <!-- TAB FILTERING SCRIPT -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const tabs = document.querySelectorAll('#filter-tabs .tab-btn');
+      const cards = document.querySelectorAll('#resource-grid .resource-card');
+      const noResults = document.getElementById('no-results');
+
+      tabs.forEach(function (tab) {
+        tab.addEventListener('click', function () {
+          // Update active tab
+          tabs.forEach(function (t) {
+            t.classList.remove('active', 'bg-brandRed', 'text-white', 'border-brandRed');
+            t.classList.add('bg-white', 'text-slate-600');
+          });
+          this.classList.add('active', 'bg-brandRed', 'text-white', 'border-brandRed');
+          this.classList.remove('bg-white', 'text-slate-600');
+
+          var filter = this.getAttribute('data-filter');
+          var visibleCount = 0;
+
+          cards.forEach(function (card) {
+            var category = card.getAttribute('data-category');
+            if (filter === 'all' || category === filter) {
+              card.classList.remove('hidden-card');
+              card.classList.add('visible-card');
+              visibleCount++;
+            } else {
+              card.classList.remove('visible-card');
+              card.classList.add('hidden-card');
+            }
+          });
+
+          // Show/hide no results message
+          if (visibleCount === 0) {
+            noResults.classList.remove('hidden');
+          } else {
+            noResults.classList.add('hidden');
+          }
+        });
+      });
+    });
+  </script>
+
 </body>
 </html>

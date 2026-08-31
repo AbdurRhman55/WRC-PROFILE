@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Our Causes - World Relief Committee (WRC)</title>
-  <meta name="description" content="Explore active humanitarian relief campaigns by World Relief Committee including clean water wells, emergency food ration packs, and orphan education.">
+  <title>Active Campaigns - World Relief Committee (WRC)</title>
+  <meta name="description" content="Support WRC active humanitarian campaigns: clean water filtration, emergency food packs, and orphan education sponsorship. Donate today.">
 
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -53,18 +53,95 @@
               '0%, 100%': { boxShadow: '0 0 8px rgba(202, 0, 0, 0.25)' },
               '50%': { boxShadow: '0 0 15px rgba(202, 0, 0, 0.45)' },
             },
-            'progress': {
+            'progress-fill': {
               from: { width: '0%' },
+            },
+            'fade-up': {
+              from: { opacity: '0', transform: 'translateY(20px)' },
+              to: { opacity: '1', transform: 'translateY(0)' },
             },
           },
           animation: {
             'pulse-glow': 'pulse-glow 3s infinite',
-            'progress': 'progress 1.5s ease-out forwards',
+            'progress-fill': 'progress-fill 1.5s ease-out forwards',
+            'fade-up': 'fade-up 0.6s ease-out forwards',
           },
         }
       }
     }
   </script>
+
+  <style>
+    @media (max-width: 767px) {
+      .mobile-menu-panel {
+        background: rgba(14, 31, 39, 0.98);
+        backdrop-filter: blur(14px);
+        transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease;
+      }
+
+      .mobile-menu-panel {
+        transform: translateY(-100%);
+        opacity: 0;
+        pointer-events: none;
+      }
+
+      .mobile-menu-panel.menu-open {
+        transform: translateY(0);
+        opacity: 1;
+        pointer-events: auto;
+      }
+
+      .hamburger-line {
+        transition: transform 0.3s ease, opacity 0.3s ease, background-color 0.3s ease;
+      }
+
+      .mobile-menu-btn.menu-open .hamburger-line:first-child {
+        transform: translateY(7px) rotate(45deg);
+      }
+      .mobile-menu-btn.menu-open .hamburger-line:nth-child(2) {
+        opacity: 0;
+      }
+      .mobile-menu-btn.menu-open .hamburger-line:last-child {
+        transform: translateY(-7px) rotate(-45deg);
+      }
+
+      .mobile-menu-panel nav a {
+        opacity: 0;
+        transform: translateY(10px);
+        animation: mobileLinkIn 0.4s forwards ease;
+      }
+      .mobile-menu-panel.menu-open nav a:nth-child(1) { animation-delay: 0.08s; }
+      .mobile-menu-panel.menu-open nav a:nth-child(2) { animation-delay: 0.14s; }
+      .mobile-menu-panel.menu-open nav a:nth-child(3) { animation-delay: 0.20s; }
+      .mobile-menu-panel.menu-open nav a:nth-child(4) { animation-delay: 0.26s; }
+      .mobile-menu-panel.menu-open nav a:nth-child(5) { animation-delay: 0.32s; }
+      .mobile-menu-panel.menu-open nav a:nth-child(6) { animation-delay: 0.38s; }
+      .mobile-menu-panel.menu-open nav a:nth-child(7) { animation-delay: 0.44s; }
+      .mobile-menu-panel.menu-open nav a:nth-child(8) { animation-delay: 0.50s; }
+      .mobile-menu-panel.menu-open nav a:nth-child(9) { animation-delay: 0.56s; }
+      .mobile-menu-panel.menu-open nav a:nth-child(10) { animation-delay: 0.62s; }
+      .mobile-menu-panel.menu-open nav a:nth-child(11) { animation-delay: 0.68s; }
+      .mobile-menu-panel.menu-open nav a:nth-child(12) { animation-delay: 0.74s; }
+      .mobile-menu-panel.menu-open nav a:nth-child(13) { animation-delay: 0.80s; }
+      .mobile-menu-panel.menu-open nav a:nth-child(14) { animation-delay: 0.86s; }
+
+      @keyframes mobileLinkIn {
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .mobile-submenu {
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.28s ease;
+      }
+      .mobile-submenu.open {
+        max-height: 900px;
+      }
+    }
+  </style>
 
   <!-- Font Awesome Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
@@ -72,21 +149,22 @@
 </head>
 <body class="bg-slate-50 text-slate-800 flex flex-col min-h-screen">
 
-<!-- TOP UTILITY BAR -->
+  <!-- TOP UTILITY BAR -->
   <div class="bg-brandRed text-white text-xs py-2 border-b border-brandRed/80 hidden lg:block w-full">
     <div class="w-full px-4 sm:px-6 lg:px-8 flex justify-between items-center">
       <div class="flex items-center gap-6">
         <span class="flex items-center gap-2"><i class="fa-solid fa-phone text-white text-[11px]"></i> +92 300 1234567</span>
         <span class="flex items-center gap-2"><i class="fa-solid fa-envelope text-white text-[11px]"></i> info@wrc.org.pk</span>
         <span class="text-white/80">|</span>
-        <span class="text-white/90 font-medium"><i class="fa-solid fa-bullhorn text-white mr-1 text-[11px]"></i> Emergency Flood & Winter Aid Active</span>
+        <span class="text-white/90 font-medium"><i class="fa-solid fa-bullhorn text-white mr-1 text-[11px]"></i> Emergency Flood &amp; Winter Aid Active</span>
       </div>
       <div class="flex items-center gap-4 text-xs text-white">
-         <span class="flex items-center gap-2"><i class="fa-solid fa-location-dot text-white text-[11px]"></i>Flat#1, 3rd Floor, Shami Flats near Marbella Wedding Hall, Warsak Road, Peshawar, Pakistan</span>
+        <span class="flex items-center gap-2"><i class="fa-solid fa-location-dot text-white text-[11px]"></i>Flat#1, 3rd Floor, Shami Flats near Marbella Wedding Hall, Warsak Road, Peshawar, Pakistan</span>
       </div>
     </div>
+  </div>
 
-<!-- MAIN HEADER NAVIGATION -->
+  <!-- MAIN HEADER NAVIGATION -->
   <header class="sticky top-0 z-50 w-full bg-white/95 lg:bg-white/75 lg:backdrop-blur-xl border-b border-white/50 transition-all duration-300 shadow-sm">
     <div class="w-full px-4 sm:px-6 lg:px-8">
       <div class="flex items-center justify-between h-20 gap-4">
@@ -100,7 +178,7 @@
         <nav class="hidden lg:flex items-center gap-1 xl:gap-1.5 text-[11px] xl:text-xs font-medium text-slate-600">
 
           <!-- 1. HOME -->
-          <a href="../index.html" class="nav-link-item px-2.5 py-2 rounded-lg text-brandRed font-semibold hover:bg-slate-800/60 transition-all">
+          <a href="../index.html" class="nav-link-item px-2.5 py-2 rounded-lg hover:text-white hover:bg-slate-800/60 transition-all">
             HOME
           </a>
 
@@ -112,18 +190,15 @@
             <div class="dropdown-menu absolute top-full left-0 w-64 bg-white border border-gray-100 rounded-2xl shadow-xl p-3 text-slate-600 text-xs">
               <div class="mb-1 px-2 text-[10px] font-bold text-slate-400 uppercase tracking-wider">About WRC</div>
               <a href="../about/who-we-are.html" class="block px-3 py-1.5 rounded-xl hover:bg-slate-800 hover:text-white transition-colors"><i class="fa-solid fa-circle-info w-4 text-center mr-1 text-slate-400"></i> Who We Are</a>
-              <a href="../about/vision-mission-values.html" class="block px-3 py-1.5 rounded-xl hover:bg-slate-800 hover:text-white transition-colors"><i class="fa-solid fa-bullseye w-4 text-center mr-1 text-slate-400"></i> Vision, Mission & Values</a>
+              <a href="../about/vision-mission-values.html" class="block px-3 py-1.5 rounded-xl hover:bg-slate-800 hover:text-white transition-colors"><i class="fa-solid fa-bullseye w-4 text-center mr-1 text-slate-400"></i> Vision, Mission &amp; Values</a>
               <a href="../about/history.html" class="block px-3 py-1.5 rounded-xl hover:bg-slate-800 hover:text-white transition-colors"><i class="fa-solid fa-timeline w-4 text-center mr-1 text-slate-400"></i> Our History</a>
-              
-              <div class="mt-2 mb-1 px-2 text-[10px] font-bold text-slate-400 uppercase tracking-wider">People & Governance</div>
+              <div class="mt-2 mb-1 px-2 text-[10px] font-bold text-slate-400 uppercase tracking-wider">People &amp; Governance</div>
               <a href="../about/leadership.html" class="block px-3 py-1.5 rounded-xl hover:bg-slate-800 hover:text-white transition-colors"><i class="fa-solid fa-user-tie w-4 text-center mr-1 text-slate-400"></i> Leadership</a>
               <a href="../about/organizational-structure.html" class="block px-3 py-1.5 rounded-xl hover:bg-slate-800 hover:text-white transition-colors"><i class="fa-solid fa-sitemap w-4 text-center mr-1 text-slate-400"></i> Organizational Structure</a>
               <a href="../about/team.html" class="block px-3 py-1.5 rounded-xl hover:bg-slate-800 hover:text-white transition-colors"><i class="fa-solid fa-users w-4 text-center mr-1 text-slate-400"></i> Our Team</a>
-              
               <div class="mt-2 mb-1 px-2 text-[10px] font-bold text-slate-400 uppercase tracking-wider">Transparency</div>
-              <a href="../about/policies-compliance.html" class="block px-3 py-1.5 rounded-xl hover:bg-slate-800 hover:text-white transition-colors"><i class="fa-solid fa-shield-halved w-4 text-center mr-1 text-slate-400"></i> Policies & Compliance</a>
+              <a href="../about/policies-compliance.html" class="block px-3 py-1.5 rounded-xl hover:bg-slate-800 hover:text-white transition-colors"><i class="fa-solid fa-shield-halved w-4 text-center mr-1 text-slate-400"></i> Policies &amp; Compliance</a>
               <a href="../about/annual-reports.html" class="block px-3 py-1.5 rounded-xl hover:bg-slate-800 hover:text-white transition-colors"><i class="fa-solid fa-file-invoice w-4 text-center mr-1 text-slate-400"></i> Annual Reports</a>
-              
               <div class="mt-2 pt-2 border-t border-slate-100">
                 <a href="../contact/index.html" class="block px-3 py-1.5 rounded-xl hover:bg-slate-800 hover:text-white transition-colors font-medium"><i class="fa-solid fa-address-book w-4 text-center mr-1 text-slate-400"></i> Contact Us</a>
               </div>
@@ -143,15 +218,15 @@
               <div class="grid grid-cols-3 gap-2.5">
                 <a href="../our-work/health.html" class="p-2.5 rounded-xl hover:bg-red-50 transition-all border border-transparent hover:border-brandRed/20">
                   <div class="font-semibold text-slate-900 text-xs mb-0.5 flex items-center gap-2"><i class="fa-solid fa-heart-pulse text-brandRed"></i> Health</div>
-                  <p class="text-[11px] text-slate-400 font-normal">Free medical camps & emergency healthcare.</p>
+                  <p class="text-[11px] text-slate-400 font-normal">Free medical camps &amp; emergency healthcare.</p>
                 </a>
                 <a href="../our-work/education.html" class="p-2.5 rounded-xl hover:bg-red-50 transition-all border border-transparent hover:border-brandRed/20">
                   <div class="font-semibold text-slate-900 text-xs mb-0.5 flex items-center gap-2"><i class="fa-solid fa-graduation-cap text-brandRed"></i> Education</div>
-                  <p class="text-[11px] text-slate-500 font-normal">Schooling kits, orphan care & literacy.</p>
+                  <p class="text-[11px] text-slate-500 font-normal">Schooling kits, orphan care &amp; literacy.</p>
                 </a>
                 <a href="../our-work/wash.html" class="p-2.5 rounded-xl hover:bg-red-50 transition-all border border-transparent hover:border-brandRed/20">
                   <div class="font-semibold text-slate-900 text-xs mb-0.5 flex items-center gap-2"><i class="fa-solid fa-faucet-drip text-brandRed"></i> WASH</div>
-                  <p class="text-[11px] text-slate-500 font-normal">Water, sanitation & hygiene projects.</p>
+                  <p class="text-[11px] text-slate-500 font-normal">Water, sanitation &amp; hygiene projects.</p>
                 </a>
                 <a href="../our-work/food-security.html" class="p-2.5 rounded-xl hover:bg-red-50 transition-all border border-transparent hover:border-brandRed/20">
                   <div class="font-semibold text-slate-900 text-xs mb-0.5 flex items-center gap-2"><i class="fa-solid fa-bowl-food text-brandRed"></i> Food Security</div>
@@ -159,23 +234,23 @@
                 </a>
                 <a href="../our-work/nutrition.html" class="p-2.5 rounded-xl hover:bg-red-50 transition-all border border-transparent hover:border-brandRed/20">
                   <div class="font-semibold text-slate-900 text-xs mb-0.5 flex items-center gap-2"><i class="fa-solid fa-apple-whole text-brandRed"></i> Nutrition</div>
-                  <p class="text-[11px] text-slate-500 font-normal">Child & maternal malnutrition care.</p>
+                  <p class="text-[11px] text-slate-500 font-normal">Child &amp; maternal malnutrition care.</p>
                 </a>
                 <a href="../our-work/livelihood.html" class="p-2.5 rounded-xl hover:bg-red-50 transition-all border border-transparent hover:border-brandRed/20">
                   <div class="font-semibold text-slate-900 text-xs mb-0.5 flex items-center gap-2"><i class="fa-solid fa-briefcase text-brandRed"></i> Livelihood</div>
-                  <p class="text-[11px] text-slate-500 font-normal">Skill development & micro-enterprises.</p>
+                  <p class="text-[11px] text-slate-500 font-normal">Skill development &amp; micro-enterprises.</p>
                 </a>
                 <a href="../our-work/emergency-response.html" class="p-2.5 rounded-xl hover:bg-red-50 transition-all border border-transparent hover:border-brandRed/20">
                   <div class="font-semibold text-slate-900 text-xs mb-0.5 flex items-center gap-2"><i class="fa-solid fa-truck-medical text-brandRed"></i> Emergency Response</div>
-                  <p class="text-[11px] text-slate-500 font-normal">Immediate disaster & crisis relief.</p>
+                  <p class="text-[11px] text-slate-500 font-normal">Immediate disaster &amp; crisis relief.</p>
                 </a>
                 <a href="../our-work/disaster-risk-reduction.html" class="p-2.5 rounded-xl hover:bg-red-50 transition-all border border-transparent hover:border-brandRed/20">
                   <div class="font-semibold text-slate-900 text-xs mb-0.5 flex items-center gap-2"><i class="fa-solid fa-triangle-exclamation text-brandRed"></i> DRR</div>
-                  <p class="text-[11px] text-slate-500 font-normal">Disaster Risk Reduction & readiness.</p>
+                  <p class="text-[11px] text-slate-500 font-normal">Disaster Risk Reduction &amp; readiness.</p>
                 </a>
                 <a href="../our-work/climate-resilience.html" class="p-2.5 rounded-xl hover:bg-red-50 transition-all border border-transparent hover:border-brandRed/20">
                   <div class="font-semibold text-slate-900 text-xs mb-0.5 flex items-center gap-2"><i class="fa-solid fa-leaf text-brandRed"></i> Climate Resilience</div>
-                  <p class="text-[11px] text-slate-500 font-normal">Green energy & environmental protection.</p>
+                  <p class="text-[11px] text-slate-500 font-normal">Green energy &amp; environmental protection.</p>
                 </a>
               </div>
             </div>
@@ -183,7 +258,7 @@
 
           <!-- 4. PROJECTS -->
           <div class="nav-item-dropdown">
-            <a href="../projects/index.html" class="nav-link-item px-2.5 py-2 rounded-lg hover:text-white hover:bg-slate-800/60 transition-all flex items-center gap-1">
+            <a href="../projects/index.html" class="nav-link-item px-2.5 py-2 rounded-lg text-brandRed font-semibold hover:bg-slate-800/60 transition-all flex items-center gap-1">
               PROJECTS <i class="fa-solid fa-chevron-down text-[8px] opacity-60"></i>
             </a>
             <div class="dropdown-menu absolute top-full left-0 w-56 bg-white border border-gray-100 rounded-2xl shadow-xl p-2 text-slate-600 text-xs">
@@ -218,13 +293,13 @@
             <div class="dropdown-menu absolute top-full left-0 w-56 bg-white border border-gray-100 rounded-2xl shadow-xl p-2 text-slate-600 text-xs">
               <a href="../impact/index.html#dashboard" class="block px-3 py-2 rounded-xl hover:bg-slate-800 hover:text-white transition-colors"><i class="fa-solid fa-chart-pie mr-2 text-slate-400"></i> Impact Dashboard</a>
               <a href="../impact/index.html#stats" class="block px-3 py-2 rounded-xl hover:bg-slate-800 hover:text-white transition-colors"><i class="fa-solid fa-users-viewfinder mr-2 text-slate-400"></i> Beneficiary Statistics</a>
-              <a href="../impact/index.html#mne" class="block px-3 py-2 rounded-xl hover:bg-slate-800 hover:text-white transition-colors"><i class="fa-solid fa-clipboard-check mr-2 text-slate-400"></i> Monitoring & Evaluation</a>
+              <a href="../impact/index.html#mne" class="block px-3 py-2 rounded-xl hover:bg-slate-800 hover:text-white transition-colors"><i class="fa-solid fa-clipboard-check mr-2 text-slate-400"></i> Monitoring &amp; Evaluation</a>
               <a href="../impact/index.html#case-studies" class="block px-3 py-2 rounded-xl hover:bg-slate-800 hover:text-white transition-colors"><i class="fa-solid fa-book-open-reader mr-2 text-slate-400"></i> Case Studies</a>
               <a href="../impact/index.html#sdgs" class="block px-3 py-2 rounded-xl hover:bg-slate-800 hover:text-white transition-colors"><i class="fa-solid fa-globe mr-2 text-slate-400"></i> SDG Contributions</a>
             </div>
           </div>
 
-          <!-- 8. RESOURCES -->
+          <!-- 7. RESOURCES -->
           <div class="nav-item-dropdown">
             <a href="../resources/index.html" class="nav-link-item px-2.5 py-2 rounded-lg hover:text-white hover:bg-slate-800/60 transition-all flex items-center gap-1">
               RESOURCES <i class="fa-solid fa-chevron-down text-[8px] opacity-60"></i>
@@ -240,10 +315,10 @@
             </div>
           </div>
 
-          <!-- 9. NEWS & MEDIA -->
+          <!-- 8. NEWS &amp; MEDIA -->
           <div class="nav-item-dropdown">
             <a href="../news/index.html" class="nav-link-item px-2.5 py-2 rounded-lg hover:text-white hover:bg-slate-800/60 transition-all flex items-center gap-1">
-              NEWS & MEDIA <i class="fa-solid fa-chevron-down text-[8px] opacity-60"></i>
+              NEWS &amp; MEDIA <i class="fa-solid fa-chevron-down text-[8px] opacity-60"></i>
             </a>
             <div class="dropdown-menu absolute top-full right-0 w-56 bg-white border border-gray-100 rounded-2xl shadow-xl p-2 text-slate-600 text-xs">
               <a href="../news/index.html#news" class="block px-3 py-2 rounded-xl hover:bg-slate-800 hover:text-white transition-colors"><i class="fa-solid fa-newspaper mr-2 text-slate-400"></i> Latest News</a>
@@ -255,7 +330,7 @@
             </div>
           </div>
 
-          <!-- 10. GET INVOLVED -->
+          <!-- 9. GET INVOLVED -->
           <div class="nav-item-dropdown">
             <a href="../get-involved/index.html" class="nav-link-item px-2.5 py-2 rounded-lg hover:text-white hover:bg-slate-800/60 transition-all flex items-center gap-1">
               GET INVOLVED <i class="fa-solid fa-chevron-down text-[8px] opacity-60"></i>
@@ -270,7 +345,7 @@
             </div>
           </div>
 
-          <!-- 11. CONTACT -->
+          <!-- 10. CONTACT -->
           <div class="nav-item-dropdown">
             <a href="../contact/index.html" class="nav-link-item px-2.5 py-2 rounded-lg hover:text-white hover:bg-slate-800/60 transition-all flex items-center gap-1">
               CONTACT <i class="fa-solid fa-chevron-down text-[8px] opacity-60"></i>
@@ -302,7 +377,7 @@
     </div>
   </header>
 
-<!-- MOBILE SIDE TRAY -->
+  <!-- MOBILE SIDE TRAY -->
   <div id="mobile-tray-overlay" class="mobile-tray-overlay"></div>
   <div id="mobile-tray" class="mobile-tray" role="dialog" aria-modal="true" aria-label="Navigation menu">
     <div class="mobile-tray-header">
@@ -325,12 +400,12 @@
         </button>
         <div class="mobile-tray-submenu"><div>
           <a href="../about/who-we-are.html">Who We Are</a>
-          <a href="../about/vision-mission-values.html">Vision, Mission & Values</a>
+          <a href="../about/vision-mission-values.html">Vision, Mission &amp; Values</a>
           <a href="../about/history.html">Our History</a>
           <a href="../about/leadership.html">Leadership</a>
           <a href="../about/organizational-structure.html">Organizational Structure</a>
           <a href="../about/team.html">Our Team</a>
-          <a href="../about/policies-compliance.html">Policies & Compliance</a>
+          <a href="../about/policies-compliance.html">Policies &amp; Compliance</a>
           <a href="../about/annual-reports.html">Annual Reports</a>
         </div></div>
 
@@ -363,15 +438,6 @@
           <a href="../projects/index.html#dashboard">Project Dashboard</a>
         </div></div>
 
-        <button class="mobile-tray-accordion-btn" data-delay="0.20">
-          <span>PROCUREMENT</span>
-          <i class="acc-icon fa-solid fa-chevron-down"></i>
-        </button>
-        <div class="mobile-tray-submenu"><div>
-          <a href="../procurement.html#tenders">Open Tenders</a>
-          <a href="../procurement.html#vendor">Vendor Registration</a>
-        </div></div>
-
         <button class="mobile-tray-accordion-btn" data-delay="0.25">
           <span>WHERE WE WORK</span>
           <i class="acc-icon fa-solid fa-chevron-down"></i>
@@ -393,7 +459,7 @@
         <div class="mobile-tray-submenu"><div>
           <a href="../impact/index.html">Impact Dashboard</a>
           <a href="../impact/index.html#stats">Beneficiary Statistics</a>
-          <a href="../impact/index.html#mne">Monitoring & Evaluation</a>
+          <a href="../impact/index.html#mne">Monitoring &amp; Evaluation</a>
           <a href="../impact/index.html#case-studies">Case Studies</a>
           <a href="../impact/index.html#sdgs">SDG Contributions</a>
         </div></div>
@@ -412,7 +478,7 @@
         </div></div>
 
         <button class="mobile-tray-accordion-btn" data-delay="0.40">
-          <span>NEWS & MEDIA</span>
+          <span>NEWS &amp; MEDIA</span>
           <i class="acc-icon fa-solid fa-chevron-down"></i>
         </button>
         <div class="mobile-tray-submenu"><div>
@@ -457,73 +523,172 @@
     </div>
   </div>
 
-<section class="relative w-full bg-slate-900 text-white min-h-[560px] flex items-center overflow-hidden group">
-    
-    <!-- Slider Wrapper -->
-    <div id="hero-slider" class="absolute inset-0 z-0 w-full h-full transition-transform duration-1000 ease-in-out flex">
-      <!-- Slide 1 -->
-      <div class="w-full h-full flex-shrink-0 relative">
-        <div class="absolute inset-0 opacity-40 mix-blend-luminosity bg-cover bg-center" style="background-image: url('../assets/images/hero.jpg');"></div>
-              <a href="../our-work/index.html#wash" class="w-full bg-slate-900 hover:bg-brandRed text-white font-bold py-2.5 rounded-xl text-center text-sm transition-colors block">
-                Explore Project
-              </a>
+  <!-- ============================================ -->
+  <!-- HERO SECTION - Active Campaigns              -->
+  <!-- ============================================ -->
+  <section class="relative w-full bg-slate-900 text-white min-h-[420px] flex items-center overflow-hidden">
+    <!-- Background Image -->
+    <div class="absolute inset-0 z-0">
+      <div class="absolute inset-0 opacity-40 mix-blend-luminosity bg-cover bg-center" style="background-image: url('../assets/images/hero.jpg');"></div>
+      <div class="absolute inset-0 bg-gradient-to-r from-slate-900 via-slate-900/80 to-slate-900/40"></div>
+    </div>
+
+    <div class="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+      <div class="max-w-2xl">
+        <div class="inline-flex items-center gap-2 bg-brandRed/20 border border-brandRed/40 text-brandRed text-xs font-bold uppercase tracking-wider px-4 py-2 rounded-full mb-6">
+          <span class="w-2 h-2 bg-brandRed rounded-full animate-pulse"></span>
+          Live Campaigns
+        </div>
+        <h1 class="text-4xl sm:text-5xl lg:text-6xl font-display font-bold text-white leading-tight mb-6">
+          Your Donation <span class="text-brandRed">Changes Lives</span>
+        </h1>
+        <p class="text-lg text-slate-300 leading-relaxed mb-8 max-w-xl">
+          Join thousands of donors supporting clean water, emergency food, and orphan education across Pakistan. Every rupee counts.
+        </p>
+        <div class="flex flex-wrap gap-4">
+          <a href="#campaigns" class="inline-flex items-center gap-2 bg-brandRed hover:bg-brandRed-hover text-white font-bold px-8 py-3.5 rounded-xl shadow-lg shadow-brandRed/25 transition-all">
+            <i class="fa-solid fa-heart text-sm"></i> Donate Now
+          </a>
+          <a href="#impact" class="inline-flex items-center gap-2 bg-white/10 hover:bg-white/20 border border-white/20 text-white font-bold px-8 py-3.5 rounded-xl transition-all">
+            <i class="fa-solid fa-chart-line text-sm"></i> See Our Impact
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================ -->
+  <!-- CAMPAIGN CARDS SECTION                       -->
+  <!-- ============================================ -->
+  <section id="campaigns" class="py-20 bg-slate-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <!-- Section Header -->
+      <div class="text-center mb-14">
+        <span class="inline-block text-brandRed text-xs font-bold uppercase tracking-widest mb-3">Fundraising</span>
+        <h2 class="text-3xl sm:text-4xl font-display font-bold text-slate-900 mb-4">Active Campaigns</h2>
+        <p class="text-slate-500 max-w-2xl mx-auto">Support our ongoing campaigns to bring clean water, food security, and education to communities in need.</p>
+      </div>
+
+      <!-- Campaign Cards Grid -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+
+        <!-- CAMPAIGN CARD 1: Solar Water Filtration -->
+        <div class="bg-white rounded-2xl overflow-hidden border border-slate-200 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col group">
+          <!-- Image -->
+          <div class="relative h-56 overflow-hidden">
+            <img src="../assets/images/water.jpg" alt="Solar Water Filtration Project" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+            <div class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
+            <span class="absolute top-4 left-4 bg-brandRed text-white text-[11px] font-bold px-3 py-1.5 rounded-full uppercase tracking-wide shadow-lg">
+              <i class="fa-solid fa-droplet mr-1"></i> WASH
+            </span>
+            <span class="absolute top-4 right-4 bg-emerald-500 text-white text-[11px] font-bold px-3 py-1.5 rounded-full uppercase tracking-wide shadow-lg">
+              Active
+            </span>
+          </div>
+          <!-- Content -->
+          <div class="p-6 flex-1 flex flex-col">
+            <h3 class="text-xl font-bold text-slate-900 mb-2 font-display">Solar Water Filtration</h3>
+            <p class="text-slate-500 text-sm mb-5 leading-relaxed">Installing solar-powered water filtration systems in remote villages to provide clean drinking water to families year-round.</p>
+
+            <!-- Progress Bar -->
+            <div class="mb-4">
+              <div class="flex justify-between text-xs font-bold text-slate-600 mb-2">
+                <span class="text-brandRed">PKR 3,250,000 raised</span>
+                <span class="text-slate-400">PKR 5,000,000</span>
+              </div>
+              <div class="w-full bg-slate-100 rounded-full h-3 overflow-hidden">
+                <div class="bg-gradient-to-r from-brandRed to-red-500 h-3 rounded-full animate-progress-fill" style="width: 65%"></div>
+              </div>
+              <div class="flex justify-between items-center mt-2">
+                <span class="text-xs font-bold text-brandRed">65% Funded</span>
+                <span class="text-[11px] text-slate-400"><i class="fa-solid fa-users mr-1"></i> 450 Families benefiting</span>
+              </div>
             </div>
+
+            <!-- Donate Button -->
+            <button onclick="openDonationModal('Solar Water Filtration', 5000000)" class="w-full bg-brandRed hover:bg-brandRed-hover text-white font-bold py-3 rounded-xl text-sm transition-all flex items-center justify-center gap-2 mt-auto">
+              <i class="fa-solid fa-hand-holding-heart"></i> Donate Now
+            </button>
           </div>
         </div>
 
-        <!-- Cause Card 2 -->
-        <div class="bg-white rounded-2xl overflow-hidden border border-slate-200 shadow-sm hover:shadow-xl transition-all flex flex-col">
-          <div class="relative h-52 overflow-hidden">
-            <img src="../assets/images/food.jpg" alt="Emergency Ration Package" class="w-full h-full object-cover">
-            <span class="absolute top-3 left-3 bg-brandRed text-white text-xs font-bold px-3 py-1 rounded-full uppercase">Food Aid</span>
+        <!-- CAMPAIGN CARD 2: Monthly Emergency Food Packs -->
+        <div class="bg-white rounded-2xl overflow-hidden border border-slate-200 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col group">
+          <!-- Image -->
+          <div class="relative h-56 overflow-hidden">
+            <img src="../assets/images/food.jpg" alt="Monthly Emergency Food Packs" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+            <div class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
+            <span class="absolute top-4 left-4 bg-amber-500 text-white text-[11px] font-bold px-3 py-1.5 rounded-full uppercase tracking-wide shadow-lg">
+              <i class="fa-solid fa-bowl-food mr-1"></i> Food Aid
+            </span>
+            <span class="absolute top-4 right-4 bg-emerald-500 text-white text-[11px] font-bold px-3 py-1.5 rounded-full uppercase tracking-wide shadow-lg">
+              Active
+            </span>
           </div>
-          <div class="p-6 flex-1 flex flex-col justify-between">
-            <div>
-              <h3 class="text-xl font-bold text-slate-900 mb-2 font-heading">Monthly Emergency Food Packs</h3>
-              <p class="text-slate-600 text-sm mb-6">Distributing complete monthly grocery bags (wheat, rice, oil, pulses, sugar) to vulnerable families.</p>
-            </div>
-            <div>
-              <div class="mb-4">
-                <div class="flex justify-between text-xs font-bold text-slate-600 mb-1">
-                  <span>Status: Active</span>
-                  <span>Target: 300 Families</span>
-                </div>
-                <div class="w-full bg-slate-100 rounded-full h-2.5">
-                  <div class="bg-brandRed h-2.5 rounded-full" style="width: 80%"></div>
-                </div>
+          <!-- Content -->
+          <div class="p-6 flex-1 flex flex-col">
+            <h3 class="text-xl font-bold text-slate-900 mb-2 font-display">Monthly Emergency Food Packs</h3>
+            <p class="text-slate-500 text-sm mb-5 leading-relaxed">Distributing complete monthly grocery bags containing wheat, rice, oil, pulses, and sugar to vulnerable families.</p>
+
+            <!-- Progress Bar -->
+            <div class="mb-4">
+              <div class="flex justify-between text-xs font-bold text-slate-600 mb-2">
+                <span class="text-brandRed">PKR 1,600,000 raised</span>
+                <span class="text-slate-400">PKR 2,000,000</span>
               </div>
-              <a href="../our-work/index.html#food-security" class="w-full bg-slate-900 hover:bg-brandRed text-white font-bold py-2.5 rounded-xl text-center text-sm transition-colors block">
-                Explore Project
-              </a>
+              <div class="w-full bg-slate-100 rounded-full h-3 overflow-hidden">
+                <div class="bg-gradient-to-r from-brandRed to-red-500 h-3 rounded-full animate-progress-fill" style="width: 80%"></div>
+              </div>
+              <div class="flex justify-between items-center mt-2">
+                <span class="text-xs font-bold text-brandRed">80% Funded</span>
+                <span class="text-[11px] text-slate-400"><i class="fa-solid fa-users mr-1"></i> 300 Families benefiting</span>
+              </div>
             </div>
+
+            <!-- Donate Button -->
+            <button onclick="openDonationModal('Monthly Emergency Food Packs', 2000000)" class="w-full bg-brandRed hover:bg-brandRed-hover text-white font-bold py-3 rounded-xl text-sm transition-all flex items-center justify-center gap-2 mt-auto">
+              <i class="fa-solid fa-hand-holding-heart"></i> Donate Now
+            </button>
           </div>
         </div>
 
-        <!-- Cause Card 3 -->
-        <div class="bg-white rounded-2xl overflow-hidden border border-slate-200 shadow-sm hover:shadow-xl transition-all flex flex-col">
-          <div class="relative h-52 overflow-hidden">
-            <img src="../assets/images/hero.jpg" alt="Orphan Education Drive" class="w-full h-full object-cover">
-            <span class="absolute top-3 left-3 bg-brandRed text-white text-xs font-bold px-3 py-1 rounded-full uppercase">Education</span>
+        <!-- CAMPAIGN CARD 3: Orphan Education Sponsorship -->
+        <div class="bg-white rounded-2xl overflow-hidden border border-slate-200 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col group">
+          <!-- Image -->
+          <div class="relative h-56 overflow-hidden">
+            <img src="../assets/images/hero.jpg" alt="Orphan Education Sponsorship" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+            <div class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
+            <span class="absolute top-4 left-4 bg-indigo-500 text-white text-[11px] font-bold px-3 py-1.5 rounded-full uppercase tracking-wide shadow-lg">
+              <i class="fa-solid fa-graduation-cap mr-1"></i> Education
+            </span>
+            <span class="absolute top-4 right-4 bg-emerald-500 text-white text-[11px] font-bold px-3 py-1.5 rounded-full uppercase tracking-wide shadow-lg">
+              Active
+            </span>
           </div>
-          <div class="p-6 flex-1 flex flex-col justify-between">
-            <div>
-              <h3 class="text-xl font-bold text-slate-900 mb-2 font-heading">Orphan Education Sponsorship</h3>
-              <p class="text-slate-600 text-sm mb-6">Covering full tuition, uniform, stationery, and healthcare support for orphan children for one full year.</p>
-            </div>
-            <div>
-              <div class="mb-4">
-                <div class="flex justify-between text-xs font-bold text-slate-600 mb-1">
-                  <span>Status: Active</span>
-                  <span>Target: 200 Children</span>
-                </div>
-                <div class="w-full bg-slate-100 rounded-full h-2.5">
-                  <div class="bg-brandRed h-2.5 rounded-full" style="width: 73%"></div>
-                </div>
+          <!-- Content -->
+          <div class="p-6 flex-1 flex flex-col">
+            <h3 class="text-xl font-bold text-slate-900 mb-2 font-display">Orphan Education Sponsorship</h3>
+            <p class="text-slate-500 text-sm mb-5 leading-relaxed">Covering full tuition, uniform, stationery, and healthcare support for orphan children for one full academic year.</p>
+
+            <!-- Progress Bar -->
+            <div class="mb-4">
+              <div class="flex justify-between text-xs font-bold text-slate-600 mb-2">
+                <span class="text-brandRed">PKR 2,190,000 raised</span>
+                <span class="text-slate-400">PKR 3,000,000</span>
               </div>
-              <a href="../our-work/index.html#education" class="w-full bg-slate-900 hover:bg-brandRed text-white font-bold py-2.5 rounded-xl text-center text-sm transition-colors block">
-                Learn More
-              </a>
+              <div class="w-full bg-slate-100 rounded-full h-3 overflow-hidden">
+                <div class="bg-gradient-to-r from-brandRed to-red-500 h-3 rounded-full animate-progress-fill" style="width: 73%"></div>
+              </div>
+              <div class="flex justify-between items-center mt-2">
+                <span class="text-xs font-bold text-brandRed">73% Funded</span>
+                <span class="text-[11px] text-slate-400"><i class="fa-solid fa-child mr-1"></i> 200 Children benefiting</span>
+              </div>
             </div>
+
+            <!-- Donate Button -->
+            <button onclick="openDonationModal('Orphan Education Sponsorship', 3000000)" class="w-full bg-brandRed hover:bg-brandRed-hover text-white font-bold py-3 rounded-xl text-sm transition-all flex items-center justify-center gap-2 mt-auto">
+              <i class="fa-solid fa-hand-holding-heart"></i> Donate Now
+            </button>
           </div>
         </div>
 
@@ -531,12 +696,218 @@
     </div>
   </section>
 
-  <!-- Footer -->
-  
+  <!-- ============================================ -->
+  <!-- IMPACT STATS SECTION                         -->
+  <!-- ============================================ -->
+  <section id="impact" class="py-20 bg-gradient-to-br from-ink-900 via-slate-900 to-ink-800 text-white relative overflow-hidden">
+    <!-- Decorative Elements -->
+    <div class="absolute top-0 left-0 w-96 h-96 bg-brandRed/5 rounded-full -translate-x-1/2 -translate-y-1/2 blur-3xl"></div>
+    <div class="absolute bottom-0 right-0 w-96 h-96 bg-brandRed/5 rounded-full translate-x-1/2 translate-y-1/2 blur-3xl"></div>
 
+    <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <!-- Section Header -->
+      <div class="text-center mb-14">
+        <span class="inline-block text-brandRed text-xs font-bold uppercase tracking-widest mb-3">Our Reach</span>
+        <h2 class="text-3xl sm:text-4xl font-display font-bold text-white mb-4">Campaign Impact</h2>
+        <p class="text-slate-400 max-w-xl mx-auto">Together with our donors, we are making a measurable difference in communities across Pakistan.</p>
+      </div>
 
+      <!-- Stats Grid -->
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+        <!-- Stat 1 -->
+        <div class="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6 text-center hover:bg-white/10 transition-all">
+          <div class="w-14 h-14 bg-brandRed/15 rounded-2xl flex items-center justify-center mx-auto mb-4">
+            <i class="fa-solid fa-coins text-brandRed text-xl"></i>
+          </div>
+          <div class="text-3xl sm:text-4xl font-display font-bold text-white mb-1" data-target="10000000">PKR 10M+</div>
+          <div class="text-slate-400 text-sm">Total Raised</div>
+        </div>
+        <!-- Stat 2 -->
+        <div class="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6 text-center hover:bg-white/10 transition-all">
+          <div class="w-14 h-14 bg-brandRed/15 rounded-2xl flex items-center justify-center mx-auto mb-4">
+            <i class="fa-solid fa-hand-holding-heart text-brandRed text-xl"></i>
+          </div>
+          <div class="text-3xl sm:text-4xl font-display font-bold text-white mb-1" data-target="4500">4,500+</div>
+          <div class="text-slate-400 text-sm">Total Donors</div>
+        </div>
+        <!-- Stat 3 -->
+        <div class="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6 text-center hover:bg-white/10 transition-all">
+          <div class="w-14 h-14 bg-brandRed/15 rounded-2xl flex items-center justify-center mx-auto mb-4">
+            <i class="fa-solid fa-users text-brandRed text-xl"></i>
+          </div>
+          <div class="text-3xl sm:text-4xl font-display font-bold text-white mb-1" data-target="950">950+</div>
+          <div class="text-slate-400 text-sm">Families Helped</div>
+        </div>
+        <!-- Stat 4 -->
+        <div class="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6 text-center hover:bg-white/10 transition-all">
+          <div class="w-14 h-14 bg-brandRed/15 rounded-2xl flex items-center justify-center mx-auto mb-4">
+            <i class="fa-solid fa-child text-brandRed text-xl"></i>
+          </div>
+          <div class="text-3xl sm:text-4xl font-display font-bold text-white mb-1" data-target="200">200+</div>
+          <div class="text-slate-400 text-sm">Children Educated</div>
+        </div>
+      </div>
+    </div>
+  </section>
 
-<!-- FOOTER -->
+  <!-- ============================================ -->
+  <!-- DONATION MODAL / DRAWER                      -->
+  <!-- ============================================ -->
+  <div id="donation-modal" class="fixed inset-0 z-[200] hidden">
+    <!-- Overlay -->
+    <div id="donation-overlay" class="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity" onclick="closeDonationModal()"></div>
+
+    <!-- Modal Panel (slides from right on mobile, centered on desktop) -->
+    <div id="donation-panel" class="absolute right-0 top-0 h-full w-full max-w-lg bg-white shadow-2xl transform translate-x-full transition-transform duration-300 overflow-y-auto">
+      <div class="min-h-full flex flex-col">
+
+        <!-- Modal Header -->
+        <div class="sticky top-0 bg-white border-b border-slate-200 px-6 py-4 flex items-center justify-between z-10">
+          <div>
+            <h3 class="text-lg font-bold text-slate-900 font-display">Quick Donation</h3>
+            <p id="modal-campaign-name" class="text-sm text-slate-500"></p>
+          </div>
+          <button onclick="closeDonationModal()" class="w-10 h-10 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-600 transition-colors">
+            <i class="fa-solid fa-xmark text-lg"></i>
+          </button>
+        </div>
+
+        <!-- Modal Body -->
+        <div class="flex-1 p-6 space-y-6">
+
+          <!-- Step 1: Amount Selection -->
+          <div>
+            <label class="text-sm font-bold text-slate-700 mb-3 block">Select Amount</label>
+            <div class="grid grid-cols-3 gap-3 mb-3">
+              <button onclick="selectAmount(5000)" class="donation-amount-btn border-2 border-slate-200 hover:border-brandRed rounded-xl py-3 text-sm font-bold text-slate-700 transition-all hover:text-brandRed" data-amount="5000">PKR 5,000</button>
+              <button onclick="selectAmount(10000)" class="donation-amount-btn border-2 border-slate-200 hover:border-brandRed rounded-xl py-3 text-sm font-bold text-slate-700 transition-all hover:text-brandRed" data-amount="10000">PKR 10,000</button>
+              <button onclick="selectAmount(25000)" class="donation-amount-btn border-2 border-slate-200 hover:border-brandRed rounded-xl py-3 text-sm font-bold text-slate-700 transition-all hover:text-brandRed" data-amount="25000">PKR 25,000</button>
+              <button onclick="selectAmount(50000)" class="donation-amount-btn border-2 border-slate-200 hover:border-brandRed rounded-xl py-3 text-sm font-bold text-slate-700 transition-all hover:text-brandRed" data-amount="50000">PKR 50,000</button>
+              <button onclick="selectAmount(100000)" class="donation-amount-btn border-2 border-slate-200 hover:border-brandRed rounded-xl py-3 text-sm font-bold text-slate-700 transition-all hover:text-brandRed" data-amount="100000">PKR 1,00,000</button>
+              <button onclick="selectAmount(250000)" class="donation-amount-btn border-2 border-slate-200 hover:border-brandRed rounded-xl py-3 text-sm font-bold text-slate-700 transition-all hover:text-brandRed" data-amount="250000">PKR 2,50,000</button>
+            </div>
+            <div class="relative">
+              <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm font-bold">PKR</span>
+              <input type="number" id="custom-amount" placeholder="Custom amount" class="w-full border-2 border-slate-200 focus:border-brandRed rounded-xl py-3 pl-14 pr-4 text-sm text-slate-700 outline-none transition-colors" oninput="clearAmountSelection()">
+            </div>
+          </div>
+
+          <!-- Step 2: Payment Method -->
+          <div>
+            <label class="text-sm font-bold text-slate-700 mb-3 block">Payment Method</label>
+            <div class="space-y-2">
+              <!-- Bank Transfer -->
+              <label class="flex items-center gap-3 border-2 border-slate-200 hover:border-brandRed/40 rounded-xl p-4 cursor-pointer transition-all payment-method-option">
+                <input type="radio" name="payment-method" value="bank" class="w-4 h-4 text-brandRed accent-brandRed" checked>
+                <div class="w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center">
+                  <i class="fa-solid fa-building-columns text-blue-600"></i>
+                </div>
+                <div class="flex-1">
+                  <span class="text-sm font-bold text-slate-700 block">Bank Transfer</span>
+                  <span class="text-[11px] text-slate-400">Direct bank deposit</span>
+                </div>
+                <i class="fa-solid fa-chevron-right text-slate-300 text-xs"></i>
+              </label>
+              <!-- EasyPaisa / JazzCash -->
+              <label class="flex items-center gap-3 border-2 border-slate-200 hover:border-brandRed/40 rounded-xl p-4 cursor-pointer transition-all payment-method-option">
+                <input type="radio" name="payment-method" value="mobile" class="w-4 h-4 text-brandRed accent-brandRed">
+                <div class="w-10 h-10 bg-green-50 rounded-lg flex items-center justify-center">
+                  <i class="fa-solid fa-mobile-screen text-green-600"></i>
+                </div>
+                <div class="flex-1">
+                  <span class="text-sm font-bold text-slate-700 block">EasyPaisa / JazzCash</span>
+                  <span class="text-[11px] text-slate-400">Mobile wallet transfer</span>
+                </div>
+                <i class="fa-solid fa-chevron-right text-slate-300 text-xs"></i>
+              </label>
+              <!-- Credit Card -->
+              <label class="flex items-center gap-3 border-2 border-slate-200 hover:border-brandRed/40 rounded-xl p-4 cursor-pointer transition-all payment-method-option">
+                <input type="radio" name="payment-method" value="card" class="w-4 h-4 text-brandRed accent-brandRed">
+                <div class="w-10 h-10 bg-purple-50 rounded-lg flex items-center justify-center">
+                  <i class="fa-solid fa-credit-card text-purple-600"></i>
+                </div>
+                <div class="flex-1">
+                  <span class="text-sm font-bold text-slate-700 block">Credit / Debit Card</span>
+                  <span class="text-[11px] text-slate-400">Visa, Mastercard accepted</span>
+                </div>
+                <i class="fa-solid fa-chevron-right text-slate-300 text-xs"></i>
+              </label>
+            </div>
+          </div>
+
+          <!-- Step 3: Account Details (shown based on payment method) -->
+          <div id="bank-details" class="bg-blue-50 border border-blue-200 rounded-xl p-5 space-y-2">
+            <div class="flex items-center gap-2 mb-3">
+              <i class="fa-solid fa-building-columns text-blue-600"></i>
+              <span class="text-sm font-bold text-slate-800">Bank Transfer Details</span>
+            </div>
+            <div class="flex justify-between text-sm"><span class="text-slate-500">Bank Name</span><span class="font-bold text-slate-800">Meezan Bank</span></div>
+            <div class="flex justify-between text-sm"><span class="text-slate-500">Account Title</span><span class="font-bold text-slate-800">World Relief Committee</span></div>
+            <div class="flex justify-between text-sm"><span class="text-slate-500">Account No.</span><span class="font-bold text-slate-800 tracking-wide">0123-0105-6789-0123</span></div>
+            <div class="flex justify-between text-sm"><span class="text-slate-500">IBAN</span><span class="font-bold text-slate-800 text-[11px]">PK67MEZN000123010567890123</span></div>
+            <div class="flex justify-between text-sm"><span class="text-slate-500">Branch Code</span><span class="font-bold text-slate-800">0123</span></div>
+          </div>
+
+          <div id="mobile-details" class="bg-green-50 border border-green-200 rounded-xl p-5 space-y-2 hidden">
+            <div class="flex items-center gap-2 mb-3">
+              <i class="fa-solid fa-mobile-screen text-green-600"></i>
+              <span class="text-sm font-bold text-slate-800">Mobile Wallet Details</span>
+            </div>
+            <div class="flex justify-between text-sm"><span class="text-slate-500">EasyPaisa</span><span class="font-bold text-slate-800">0300-1234567</span></div>
+            <div class="flex justify-between text-sm"><span class="text-slate-500">JazzCash</span><span class="font-bold text-slate-800">0300-7654321</span></div>
+            <div class="flex justify-between text-sm"><span class="text-slate-500">Account Name</span><span class="font-bold text-slate-800">World Relief Committee</span></div>
+          </div>
+
+          <div id="card-details" class="bg-purple-50 border border-purple-200 rounded-xl p-5 space-y-2 hidden">
+            <div class="flex items-center gap-2 mb-3">
+              <i class="fa-solid fa-credit-card text-purple-600"></i>
+              <span class="text-sm font-bold text-slate-800">Card Payment</span>
+            </div>
+            <p class="text-sm text-slate-600">After submitting this form, you will receive a secure payment link via email and SMS to complete your card payment.</p>
+          </div>
+
+          <!-- Step 4: Donor Information -->
+          <div>
+            <label class="text-sm font-bold text-slate-700 mb-3 block">Your Information</label>
+            <div class="space-y-3">
+              <div>
+                <input type="text" id="donor-name" placeholder="Full Name *" class="w-full border-2 border-slate-200 focus:border-brandRed rounded-xl py-3 px-4 text-sm text-slate-700 outline-none transition-colors">
+                <span id="name-error" class="text-red-500 text-[11px] mt-1 hidden">Please enter your name</span>
+              </div>
+              <div>
+                <input type="email" id="donor-email" placeholder="Email Address *" class="w-full border-2 border-slate-200 focus:border-brandRed rounded-xl py-3 px-4 text-sm text-slate-700 outline-none transition-colors">
+                <span id="email-error" class="text-red-500 text-[11px] mt-1 hidden">Please enter a valid email</span>
+              </div>
+              <div>
+                <input type="tel" id="donor-phone" placeholder="Phone Number" class="w-full border-2 border-slate-200 focus:border-brandRed rounded-xl py-3 px-4 text-sm text-slate-700 outline-none transition-colors">
+              </div>
+              <div>
+                <textarea id="donor-message" rows="2" placeholder="Dedication message (optional)" class="w-full border-2 border-slate-200 focus:border-brandRed rounded-xl py-3 px-4 text-sm text-slate-700 outline-none transition-colors resize-none"></textarea>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Modal Footer -->
+        <div class="sticky bottom-0 bg-white border-t border-slate-200 px-6 py-4">
+          <div class="flex items-center justify-between mb-3">
+            <span class="text-sm text-slate-500">Total Donation</span>
+            <span id="modal-total-amount" class="text-xl font-bold text-brandRed font-display">PKR 0</span>
+          </div>
+          <button id="submit-donation-btn" onclick="submitDonation()" class="w-full bg-brandRed hover:bg-brandRed-hover text-white font-bold py-4 rounded-xl text-sm transition-all flex items-center justify-center gap-2 shadow-lg shadow-brandRed/20">
+            <i class="fa-solid fa-lock text-xs"></i> Confirm Donation
+          </button>
+          <p class="text-center text-[11px] text-slate-400 mt-3"><i class="fa-solid fa-shield-halved mr-1"></i> Your donation is secure and tax-deductible</p>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================ -->
+  <!-- FOOTER                                       -->
+  <!-- ============================================ -->
   <footer class="bg-slate-950 text-slate-300 text-sm mt-auto border-t border-slate-800">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14">
       <div class="grid grid-cols-1 xl:grid-cols-12 gap-10">
@@ -569,7 +940,7 @@
         <div class="xl:col-span-3">
           <h4 class="text-white font-semibold uppercase tracking-[0.2em] text-xs mb-4">Programs</h4>
           <ul class="space-y-3 text-slate-400">
-            <li><a href="../our-work/wash.html" class="hover:text-white transition">WASH & Water</a></li>
+            <li><a href="../our-work/wash.html" class="hover:text-white transition">WASH &amp; Water</a></li>
             <li><a href="../our-work/health.html" class="hover:text-white transition">Healthcare</a></li>
             <li><a href="../our-work/education.html" class="hover:text-white transition">Education</a></li>
             <li><a href="../our-work/food-security.html" class="hover:text-white transition">Food Security</a></li>
@@ -598,7 +969,7 @@
       </div>
 
       <div class="border-t border-slate-800/70 mt-10 pt-6 flex flex-col gap-4 md:flex-row md:items-center md:justify-between text-slate-500 text-xs">
-        <p>© 2026 World Relief Committee. All rights reserved.</p>
+        <p>&copy; 2026 World Relief Committee. All rights reserved.</p>
         <div class="flex flex-wrap items-center gap-3 justify-center md:justify-end text-slate-400">
           <a href="../privacy.html" class="hover:text-white transition">Privacy Policy</a>
           <a href="../terms.html" class="hover:text-white transition">Terms of Use</a>
@@ -608,7 +979,152 @@
     </div>
   </footer>
 
+  <!-- ============================================ -->
+  <!-- JAVASCRIPT                                   -->
+  <!-- ============================================ -->
+  <script>
+    // Donation modal state
+    let selectedAmount = 0;
+    let currentCampaign = '';
 
+    // Open Donation Modal
+    function openDonationModal(campaignName, target) {
+      currentCampaign = campaignName;
+      selectedAmount = 0;
+      document.getElementById('modal-campaign-name').textContent = campaignName;
+      document.getElementById('custom-amount').value = '';
+      document.getElementById('modal-total-amount').textContent = 'PKR 0';
+      document.getElementById('donor-name').value = '';
+      document.getElementById('donor-email').value = '';
+      document.getElementById('donor-phone').value = '';
+      document.getElementById('donor-message').value = '';
+
+      // Reset amount buttons
+      document.querySelectorAll('.donation-amount-btn').forEach(btn => {
+        btn.classList.remove('border-brandRed', 'bg-brandRed/5', 'text-brandRed');
+        btn.classList.add('border-slate-200');
+      });
+
+      // Reset payment details
+      document.getElementById('bank-details').classList.remove('hidden');
+      document.getElementById('mobile-details').classList.add('hidden');
+      document.getElementById('card-details').classList.add('hidden');
+      document.querySelector('input[name="payment-method"][value="bank"]').checked = true;
+
+      // Reset errors
+      document.querySelectorAll('[id$="-error"]').forEach(el => el.classList.add('hidden'));
+
+      // Show modal
+      const modal = document.getElementById('donation-modal');
+      const panel = document.getElementById('donation-panel');
+      modal.classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+
+      // Animate in
+      requestAnimationFrame(() => {
+        panel.classList.remove('translate-x-full');
+        panel.classList.add('translate-x-0');
+      });
+    }
+
+    // Close Donation Modal
+    function closeDonationModal() {
+      const panel = document.getElementById('donation-panel');
+      panel.classList.remove('translate-x-0');
+      panel.classList.add('translate-x-full');
+      document.body.style.overflow = '';
+      setTimeout(() => {
+        document.getElementById('donation-modal').classList.add('hidden');
+      }, 300);
+    }
+
+    // Select Amount
+    function selectAmount(amount) {
+      selectedAmount = amount;
+      document.getElementById('custom-amount').value = '';
+      document.getElementById('modal-total-amount').textContent = 'PKR ' + amount.toLocaleString();
+
+      document.querySelectorAll('.donation-amount-btn').forEach(btn => {
+        if (parseInt(btn.dataset.amount) === amount) {
+          btn.classList.add('border-brandRed', 'bg-brandRed/5', 'text-brandRed');
+          btn.classList.remove('border-slate-200');
+        } else {
+          btn.classList.remove('border-brandRed', 'bg-brandRed/5', 'text-brandRed');
+          btn.classList.add('border-slate-200');
+        }
+      });
+    }
+
+    // Clear Amount Selection (when custom input is used)
+    function clearAmountSelection() {
+      selectedAmount = 0;
+      document.querySelectorAll('.donation-amount-btn').forEach(btn => {
+        btn.classList.remove('border-brandRed', 'bg-brandRed/5', 'text-brandRed');
+        btn.classList.add('border-slate-200');
+      });
+      const customVal = parseInt(document.getElementById('custom-amount').value) || 0;
+      document.getElementById('modal-total-amount').textContent = 'PKR ' + customVal.toLocaleString();
+    }
+
+    // Payment Method Toggle
+    document.querySelectorAll('input[name="payment-method"]').forEach(radio => {
+      radio.addEventListener('change', function() {
+        document.getElementById('bank-details').classList.add('hidden');
+        document.getElementById('mobile-details').classList.add('hidden');
+        document.getElementById('card-details').classList.add('hidden');
+
+        if (this.value === 'bank') {
+          document.getElementById('bank-details').classList.remove('hidden');
+        } else if (this.value === 'mobile') {
+          document.getElementById('mobile-details').classList.remove('hidden');
+        } else if (this.value === 'card') {
+          document.getElementById('card-details').classList.remove('hidden');
+        }
+      });
+    });
+
+    // Form Validation & Submit
+    function submitDonation() {
+      const name = document.getElementById('donor-name').value.trim();
+      const email = document.getElementById('donor-email').value.trim();
+      const customAmount = parseInt(document.getElementById('custom-amount').value) || 0;
+      const total = selectedAmount || customAmount;
+      let valid = true;
+
+      // Reset errors
+      document.querySelectorAll('[id$="-error"]').forEach(el => el.classList.add('hidden'));
+
+      if (!name) {
+        document.getElementById('name-error').classList.remove('hidden');
+        valid = false;
+      }
+      if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        document.getElementById('email-error').classList.remove('hidden');
+        valid = false;
+      }
+      if (total <= 0) {
+        alert('Please select or enter a donation amount.');
+        valid = false;
+      }
+
+      if (valid) {
+        const paymentMethod = document.querySelector('input[name="payment-method"]:checked').value;
+        alert(
+          'Thank you, ' + name + '!\n\n' +
+          'Donation: PKR ' + total.toLocaleString() + '\n' +
+          'Campaign: ' + currentCampaign + '\n' +
+          'Payment Method: ' + paymentMethod.charAt(0).toUpperCase() + paymentMethod.slice(1) + '\n\n' +
+          'You will receive a confirmation email with payment instructions.'
+        );
+        closeDonationModal();
+      }
+    }
+
+    // Keyboard close modal
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') closeDonationModal();
+    });
+  </script>
 
   <script src="../assets/js/main.js"></script>
 </body>

@@ -167,6 +167,7 @@
          <span class="flex items-center gap-2"><i class="fa-solid fa-location-dot text-white text-[11px]"></i>Flat#1, 3rd Floor, Shami Flats near Marbella Wedding Hall, Warsak Road, Peshawar, Pakistan</span>
       </div>
     </div>
+  </div>
 
 <!-- MAIN HEADER NAVIGATION -->
   <header class="sticky top-0 z-50 w-full bg-white/95 lg:bg-white/75 lg:backdrop-blur-xl border-b border-white/50 transition-all duration-300 shadow-sm">
@@ -445,15 +446,6 @@
           <a href="../projects/index.html#dashboard">Project Dashboard</a>
         </div></div>
 
-        <button class="mobile-tray-accordion-btn" data-delay="0.20">
-          <span>PROCUREMENT</span>
-          <i class="acc-icon fa-solid fa-chevron-down"></i>
-        </button>
-        <div class="mobile-tray-submenu"><div>
-          <a href="../procurement.html#tenders">Open Tenders</a>
-          <a href="../procurement.html#vendor">Vendor Registration</a>
-        </div></div>
-
         <button class="mobile-tray-accordion-btn" data-delay="0.25">
           <span>WHERE WE WORK</span>
           <i class="acc-icon fa-solid fa-chevron-down"></i>
@@ -539,14 +531,29 @@
     </div>
   </div>
 
-<section class="relative w-full bg-slate-900 text-white min-h-[560px] flex items-center overflow-hidden group">
-    
-    <!-- Slider Wrapper -->
-    <div id="hero-slider" class="absolute inset-0 z-0 w-full h-full transition-transform duration-1000 ease-in-out flex">
-      <!-- Slide 1 -->
-      <div class="w-full h-full flex-shrink-0 relative">
-        <div class="absolute inset-0 opacity-40 mix-blend-luminosity bg-cover bg-center" style="background-image: url('../assets/images/hero.jpg');"></div>
+<main class="flex-grow">
 
+  <!-- HERO SECTION -->
+  <section class="relative bg-slate-900 text-white min-h-[420px] flex items-center py-20 overflow-hidden">
+    <div class="absolute inset-0 z-0">
+      <img src="../assets/images/hero.jpg" alt="WRC Policies" class="w-full h-full object-cover opacity-30 mix-blend-luminosity">
+      <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-900/80 to-slate-900/60"></div>
+    </div>
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+      <nav class="text-xs text-slate-400 mb-6 flex items-center gap-2">
+        <a href="../index.html" class="hover:text-white transition">Home</a>
+        <i class="fa-solid fa-chevron-right text-[8px]"></i>
+        <a href="../about/index.html" class="hover:text-white transition">About Us</a>
+        <i class="fa-solid fa-chevron-right text-[8px]"></i>
+        <span class="text-white">Policies & Compliance</span>
+      </nav>
+      <h1 class="text-4xl md:text-5xl font-extrabold font-heading text-white mb-4">Policies & Compliance</h1>
+      <p class="text-slate-300 text-base md:text-lg max-w-2xl leading-relaxed">Our commitment to transparency, accountability, and ethical governance through documented policies and procedures.</p>
+    </div>
+  </section>
+
+  <section class="py-16 bg-slate-50">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
         <div class="space-y-16">
           
           <div>
@@ -929,4 +936,5 @@
   </script>
 </body>
 </html>
+
 

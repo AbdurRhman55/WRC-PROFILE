@@ -167,6 +167,7 @@
          <span class="flex items-center gap-2"><i class="fa-solid fa-location-dot text-white text-[11px]"></i>Flat#1, 3rd Floor, Shami Flats near Marbella Wedding Hall, Warsak Road, Peshawar, Pakistan</span>
       </div>
     </div>
+  </div>
 
 <!-- MAIN HEADER NAVIGATION -->
   <header class="sticky top-0 z-50 w-full bg-white/95 lg:bg-white/75 lg:backdrop-blur-xl border-b border-white/50 transition-all duration-300 shadow-sm">
@@ -445,15 +446,6 @@
           <a href="../projects/index.html#dashboard">Project Dashboard</a>
         </div></div>
 
-        <button class="mobile-tray-accordion-btn" data-delay="0.20">
-          <span>PROCUREMENT</span>
-          <i class="acc-icon fa-solid fa-chevron-down"></i>
-        </button>
-        <div class="mobile-tray-submenu"><div>
-          <a href="../procurement.html#tenders">Open Tenders</a>
-          <a href="../procurement.html#vendor">Vendor Registration</a>
-        </div></div>
-
         <button class="mobile-tray-accordion-btn" data-delay="0.25">
           <span>WHERE WE WORK</span>
           <i class="acc-icon fa-solid fa-chevron-down"></i>
@@ -539,13 +531,81 @@
     </div>
   </div>
 
-<section class="relative w-full bg-slate-900 text-white min-h-[560px] flex items-center overflow-hidden group">
-    
-    <!-- Slider Wrapper -->
-    <div id="hero-slider" class="absolute inset-0 z-0 w-full h-full transition-transform duration-1000 ease-in-out flex">
-      <!-- Slide 1 -->
-      <div class="w-full h-full flex-shrink-0 relative">
-        <div class="absolute inset-0 opacity-40 mix-blend-luminosity bg-cover bg-center" style="background-image: url('../assets/images/hero.jpg');"></div>
+<main class="flex-grow">
+
+    <!-- Hero Section -->
+    <section class="relative w-full bg-ink-900 text-white min-h-[520px] flex items-center overflow-hidden">
+      <div class="absolute inset-0 z-0">
+        <div class="absolute inset-0 bg-cover bg-center bg-no-repeat" style="background-image: url('../assets/images/hero.jpg');"></div>
+        <div class="absolute inset-0 bg-gradient-to-r from-ink-900 via-ink-900/80 to-ink-900/40"></div>
+        <div class="absolute inset-0 bg-gradient-to-t from-ink-900/90 via-transparent to-ink-900/50"></div>
+      </div>
+
+      <div class="relative z-10 w-full px-4 sm:px-6 lg:px-8 py-20 lg:py-28">
+        <div class="max-w-7xl mx-auto">
+          <!-- Breadcrumb -->
+          <nav class="flex items-center gap-2 text-sm text-white/60 mb-8" aria-label="Breadcrumb">
+            <a href="../index.html" class="hover:text-white transition-colors">Home</a>
+            <i class="fa-solid fa-chevron-right text-[10px]"></i>
+            <span class="text-white font-medium">About Us</span>
+          </nav>
+
+          <h1 class="text-4xl md:text-5xl lg:text-6xl font-display font-bold text-white leading-tight mb-6 max-w-3xl">
+            About World Relief Committee
+          </h1>
+          <p class="text-lg md:text-xl text-sand-50/80 max-w-2xl mb-10 leading-relaxed">
+            Dedicated to serving vulnerable communities through compassionate action, transparent governance, and sustainable development since 2005.
+          </p>
+          <div class="flex flex-col sm:flex-row gap-4">
+            <a href="who-we-are.html" class="px-8 py-4 rounded-xl bg-brandRed hover:bg-brandRed-hover text-white font-bold text-sm shadow-lg shadow-brandRed/30 transition-all uppercase tracking-wider text-center">
+              Who We Are
+            </a>
+            <a href="leadership.html" class="px-8 py-4 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 text-white font-bold text-sm transition-all uppercase tracking-wider text-center">
+              Our Leadership
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Mission Summary Section -->
+    <section class="py-16 lg:py-20 bg-white">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid md:grid-cols-3 gap-8 lg:gap-12">
+          <!-- Our Mission -->
+          <div class="text-center p-8 rounded-2xl bg-slate-50 border border-slate-100 hover:shadow-lg transition-all">
+            <div class="w-16 h-16 mx-auto mb-6 rounded-2xl bg-brandRed/10 flex items-center justify-center">
+              <i class="fa-solid fa-bullseye text-2xl text-brandRed"></i>
+            </div>
+            <h3 class="text-xl font-display font-bold text-slate-900 mb-4">Our Mission</h3>
+            <p class="text-slate-600 leading-relaxed text-sm">
+              To provide humanitarian aid and sustainable development solutions that empower vulnerable communities, ensuring access to clean water, healthcare, education, and emergency relief.
+            </p>
+          </div>
+
+          <!-- Our Vision -->
+          <div class="text-center p-8 rounded-2xl bg-slate-50 border border-slate-100 hover:shadow-lg transition-all">
+            <div class="w-16 h-16 mx-auto mb-6 rounded-2xl bg-teal-500/10 flex items-center justify-center">
+              <i class="fa-solid fa-eye text-2xl text-teal-500"></i>
+            </div>
+            <h3 class="text-xl font-display font-bold text-slate-900 mb-4">Our Vision</h3>
+            <p class="text-slate-600 leading-relaxed text-sm">
+              Resilient communities where every individual has the opportunity to thrive, free from poverty and equipped with the resources needed for a dignified life.
+            </p>
+          </div>
+
+          <!-- Our Values -->
+          <div class="text-center p-8 rounded-2xl bg-slate-50 border border-slate-100 hover:shadow-lg transition-all">
+            <div class="w-16 h-16 mx-auto mb-6 rounded-2xl bg-gold-400/10 flex items-center justify-center">
+              <i class="fa-solid fa-hand-holding-heart text-2xl text-gold-400"></i>
+            </div>
+            <h3 class="text-xl font-display font-bold text-slate-900 mb-4">Our Values</h3>
+            <p class="text-slate-600 leading-relaxed text-sm">
+              Guided by integrity, compassion, and accountability in every action we take, fostering trust and collaboration with the communities we serve.
+            </p>
+          </div>
+        </div>
+      </div>
     </section>
 
     <!-- Section 3: Governance & People Preview -->
@@ -779,4 +839,5 @@
   </script>
 </body>
 </html>
+
 
