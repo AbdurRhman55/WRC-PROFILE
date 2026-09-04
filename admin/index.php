@@ -4,7 +4,6 @@ requireLogin();
 
 $pageTitle = 'Dashboard';
 
-$totalPrograms = count(getRows('programs'));
 $totalProjects = count(getRows('projects'));
 $totalNews = count(getRows('news_articles', [], '', 0));
 $totalResources = count(getRows('resources'));
@@ -50,25 +49,8 @@ include __DIR__ . '/includes/header.php';
   </div>
 </div>
 
-<!-- Primary Key Metric Cards (5 Core Important Cards) -->
-<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-5 mb-8">
-
-  <!-- Programs Card -->
-  <a href="programs.php" class="bg-white rounded-3xl border border-slate-200/80 p-6 hover:shadow-xl hover:shadow-blue-500/10 hover:-translate-y-1 transition-all duration-300 group flex flex-col justify-between relative overflow-hidden">
-    <div class="h-1 w-full bg-blue-500 absolute top-0 left-0"></div>
-    <div class="flex items-center justify-between mb-4">
-      <div class="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center group-hover:bg-blue-600 group-hover:text-white transition-colors duration-300">
-        <i class="fa-solid fa-briefcase text-lg"></i>
-      </div>
-      <span class="text-xs text-slate-400 group-hover:text-blue-600 font-medium flex items-center gap-1 transition-colors">
-        Manage <i class="fa-solid fa-chevron-right text-[9px]"></i>
-      </span>
-    </div>
-    <div>
-      <p class="text-3xl font-extrabold font-display text-slate-900 tracking-tight"><?= $totalPrograms ?></p>
-      <p class="text-xs font-semibold text-slate-500 mt-1 uppercase tracking-wider">Programs</p>
-    </div>
-  </a>
+<!-- Primary Key Metric Cards (4 Core Important Cards) -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
 
   <!-- Projects Card -->
   <a href="projects.php" class="bg-white rounded-3xl border border-slate-200/80 p-6 hover:shadow-xl hover:shadow-emerald-500/10 hover:-translate-y-1 transition-all duration-300 group flex flex-col justify-between relative overflow-hidden">
@@ -195,19 +177,6 @@ include __DIR__ . '/includes/header.php';
         <span class="text-[11px] text-slate-400 font-medium">Shortcuts</span>
       </div>
       <div class="space-y-3">
-        <a href="programs.php" class="flex items-center justify-between p-3.5 rounded-2xl bg-slate-50/80 hover:bg-blue-50/80 border border-slate-100 hover:border-blue-200/80 transition-all group">
-          <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-xl bg-blue-100/70 text-blue-600 flex items-center justify-center group-hover:scale-110 transition-transform">
-              <i class="fa-solid fa-plus text-xs"></i>
-            </div>
-            <div>
-              <p class="text-sm font-bold text-slate-900">Add Program</p>
-              <p class="text-[11px] text-slate-400">Create new sector program</p>
-            </div>
-          </div>
-          <i class="fa-solid fa-chevron-right text-xs text-slate-300 group-hover:text-blue-500 group-hover:translate-x-1 transition-all"></i>
-        </a>
-
         <a href="projects.php" class="flex items-center justify-between p-3.5 rounded-2xl bg-slate-50/80 hover:bg-emerald-50/80 border border-slate-100 hover:border-emerald-200/80 transition-all group">
           <div class="flex items-center gap-3">
             <div class="w-10 h-10 rounded-xl bg-emerald-100/70 text-emerald-600 flex items-center justify-center group-hover:scale-110 transition-transform">

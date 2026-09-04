@@ -41,9 +41,6 @@ $ctaData = isset($projSections['projects_cta']) ? json_decode($projSections['pro
 // Fetch projects from DB
 $activeProjects = getRows('projects', "status = 'active' ORDER BY sort_order ASC");
 $completedProjects = getRows('projects', "status = 'completed' ORDER BY sort_order ASC");
-$allPrograms = getRows('programs');
-$programMap = [];
-foreach ($allPrograms as $p) $programMap[$p['id']] = $p;
 
 // Compute quick stats
 $totalProjects = count($activeProjects) + count($completedProjects);
@@ -142,12 +139,6 @@ include dirname(__DIR__) . '/includes/header.php';
         <button class="filter-tab whitespace-nowrap px-4 py-2 text-sm font-semibold text-slate-500 transition-colors rounded-lg hover:bg-gray-50" data-filter="completed">
           <i class="fa-solid fa-circle-check text-[10px] text-teal-500 mr-1.5"></i> Completed
         </button>
-        <div class="hidden sm:block w-px h-6 bg-gray-200 mx-2"></div>
-        <?php foreach ($allPrograms as $prog): ?>
-        <button class="filter-tab whitespace-nowrap px-4 py-2 text-sm font-semibold text-slate-500 transition-colors rounded-lg hover:bg-gray-50" data-filter="<?= $prog['slug'] ?>">
-          <?= sanitize($prog['title']) ?>
-        </button>
-        <?php endforeach; ?>
       </div>
     </div>
   </section>
@@ -164,25 +155,21 @@ include dirname(__DIR__) . '/includes/header.php';
       </div>
 
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <?php foreach ($activeProjects as $project):
-          $prog = $programMap[$project['program_id']] ?? null;
-          $slug = $prog ? $prog['slug'] : '';
-        ?>
-        <div class="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 hover:shadow-lg transition-all duration-300 group" data-category="<?= $slug ?> active">
+        <?php foreach ($activeProjects as $project): ?>
+        <a href="<?= $base ?>projects/project-name.php?slug=<?= urlencode($project['slug']) ?>" class="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 hover:shadow-lg transition-all duration-300 group" data-category="active">
           <div class="relative h-48 overflow-hidden">
             <img src="<?= $base ?><?= $project['hero_image'] ?>" alt="<?= sanitize($project['title']) ?>" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
             <div class="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
             <span class="absolute top-3 left-3 bg-green-500 text-white text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full flex items-center gap-1">
               <i class="fa-solid fa-circle text-[5px] animate-pulse"></i> Active
             </span>
-            <span class="absolute top-3 right-3 bg-brandRed text-white text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full">
-              <?= $prog ? sanitize($prog['title']) : 'Program' ?>
+            <span class="absolute top-3 right-3 bg-slate-900/70 backdrop-blur-sm text-white text-[10px] font-medium px-2 py-1 rounded-full">
+              <i class="fa-solid fa-location-dot mr-1"></i><?= sanitize($project['location_details']) ?>
             </span>
           </div>
           <div class="p-5">
             <div class="flex items-center gap-2 text-xs text-slate-400 mb-2">
-              <i class="fa-solid fa-location-dot text-brandRed"></i>
-              <span><?= sanitize($project['location_details']) ?></span>
+              <span>Since <?= date('M Y', strtotime($project['start_date'])) ?></span>
             </div>
             <h3 class="text-lg font-display font-bold text-ink-900 mb-2 group-hover:text-brandRed transition-colors">
               <?= sanitize($project['title']) ?>
@@ -199,9 +186,12 @@ include dirname(__DIR__) . '/includes/header.php';
                 <div class="progress-bar-fill h-full bg-gradient-to-r from-brandRed to-red-400 rounded-full" style="width: <?= $project['progress_percent'] ?>%"></div>
               </div>
             </div>
-            <span class="text-xs text-slate-500"><i class="fa-solid fa-users mr-1"></i><?= number_format($project['beneficiaries_count']) ?> beneficiaries</span>
+            <div class="flex items-center justify-between">
+              <span class="text-xs text-slate-500"><i class="fa-solid fa-users mr-1"></i><?= number_format($project['beneficiaries_count']) ?> beneficiaries</span>
+              <span class="text-brandRed text-xs font-semibold group-hover:underline">View Details <i class="fa-solid fa-arrow-right text-[10px]"></i></span>
+            </div>
           </div>
-        </div>
+        </a>
         <?php endforeach; ?>
       </div>
     </div>
@@ -219,25 +209,21 @@ include dirname(__DIR__) . '/includes/header.php';
       </div>
 
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <?php foreach ($completedProjects as $project):
-          $prog = $programMap[$project['program_id']] ?? null;
-          $slug = $prog ? $prog['slug'] : '';
-        ?>
-        <div class="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 hover:shadow-lg transition-all duration-300 group" data-category="<?= $slug ?> completed">
+        <?php foreach ($completedProjects as $project): ?>
+        <a href="<?= $base ?>projects/project-name.php?slug=<?= urlencode($project['slug']) ?>" class="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 hover:shadow-lg transition-all duration-300 group" data-category="completed">
           <div class="relative h-48 overflow-hidden">
             <img src="<?= $base ?><?= $project['hero_image'] ?>" alt="<?= sanitize($project['title']) ?>" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
             <div class="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
             <span class="absolute top-3 left-3 bg-teal-500 text-white text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full flex items-center gap-1">
               <i class="fa-solid fa-circle-check text-[8px]"></i> Completed
             </span>
-            <span class="absolute top-3 right-3 bg-brandRed text-white text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full">
-              <?= $prog ? sanitize($prog['title']) : 'Program' ?>
+            <span class="absolute top-3 right-3 bg-slate-900/70 backdrop-blur-sm text-white text-[10px] font-medium px-2 py-1 rounded-full">
+              <i class="fa-solid fa-location-dot mr-1"></i><?= sanitize($project['location_details']) ?>
             </span>
           </div>
           <div class="p-5">
             <div class="flex items-center gap-2 text-xs text-slate-400 mb-2">
-              <i class="fa-solid fa-location-dot text-brandRed"></i>
-              <span><?= sanitize($project['location_details']) ?></span>
+              <span>Since <?= date('M Y', strtotime($project['start_date'])) ?></span>
             </div>
             <h3 class="text-lg font-display font-bold text-ink-900 mb-2 group-hover:text-brandRed transition-colors">
               <?= sanitize($project['title']) ?>
@@ -254,9 +240,12 @@ include dirname(__DIR__) . '/includes/header.php';
                 <div class="progress-bar-fill h-full bg-gradient-to-r from-teal-500 to-teal-400 rounded-full" style="width: 100%"></div>
               </div>
             </div>
-            <span class="text-xs text-slate-500"><i class="fa-solid fa-users mr-1"></i><?= number_format($project['beneficiaries_count']) ?> beneficiaries</span>
+            <div class="flex items-center justify-between">
+              <span class="text-xs text-slate-500"><i class="fa-solid fa-users mr-1"></i><?= number_format($project['beneficiaries_count']) ?> beneficiaries</span>
+              <span class="text-brandRed text-xs font-semibold group-hover:underline">View Details <i class="fa-solid fa-arrow-right text-[10px]"></i></span>
+            </div>
           </div>
-        </div>
+        </a>
         <?php endforeach; ?>
       </div>
     </div>

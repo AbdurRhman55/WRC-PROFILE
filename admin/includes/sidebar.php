@@ -8,7 +8,6 @@ $navGroups = [
         ['file' => 'index.php', 'label' => 'Dashboard', 'icon' => 'fa-gauge'],
     ]],
     ['label' => 'Content', 'items' => [
-        ['file' => 'programs.php', 'label' => 'Programs', 'icon' => 'fa-briefcase'],
         ['file' => 'projects.php', 'label' => 'Projects', 'icon' => 'fa-folder-open'],
         ['file' => 'news.php', 'label' => 'News & Media', 'icon' => 'fa-newspaper'],
         ['file' => 'success-stories.php', 'label' => 'Success Stories', 'icon' => 'fa-quote-left'],
@@ -22,7 +21,6 @@ $navGroups = [
     ]],
     ['label' => 'People', 'items' => [
         ['file' => 'team.php', 'label' => 'Team Members', 'icon' => 'fa-users'],
-        ['file' => 'milestones.php', 'label' => 'History Milestones', 'icon' => 'fa-timeline'],
         ['file' => 'partners.php', 'label' => 'Partners', 'icon' => 'fa-handshake'],
         ['file' => 'jobs.php', 'label' => 'Job Listings', 'icon' => 'fa-briefcase'],
     ]],
@@ -49,7 +47,6 @@ $navGroups = [
 $pagesList = [
     'homepage'       => ['label' => 'Homepage', 'sections' => 3],
     'our-work'       => ['label' => 'Our Work', 'sections' => 6],
-    'program'        => ['label' => 'Program Detail', 'sections' => 2],
     'projects'       => ['label' => 'Projects Listing', 'sections' => 3],
     'causes'         => ['label' => 'Causes / Donate', 'sections' => 2],
     'project-detail' => ['label' => 'Project Detail', 'sections' => 1],

@@ -21,9 +21,6 @@ if (isPost()) {
 }
 
 $projects = getRows('projects', [], 'sort_order ASC');
-$programs = getRows('programs', ['is_active' => 1], 'sort_order ASC');
-$programMap = [];
-foreach ($programs as $p) { $programMap[$p['id']] = $p['title']; }
 
 include __DIR__ . '/includes/header.php';
 ?>
@@ -31,7 +28,7 @@ include __DIR__ . '/includes/header.php';
 <div class="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
   <div>
     <h1 class="text-2xl font-bold text-slate-900 font-heading">Projects</h1>
-    <p class="text-slate-500 text-sm mt-1">Manage all projects across programs.</p>
+    <p class="text-slate-500 text-sm mt-1">Manage all projects.</p>
   </div>
   <a href="project-edit.php" class="inline-flex items-center gap-2 bg-brandRed text-white px-5 py-2.5 rounded-xl text-sm font-semibold hover:bg-brandRed-hover transition-colors shadow-sm">
     <i class="fa-solid fa-plus text-xs"></i> Add New Project
@@ -55,7 +52,6 @@ include __DIR__ . '/includes/header.php';
           <th class="text-left px-5 py-3 font-semibold text-slate-600 text-xs uppercase tracking-wider">ID</th>
           <th class="text-left px-5 py-3 font-semibold text-slate-600 text-xs uppercase tracking-wider">Title</th>
           <th class="text-left px-5 py-3 font-semibold text-slate-600 text-xs uppercase tracking-wider">Status</th>
-          <th class="text-left px-5 py-3 font-semibold text-slate-600 text-xs uppercase tracking-wider">Program</th>
           <th class="text-left px-5 py-3 font-semibold text-slate-600 text-xs uppercase tracking-wider">Progress</th>
           <th class="text-left px-5 py-3 font-semibold text-slate-600 text-xs uppercase tracking-wider">Active</th>
           <th class="text-right px-5 py-3 font-semibold text-slate-600 text-xs uppercase tracking-wider">Actions</th>
@@ -81,7 +77,6 @@ include __DIR__ . '/includes/header.php';
             ?>
             <span class="inline-flex items-center text-[11px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full border <?= $color ?>"><?= $project['status'] ?></span>
           </td>
-          <td class="px-5 py-3 text-slate-600"><?= htmlspecialchars($programMap[$project['program_id']] ?? '-') ?></td>
           <td class="px-5 py-3">
             <div class="flex items-center gap-2">
               <div class="w-16 h-1.5 bg-slate-200 rounded-full overflow-hidden">

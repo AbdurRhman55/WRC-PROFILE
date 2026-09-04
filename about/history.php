@@ -10,20 +10,39 @@ $metaDescription = 'Explore the history of World Relief Committee (WRC) - our jo
 $heroRow = getRow('history_hero');
 $statsRow = getRow('history_stats');
 $ctaRow = getRow('history_cta');
-$milestones = getRows('history_milestones', [], 'sort_order ASC');
-
 // Fetch projects from the projects table (admin-managed) joined with programs
 global $pdo;
 $stmt = $pdo->query("
     SELECT p.id, p.slug, p.title, p.status, p.start_date, p.end_date,
-           p.beneficiaries_count, p.location_details, p.description, p.hero_image,
-           pr.title AS program_title, pr.slug AS program_slug, pr.icon_class
+           p.beneficiaries_count, p.location_details, p.description, p.hero_image
     FROM projects p
-    LEFT JOIN programs pr ON p.program_id = pr.id
-    WHERE p.is_active = 1
+    WHERE p.is_active = 1 AND p.show_in_history = 1 AND p.status IN ('active', 'completed')
     ORDER BY p.start_date ASC
 ");
 $projects = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+// Build timeline cards - one per project
+$timelineCards = [];
+foreach ($projects as $index => $p) {
+    $year = !empty($p['start_date']) ? date('Y', strtotime($p['start_date'])) : '';
+    if (empty($year)) continue;
+    $statusColors = ['active' => '#16a34a', 'completed' => '#64748b', 'upcoming' => '#2563eb'];
+    $tagColor = $statusColors[strtolower($p['status'] ?? 'active')] ?? '#ca0000';
+    $tag = ucfirst($p['status'] ?? 'Active');
+    $benefText = !empty($p['beneficiaries_count']) ? number_format($p['beneficiaries_count']) . '+ beneficiaries' : '';
+    $timelineCards[] = [
+        'year' => $year,
+        'title' => $p['title'],
+        'description' => $p['description'] ?? '',
+        'image' => $p['hero_image'] ?? '',
+        'tag' => $tag,
+        'tag_color' => $tagColor,
+        'stats_text' => $benefText,
+        'sort_order' => $index,
+        'location' => $p['location_details'] ?? '',
+        'slug' => $p['slug'] ?? '',
+    ];
+}
 
 // Build data arrays
 $heroData = $heroRow ?: [];
@@ -99,10 +118,10 @@ include dirname(__DIR__) . '/includes/header.php';
           <!-- Center Line -->
           <div class="hidden md:block absolute left-1/2 top-0 bottom-0 w-0.5 bg-slate-200 -translate-x-1/2"></div>
 
-          <?php foreach ($milestones as $index => $milestone): ?>
+          <?php foreach ($timelineCards as $index => $milestone): ?>
             <?php
               $isLeft = ($milestone['sort_order'] % 2) !== 0;
-              $isLast = ($index === count($milestones) - 1);
+              $isLast = ($index === count($timelineCards) - 1);
               $tagColor = !empty($milestone['tag_color']) ? $milestone['tag_color'] : '#ca0000';
             ?>
             <div class="relative flex flex-col md:flex-row items-center mb-12 md:mb-16 <?= $isLeft ? '' : 'md:flex-row-reverse' ?>">
@@ -146,6 +165,12 @@ include dirname(__DIR__) . '/includes/header.php';
                     <p class="<?= $isLast ? 'text-sand-50/70' : 'text-slate-600' ?> leading-relaxed text-sm mb-4">
                       <?= sanitize($milestone['description']) ?>
                     </p>
+                    <?php if (!empty($milestone['location'])): ?>
+                    <div class="flex items-center gap-1.5 text-xs <?= $isLast ? 'text-sand-50/60' : 'text-slate-500' ?> mb-4 <?= $isLeft ? 'md:justify-end' : '' ?>">
+                      <i class="fa-solid fa-location-dot text-[10px]"></i>
+                      <?= sanitize($milestone['location']) ?>
+                    </div>
+                    <?php endif; ?>
                     <?php if (!empty($milestone['stats_text'])): ?>
                     <div class="<?= $isLast ? 'bg-white/10 border-white/10' : 'bg-brandRed/5 border-brandRed/10' ?> rounded-lg px-4 py-3 border">
                       <p class="<?= $isLast ? 'text-brandGold' : 'text-brandRed' ?> text-sm font-semibold flex items-center gap-2 <?= $isLeft ? 'md:justify-end' : '' ?>">
@@ -185,9 +210,8 @@ include dirname(__DIR__) . '/includes/header.php';
           <!-- Table Header -->
           <div class="hidden lg:grid lg:grid-cols-12 gap-4 px-6 py-4 bg-ink-900 text-white text-xs font-bold uppercase tracking-wider">
             <div class="col-span-1">Year</div>
-            <div class="col-span-3">Project</div>
-            <div class="col-span-2">Sector</div>
-            <div class="col-span-2">Location</div>
+            <div class="col-span-4">Project</div>
+            <div class="col-span-3">Location</div>
             <div class="col-span-2">Beneficiaries</div>
             <div class="col-span-1">Status</div>
             <div class="col-span-1 text-right">View</div>
@@ -197,34 +221,12 @@ include dirname(__DIR__) . '/includes/header.php';
           <?php foreach ($projects as $idx => $project): ?>
             <?php
               $projectYear = !empty($project['start_date']) ? date('Y', strtotime($project['start_date'])) : '';
-              $projectSlug = $project['program_slug'] ?? '';
-              $link = !empty($projectSlug) ? $base . 'our-work/program.php?slug=' . urlencode($projectSlug) : '#';
+              $link = !empty($project['slug']) ? $base . 'projects/project-name.php?slug=' . urlencode($project['slug']) : '#';
               $projectStatus = ucfirst($project['status'] ?? 'active');
               $statusColor = match($projectStatus) {
                   'Active' => 'bg-green-100 text-green-700',
                   'Upcoming' => 'bg-blue-100 text-blue-700',
                   default => 'bg-slate-100 text-slate-600'
-              };
-              $projectSector = $project['program_title'] ?? '';
-              $sectorIcon = match($projectSector) {
-                  'Emergency Response' => 'fa-truck-medical',
-                  'HEALTH', 'Health' => 'fa-heart-pulse',
-                  'Education' => 'fa-graduation-cap',
-                  'WASH' => 'fa-droplet',
-                  'Livelihood' => 'fa-briefcase',
-                  'Food Security' => 'fa-wheat-awn',
-                  'Nutrition' => 'fa-apple-whole',
-                  default => 'fa-bullseye'
-              };
-              $sectorColor = match($projectSector) {
-                  'Emergency Response' => 'text-red-500',
-                  'HEALTH', 'Health' => 'text-emerald-600',
-                  'Education' => 'text-blue-600',
-                  'WASH' => 'text-cyan-500',
-                  'Livelihood' => 'text-amber-600',
-                  'Food Security' => 'text-orange-500',
-                  'Nutrition' => 'text-pink-500',
-                  default => 'text-slate-500'
               };
               $benefText = !empty($project['beneficiaries_count']) ? number_format($project['beneficiaries_count']) . '+' : '';
             ?>
@@ -236,19 +238,13 @@ include dirname(__DIR__) . '/includes/header.php';
                     <?= sanitize($projectYear) ?>
                   </span>
                 </div>
-                <div class="col-span-3">
+                <div class="col-span-4">
                   <h4 class="font-display font-bold text-slate-900 group-hover:text-brandRed transition-colors text-sm">
                     <?= sanitize($project['title']) ?>
                   </h4>
                   <p class="text-xs text-slate-500 mt-1 line-clamp-1"><?= sanitize($project['description'] ?? '') ?></p>
                 </div>
-                <div class="col-span-2">
-                  <span class="inline-flex items-center gap-1.5 text-xs font-semibold <?= $sectorColor ?>">
-                    <i class="fa-solid <?= $sectorIcon ?> text-[10px]"></i>
-                    <?= sanitize($projectSector) ?>
-                  </span>
-                </div>
-                <div class="col-span-2">
+                <div class="col-span-3">
                   <span class="text-xs text-slate-600 flex items-center gap-1.5">
                     <i class="fa-solid fa-location-dot text-[10px] text-slate-400"></i>
                     <?= sanitize($project['location_details'] ?? '') ?>
@@ -281,11 +277,6 @@ include dirname(__DIR__) . '/includes/header.php';
                       </span>
                     </div>
                     <div class="flex items-center gap-3 text-xs text-slate-500 mb-1">
-                      <span class="inline-flex items-center gap-1 <?= $sectorColor ?> font-semibold">
-                        <i class="fa-solid <?= $sectorIcon ?> text-[10px]"></i>
-                        <?= sanitize($projectSector) ?>
-                      </span>
-                      <span class="text-slate-300">|</span>
                       <span class="flex items-center gap-1">
                         <i class="fa-solid fa-location-dot text-[10px] text-slate-400"></i>
                         <?= sanitize($project['location_details'] ?? '') ?>

@@ -12,7 +12,6 @@ $metaDescription = 'World Relief Committee (WRC) is a non-profit humanitarian or
 // Fetch dynamic data
 $heroSlides = getRows('hero_sliders', 'is_active = 1 ORDER BY sort_order ASC');
 $impactStats = getRows('impact_stats', "display_page = 'home_hero' ORDER BY sort_order ASC");
-$programs = getRows('programs', 'is_active = 1 ORDER BY sort_order ASC LIMIT 4');
 $partners = getRows('partners', 'is_active = 1 ORDER BY sort_order ASC');
 $activeProjects = getRows('projects', "status = 'active' ORDER BY start_date DESC LIMIT 3");
 $provinces = getRows('provinces', 'is_active = 1 ORDER BY sort_order ASC');
@@ -53,11 +52,6 @@ if ($ctaRow) {
         'content' => json_encode($ctaRow)
     ];
 }
-
-// Enrich projects with program info
-$allPrograms = getRows('programs');
-$programMap = [];
-foreach ($allPrograms as $p) $programMap[$p['id']] = $p;
 
 include __DIR__ . '/includes/header.php';
 ?>
@@ -206,37 +200,18 @@ include __DIR__ . '/includes/header.php';
     </div>
 </section>
 
-<!-- OUR CORE SECTORS -->
+<!-- OUR PROJECTS -->
 <section class="bg-slate-50 py-14 lg:py-20">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="text-center mb-6 lg:mb-10">
-            <p class="text-brandRed text-xs uppercase tracking-[0.35em] font-semibold mb-3">Our Core Sectors</p>
-            <h2 class="text-3xl sm:text-4xl font-extrabold text-slate-900">Programs That Deliver Real Results</h2>
-            <p class="mt-4 mx-auto max-w-2xl text-slate-600 text-sm sm:text-base leading-7">These core sectors show
-                exactly where WRC invests time and resources to restore safety, health, education, and hope.</p>
+            <p class="text-brandRed text-xs uppercase tracking-[0.35em] font-semibold mb-3">What We Do</p>
+            <h2 class="text-3xl sm:text-4xl font-extrabold text-slate-900">Our Projects</h2>
+            <p class="mt-4 mx-auto max-w-2xl text-slate-600 text-sm sm:text-base leading-7">Delivering real results through
+                humanitarian projects across health, education, WASH, food security, and emergency response.</p>
         </div>
-        <div class="grid gap-6 lg:grid-cols-2 xl:grid-cols-4">
-            <?php foreach ($programs as $program): ?>
-            <article
-                class="group overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-sm transition-all hover:-translate-y-1 hover:shadow-xl">
-                <div class="relative h-72 overflow-hidden">
-                    <img src="<?= $base ?><?= $program['hero_image'] ?? $program['fallback_image'] ?? 'assets/images/water.jpg' ?>"
-                        alt="<?= sanitize($program['title']) ?>"
-                        class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
-                    <div class="absolute inset-0 bg-gradient-to-t from-slate-950/75 via-slate-950/20 to-transparent">
-                    </div>
-                    <div class="absolute bottom-4 left-4 right-4">
-                        <p class="text-xs uppercase tracking-[0.35em] text-white/80">
-                            <?= $program['sector_number'] ? 'Program ' . $program['sector_number'] : 'Program' ?></p>
-                        <h3 class="mt-2 text-xl font-semibold text-white"><?= sanitize($program['title']) ?></h3>
-                    </div>
-                </div>
-                <div class="p-5">
-                    <p class="text-slate-600 text-sm leading-6"><?= sanitize($program['short_description']) ?></p>
-                </div>
-            </article>
-            <?php endforeach; ?>
-        </div>
+        <div class="text-center"><a href="<?= $base ?>projects/index.php"
+                class="inline-flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-white text-sm font-bold px-6 py-3 rounded-xl transition-all">View
+                All Projects <i class="fa-solid fa-arrow-right text-xs"></i></a></div>
     </div>
 </section>
 
@@ -394,12 +369,11 @@ include __DIR__ . '/includes/header.php';
             <p class="text-brandRed text-xs uppercase tracking-[0.35em] font-semibold mb-2">Current Initiatives</p>
             <h2 class="text-3xl sm:text-4xl font-extrabold text-slate-900">Active Projects</h2>
             <p class="mt-3 max-w-2xl mx-auto text-slate-500 text-sm">Real-time overview of our ongoing humanitarian
-                programs across Pakistan.</p>
+                projects across Pakistan.</p>
         </div>
         <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
             <?php foreach ($activeProjects as $project): ?>
-            <?php $prog = $programMap[$project['program_id']] ?? null; ?>
-            <div
+            <a href="<?= $base ?>projects/project-name.php?slug=<?= urlencode($project['slug']) ?>"
                 class="group bg-white rounded-2xl border border-slate-200 overflow-hidden hover:shadow-xl transition-all duration-300">
                 <div class="relative h-48 overflow-hidden">
                     <img src="<?= $base ?><?= $project['hero_image'] ?? 'assets/images/water.jpg' ?>"
@@ -415,11 +389,9 @@ include __DIR__ . '/includes/header.php';
                 </div>
                 <div class="p-5">
                     <div class="flex items-center gap-2 mb-2"><span
-                            class="text-[10px] font-semibold text-brandRed uppercase tracking-wider"><?= $prog ? sanitize($prog['title']) : 'Program' ?></span><span
-                            class="w-1 h-1 rounded-full bg-slate-300"></span><span
                             class="text-[10px] text-slate-400">Since
                             <?= date('M Y', strtotime($project['start_date'])) ?></span></div>
-                    <h3 class="font-bold text-slate-900 mb-2"><?= sanitize($project['title']) ?></h3>
+                    <h3 class="font-bold text-slate-900 mb-2 group-hover:text-brandRed transition-colors"><?= sanitize($project['title']) ?></h3>
                     <p class="text-slate-500 text-xs leading-relaxed mb-4"><?= sanitize($project['description']) ?></p>
                     <div class="mb-3">
                         <div class="flex justify-between text-xs mb-1"><span class="text-slate-500">Progress</span><span
@@ -431,10 +403,10 @@ include __DIR__ . '/includes/header.php';
                     </div>
                     <div class="flex items-center justify-between text-xs text-slate-400"><span><i
                                 class="fa-solid fa-users mr-1"></i><?= number_format($project['beneficiaries_count']) ?>
-                            beneficiaries</span><a href="<?= $base ?>projects/causes.php"
-                            class="text-brandRed font-semibold hover:underline">View &rarr;</a></div>
+                            beneficiaries</span><span
+                            class="text-brandRed font-semibold group-hover:underline">View Details <i class="fa-solid fa-arrow-right text-[10px]"></i></span></div>
                 </div>
-            </div>
+            </a>
             <?php endforeach; ?>
         </div>
         <div class="text-center mt-10"><a href="<?= $base ?>projects/index.php#active"
@@ -450,7 +422,7 @@ include __DIR__ . '/includes/header.php';
             <p class="text-brandRed text-xs uppercase tracking-[0.35em] font-semibold mb-2">Performance Metrics</p>
             <h2 class="text-3xl sm:text-4xl font-extrabold text-white">Project KPI Dashboard</h2>
             <p class="mt-3 max-w-2xl mx-auto text-slate-400 text-sm">Key performance indicators tracked across all
-                active programs.</p>
+                active projects.</p>
         </div>
         <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
             <?php foreach ($kpStats as $kpi): ?>

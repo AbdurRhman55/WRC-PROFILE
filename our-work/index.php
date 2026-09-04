@@ -8,8 +8,8 @@ require_once dirname(__DIR__) . '/includes/functions.php';
 
 $base = '../';
 
-// Fetch all programs
-$programs = getRows('programs', 'is_active = 1 ORDER BY sort_order ASC');
+// Fetch all projects
+$projects = getRows('projects', "is_active = 1 ORDER BY start_date DESC LIMIT 9");
 
 // Fetch all Our Work homepage sections
 $allSections = getRows('homepage_sections', '', '');
@@ -58,8 +58,8 @@ $pillarsData = isset($owSections['our_work_pillars']) ? json_decode($owSections[
 $featuredProjData = isset($owSections['our_work_featured_projects']) ? json_decode($owSections['our_work_featured_projects']['content'], true) : [];
 $ctaData = isset($owSections['our_work_cta']) ? json_decode($owSections['our_work_cta']['content'], true) : [];
 
-// Fetch featured programs (latest active)
-$featuredPrograms = getRows('programs', 'is_active = 1 ORDER BY sort_order ASC LIMIT 3');
+// Fetch featured projects (latest active)
+$featuredProjects = getRows('projects', "status = 'active' ORDER BY start_date DESC LIMIT 3");
 
 $pageTitle = 'Our Work & Core Programs | World Relief Committee (WRC)';
 $metaDescription = "Explore WRC's 9 core humanitarian sectors across Health, Education, WASH, Food Security, Nutrition, Livelihood, Emergency Response, DRR, and Climate Resilience.";
@@ -97,55 +97,69 @@ include dirname(__DIR__) . '/includes/header.php';
     </div>
   </section>
 
-  <!-- QUICK SECTOR NAV / FILTER BAR -->
+  <!-- QUICK NAV / FILTER BAR -->
   <section class="sticky top-20 z-40 bg-white border-b border-slate-200 shadow-sm py-4">
     <div class="container mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex items-center justify-between gap-4 overflow-x-auto no-scrollbar py-1 text-xs">
-        <span class="font-bold text-slate-900 uppercase tracking-wider shrink-0 flex items-center gap-1.5"><i class="fa-solid fa-sliders text-brandRed"></i> Sectors:</span>
+        <span class="font-bold text-slate-900 uppercase tracking-wider shrink-0 flex items-center gap-1.5"><i class="fa-solid fa-sliders text-brandRed"></i> Quick Links:</span>
         <div class="flex items-center gap-2 shrink-0">
-          <?php foreach ($programs as $prog): ?>
-          <a href="#<?= $prog['slug'] ?>" class="px-3.5 py-1.5 rounded-full bg-slate-100 hover:bg-brandRed hover:text-white transition-all font-medium text-slate-700"><?= sanitize($prog['title']) ?></a>
-          <?php endforeach; ?>
+          <a href="#projects" class="px-3.5 py-1.5 rounded-full bg-slate-100 hover:bg-brandRed hover:text-white transition-all font-medium text-slate-700">Projects</a>
+          <a href="#featured" class="px-3.5 py-1.5 rounded-full bg-slate-100 hover:bg-brandRed hover:text-white transition-all font-medium text-slate-700">Featured</a>
+          <a href="<?= $base ?>projects/index.php" class="px-3.5 py-1.5 rounded-full bg-brandRed text-white hover:bg-brandRed-hover transition-all font-medium">View All Projects &rarr;</a>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- 9 SECTORS SHOWCASE GRID -->
-  <section id="sectors" class="py-20 lg:py-28 bg-slate-50 scroll-mt-24">
+  <!-- OUR PROJECTS GRID -->
+  <section id="projects" class="py-20 lg:py-28 bg-slate-50 scroll-mt-24">
     <div class="container mx-auto px-4 sm:px-6 lg:px-8">
       
       <div class="text-center max-w-3xl mx-auto mb-16">
-        <span class="text-brandRed font-bold text-xs uppercase tracking-widest mb-2 block">Comprehensive Programs</span>
-        <h2 class="text-3xl md:text-4xl font-extrabold font-heading text-slate-900 mb-4">Our Core Humanitarian Sectors</h2>
-        <p class="text-slate-600 text-sm leading-relaxed">Each of our nine sectors is designed to address key structural challenges and promote sustainable development, local capacity, and emergency resilience.</p>
+        <span class="text-brandRed font-bold text-xs uppercase tracking-widest mb-2 block">Our Portfolio</span>
+        <h2 class="text-3xl md:text-4xl font-extrabold font-heading text-slate-900 mb-4">Active & Completed Projects</h2>
+        <p class="text-slate-600 text-sm leading-relaxed">Delivering real results through humanitarian projects across health, education, WASH, food security, and emergency response.</p>
       </div>
 
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        <?php foreach ($programs as $prog): ?>
-        <div id="<?= $prog['slug'] ?>" class="bg-white rounded-3xl border border-slate-200/80 shadow-sm overflow-hidden flex flex-col justify-between program-card-hover group">
+        <?php foreach ($projects as $project): ?>
+        <a href="<?= $base ?>projects/project-name.php?slug=<?= urlencode($project['slug']) ?>" class="bg-white rounded-3xl border border-slate-200/80 shadow-sm overflow-hidden flex flex-col justify-between group hover:shadow-xl transition-all duration-300">
           <div class="relative h-48 overflow-hidden">
-            <img src="<?= $base ?><?= $prog['hero_image'] ?>" alt="<?= sanitize($prog['title']) ?> program image" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105">
+            <img src="<?= $base ?><?= $project['hero_image'] ?? 'assets/images/water.jpg' ?>" alt="<?= sanitize($project['title']) ?>" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105">
             <div class="absolute inset-0 bg-gradient-to-t from-slate-900/60 via-transparent to-transparent"></div>
-            <span class="absolute top-4 right-4 text-[10px] font-bold uppercase tracking-wider px-3 py-1.5 bg-slate-900/80 text-white backdrop-blur-md rounded-full">Sector <?= $prog['sector_number'] ?></span>
+            <span class="absolute top-4 left-4 text-[10px] font-bold uppercase tracking-wider px-3 py-1.5 <?= $project['status'] === 'active' ? 'bg-emerald-500' : 'bg-slate-600' ?> text-white rounded-full shadow-md"><?= ucfirst($project['status']) ?></span>
+            <span class="absolute top-4 right-4 text-[10px] font-medium px-2.5 py-1 bg-slate-900/70 backdrop-blur-sm text-white rounded-full"><i class="fa-solid fa-location-dot mr-1"></i><?= sanitize($project['location_details'] ?? '') ?></span>
           </div>
-          <div class="p-6 md:p-8 flex-grow flex flex-col justify-between">
+          <div class="p-6 flex-grow flex flex-col justify-between">
             <div>
-              <div class="flex items-center gap-3 mb-4">
-                <div class="w-10 h-10 rounded-xl bg-red-50 text-brandRed flex items-center justify-center text-lg">
-                  <i class="<?= $prog['icon_class'] ?>"></i>
-                </div>
-                <h3 class="text-xl font-bold text-slate-900 font-heading"><?= sanitize($prog['title']) ?></h3>
+              <h3 class="text-lg font-bold text-slate-900 font-heading mb-3 group-hover:text-brandRed transition-colors"><?= sanitize($project['title']) ?></h3>
+              <p class="text-xs text-slate-600 leading-relaxed mb-4 line-clamp-3"><?= sanitize($project['description'] ?? '') ?></p>
+              <?php if ($project['beneficiaries_count'] > 0): ?>
+              <div class="flex items-center gap-2 text-[10px] text-slate-500 mb-2">
+                <i class="fa-solid fa-users text-brandRed"></i> <?= number_format($project['beneficiaries_count']) ?>+ beneficiaries
               </div>
-              <p class="text-xs text-slate-600 leading-relaxed mb-6"><?= sanitize($prog['hero_description']) ?></p>
+              <?php endif; ?>
+              <?php if ($project['progress_percent'] > 0): ?>
+              <div class="w-full bg-slate-100 rounded-full h-1.5 mb-2">
+                <div class="bg-brandRed rounded-full h-1.5" style="width:<?= $project['progress_percent'] ?>%"></div>
+              </div>
+              <div class="text-[10px] font-bold text-brandRed mb-2"><?= $project['progress_percent'] ?>% Complete</div>
+              <?php endif; ?>
             </div>
-            <a href="program.php?slug=<?= $prog['slug'] ?>" class="inline-flex items-center text-brandRed hover:text-brandRed-hover text-xs font-semibold uppercase tracking-wider gap-1.5 self-start">
-              Explore Program <i class="fa-solid fa-arrow-right text-[10px] transition-transform group-hover:translate-x-1"></i>
-            </a>
+            <div class="pt-4 border-t border-slate-100 flex items-center justify-between">
+              <span class="text-[10px] text-slate-400">Since <?= date('M Y', strtotime($project['start_date'])) ?></span>
+              <span class="text-brandRed hover:text-brandRed-hover text-xs font-semibold hover:underline flex items-center gap-1 group-hover:translate-x-1 transition-transform">
+                View Details <i class="fa-solid fa-arrow-right text-[10px]"></i>
+              </span>
+            </div>
           </div>
-        </div>
+        </a>
         <?php endforeach; ?>
       </div>
+
+      <div class="text-center mt-12"><a href="<?= $base ?>projects/index.php"
+              class="inline-flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-white text-sm font-bold px-6 py-3 rounded-xl transition-all">View
+              All Projects <i class="fa-solid fa-arrow-right text-xs"></i></a></div>
     </div>
   </section>
 
@@ -230,37 +244,38 @@ include dirname(__DIR__) . '/includes/header.php';
   </section>
 
   <!-- FEATURED PROJECTS GRID SECTION -->
-  <section class="py-20 bg-slate-50 border-t border-slate-200/50">
+  <section id="featured" class="py-20 bg-slate-50 border-t border-slate-200/50 scroll-mt-24">
     <div class="container mx-auto px-4 sm:px-6 lg:px-8">
       
       <div class="flex flex-col md:flex-row md:items-end justify-between mb-16">
         <div>
           <span class="text-brandRed font-bold text-xs uppercase tracking-widest mb-2 block"><?= sanitize($owSections['our_work_featured_projects']['section_subtitle'] ?? 'Action in the Field') ?></span>
-          <h2 class="text-3xl font-extrabold font-heading text-slate-900"><?= $owSections['our_work_featured_projects']['section_title'] ?? '' ?></h2>
+          <h2 class="text-3xl font-extrabold font-heading text-slate-900"><?= $owSections['our_work_featured_projects']['section_title'] ?? 'Featured Projects' ?></h2>
         </div>
         <p class="text-slate-600 text-xs md:text-sm max-w-md mt-4 md:mt-0 leading-relaxed">
-          <?= sanitize($featuredProjData['description'] ?? '') ?>
+          <?= sanitize($featuredProjData['description'] ?? 'Our latest active projects making a real difference in communities.') ?>
         </p>
       </div>
 
       <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-        <?php foreach ($featuredPrograms as $prog): ?>
-        <a href="<?= $base ?>our-work/program.php?slug=<?= $prog['slug'] ?>" class="bg-white rounded-3xl border border-slate-200/60 shadow-sm overflow-hidden flex flex-col justify-between group hover:shadow-xl transition-all duration-300">
+        <?php foreach ($featuredProjects as $project): ?>
+        <a href="<?= $base ?>projects/project-name.php?slug=<?= urlencode($project['slug']) ?>" class="bg-white rounded-3xl border border-slate-200/60 shadow-sm overflow-hidden flex flex-col justify-between group hover:shadow-xl transition-all duration-300">
           <div class="relative h-56 overflow-hidden">
-            <img src="<?= $base ?><?= $prog['hero_image'] ?? $prog['fallback_image'] ?? 'assets/images/our-work/program-default.jpg' ?>" alt="<?= sanitize($prog['title']) ?>" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
-            <span class="absolute top-4 left-4 text-[10px] font-bold uppercase tracking-wider px-3 py-1.5 bg-brandRed text-white rounded-full shadow-md">Sector <?= $prog['sector_number'] ?? '' ?></span>
+            <img src="<?= $base ?><?= $project['hero_image'] ?? 'assets/images/water.jpg' ?>" alt="<?= sanitize($project['title']) ?>" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+            <span class="absolute top-4 left-4 text-[10px] font-bold uppercase tracking-wider px-3 py-1.5 <?= $project['status'] === 'active' ? 'bg-emerald-500' : 'bg-slate-600' ?> text-white rounded-full shadow-md"><?= ucfirst($project['status']) ?></span>
           </div>
           <div class="p-6 flex-grow flex flex-col justify-between">
             <div>
               <div class="flex items-center gap-2 text-slate-500 text-[10px] uppercase font-bold tracking-wider mb-2">
-                <i class="<?= $prog['icon_class'] ?> text-brandRed"></i> <?= sanitize($prog['title']) ?> Sector
+                <i class="fa-solid fa-location-dot text-brandRed"></i> <?= sanitize($project['location_details'] ?? 'Pakistan') ?>
               </div>
-              <h3 class="text-lg font-bold text-slate-900 font-heading mb-3 group-hover:text-brandRed transition-colors"><?= sanitize($prog['title']) ?></h3>
-              <p class="text-xs text-slate-600 leading-relaxed mb-6"><?= sanitize($prog['short_description'] ?? $prog['hero_description'] ?? '') ?></p>
+              <h3 class="text-lg font-bold text-slate-900 font-heading mb-3 group-hover:text-brandRed transition-colors"><?= sanitize($project['title']) ?></h3>
+              <p class="text-xs text-slate-600 leading-relaxed mb-6 line-clamp-2"><?= sanitize($project['description'] ?? '') ?></p>
             </div>
-            <div class="pt-4 border-t border-slate-100 flex items-center justify-end">
+            <div class="pt-4 border-t border-slate-100 flex items-center justify-between">
+              <span class="text-[10px] text-slate-400">Since <?= date('M Y', strtotime($project['start_date'])) ?></span>
               <span class="text-brandRed hover:text-brandRed-hover text-xs font-semibold hover:underline flex items-center gap-1 group-hover:translate-x-1 transition-transform">
-                Explore Program &rarr;
+                View Details <i class="fa-solid fa-arrow-right text-[10px]"></i>
               </span>
             </div>
           </div>

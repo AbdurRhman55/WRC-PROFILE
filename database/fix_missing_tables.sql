@@ -45,3 +45,16 @@ UPDATE `hero_sliders` SET `cta_link` = REPLACE(`cta_link`, '.html', '.php') WHER
 -- Fix: Update impact_stats display_page values to match homepage queries
 UPDATE `impact_stats` SET `display_page` = 'home_hero' WHERE `display_page` = 'homepage' AND `stat_label` LIKE '%Year%' OR `stat_label` LIKE '%life%';
 UPDATE `impact_stats` SET `display_page` = 'home_kpi' WHERE `display_page` = 'homepage';
+
+-- Centralized Projects: Add show_in_history toggle
+ALTER TABLE `projects`
+    ADD COLUMN IF NOT EXISTS `show_in_history` TINYINT(1) NOT NULL DEFAULT 1 AFTER `is_active`;
+
+-- Centralized Projects: Drop orphaned history_projects table (never read by any frontend)
+DROP TABLE IF EXISTS `history_projects`;
+
+-- Fix: Add missing sort_order to project_donors
+ALTER TABLE `project_donors` ADD COLUMN IF NOT EXISTS `sort_order` INT NOT NULL DEFAULT 0 AFTER `amount`;
+
+-- Fix: Add missing project_id to resources
+ALTER TABLE `resources` ADD COLUMN IF NOT EXISTS `project_id` INT UNSIGNED NULL DEFAULT NULL AFTER `id`;

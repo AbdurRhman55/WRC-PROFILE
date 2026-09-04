@@ -514,35 +514,6 @@ if (isPost() && isset($_POST['save_sections'])) {
         }
     }
 
-    function saveHistoryMilestones($sectionKey, $data) {
-        global $pdo;
-        $content = $data['content'] ?? [];
-        $pdo->exec("DELETE FROM history_milestones");
-        $items = $content['milestones'] ?? [];
-        foreach ($items as $i => $item) {
-            insertRow('history_milestones', [
-                'year' => $item['year'] ?? '', 'title' => $item['title'] ?? '', 'description' => $item['description'] ?? '',
-                'image' => $item['image'] ?? '', 'tag' => $item['tag'] ?? '', 'tag_color' => $item['tag_color'] ?? '',
-                'stats_text' => $item['stats_text'] ?? '', 'is_current' => !empty($item['is_current']) ? 1 : 0, 'sort_order' => $i
-            ]);
-        }
-    }
-
-    function saveHistoryProjects($sectionKey, $data) {
-        global $pdo;
-        $content = $data['content'] ?? [];
-        $pdo->exec("DELETE FROM history_projects");
-        $items = $content['projects'] ?? [];
-        foreach ($items as $i => $item) {
-            insertRow('history_projects', [
-                'year' => $item['year'] ?? '', 'title' => $item['title'] ?? '', 'sector' => $item['sector'] ?? '',
-                'location' => $item['location'] ?? '', 'description' => $item['description'] ?? '',
-                'beneficiaries' => $item['beneficiaries'] ?? '', 'status' => $item['status'] ?? 'Completed',
-                'program_slug' => $item['program_slug'] ?? '', 'sort_order' => $i
-            ]);
-        }
-    }
-
     function saveHistoryCta($sectionKey, $data) {
         global $pdo;
         $content = $data['content'] ?? [];
@@ -737,7 +708,6 @@ if (isPost() && isset($_POST['save_sections'])) {
         'why_we_exist' => 'saveWhyWeExist',
         'history_hero' => 'saveHistoryHero',
         'history_stats' => 'saveHistoryStats',
-        'history_milestones' => 'saveHistoryMilestones',
         'history_cta' => 'saveHistoryCta',
         'vision_mission_hero' => 'saveGenericHero',
         'vision_mission_content' => 'saveGenericContent',
@@ -818,13 +788,6 @@ $pages = [
             'our_work_cta' => 'CTA Banner',
         ]
     ],
-    'program' => [
-        'label' => 'Program Detail',
-        'sections' => [
-            'program_implementation' => 'Implementation Framework',
-            'program_cta' => 'CTA Banner',
-        ]
-    ],
     'projects' => [
         'label' => 'Projects Listing',
         'sections' => [
@@ -869,7 +832,6 @@ $pages = [
         'sections' => [
             'history_hero' => 'Hero Section',
             'history_stats' => 'Key Stats',
-            'history_milestones' => 'Timeline Milestones',
             'history_cta' => 'CTA Banner',
         ]
     ],
@@ -1267,24 +1229,6 @@ function loadDedicatedSection($sectionKey, $defaultTitle) {
                 'section_subtitle' => $row['section_subtitle'] ?? '',
                 'content' => ['badge' => $row['badge'], 'section_title' => $row['section_title'], 'section_subtitle' => $row['section_subtitle'], 'button1_text' => $row['button1_text'], 'button1_link' => $row['button1_link']],
                 'is_active' => 1,
-            ];
-            break;
-        case 'history_milestones':
-            $rows = getRows('history_milestones', [], 'sort_order ASC');
-            $milestones = array_map(function($m) { return ['year' => $m['year'], 'title' => $m['title'], 'description' => $m['description'], 'image' => $m['image'], 'tag' => $m['tag'], 'tag_color' => $m['tag_color'], 'stats_text' => $m['stats_text'], 'is_current' => $m['is_current']]; }, $rows);
-            return [
-                'section_key' => $sectionKey, 'section_title' => 'Timeline Milestones',
-                'section_subtitle' => 'Key moments in our journey.',
-                'content' => ['milestones' => $milestones], 'is_active' => 1,
-            ];
-            break;
-        case 'history_projects':
-            $rows = getRows('history_projects', [], 'sort_order ASC');
-            $projects = array_map(function($p) { return ['year' => $p['year'], 'title' => $p['title'], 'sector' => $p['sector'], 'location' => $p['location'], 'description' => $p['description'], 'beneficiaries' => $p['beneficiaries'], 'status' => $p['status'], 'program_slug' => $p['program_slug']]; }, $rows);
-            return [
-                'section_key' => $sectionKey, 'section_title' => 'Our Projects',
-                'section_subtitle' => 'A chronological overview of our key projects and interventions.',
-                'content' => ['projects' => $projects], 'is_active' => 1,
             ];
             break;
         case 'vision_mission_hero': case 'org_structure_hero': case 'policies_hero': case 'annual_reports_hero':
@@ -1930,26 +1874,6 @@ include __DIR__ . '/includes/header.php';
       </div>
 
       <?php
-      // ===== HISTORY MILESTONES =====
-      elseif ($sKey === 'history_milestones'):
-      ?>
-      <div style="padding:1rem;background:#f8fafc;border-radius:0.75rem;border:1px solid #e2e8f0;">
-        <p style="font-size:0.75rem;font-weight:700;color:#ca0000;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.75rem;">Timeline Milestones</p>
-        <div id="milestonesList_history_milestones" class="space-y-2"></div>
-        <button type="button" class="add-btn" onclick="addMilestone_history_milestones()"><i class="fa-solid fa-plus text-xs"></i> Add Milestone</button>
-      </div>
-
-      <?php
-      // ===== HISTORY PROJECTS =====
-      elseif ($sKey === 'history_projects'):
-      ?>
-      <div style="padding:1rem;background:#f8fafc;border-radius:0.75rem;border:1px solid #e2e8f0;">
-        <p style="font-size:0.75rem;font-weight:700;color:#ca0000;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.75rem;">Projects Chronological Table</p>
-        <div id="projectsList_history_projects" class="space-y-2"></div>
-        <button type="button" class="add-btn" onclick="addProject_history_projects()"><i class="fa-solid fa-plus text-xs"></i> Add Project</button>
-      </div>
-
-      <?php
       // ===== GET INVOLVED HERO =====
       elseif ($sKey === 'get_involved_hero'):
       ?>
@@ -2167,9 +2091,6 @@ document.getElementById('sectionsForm').addEventListener('submit', function(e) {
     }
     if (typeof window['districtsArr_' + key] !== 'undefined') {
       allData[key].content.districts = window['districtsArr_' + key];
-    }
-    if (typeof window['milestonesArr_' + key] !== 'undefined') {
-      allData[key].content.milestones = window['milestonesArr_' + key];
     }
     if (typeof window['projectsArr_' + key] !== 'undefined') {
       allData[key].content.projects = window['projectsArr_' + key];
@@ -2398,38 +2319,6 @@ function renderDistricts_where_we_work_districts() {
 }
 function addDistrict_where_we_work_districts() { districtsArr_where_we_work_districts.push({district:'',province:'',programs:'',beneficiaries:'',year:''}); renderDistricts_where_we_work_districts(); }
 renderDistricts_where_we_work_districts();
-<?php endif; ?>
-
-<?php if (isset($sections['history_milestones'])): ?>
-// ===== HISTORY MILESTONES =====
-var milestonesArr_history_milestones = <?= json_encode($sections['history_milestones']['content']['milestones'] ?? [], JSON_HEX_TAG) ?>;
-function renderMilestones_history_milestones() {
-  var el = document.getElementById('milestonesList_history_milestones');
-  if (!el) return;
-  el.innerHTML = '';
-  milestonesArr_history_milestones.forEach(function(item, i) {
-    var y=''+(item.year||''), t=''+(item.title||''), tg=''+(item.tag||''), tc=''+(item.tag_color||''), d=''+(item.description||''), im=''+(item.image||''), st=''+(item.stats_text||'');
-    el.innerHTML += '<div class="dynamic-item"><button type="button" class="remove-btn" onclick="milestonesArr_history_milestones.splice('+i+',1);renderMilestones_history_milestones()"><i class="fa-solid fa-xmark"></i></button><div class="field-row"><div class="field-group"><label>Year</label><input value="'+y.replace(/"/g,'&quot;')+'" onchange="milestonesArr_history_milestones['+i+'].year=this.value" placeholder="2024"></div><div class="field-group"><label>Title</label><input value="'+t.replace(/"/g,'&quot;')+'" onchange="milestonesArr_history_milestones['+i+'].title=this.value"></div><div class="field-group"><label>Tag</label><input value="'+tg.replace(/"/g,'&quot;')+'" onchange="milestonesArr_history_milestones['+i+'].tag=this.value" placeholder="Emergency"></div><div class="field-group"><label>Tag Color</label><input value="'+tc.replace(/"/g,'&quot;')+'" onchange="milestonesArr_history_milestones['+i+'].tag_color=this.value" placeholder="#ca0000"></div></div><div class="field-group"><label>Description</label><textarea rows="2" onchange="milestonesArr_history_milestones['+i+'].description=this.value">'+d.replace(/</g,'&lt;')+'</textarea></div><div class="field-row"><div class="field-group"><label>Image Path</label><input value="'+im.replace(/"/g,'&quot;')+'" onchange="milestonesArr_history_milestones['+i+'].image=this.value" placeholder="assets/images/hero.jpg"></div><div class="field-group"><label>Stats Text</label><input value="'+st.replace(/"/g,'&quot;')+'" onchange="milestonesArr_history_milestones['+i+'].stats_text=this.value" placeholder="25,000+ families served"></div><div class="field-group" style="flex:0 0 120px;"><label>Current?</label><select onchange="milestonesArr_history_milestones['+i+'].is_current=this.value"><option value="0"'+(!item.is_current||item.is_current=='0'?' selected':'')+'>No</option><option value="1"'+(item.is_current=='1'?' selected':'')+'>Yes</option></select></div></div></div>';
-  });
-}
-function addMilestone_history_milestones() { milestonesArr_history_milestones.push({year:'',title:'',description:'',image:'',tag:'',tag_color:'',stats_text:'',is_current:0}); renderMilestones_history_milestones(); }
-renderMilestones_history_milestones();
-<?php endif; ?>
-
-<?php if (isset($sections['history_projects'])): ?>
-// ===== HISTORY PROJECTS =====
-var projectsArr_history_projects = <?= json_encode($sections['history_projects']['content']['projects'] ?? [], JSON_HEX_TAG) ?>;
-function renderProjects_history_projects() {
-  var el = document.getElementById('projectsList_history_projects');
-  if (!el) return;
-  el.innerHTML = '';
-  projectsArr_history_projects.forEach(function(item, i) {
-    var y=''+(item.year||''), t=''+(item.title||''), s=''+(item.sector||''), l=''+(item.location||''), d=''+(item.description||''), b=''+(item.beneficiaries||''), ps=''+(item.program_slug||'');
-    el.innerHTML += '<div class="dynamic-item"><button type="button" class="remove-btn" onclick="projectsArr_history_projects.splice('+i+',1);renderProjects_history_projects()"><i class="fa-solid fa-xmark"></i></button><div class="field-row"><div class="field-group"><label>Year</label><input value="'+y.replace(/"/g,'&quot;')+'" onchange="projectsArr_history_projects['+i+'].year=this.value" placeholder="2024"></div><div class="field-group"><label>Title</label><input value="'+t.replace(/"/g,'&quot;')+'" onchange="projectsArr_history_projects['+i+'].title=this.value"></div><div class="field-group"><label>Sector</label><input value="'+s.replace(/"/g,'&quot;')+'" onchange="projectsArr_history_projects['+i+'].sector=this.value" placeholder="Health"></div><div class="field-group"><label>Location</label><input value="'+l.replace(/"/g,'&quot;')+'" onchange="projectsArr_history_projects['+i+'].location=this.value" placeholder="Karachi, Sindh"></div></div><div class="field-group"><label>Description</label><textarea rows="2" onchange="projectsArr_history_projects['+i+'].description=this.value">'+d.replace(/</g,'&lt;')+'</textarea></div><div class="field-row"><div class="field-group"><label>Beneficiaries</label><input value="'+b.replace(/"/g,'&quot;')+'" onchange="projectsArr_history_projects['+i+'].beneficiaries=this.value" placeholder="5,000+ families"></div><div class="field-group"><label>Status</label><select onchange="projectsArr_history_projects['+i+'].status=this.value"><option value="Completed"'+(item.status==='Completed'?' selected':'')+'>Completed</option><option value="Ongoing"'+(item.status==='Ongoing'?' selected':'')+'>Ongoing</option><option value="Upcoming"'+(item.status==='Upcoming'?' selected':'')+'>Upcoming</option></select></div><div class="field-group"><label>Program Slug</label><input value="'+ps.replace(/"/g,'&quot;')+'" onchange="projectsArr_history_projects['+i+'].program_slug=this.value" placeholder="health"></div></div></div>';
-  });
-}
-function addProject_history_projects() { projectsArr_history_projects.push({year:'',title:'',sector:'',location:'',description:'',beneficiaries:'',status:'Completed',program_slug:''}); renderProjects_history_projects(); }
-renderProjects_history_projects();
 <?php endif; ?>
 
 </script>

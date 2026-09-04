@@ -40,12 +40,11 @@ if (!isset($base)) $base = '';
         </div>
 
         <div class="xl:col-span-3">
-          <h4 class="text-white font-semibold uppercase tracking-[0.2em] text-xs mb-4">Programs</h4>
+          <h4 class="text-white font-semibold uppercase tracking-[0.2em] text-xs mb-4">Our Projects</h4>
           <ul class="space-y-3 text-slate-400">
-            <li><a href="<?= $base ?>our-work/program.php?slug=wash" class="hover:text-white transition">WASH & Water</a></li>
-            <li><a href="<?= $base ?>our-work/program.php?slug=health" class="hover:text-white transition">Healthcare</a></li>
-            <li><a href="<?= $base ?>our-work/program.php?slug=education" class="hover:text-white transition">Education</a></li>
-            <li><a href="<?= $base ?>our-work/program.php?slug=food-security" class="hover:text-white transition">Food Security</a></li>
+            <li><a href="<?= $base ?>projects/index.php" class="hover:text-white transition">All Projects</a></li>
+            <li><a href="<?= $base ?>projects/index.php#active" class="hover:text-white transition">Active Projects</a></li>
+            <li><a href="<?= $base ?>projects/index.php#completed" class="hover:text-white transition">Completed Projects</a></li>
             <li><a href="<?= $base ?>get-involved/index.php" class="hover:text-white transition">Get Involved</a></li>
           </ul>
         </div>

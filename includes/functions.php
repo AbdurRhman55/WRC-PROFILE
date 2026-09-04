@@ -63,7 +63,7 @@ function getById(string $table, int $id): ?array {
     global $pdo;
     $allowed = [
         'programs', 'projects', 'news_articles', 'resources', 'team_members',
-        'history_milestones', 'history_projects', 'partners', 'provinces', 'campaigns', 'contact_submissions',
+        'partners', 'provinces', 'campaigns', 'contact_submissions',
         'newsletter_subscribers', 'donation_tiers', 'bank_accounts', 'job_listings',
         'sdg_goals', 'sdg_contributions', 'impact_stats', 'organizational_structure',
         'hero_sliders', 'homepage_sections', 'site_settings'
@@ -89,7 +89,7 @@ function getRows(string $table, $conditions = [], string $orderBy = 'sort_order 
     global $pdo;
     $allowed = [
         'programs', 'projects', 'news_articles', 'resources', 'team_members',
-        'history_milestones', 'history_projects', 'partners', 'provinces', 'campaigns', 'contact_submissions',
+        'partners', 'provinces', 'campaigns', 'contact_submissions',
         'newsletter_subscribers', 'donation_tiers', 'bank_accounts', 'job_listings',
         'sdg_goals', 'sdg_contributions', 'impact_stats', 'organizational_structure',
         'hero_sliders', 'homepage_sections', 'site_settings', 'program_interventions',
@@ -250,13 +250,6 @@ function getActiveCampaigns(): array {
  */
 function getTeamByRole(string $roleType): array {
     return getRows('team_members', ['is_active' => 1, 'role_type' => $roleType], 'sort_order ASC');
-}
-
-/**
- * Fetch history milestones
- */
-function getHistoryMilestones(): array {
-    return getRows('history_milestones', [], 'sort_order ASC');
 }
 
 /**

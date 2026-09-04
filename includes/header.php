@@ -156,67 +156,16 @@ if (!isset($metaDescription)) $metaDescription = 'World Relief Committee (WRC) i
             <a href="<?= $base ?>our-work/index.php" class="nav-link-item px-2.5 py-2 rounded-lg hover:text-white hover:bg-slate-800/60 transition-all flex items-center gap-1">
               OUR WORK <i class="fa-solid fa-chevron-down text-[8px] opacity-60"></i>
             </a>
-            <div class="dropdown-menu mega-menu mega-menu-full absolute top-full bg-white border border-gray-100 rounded-2xl shadow-xl p-5 text-slate-600">
-              <div class="mb-3 border-b border-gray-200 pb-2 flex justify-between items-center">
-                <span class="text-xs font-bold text-slate-900 uppercase tracking-wider font-heading">Humanitarian Sectors</span>
-                <a href="<?= $base ?>our-work/index.php" class="text-brandRed text-[11px] font-semibold hover:underline">All Programs &rarr;</a>
-              </div>
-              <div class="grid grid-cols-3 gap-2.5">
-                <a href="<?= $base ?>our-work/program.php?slug=health" class="p-2.5 rounded-xl hover:bg-red-50 transition-all border border-transparent hover:border-brandRed/20">
-                  <div class="font-semibold text-slate-900 text-xs mb-0.5 flex items-center gap-2"><i class="fa-solid fa-heart-pulse text-brandRed"></i> Health</div>
-                  <p class="text-[11px] text-slate-400 font-normal">Free medical camps & emergency healthcare.</p>
-                </a>
-                <a href="<?= $base ?>our-work/program.php?slug=education" class="p-2.5 rounded-xl hover:bg-red-50 transition-all border border-transparent hover:border-brandRed/20">
-                  <div class="font-semibold text-slate-900 text-xs mb-0.5 flex items-center gap-2"><i class="fa-solid fa-graduation-cap text-brandRed"></i> Education</div>
-                  <p class="text-[11px] text-slate-500 font-normal">Schooling kits, orphan care & literacy.</p>
-                </a>
-                <a href="<?= $base ?>our-work/program.php?slug=wash" class="p-2.5 rounded-xl hover:bg-red-50 transition-all border border-transparent hover:border-brandRed/20">
-                  <div class="font-semibold text-slate-900 text-xs mb-0.5 flex items-center gap-2"><i class="fa-solid fa-faucet-drip text-brandRed"></i> WASH</div>
-                  <p class="text-[11px] text-slate-500 font-normal">Water, sanitation & hygiene projects.</p>
-                </a>
-                <a href="<?= $base ?>our-work/program.php?slug=food-security" class="p-2.5 rounded-xl hover:bg-red-50 transition-all border border-transparent hover:border-brandRed/20">
-                  <div class="font-semibold text-slate-900 text-xs mb-0.5 flex items-center gap-2"><i class="fa-solid fa-bowl-food text-brandRed"></i> Food Security</div>
-                  <p class="text-[11px] text-slate-500 font-normal">Emergency food ration packs.</p>
-                </a>
-                <a href="<?= $base ?>our-work/program.php?slug=nutrition" class="p-2.5 rounded-xl hover:bg-red-50 transition-all border border-transparent hover:border-brandRed/20">
-                  <div class="font-semibold text-slate-900 text-xs mb-0.5 flex items-center gap-2"><i class="fa-solid fa-apple-whole text-brandRed"></i> Nutrition</div>
-                  <p class="text-[11px] text-slate-500 font-normal">Child & maternal malnutrition care.</p>
-                </a>
-                <a href="<?= $base ?>our-work/program.php?slug=livelihood" class="p-2.5 rounded-xl hover:bg-red-50 transition-all border border-transparent hover:border-brandRed/20">
-                  <div class="font-semibold text-slate-900 text-xs mb-0.5 flex items-center gap-2"><i class="fa-solid fa-briefcase text-brandRed"></i> Livelihood</div>
-                  <p class="text-[11px] text-slate-500 font-normal">Skill development & micro-enterprises.</p>
-                </a>
-                <a href="<?= $base ?>our-work/program.php?slug=emergency-response" class="p-2.5 rounded-xl hover:bg-red-50 transition-all border border-transparent hover:border-brandRed/20">
-                  <div class="font-semibold text-slate-900 text-xs mb-0.5 flex items-center gap-2"><i class="fa-solid fa-truck-medical text-brandRed"></i> Emergency Response</div>
-                  <p class="text-[11px] text-slate-500 font-normal">Immediate disaster & crisis relief.</p>
-                </a>
-                <a href="<?= $base ?>our-work/program.php?slug=disaster-risk-reduction" class="p-2.5 rounded-xl hover:bg-red-50 transition-all border border-transparent hover:border-brandRed/20">
-                  <div class="font-semibold text-slate-900 text-xs mb-0.5 flex items-center gap-2"><i class="fa-solid fa-triangle-exclamation text-brandRed"></i> DRR</div>
-                  <p class="text-[11px] text-slate-500 font-normal">Disaster Risk Reduction & readiness.</p>
-                </a>
-                <a href="<?= $base ?>our-work/program.php?slug=climate-resilience" class="p-2.5 rounded-xl hover:bg-red-50 transition-all border border-transparent hover:border-brandRed/20">
-                  <div class="font-semibold text-slate-900 text-xs mb-0.5 flex items-center gap-2"><i class="fa-solid fa-leaf text-brandRed"></i> Climate Resilience</div>
-                  <p class="text-[11px] text-slate-500 font-normal">Green energy & environmental protection.</p>
-                </a>
-              </div>
-            </div>
-          </div>
-
-          <!-- 4. PROJECTS -->
-          <div class="nav-item-dropdown">
-            <a href="<?= $base ?>projects/index.php" class="nav-link-item px-2.5 py-2 rounded-lg hover:text-white hover:bg-slate-800/60 transition-all flex items-center gap-1">
-              PROJECTS <i class="fa-solid fa-chevron-down text-[8px] opacity-60"></i>
-            </a>
             <div class="dropdown-menu absolute top-full left-0 w-56 bg-white border border-gray-100 rounded-2xl shadow-xl p-2 text-slate-600 text-xs">
+              <a href="<?= $base ?>projects/index.php" class="block px-3 py-2 rounded-xl hover:bg-slate-800 hover:text-white transition-colors"><i class="fa-solid fa-folder-open mr-2 text-slate-400"></i> All Projects</a>
               <a href="<?= $base ?>projects/index.php#active" class="block px-3 py-2 rounded-xl hover:bg-slate-800 hover:text-white transition-colors"><i class="fa-solid fa-spinner mr-2 text-slate-400"></i> Active Projects</a>
               <a href="<?= $base ?>projects/index.php#completed" class="block px-3 py-2 rounded-xl hover:bg-slate-800 hover:text-white transition-colors"><i class="fa-solid fa-circle-check mr-2 text-slate-400"></i> Completed Projects</a>
-              <a href="<?= $base ?>projects/index.php#portfolio" class="block px-3 py-2 rounded-xl hover:bg-slate-800 hover:text-white transition-colors"><i class="fa-solid fa-folder-open mr-2 text-slate-400"></i> Project Portfolio</a>
-              <a href="<?= $base ?>projects/index.php#stories" class="block px-3 py-2 rounded-xl hover:bg-slate-800 hover:text-white transition-colors"><i class="fa-solid fa-star mr-2 text-slate-400"></i> Success Stories</a>
+              <a href="<?= $base ?>our-work/index.php" class="block px-3 py-2 rounded-xl hover:bg-slate-800 hover:text-white transition-colors"><i class="fa-solid fa-info-circle mr-2 text-slate-400"></i> About Our Work</a>
               <a href="<?= $base ?>projects/index.php#dashboard" class="block px-3 py-2 rounded-xl hover:bg-slate-800 hover:text-white transition-colors"><i class="fa-solid fa-chart-line mr-2 text-slate-400"></i> Project Dashboard</a>
             </div>
           </div>
 
-          <!-- 5. WHERE WE WORK -->
+          <!-- 4. WHERE WE WORK -->
           <div class="nav-item-dropdown">
             <a href="<?= $base ?>where-we-work/index.php" class="nav-link-item px-2.5 py-2 rounded-lg hover:text-white hover:bg-slate-800/60 transition-all flex items-center gap-1">
               WHERE WE WORK <i class="fa-solid fa-chevron-down text-[8px] opacity-60"></i>
@@ -360,16 +309,10 @@ if (!isset($metaDescription)) $metaDescription = 'World Relief Committee (WRC) i
           <i class="acc-icon fa-solid fa-chevron-down"></i>
         </button>
         <div class="mobile-tray-submenu"><div>
-          <a href="<?= $base ?>our-work/program.php?slug=health">Health</a>
-          <a href="<?= $base ?>our-work/program.php?slug=education">Education</a>
-          <a href="<?= $base ?>our-work/program.php?slug=wash">WASH</a>
-          <a href="<?= $base ?>our-work/program.php?slug=food-security">Food Security</a>
-          <a href="<?= $base ?>our-work/program.php?slug=nutrition">Nutrition</a>
-          <a href="<?= $base ?>our-work/program.php?slug=livelihood">Livelihood</a>
-          <a href="<?= $base ?>our-work/program.php?slug=emergency-response">Emergency Response</a>
-          <a href="<?= $base ?>our-work/program.php?slug=disaster-risk-reduction">Disaster Risk Reduction</a>
-          <a href="<?= $base ?>our-work/program.php?slug=climate-resilience">Climate Resilience</a>
-          <a href="<?= $base ?>our-work/index.php" class="font-semibold" style="color:#ca0000">All Programs &rarr;</a>
+          <a href="<?= $base ?>our-work/index.php">About Our Work</a>
+          <a href="<?= $base ?>projects/index.php">All Projects</a>
+          <a href="<?= $base ?>projects/index.php#active">Active Projects</a>
+          <a href="<?= $base ?>projects/index.php#completed">Completed Projects</a>
         </div></div>
 
         <button class="mobile-tray-accordion-btn" data-delay="0.15">

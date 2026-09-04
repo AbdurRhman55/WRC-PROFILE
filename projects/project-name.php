@@ -19,7 +19,6 @@ if (!$project) {
 }
 
 $base = '../';
-$program = $project['program_id'] ? getRow('programs', ['id' => $project['program_id']]) : null;
 
 // Parse JSON fields
 $objectives = json_decode($project['objectives'], true) ?? [];
@@ -29,7 +28,6 @@ $gallery = json_decode($project['gallery_images'], true) ?? [];
 $relatedProjects = json_decode($project['related_projects'], true) ?? [];
 
 // Fetch related data from dedicated tables
-$interventions = getRows('program_interventions', ['program_id' => $project['program_id']], 'sort_order ASC');
 $donors = getRows('project_donors', ['project_id' => $project['id']], 'sort_order ASC');
 
 // Fetch related projects
@@ -281,54 +279,19 @@ include dirname(__DIR__) . '/includes/header.php';
             <div class="space-y-3">
               <?php foreach ($donors as $donor): ?>
               <div class="flex items-center gap-3 p-3 bg-red-50 border border-brandRed/10 rounded-xl">
-                <?php if (!empty($donor['logo_path'])): ?>
-                <img src="<?= $base ?><?= $donor['logo_path'] ?>" alt="<?= sanitize($donor['name']) ?>" class="w-10 h-10 rounded-lg object-contain bg-white">
-                <?php else: ?>
                 <div class="w-10 h-10 rounded-lg bg-brandRed/10 flex items-center justify-center"><i class="fa-solid fa-building text-brandRed text-sm"></i></div>
-                <?php endif; ?>
-                <div>
-                  <span class="text-xs font-bold text-slate-900 block"><?= sanitize($donor['name']) ?></span>
-                  <?php if (!empty($donor['type'])): ?>
-                  <span class="text-[10px] text-slate-500"><?= sanitize($donor['type']) ?></span>
+                <div class="flex-1 min-w-0">
+                  <span class="text-xs font-bold text-slate-900 block truncate"><?= sanitize($donor['donor_name']) ?></span>
+                  <?php if (!empty($donor['donor_type'])): ?>
+                  <span class="text-[10px] text-slate-500"><?= sanitize($donor['donor_type']) ?></span>
                   <?php endif; ?>
                 </div>
+                <?php if (!empty($donor['amount'])): ?>
+                <span class="text-[10px] font-bold text-green-700 whitespace-nowrap">$<?= number_format($donor['amount'], 0) ?></span>
+                <?php endif; ?>
               </div>
               <?php endforeach; ?>
             </div>
-          </div>
-          <?php endif; ?>
-
-          <!-- Program Interventions -->
-          <?php if (!empty($interventions)): ?>
-          <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm space-y-4">
-            <div class="flex items-center gap-2.5 mb-2">
-              <i class="fa-solid fa-list-check text-brandRed"></i>
-              <h4 class="font-bold text-slate-900 text-sm font-display">Key Interventions</h4>
-            </div>
-            <div class="space-y-2">
-              <?php foreach ($interventions as $intervention): ?>
-              <div class="flex items-start gap-2.5 text-xs text-slate-600">
-                <i class="fa-solid fa-check text-brandRed mt-0.5 shrink-0"></i>
-                <span><?= sanitize($intervention['title']) ?></span>
-              </div>
-              <?php endforeach; ?>
-            </div>
-          </div>
-          <?php endif; ?>
-
-          <!-- Program Connection -->
-          <?php if ($program): ?>
-          <div class="bg-slate-900 text-white p-6 rounded-2xl border border-slate-800 shadow-lg space-y-4">
-            <div class="w-10 h-10 rounded-xl bg-brandRed text-white flex items-center justify-center text-lg">
-              <i class="<?= $program['icon_class'] ?>"></i>
-            </div>
-            <h4 class="font-bold text-white text-base font-display">Part of <?= sanitize($program['title']) ?></h4>
-            <p class="text-slate-300 text-xs leading-relaxed">
-              <?= sanitize($program['short_description']) ?>
-            </p>
-            <a href="<?= $base ?>our-work/program.php?slug=<?= $program['slug'] ?>" class="block w-full text-center bg-brandRed hover:bg-brandRed-hover text-white text-xs font-bold py-3 rounded-xl transition uppercase tracking-wider">
-              Explore <?= sanitize($program['title']) ?>
-            </a>
           </div>
           <?php endif; ?>
 
@@ -340,7 +303,7 @@ include dirname(__DIR__) . '/includes/header.php';
             <p class="text-slate-600 text-xs leading-relaxed">
               For partnership inquiries, media requests, or reporting related to this project, please reach out to our project coordination team.
             </p>
-            <a href="<?= $base ?>contact/index.html" class="block w-full text-center border-2 border-slate-200 hover:border-brandRed hover:bg-red-50 text-slate-700 text-xs font-bold py-3 rounded-xl transition uppercase tracking-wider">
+            <a href="<?= $base ?>contact/index.php" class="block w-full text-center border-2 border-slate-200 hover:border-brandRed hover:bg-red-50 text-slate-700 text-xs font-bold py-3 rounded-xl transition uppercase tracking-wider">
               Contact Project Office
             </a>
           </div>
@@ -361,7 +324,6 @@ include dirname(__DIR__) . '/includes/header.php';
       </div>
       <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
         <?php foreach ($relProjects as $rel): ?>
-        <?php $relProg = $rel['program_id'] ? getRow('programs', ['id' => $rel['program_id']]) : null; ?>
         <a href="project-name.php?slug=<?= $rel['slug'] ?>" class="group bg-white rounded-2xl border border-slate-200/80 overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
           <div class="relative h-48 overflow-hidden">
             <img src="<?= $base ?><?= $rel['hero_image'] ?>" alt="<?= sanitize($rel['title']) ?>" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
@@ -371,8 +333,8 @@ include dirname(__DIR__) . '/includes/header.php';
           </div>
           <div class="p-5">
             <div class="flex items-center gap-2 mb-2">
-              <i class="<?= $relProg['icon_class'] ?? 'fa-solid fa-folder' ?> text-brandRed text-[11px]"></i>
-              <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400"><?= $relProg ? sanitize($relProg['title']) : 'Project' ?></span>
+              <i class="fa-solid fa-folder text-brandRed text-[11px]"></i>
+              <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Project</span>
             </div>
             <h3 class="font-bold text-slate-900 text-sm mb-2 group-hover:text-brandRed transition-colors"><?= sanitize($rel['title']) ?></h3>
             <p class="text-xs text-slate-500 leading-relaxed line-clamp-2"><?= sanitize($rel['description']) ?></p>

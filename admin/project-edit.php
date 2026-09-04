@@ -40,7 +40,6 @@ if ($isEdit) {
     $pageTitle = 'Edit Project: ' . $project['title'];
 }
 
-$programs = getRows('programs', ['is_active' => 1], 'sort_order ASC');
 $provinces = getRows('provinces', ['is_active' => 1], 'sort_order ASC');
 
 if (isPost()) {
@@ -52,7 +51,6 @@ if (isPost()) {
     $title = getPost('title');
     $slug = getPost('slug');
     $status = getPost('status');
-    $program_id = getPost('program_id') ? (int) getPost('program_id') : null;
     $province_id = getPost('province_id') ? (int) getPost('province_id') : null;
     $start_date = getPost('start_date') ?: null;
     $end_date = getPost('end_date') ?: null;
@@ -71,6 +69,7 @@ if (isPost()) {
     $gallery_images = getPostRaw('gallery_images');
     $related_projects = getPostRaw('related_projects');
     $is_active = isset($_POST['is_active']) ? 1 : 0;
+    $show_in_history = isset($_POST['show_in_history']) ? 1 : 0;
     $sort_order = (int) getPost('sort_order');
 
     if (empty($title)) $errors[] = 'Title is required.';
@@ -97,12 +96,12 @@ if (isPost()) {
         $related_projects_json = !empty($related_projects) ? $related_projects : null;
 
         if ($isEdit) {
-            $stmt = $pdo->prepare("UPDATE projects SET slug=?, title=?, status=?, program_id=?, province_id=?, start_date=?, end_date=?, budget_amount=?, budget_currency=?, beneficiaries_count=?, progress_percent=?, description=?, overview=?, location_details=?, hero_image=?, overview_image=?, objectives=?, target_groups=?, timeline=?, gallery_images=?, related_projects=?, is_active=?, sort_order=? WHERE id=?");
-            $stmt->execute([$slug, $title, $status, $program_id, $province_id, $start_date, $end_date, $budget_amount, $budget_currency, $beneficiaries_count, $progress_percent, $description, $overview, $location_details, $hero_image, $overview_image, $objectives_json, $target_groups_json, $timeline_json, $gallery_images_json, $related_projects_json, $is_active, $sort_order, $project['id']]);
+            $stmt = $pdo->prepare("UPDATE projects SET slug=?, title=?, status=?, province_id=?, start_date=?, end_date=?, budget_amount=?, budget_currency=?, beneficiaries_count=?, progress_percent=?, description=?, overview=?, location_details=?, hero_image=?, overview_image=?, objectives=?, target_groups=?, timeline=?, gallery_images=?, related_projects=?, is_active=?, show_in_history=?, sort_order=? WHERE id=?");
+            $stmt->execute([$slug, $title, $status, $province_id, $start_date, $end_date, $budget_amount, $budget_currency, $beneficiaries_count, $progress_percent, $description, $overview, $location_details, $hero_image, $overview_image, $objectives_json, $target_groups_json, $timeline_json, $gallery_images_json, $related_projects_json, $is_active, $show_in_history, $sort_order, $project['id']]);
             setFlash('success', 'Project updated successfully.');
         } else {
-            $stmt = $pdo->prepare("INSERT INTO projects (slug, title, status, program_id, province_id, start_date, end_date, budget_amount, budget_currency, beneficiaries_count, progress_percent, description, overview, location_details, hero_image, overview_image, objectives, target_groups, timeline, gallery_images, related_projects, is_active, sort_order) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-            $stmt->execute([$slug, $title, $status, $program_id, $province_id, $start_date, $end_date, $budget_amount, $budget_currency, $beneficiaries_count, $progress_percent, $description, $overview, $location_details, $hero_image, $overview_image, $objectives_json, $target_groups_json, $timeline_json, $gallery_images_json, $related_projects_json, $is_active, $sort_order]);
+            $stmt = $pdo->prepare("INSERT INTO projects (slug, title, status, province_id, start_date, end_date, budget_amount, budget_currency, beneficiaries_count, progress_percent, description, overview, location_details, hero_image, overview_image, objectives, target_groups, timeline, gallery_images, related_projects, is_active, show_in_history, sort_order) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+            $stmt->execute([$slug, $title, $status, $province_id, $start_date, $end_date, $budget_amount, $budget_currency, $beneficiaries_count, $progress_percent, $description, $overview, $location_details, $hero_image, $overview_image, $objectives_json, $target_groups_json, $timeline_json, $gallery_images_json, $related_projects_json, $is_active, $show_in_history, $sort_order]);
             setFlash('success', 'Project created successfully.');
         }
         redirect('projects.php');
@@ -155,15 +154,6 @@ include __DIR__ . '/includes/header.php';
           <option value="active" <?= ($project['status'] ?? '') === 'active' ? 'selected' : '' ?>>Active</option>
           <option value="completed" <?= ($project['status'] ?? '') === 'completed' ? 'selected' : '' ?>>Completed</option>
           <option value="upcoming" <?= ($project['status'] ?? '') === 'upcoming' ? 'selected' : '' ?>>Upcoming</option>
-        </select>
-      </div>
-      <div>
-        <label class="block text-sm font-medium text-slate-700 mb-1">Program</label>
-        <select name="program_id" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-brandRed/20 focus:border-brandRed">
-          <option value="">-- None --</option>
-          <?php foreach ($programs as $prog): ?>
-          <option value="<?= $prog['id'] ?>" <?= ($project['program_id'] ?? '') == $prog['id'] ? 'selected' : '' ?>><?= htmlspecialchars($prog['title']) ?></option>
-          <?php endforeach; ?>
         </select>
       </div>
       <div>
@@ -320,6 +310,12 @@ include __DIR__ . '/includes/header.php';
         <label class="flex items-center gap-3 cursor-pointer">
           <input type="checkbox" name="is_active" value="1" <?= ($project['is_active'] ?? 1) ? 'checked' : '' ?> class="w-4 h-4 rounded border-slate-300 text-brandRed focus:ring-brandRed/20">
           <span class="text-sm font-medium text-slate-700">Active</span>
+        </label>
+      </div>
+      <div class="flex items-end">
+        <label class="flex items-center gap-3 cursor-pointer">
+          <input type="checkbox" name="show_in_history" value="1" <?= ($project['show_in_history'] ?? 1) ? 'checked' : '' ?> class="w-4 h-4 rounded border-slate-300 text-brandRed focus:ring-brandRed/20">
+          <span class="text-sm font-medium text-slate-700">Show on History Page</span>
         </label>
       </div>
     </div>
