@@ -130,7 +130,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Map folders to nav text labels
   const folderNavMap = {
-    'about': 'ABOUT US'
+    'about': 'ABOUT US',
+    'our-work': 'OUR WORK',
+    'projects': 'PROJECTS',
+    'where-we-work': 'WHERE WE WORK',
+    'impact': 'IMPACT',
+    'resources': 'RESOURCES',
+    'news': 'NEWS & MEDIA',
+    'get-involved': 'GET INVOLVED',
+    'contact': 'CONTACT'
   };
 
   let activeFound = false;
@@ -172,11 +180,11 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!href) return;
     const cleanHref = href.replace(/^\.\.\//, '').replace(/^\.\//, '');
 
-    // Folder-based match for about pages
-    if (currentFolder && currentFolder === 'about' && href.includes('about/')) {
+    // Folder-based match for all pages
+    if (currentFolder && folderNavMap[currentFolder] && href.includes(currentFolder + '/')) {
       link.classList.add('active-link');
       trayActiveFound = true;
-      // Open the ABOUT US accordion if it exists
+      // Open the parent accordion if it exists
       const accBtn = link.closest('.mobile-tray-submenu')?.previousElementSibling;
       if (accBtn && accBtn.classList.contains('mobile-tray-accordion-btn')) {
         accBtn.classList.add('open');
@@ -369,136 +377,185 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // --- WRC Program Detail Page Hydration ---
-  const programPage = document.getElementById('program-detail-page');
-  if (programPage && typeof WRC_PROGRAMS !== 'undefined') {
-    const slug = programPage.getAttribute('data-slug');
-    const program = WRC_PROGRAMS.find(p => p.slug === slug);
-    
-    if (program) {
-      // Populate Breadcrumbs
-      const breadcrumb = document.getElementById('program-breadcrumbs');
-      if (breadcrumb) {
-        breadcrumb.innerHTML = `
-          <div class="breadcrumb-item"><a href="../index.html">Home</a></div>
-          <div class="breadcrumb-separator"><i class="fa-solid fa-chevron-right text-[10px]"></i></div>
-          <div class="breadcrumb-item"><a href="index.html">Our Work</a></div>
-          <div class="breadcrumb-separator"><i class="fa-solid fa-chevron-right text-[10px]"></i></div>
-          <div class="breadcrumb-item text-slate-900 font-medium">${program.title}</div>
-        `;
-      }
-      
-      // Populate Hero Section
-      const heroTitle = document.getElementById('program-hero-title');
-      const heroDesc = document.getElementById('program-hero-desc');
-      const heroBg = document.getElementById('program-hero-bg');
-      if (heroTitle) heroTitle.textContent = program.fullTitle || program.title;
-      if (heroDesc) heroDesc.textContent = program.heroDescription;
-      if (heroBg) {
-        heroBg.style.backgroundImage = `url('${program.heroImage}')`;
-      }
-      
-      // Populate Overview & Why It Matters
-      const overviewText = document.getElementById('program-overview-text');
-      const whyText = document.getElementById('program-why-text');
-      const sideImage = document.getElementById('program-side-image');
-      if (overviewText) overviewText.textContent = program.overview;
-      if (whyText) whyText.textContent = program.whyItMatters;
-      if (sideImage) {
-        sideImage.src = program.heroImage;
-        sideImage.alt = program.title;
-      }
-      
-      // Populate Focus Areas
-      const focusAreasList = document.getElementById('program-focus-areas');
-      if (focusAreasList && program.focusAreas) {
-        focusAreasList.innerHTML = program.focusAreas.map(area => `
-          <span class="px-3 py-1.5 bg-slate-100 text-slate-800 text-xs font-semibold rounded-full border border-slate-200">${area}</span>
-        `).join('');
-      }
-      
-      // Populate Interventions (What We Do)
-      const interventionsGrid = document.getElementById('program-interventions');
-      if (interventionsGrid && program.interventions) {
-        interventionsGrid.innerHTML = program.interventions.map(item => `
-          <div class="p-6 bg-slate-50 rounded-2xl border border-slate-200/60 shadow-sm hover:shadow-md transition-shadow">
-            <div class="w-12 h-12 rounded-xl bg-red-50 text-brandRed flex items-center justify-center text-xl mb-4">
-              <i class="${item.icon}"></i>
-            </div>
-            <h4 class="font-bold text-slate-900 mb-2 text-sm">${item.title}</h4>
-            <p class="text-xs text-slate-600 leading-relaxed">${item.description}</p>
-          </div>
-        `).join('');
-      }
-      
-      // Populate Who We Serve (Target Groups)
-      const targetGroupsList = document.getElementById('program-target-groups');
-      if (targetGroupsList && program.targetGroups) {
-        targetGroupsList.innerHTML = program.targetGroups.map(group => `
-          <span class="px-4 py-2 bg-red-50 text-brandRed text-xs font-semibold rounded-full border border-red-100 flex items-center gap-1.5">
-            <i class="fa-solid fa-circle text-[6px]"></i> ${group}
-          </span>
-        `).join('');
-      }
-      
-      // Populate Projects list
-      const projectsGrid = document.getElementById('program-projects');
-      if (projectsGrid) {
-        projectsGrid.innerHTML = `
-          <div class="bg-white rounded-3xl border border-slate-200/60 shadow-sm overflow-hidden flex flex-col justify-between group hover:shadow-xl transition-all duration-300 max-w-md mx-auto lg:mx-0">
-            <div class="relative h-52 overflow-hidden">
-              <img src="${program.heroImage}" alt="${program.title} Project" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
-              <span class="absolute top-4 left-4 text-[10px] font-bold uppercase tracking-wider px-3 py-1.5 bg-brandRed text-white rounded-full shadow-md">Active</span>
-            </div>
-            <div class="p-6 flex-grow flex flex-col justify-between">
-              <div>
-                <div class="flex items-center gap-2 text-slate-500 text-[10px] uppercase font-bold tracking-wider mb-2">
-                  <i class="${program.icon} text-brandRed"></i> ${program.title}
-                </div>
-                <h3 class="text-lg font-bold text-slate-900 font-heading mb-3 group-hover:text-brandRed transition-colors">Emergency ${program.title} Support Project</h3>
-                <p class="text-xs text-slate-600 leading-relaxed mb-6">Implementing key intervention services to support local community requirements and enhance long-term resilience.</p>
-              </div>
-              <div class="pt-4 border-t border-slate-100 flex items-center justify-between">
-                <span class="text-[10px] font-bold text-slate-500 uppercase"><i class="fa-solid fa-location-dot"></i> KP Province</span>
-                <a href="../projects/project-name.html" class="text-brandRed hover:text-brandRed-hover text-xs font-semibold hover:underline flex items-center gap-1">
-                  View Project &rarr;
-                </a>
-              </div>
-            </div>
-          </div>
-        `;
-      }
-      
-      // Populate Related Programs
-      const relatedGrid = document.getElementById('program-related');
-      if (relatedGrid && program.relatedPrograms) {
-        const related = program.relatedPrograms.map(rSlug => {
-          return WRC_PROGRAMS.find(p => p.slug === rSlug);
-        }).filter(Boolean);
-        
-        relatedGrid.innerHTML = related.map(rel => `
-          <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm hover:shadow-md transition-shadow flex flex-col justify-between group">
-            <div>
-              <div class="flex items-center gap-3 mb-4">
-                <div class="w-10 h-10 rounded-xl bg-slate-50 text-slate-700 flex items-center justify-center text-base group-hover:bg-brandRed group-hover:text-white transition-colors">
-                  <i class="${rel.icon}"></i>
-                </div>
-                <h4 class="font-bold text-slate-900 text-sm font-heading">${rel.title}</h4>
-              </div>
-              <p class="text-xs text-slate-600 leading-relaxed mb-6">${rel.description}</p>
-            </div>
-            <a href="${rel.slug}.html" class="text-brandRed hover:text-brandRed-hover text-xs font-semibold uppercase tracking-wider flex items-center gap-1.5">
-              Explore Sector <i class="fa-solid fa-arrow-right text-[10px]"></i>
-            </a>
-          </div>
-        `).join('');
-      }
+  // --- WRC Program Detail Page ---
+  // Program detail is now fully server-side rendered via PHP
+  // The old JS hydration from WRC_PROGRAMS has been removed to prevent overriding DB content
 
-      // Populate CTA Section title
-      const ctaBtn = document.getElementById('program-cta-btn');
-      if (ctaBtn) {
-        ctaBtn.innerHTML = `<i class="fa-solid fa-handshake"></i> Support ${program.title} Initiatives`;
-      }
+  // --- 8. Hero Slider Auto-Rotation ---
+  const heroSlider = document.querySelector('.hero-slider');
+  if (heroSlider) {
+    const slides = heroSlider.querySelectorAll('.hero-slide');
+    const dots = heroSlider.querySelectorAll('.hero-dot');
+    const prevBtn = heroSlider.querySelector('.hero-prev');
+    const nextBtn = heroSlider.querySelector('.hero-next');
+    let currentSlide = 0;
+    let autoSlideInterval;
+
+    function goToSlide(index) {
+      slides.forEach((s, i) => {
+        s.style.transform = `translateX(${(i - index) * 100}%)`;
+        s.style.opacity = i === index ? '1' : '0';
+        s.style.zIndex = i === index ? '1' : '0';
+      });
+      dots.forEach((d, i) => {
+        d.classList.toggle('bg-white', i === index);
+        d.classList.toggle('bg-white/50', i !== index);
+      });
+      currentSlide = index;
+    }
+
+    function nextSlide() {
+      goToSlide((currentSlide + 1) % slides.length);
+    }
+
+    function prevSlide() {
+      goToSlide((currentSlide - 1 + slides.length) % slides.length);
+    }
+
+    function startAutoSlide() {
+      autoSlideInterval = setInterval(nextSlide, 5000);
+    }
+
+    function stopAutoSlide() {
+      clearInterval(autoSlideInterval);
+    }
+
+    if (slides.length > 1) {
+      goToSlide(0);
+      startAutoSlide();
+
+      if (nextBtn) nextBtn.addEventListener('click', () => { stopAutoSlide(); nextSlide(); startAutoSlide(); });
+      if (prevBtn) prevBtn.addEventListener('click', () => { stopAutoSlide(); prevSlide(); startAutoSlide(); });
+      dots.forEach((dot, i) => {
+        dot.addEventListener('click', () => { stopAutoSlide(); goToSlide(i); startAutoSlide(); });
+      });
+
+      // Pause on hover
+      heroSlider.addEventListener('mouseenter', stopAutoSlide);
+      heroSlider.addEventListener('mouseleave', startAutoSlide);
+
+      // Touch/swipe support
+      let touchStartX = 0;
+      heroSlider.addEventListener('touchstart', (e) => { touchStartX = e.touches[0].clientX; stopAutoSlide(); }, { passive: true });
+      heroSlider.addEventListener('touchend', (e) => {
+        const diff = touchStartX - e.changedTouches[0].clientX;
+        if (Math.abs(diff) > 50) { diff > 0 ? nextSlide() : prevSlide(); }
+        startAutoSlide();
+      }, { passive: true });
     }
   }
+
+  // --- 9. News Page Filters ---
+  const newsFilterBtns = document.querySelectorAll('[data-filter]');
+  const newsCards = document.querySelectorAll('[data-category]');
+  if (newsFilterBtns.length > 0 && newsCards.length > 0) {
+    newsFilterBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const filter = btn.getAttribute('data-filter');
+        newsFilterBtns.forEach(b => {
+          b.classList.remove('bg-brandRed', 'text-white');
+          b.classList.add('bg-slate-100', 'text-slate-600');
+        });
+        btn.classList.add('bg-brandRed', 'text-white');
+        btn.classList.remove('bg-slate-100', 'text-slate-600');
+
+        newsCards.forEach(card => {
+          if (filter === 'all' || card.getAttribute('data-category') === filter) {
+            card.style.display = '';
+            card.style.opacity = '0';
+            requestAnimationFrame(() => { card.style.opacity = '1'; card.style.transition = 'opacity 0.3s'; });
+          } else {
+            card.style.display = 'none';
+          }
+        });
+      });
+    });
+  }
+
+  // --- 10. News Modal ---
+  window.openModal = function(title, content, image, date, category) {
+    const modal = document.getElementById('news-modal');
+    if (!modal) return;
+    modal.querySelector('.modal-title').textContent = title || '';
+    modal.querySelector('.modal-content').textContent = content || '';
+    modal.querySelector('.modal-date').textContent = date || '';
+    modal.querySelector('.modal-category').textContent = category || '';
+    const img = modal.querySelector('.modal-image');
+    if (img && image) { img.src = image; img.style.display = ''; }
+    else if (img) { img.style.display = 'none'; }
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+    document.body.style.overflow = 'hidden';
+  };
+
+  window.closeModal = function() {
+    const modal = document.getElementById('news-modal');
+    if (!modal) return;
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
+    document.body.style.overflow = '';
+  };
+
+  // --- 11. Share Functions ---
+  window.sharePost = function(platform, url, title) {
+    const shareUrls = {
+      facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`,
+      twitter: `https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}&text=${encodeURIComponent(title)}`,
+      linkedin: `https://www.linkedin.com/shareArticle?mini=true&url=${encodeURIComponent(url)}&title=${encodeURIComponent(title)}`,
+      whatsapp: `https://wa.me/?text=${encodeURIComponent(title + ' ' + url)}`
+    };
+    if (shareUrls[platform]) {
+      window.open(shareUrls[platform], '_blank', 'width=600,height=400');
+    }
+  };
+
+  // --- 12. Project Page Filters ---
+  const projectFilterBtns = document.querySelectorAll('.project-filter-btn');
+  const projectCards = document.querySelectorAll('.project-card');
+  if (projectFilterBtns.length > 0 && projectCards.length > 0) {
+    projectFilterBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const filter = btn.getAttribute('data-filter');
+        projectFilterBtns.forEach(b => {
+          b.classList.remove('bg-brandRed', 'text-white');
+          b.classList.add('bg-slate-100', 'text-slate-600');
+        });
+        btn.classList.add('bg-brandRed', 'text-white');
+        btn.classList.remove('bg-slate-100', 'text-slate-600');
+
+        projectCards.forEach(card => {
+          if (filter === 'all' || card.getAttribute('data-sector') === filter) {
+            card.style.display = '';
+          } else {
+            card.style.display = 'none';
+          }
+        });
+      });
+    });
+  }
+
+  // --- 13. Newsletter Subscription Form ---
+  const newsletterForms = document.querySelectorAll('.newsletter-form');
+  newsletterForms.forEach(form => {
+    form.addEventListener('submit', function(e) {
+      e.preventDefault();
+      const email = this.querySelector('input[type="email"]')?.value;
+      if (!email) return;
+      const btn = this.querySelector('button');
+      const originalText = btn?.textContent;
+      if (btn) btn.textContent = 'Subscribing...';
+
+      fetch('includes/newsletter-subscribe.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: 'email=' + encodeURIComponent(email)
+      }).then(r => r.json()).then(data => {
+        if (btn) btn.textContent = data.success ? 'Subscribed!' : 'Try Again';
+        if (data.success) this.reset();
+        setTimeout(() => { if (btn) btn.textContent = originalText; }, 3000);
+      }).catch(() => {
+        if (btn) btn.textContent = originalText;
+      });
+    });
+  });
 });
