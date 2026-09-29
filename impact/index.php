@@ -107,12 +107,12 @@ include dirname(__DIR__) . '/includes/header.php';
 <main class="flex-grow">
 
 <!-- HERO SECTION -->
-<section class="relative w-full bg-slate-900 text-white min-h-[520px] flex items-center overflow-hidden">
+<section class="relative w-full bg-slate-900 text-white min-h-[480px] md:min-h-[540px] lg:min-h-[580px] flex items-center overflow-hidden">
   <div class="absolute inset-0 z-0">
-    <div class="absolute inset-0 opacity-40 mix-blend-luminosity bg-cover bg-center" style="background-image: url('<?= $base ?><?= $heroData['hero_image'] ?? 'assets/images/hero.jpg' ?>');"></div>
-    <div class="absolute inset-0 bg-gradient-to-br from-brandRed/80 via-slate-900/70 to-slate-950/90"></div>
+    <div class="absolute inset-0 opacity-50 bg-cover bg-center" style="background-image: url('<?= $base ?><?= $heroData['hero_image'] ?? 'assets/images/impact-hero.jpg' ?>');"></div>
+    <div class="absolute inset-0 bg-gradient-to-br from-brandRed/60 via-slate-900/50 to-slate-950/80"></div>
   </div>
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full py-20 lg:py-28">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full py-16 md:py-20 lg:py-24">
     <div class="max-w-3xl">
       <nav class="text-xs text-slate-400 mb-6 flex items-center gap-2">
         <a href="<?= $base ?>index.php" class="hover:text-white transition">Home</a>

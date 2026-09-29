@@ -77,13 +77,13 @@ switch ($formType) {
 $message = implode("\n", $messageParts);
 
 insertRow('contact_submissions', [
-    'name' => $name,
+    'full_name' => $name,
     'email' => $email,
     'subject' => $subject,
     'message' => $message,
-    'type' => $formType,
+    'inquiry_type' => 'general',
     'phone' => $phone,
-    'created_at' => date('Y-m-d H:i:s'),
+    'submitted_at' => date('Y-m-d H:i:s'),
 ]);
 
 echo json_encode(['success' => true, 'message' => 'Submitted successfully']);

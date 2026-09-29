@@ -53,7 +53,7 @@ include dirname(__DIR__) . '/includes/header.php';
   <!-- HERO SECTION -->
   <section class="relative w-full min-h-[520px] flex items-center overflow-hidden">
     <div class="absolute inset-0 z-0">
-      <div class="absolute inset-0 opacity-40 mix-blend-luminosity bg-cover bg-center" style="background-image: url('<?= $base ?><?= $heroData['hero_image'] ?? 'assets/images/hero.jpg' ?>');"></div>
+      <div class="absolute inset-0 opacity-40 mix-blend-luminosity bg-cover bg-center" style="background-image: url('<?= $base ?><?= $heroData['hero_image'] ?? 'assets/images/hero/projects-hero.jpg' ?>');"></div>
       <div class="absolute inset-0 bg-gradient-to-r from-slate-900 via-slate-900/80 to-slate-900/40"></div>
     </div>
 

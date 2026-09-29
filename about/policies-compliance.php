@@ -36,7 +36,7 @@ include dirname(__DIR__) . '/includes/header.php';
   <!-- HERO -->
   <section class="relative bg-slate-900 text-white min-h-[420px] flex items-center py-20 overflow-hidden">
     <div class="absolute inset-0 z-0">
-      <img src="<?= $base ?><?= $heroData['hero_image'] ?? 'assets/images/hero.jpg' ?>" alt="WRC Policies" class="w-full h-full object-cover opacity-30 mix-blend-luminosity">
+      <img src="<?= $base ?><?= $heroData['hero_image'] ?? 'assets/images/hero/about-hero.jpg' ?>" alt="WRC Policies" class="w-full h-full object-cover opacity-30 mix-blend-luminosity">
       <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-900/80 to-slate-900/60"></div>
     </div>
     <div class="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">

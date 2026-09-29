@@ -70,10 +70,10 @@ include dirname(__DIR__) . '/includes/header.php';
 <main class="flex-grow">
   
   <!-- HERO SECTION -->
-  <section class="relative bg-slate-900 text-white min-h-[500px] flex items-center py-20 overflow-hidden">
+  <section class="relative bg-slate-900 text-white min-h-[480px] md:min-h-[540px] lg:min-h-[580px] flex items-center py-16 md:py-20 overflow-hidden">
     <div class="absolute inset-0 z-0">
-      <img src="<?= $base ?><?= $heroData['hero_image'] ?? 'assets/images/our-work/our-work-hero.jpg' ?>" alt="<?= sanitize($heroData['hero_alt'] ?? 'Humanitarian Fieldwork in Pakistan') ?>" class="w-full h-full object-cover object-center opacity-40 mix-blend-luminosity">
-      <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-900/80 to-slate-900/60"></div>
+      <img src="<?= $base ?><?= $heroData['hero_image'] ?? 'assets/images/our-work/our-work-hero.jpg' ?>" alt="<?= sanitize($heroData['hero_alt'] ?? 'Humanitarian Fieldwork in Pakistan') ?>" class="w-full h-full object-cover object-center opacity-50">
+      <div class="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-900/40 to-slate-900/30"></div>
     </div>
     
     <div class="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">

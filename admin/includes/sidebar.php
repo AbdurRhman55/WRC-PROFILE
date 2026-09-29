@@ -11,11 +11,10 @@ $navGroups = [
         ['file' => 'projects.php', 'label' => 'Projects', 'icon' => 'fa-folder-open'],
         ['file' => 'news.php', 'label' => 'News & Media', 'icon' => 'fa-newspaper'],
         ['file' => 'success-stories.php', 'label' => 'Success Stories', 'icon' => 'fa-quote-left'],
-        ['file' => 'resources.php', 'label' => 'Resources', 'icon' => 'fa-book'],
+        ['file' => 'resources.php', 'label' => 'Resources', 'icon' => 'fa-folder-open'],
         ['file' => 'hero-sliders.php', 'label' => 'Hero Sliders', 'icon' => 'fa-images'],
     ]],
     ['label' => 'Media', 'items' => [
-        ['file' => 'events.php', 'label' => 'Events', 'icon' => 'fa-calendar-days'],
         ['file' => 'photos.php', 'label' => 'Photo Gallery', 'icon' => 'fa-camera-retro'],
         ['file' => 'videos.php', 'label' => 'Video Gallery', 'icon' => 'fa-video'],
     ]],
@@ -23,9 +22,6 @@ $navGroups = [
         ['file' => 'team.php', 'label' => 'Team Members', 'icon' => 'fa-users'],
         ['file' => 'partners.php', 'label' => 'Partners', 'icon' => 'fa-handshake'],
         ['file' => 'jobs.php', 'label' => 'Job Listings', 'icon' => 'fa-briefcase'],
-    ]],
-    ['label' => 'Impact', 'items' => [
-        ['file' => 'sdg-goals.php', 'label' => 'SDG Goals', 'icon' => 'fa-globe'],
     ]],
     ['label' => 'Locations', 'items' => [
         ['file' => 'provinces.php', 'label' => 'Provinces', 'icon' => 'fa-map-location-dot'],
@@ -37,7 +33,6 @@ $navGroups = [
     ]],
     ['label' => 'Engagement', 'items' => [
         ['file' => 'submissions.php', 'label' => 'Contact Submissions', 'icon' => 'fa-envelope-open-text'],
-        ['file' => 'subscribers.php', 'label' => 'Newsletter', 'icon' => 'fa-mail-bulk'],
     ]],
     ['label' => 'Config', 'items' => [
         ['file' => 'settings.php', 'label' => 'Site Settings', 'icon' => 'fa-gear'],
@@ -60,12 +55,11 @@ $pagesList = [
     'policies-compliance' => ['label' => 'Policies & Compliance', 'sections' => 2],
     'annual-reports' => ['label' => 'Annual Reports', 'sections' => 2],
     'news'           => ['label' => 'News & Media', 'sections' => 1],
-    'resources'      => ['label' => 'Resources', 'sections' => 1],
-    'get-involved'   => ['label' => 'Get Involved', 'sections' => 2],
+    'get-involved'   => ['label' => 'Get Involved', 'sections' => 5],
     'contribute'     => ['label' => 'Contribute With Us', 'sections' => 4],
     'contact'        => ['label' => 'Contact Us', 'sections' => 2],
-    'impact'         => ['label' => 'Impact', 'sections' => 2],
-    'where-we-work'  => ['label' => 'Where We Work', 'sections' => 2],
+    'impact'         => ['label' => 'Impact', 'sections' => 3],
+    'where-we-work'  => ['label' => 'Where We Work', 'sections' => 3],
 ];
 ?>
 

@@ -1,5 +1,5 @@
 <?php
-require __DIR__ . '/config.php';
+require_once __DIR__ . '/config.php';
 requireAdmin();
 
 $success_stories = getRows('success_stories', [], 'sort_order ASC, created_at DESC');
@@ -7,10 +7,14 @@ $sectors = ['health' => 'Health', 'livelihoods' => 'Livelihoods', 'wash' => 'WAS
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_POST['delete_id'])) {
+        if (!isset($_POST['csrf_token']) || !verifyCSRF($_POST['csrf_token'])) {
+            setFlash('error', 'Invalid security token.');
+            redirect('success-stories.php');
+        }
         $id = (int) $_POST['delete_id'];
         $story = getRow('success_stories', ['id' => $id]);
-        if ($story && $story['image_path'] && file_exists(__DIR__ . '/..//' . $story['image_path'])) {
-            unlink(__DIR__ . '/..//' . $story['image_path']);
+        if ($story && $story['image_path'] && file_exists(__DIR__ . '/../' . $story['image_path'])) {
+            unlink(__DIR__ . '/../' . $story['image_path']);
         }
         $pdo->prepare("DELETE FROM success_stories WHERE id = ?")->execute([$id]);
         setFlash('success', 'Success story deleted.');
@@ -86,6 +90,7 @@ include __DIR__ . '/includes/header.php';
             <div class="flex items-center justify-end gap-2">
               <a href="success-story-edit.php?id=<?= $story['id'] ?>" class="px-3 py-1.5 rounded-lg bg-slate-100 text-slate-600 text-xs font-semibold hover:bg-slate-200 transition-colors">Edit</a>
               <form method="POST" onsubmit="return confirm('Delete this story?')">
+                <input type="hidden" name="csrf_token" value="<?= generateCSRF() ?>">
                 <input type="hidden" name="delete_id" value="<?= $story['id'] ?>">
                 <button class="px-3 py-1.5 rounded-lg bg-red-50 text-red-600 text-xs font-semibold hover:bg-red-100 transition-colors">Delete</button>
               </form>

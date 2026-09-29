@@ -4,16 +4,32 @@ requireLogin();
 
 $pageTitle = 'Dashboard';
 
-$totalProjects = count(getRows('projects'));
-$totalNews = count(getRows('news_articles', [], '', 0));
-$totalResources = count(getRows('resources'));
-$totalTeam = count(getRows('team_members'));
-$totalCampaigns = count(getRows('campaigns'));
-$totalPartners = count(getRows('partners'));
-$totalSliders = count(getRows('hero_sliders'));
-$totalSubmissions = count(getRows('contact_submissions', [], '', 0));
-$totalSubscribers = count(getRows('newsletter_subscribers', [], '', 0));
-$newSubmissions = count(getRows('contact_submissions', ['status' => 'new'], '', 0));
+function countRows(string $table, array $conditions = []): int {
+    global $pdo;
+    $sql = "SELECT COUNT(*) FROM `{$table}`";
+    $params = [];
+    if (!empty($conditions)) {
+        $wheres = [];
+        foreach ($conditions as $col => $val) {
+            $wheres[] = "`{$col}` = ?";
+            $params[] = $val;
+        }
+        $sql .= " WHERE " . implode(' AND ', $wheres);
+    }
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute($params);
+    return (int) $stmt->fetchColumn();
+}
+
+$totalProjects = countRows('projects');
+$totalNews = countRows('news_articles');
+$totalResources = countRows('resources');
+$totalTeam = countRows('team_members');
+$totalCampaigns = countRows('campaigns');
+$totalPartners = countRows('partners');
+$totalSliders = countRows('hero_sliders');
+$totalSubmissions = countRows('contact_submissions');
+$newSubmissions = countRows('contact_submissions', ['status' => 'new']);
 
 $recentNews = getRows('news_articles', [], 'created_at DESC', 5);
 $recentProjects = getRows('projects', [], 'created_at DESC', 5);
@@ -153,12 +169,6 @@ include __DIR__ . '/includes/header.php';
       <p class="text-xs text-slate-400 font-medium uppercase tracking-wider">Partners</p>
       <p class="text-xl font-bold text-slate-900 mt-0.5 flex items-center justify-center gap-1.5">
         <i class="fa-solid fa-handshake text-teal-500 text-sm"></i> <?= $totalPartners ?>
-      </p>
-    </a>
-    <a href="subscribers.php" class="flex-1 min-w-[140px] pt-3 sm:pt-0 text-center hover:opacity-80 transition-opacity">
-      <p class="text-xs text-slate-400 font-medium uppercase tracking-wider">Subscribers</p>
-      <p class="text-xl font-bold text-slate-900 mt-0.5 flex items-center justify-center gap-1.5">
-        <i class="fa-solid fa-mail-bulk text-indigo-500 text-sm"></i> <?= $totalSubscribers ?>
       </p>
     </a>
   </div>

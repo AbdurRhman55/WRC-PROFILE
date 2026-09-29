@@ -4,6 +4,10 @@ requireLogin();
 
 // Handle donor sub-table operations
 if (isPost() && isset($_POST['add_donor'])) {
+    if (!isset($_POST['csrf_token']) || !verifyCSRF($_POST['csrf_token'])) {
+        setFlash('error', 'Invalid security token.');
+        redirect('projects.php');
+    }
     $projectId = (int) $_GET['id'];
     if (!$projectId) { redirect('projects.php'); }
     $donorName = getPost('donor_name');
@@ -17,6 +21,10 @@ if (isPost() && isset($_POST['add_donor'])) {
 }
 
 if (isPost() && isset($_POST['delete_donor'])) {
+    if (!isset($_POST['csrf_token']) || !verifyCSRF($_POST['csrf_token'])) {
+        setFlash('error', 'Invalid security token.');
+        redirect('projects.php');
+    }
     $donorId = (int) $_POST['donor_id'];
     $projectId = (int) $_GET['id'];
     if ($donorId) {
@@ -51,7 +59,9 @@ if (isPost()) {
     $title = getPost('title');
     $slug = getPost('slug');
     $status = getPost('status');
+    $category = getPost('category');
     $province_id = getPost('province_id') ? (int) getPost('province_id') : null;
+    $district = getPost('district');
     $start_date = getPost('start_date') ?: null;
     $end_date = getPost('end_date') ?: null;
     $budget_amount = getPost('budget_amount') ? (float) getPost('budget_amount') : null;
@@ -74,6 +84,7 @@ if (isPost()) {
 
     if (empty($title)) $errors[] = 'Title is required.';
     if (empty($slug)) $slug = createSlug($title);
+    if (!checkSlugUnique('projects', $slug, $isEdit ? (int) $_GET['id'] : 0)) $errors[] = 'A project with this slug already exists.';
     if (!in_array($status, ['active', 'completed', 'upcoming'])) $errors[] = 'Invalid status.';
 
     foreach (['objectives', 'target_groups', 'timeline', 'gallery_images', 'related_projects'] as $field) {
@@ -96,12 +107,12 @@ if (isPost()) {
         $related_projects_json = !empty($related_projects) ? $related_projects : null;
 
         if ($isEdit) {
-            $stmt = $pdo->prepare("UPDATE projects SET slug=?, title=?, status=?, province_id=?, start_date=?, end_date=?, budget_amount=?, budget_currency=?, beneficiaries_count=?, progress_percent=?, description=?, overview=?, location_details=?, hero_image=?, overview_image=?, objectives=?, target_groups=?, timeline=?, gallery_images=?, related_projects=?, is_active=?, show_in_history=?, sort_order=? WHERE id=?");
-            $stmt->execute([$slug, $title, $status, $province_id, $start_date, $end_date, $budget_amount, $budget_currency, $beneficiaries_count, $progress_percent, $description, $overview, $location_details, $hero_image, $overview_image, $objectives_json, $target_groups_json, $timeline_json, $gallery_images_json, $related_projects_json, $is_active, $show_in_history, $sort_order, $project['id']]);
+            $stmt = $pdo->prepare("UPDATE projects SET slug=?, title=?, status=?, category=?, province_id=?, district=?, start_date=?, end_date=?, budget_amount=?, budget_currency=?, beneficiaries_count=?, progress_percent=?, description=?, overview=?, location_details=?, hero_image=?, overview_image=?, objectives=?, target_groups=?, timeline=?, gallery_images=?, related_projects=?, is_active=?, show_in_history=?, sort_order=? WHERE id=?");
+            $stmt->execute([$slug, $title, $status, $category, $province_id, $district, $start_date, $end_date, $budget_amount, $budget_currency, $beneficiaries_count, $progress_percent, $description, $overview, $location_details, $hero_image, $overview_image, $objectives_json, $target_groups_json, $timeline_json, $gallery_images_json, $related_projects_json, $is_active, $show_in_history, $sort_order, $project['id']]);
             setFlash('success', 'Project updated successfully.');
         } else {
-            $stmt = $pdo->prepare("INSERT INTO projects (slug, title, status, province_id, start_date, end_date, budget_amount, budget_currency, beneficiaries_count, progress_percent, description, overview, location_details, hero_image, overview_image, objectives, target_groups, timeline, gallery_images, related_projects, is_active, show_in_history, sort_order) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-            $stmt->execute([$slug, $title, $status, $province_id, $start_date, $end_date, $budget_amount, $budget_currency, $beneficiaries_count, $progress_percent, $description, $overview, $location_details, $hero_image, $overview_image, $objectives_json, $target_groups_json, $timeline_json, $gallery_images_json, $related_projects_json, $is_active, $show_in_history, $sort_order]);
+            $stmt = $pdo->prepare("INSERT INTO projects (slug, title, status, category, province_id, district, start_date, end_date, budget_amount, budget_currency, beneficiaries_count, progress_percent, description, overview, location_details, hero_image, overview_image, objectives, target_groups, timeline, gallery_images, related_projects, is_active, show_in_history, sort_order) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+            $stmt->execute([$slug, $title, $status, $category, $province_id, $district, $start_date, $end_date, $budget_amount, $budget_currency, $beneficiaries_count, $progress_percent, $description, $overview, $location_details, $hero_image, $overview_image, $objectives_json, $target_groups_json, $timeline_json, $gallery_images_json, $related_projects_json, $is_active, $show_in_history, $sort_order]);
             setFlash('success', 'Project created successfully.');
         }
         redirect('projects.php');
@@ -157,6 +168,18 @@ include __DIR__ . '/includes/header.php';
         </select>
       </div>
       <div>
+        <label class="block text-sm font-medium text-slate-700 mb-1">Category *</label>
+        <select name="category" required class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-brandRed/20 focus:border-brandRed">
+          <option value="">-- Select Category --</option>
+          <?php
+          $categories = ['Health', 'Education', 'WASH', 'Food Security', 'Emergency Response', 'Child Protection', 'Shelter', 'Gender Equality', 'Climate Resilience', 'General'];
+          foreach ($categories as $cat):
+          ?>
+          <option value="<?= $cat ?>" <?= ($project['category'] ?? '') === $cat ? 'selected' : '' ?>><?= $cat ?></option>
+          <?php endforeach; ?>
+        </select>
+      </div>
+      <div>
         <label class="block text-sm font-medium text-slate-700 mb-1">Province</label>
         <select name="province_id" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-brandRed/20 focus:border-brandRed">
           <option value="">-- None --</option>
@@ -164,6 +187,10 @@ include __DIR__ . '/includes/header.php';
           <option value="<?= $prov['id'] ?>" <?= ($project['province_id'] ?? '') == $prov['id'] ? 'selected' : '' ?>><?= htmlspecialchars($prov['name']) ?></option>
           <?php endforeach; ?>
         </select>
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-slate-700 mb-1">District</label>
+        <input type="text" name="district" value="<?= htmlspecialchars($project['district'] ?? '') ?>" placeholder="e.g. Peshawar" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-brandRed/20 focus:border-brandRed">
       </div>
       <div>
         <label class="block text-sm font-medium text-slate-700 mb-1">Location Details</label>

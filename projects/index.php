@@ -25,8 +25,30 @@ $dashRow = getRow('projects_dashboard');
 if ($dashRow) {
     $metricsRows = getRows('projects_dashboard_metrics', ['dashboard_id' => $dashRow['id']], 'sort_order ASC');
     $metrics = array_map(function($m) { return ['icon' => $m['metric_icon'], 'color' => $m['metric_color'], 'label' => $m['metric_label'], 'value' => $m['metric_value']]; }, $metricsRows);
-    $sectorsRows = getRows('projects_dashboard_sectors', ['dashboard_id' => $dashRow['id']], 'sort_order ASC');
-    $sectors = array_map(function($s) { return ['name' => $s['sector_name'], 'color' => $s['sector_color'], 'count' => $s['sector_count'], 'percent' => $s['sector_percent'], 'gradient' => $s['sector_gradient']]; }, $sectorsRows);
+
+    // Dynamic category data from projects table
+    global $pdo;
+    $catColors = [
+        'Health' => '#ef4444', 'Education' => '#3b82f6', 'WASH' => '#06b6d4',
+        'Food Security' => '#f59e0b', 'Emergency Response' => '#dc2626',
+        'Child Protection' => '#a855f7', 'Shelter' => '#f97316',
+        'Gender Equality' => '#ec4899', 'Climate Resilience' => '#10b981',
+        'General' => '#64748b',
+    ];
+    $catStmt = $pdo->query("SELECT category, COUNT(*) as cnt FROM projects WHERE is_active = 1 AND category != '' GROUP BY category ORDER BY cnt DESC");
+    $catRows = $catStmt->fetchAll(PDO::FETCH_ASSOC);
+    $totalCatProjects = array_sum(array_column($catRows, 'cnt'));
+    $sectors = array_map(function($r) use ($catColors, $totalCatProjects) {
+        $cat = $r['category'];
+        $percent = $totalCatProjects > 0 ? round(($r['cnt'] / $totalCatProjects) * 100) : 0;
+        return [
+            'name' => $cat,
+            'color' => $catColors[$cat] ?? '#64748b',
+            'count' => $r['cnt'],
+            'percent' => $percent,
+        ];
+    }, $catRows);
+
     $projSections['projects_dashboard'] = ['section_key' => 'projects_dashboard', 'section_title' => $dashRow['section_title'], 'section_subtitle' => $dashRow['subtitle'] ?? '', 'content' => json_encode(['subtitle' => $dashRow['subtitle'], 'metrics' => $metrics, 'sectors' => $sectors])];
 }
 
@@ -41,6 +63,11 @@ $ctaData = isset($projSections['projects_cta']) ? json_decode($projSections['pro
 // Fetch projects from DB
 $activeProjects = getRows('projects', "status = 'active' ORDER BY sort_order ASC");
 $completedProjects = getRows('projects', "status = 'completed' ORDER BY sort_order ASC");
+
+// Fetch unique categories from DB
+global $pdo;
+$catStmt = $pdo->query("SELECT DISTINCT category FROM projects WHERE is_active = 1 AND category != '' ORDER BY category ASC");
+$projectCategories = $catStmt->fetchAll(PDO::FETCH_COLUMN);
 
 // Compute quick stats
 $totalProjects = count($activeProjects) + count($completedProjects);
@@ -71,12 +98,13 @@ include dirname(__DIR__) . '/includes/header.php';
 <main class="flex-grow">
 
   <!-- HERO SECTION -->
-  <section class="relative w-full min-h-[520px] flex items-center overflow-hidden">
+  <section class="relative w-full min-h-[480px] md:min-h-[540px] lg:min-h-[580px] flex items-center overflow-hidden">
     <div class="absolute inset-0">
-      <img src="<?= $base ?><?= $heroData['hero_image'] ?? 'assets/images/hero.jpg' ?>" alt="<?= sanitize($heroData['hero_alt'] ?? 'WRC Projects') ?>" class="w-full h-full object-cover" />
-      <div class="absolute inset-0 bg-gradient-to-r from-ink-900/95 via-ink-900/80 to-ink-900/60"></div>
+      <img src="<?= $base ?><?= $heroData['hero_image'] ?? 'assets/images/projects-hero.jpg' ?>" alt="<?= sanitize($heroData['hero_alt'] ?? 'WRC Projects') ?>" class="w-full h-full object-cover" />
+      <div class="absolute inset-0 bg-gradient-to-r from-ink-900/80 via-ink-900/50 to-transparent"></div>
+      <div class="absolute inset-0 bg-gradient-to-t from-ink-900/80 via-transparent to-ink-900/30"></div>
     </div>
-    <div class="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+    <div class="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-20 lg:py-24">
       <div class="max-w-2xl">
         <nav class="mb-6 flex items-center gap-2 text-sm text-white/60">
           <a href="<?= $base ?>index.php" class="hover:text-white transition-colors">Home</a>
@@ -129,6 +157,7 @@ include dirname(__DIR__) . '/includes/header.php';
   <!-- FILTER TABS -->
   <section id="portfolio" class="sticky top-20 z-40 bg-white/95 backdrop-blur-md border-b border-gray-100 shadow-sm">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <!-- Status Filters -->
       <div class="flex items-center gap-1 overflow-x-auto py-3 scrollbar-hide">
         <button class="filter-tab active whitespace-nowrap px-4 py-2 text-sm font-semibold text-slate-500 transition-colors rounded-lg hover:bg-gray-50" data-filter="all">
           All Projects
@@ -139,6 +168,12 @@ include dirname(__DIR__) . '/includes/header.php';
         <button class="filter-tab whitespace-nowrap px-4 py-2 text-sm font-semibold text-slate-500 transition-colors rounded-lg hover:bg-gray-50" data-filter="completed">
           <i class="fa-solid fa-circle-check text-[10px] text-teal-500 mr-1.5"></i> Completed
         </button>
+        <div class="w-px h-5 bg-gray-200 mx-2"></div>
+        <?php foreach ($projectCategories as $cat): ?>
+        <button class="category-tab whitespace-nowrap px-3 py-1.5 text-xs font-semibold text-slate-500 transition-colors rounded-full border border-gray-200 hover:border-brandRed hover:text-brandRed hover:bg-red-50" data-category-filter="<?= htmlspecialchars($cat) ?>">
+          <?= htmlspecialchars($cat) ?>
+        </button>
+        <?php endforeach; ?>
       </div>
     </div>
   </section>
@@ -156,8 +191,8 @@ include dirname(__DIR__) . '/includes/header.php';
 
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         <?php foreach ($activeProjects as $project): ?>
-        <a href="<?= $base ?>projects/project-name.php?slug=<?= urlencode($project['slug']) ?>" class="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 hover:shadow-lg transition-all duration-300 group" data-category="active">
-          <div class="relative h-48 overflow-hidden">
+        <a href="<?= $base ?>projects/project-name.php?slug=<?= urlencode($project['slug']) ?>" class="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 hover:shadow-lg transition-all duration-300 group flex flex-col" data-category="active" data-project-category="<?= htmlspecialchars($project['category'] ?? 'General') ?>">
+          <div class="relative h-48 overflow-hidden flex-shrink-0">
             <img src="<?= $base ?><?= $project['hero_image'] ?>" alt="<?= sanitize($project['title']) ?>" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
             <div class="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
             <span class="absolute top-3 left-3 bg-green-500 text-white text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full flex items-center gap-1">
@@ -166,18 +201,21 @@ include dirname(__DIR__) . '/includes/header.php';
             <span class="absolute top-3 right-3 bg-slate-900/70 backdrop-blur-sm text-white text-[10px] font-medium px-2 py-1 rounded-full">
               <i class="fa-solid fa-location-dot mr-1"></i><?= sanitize($project['location_details']) ?>
             </span>
+            <span class="absolute bottom-3 left-3 bg-white/90 backdrop-blur-sm text-slate-700 text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full flex items-center gap-1">
+              <i class="fa-solid fa-folder text-[8px] text-brandRed"></i> <?= sanitize($project['category'] ?? 'General') ?>
+            </span>
           </div>
-          <div class="p-5">
+          <div class="p-5 flex flex-col flex-1">
             <div class="flex items-center gap-2 text-xs text-slate-400 mb-2">
               <span>Since <?= date('M Y', strtotime($project['start_date'])) ?></span>
             </div>
-            <h3 class="text-lg font-display font-bold text-ink-900 mb-2 group-hover:text-brandRed transition-colors">
+            <h3 class="text-lg font-display font-bold text-ink-900 mb-2 group-hover:text-brandRed transition-colors line-clamp-2">
               <?= sanitize($project['title']) ?>
             </h3>
-            <p class="text-sm text-slate-500 leading-relaxed mb-4">
+            <p class="text-sm text-slate-500 leading-relaxed mb-4 line-clamp-2 flex-1">
               <?= sanitize($project['description']) ?>
             </p>
-            <div class="mb-3">
+            <div class="mb-3 mt-auto">
               <div class="flex justify-between text-xs mb-1.5">
                 <span class="font-semibold text-slate-600">Progress</span>
                 <span class="font-bold text-brandRed"><?= $project['progress_percent'] ?>%</span>
@@ -186,7 +224,7 @@ include dirname(__DIR__) . '/includes/header.php';
                 <div class="progress-bar-fill h-full bg-gradient-to-r from-brandRed to-red-400 rounded-full" style="width: <?= $project['progress_percent'] ?>%"></div>
               </div>
             </div>
-            <div class="flex items-center justify-between">
+            <div class="flex items-center justify-between pt-2 border-t border-gray-50">
               <span class="text-xs text-slate-500"><i class="fa-solid fa-users mr-1"></i><?= number_format($project['beneficiaries_count']) ?> beneficiaries</span>
               <span class="text-brandRed text-xs font-semibold group-hover:underline">View Details <i class="fa-solid fa-arrow-right text-[10px]"></i></span>
             </div>
@@ -210,8 +248,8 @@ include dirname(__DIR__) . '/includes/header.php';
 
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         <?php foreach ($completedProjects as $project): ?>
-        <a href="<?= $base ?>projects/project-name.php?slug=<?= urlencode($project['slug']) ?>" class="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 hover:shadow-lg transition-all duration-300 group" data-category="completed">
-          <div class="relative h-48 overflow-hidden">
+        <a href="<?= $base ?>projects/project-name.php?slug=<?= urlencode($project['slug']) ?>" class="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 hover:shadow-lg transition-all duration-300 group flex flex-col" data-category="completed" data-project-category="<?= htmlspecialchars($project['category'] ?? 'General') ?>">
+          <div class="relative h-48 overflow-hidden flex-shrink-0">
             <img src="<?= $base ?><?= $project['hero_image'] ?>" alt="<?= sanitize($project['title']) ?>" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
             <div class="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
             <span class="absolute top-3 left-3 bg-teal-500 text-white text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full flex items-center gap-1">
@@ -220,18 +258,21 @@ include dirname(__DIR__) . '/includes/header.php';
             <span class="absolute top-3 right-3 bg-slate-900/70 backdrop-blur-sm text-white text-[10px] font-medium px-2 py-1 rounded-full">
               <i class="fa-solid fa-location-dot mr-1"></i><?= sanitize($project['location_details']) ?>
             </span>
+            <span class="absolute bottom-3 left-3 bg-white/90 backdrop-blur-sm text-slate-700 text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full flex items-center gap-1">
+              <i class="fa-solid fa-folder text-[8px] text-brandRed"></i> <?= sanitize($project['category'] ?? 'General') ?>
+            </span>
           </div>
-          <div class="p-5">
+          <div class="p-5 flex flex-col flex-1">
             <div class="flex items-center gap-2 text-xs text-slate-400 mb-2">
               <span>Since <?= date('M Y', strtotime($project['start_date'])) ?></span>
             </div>
-            <h3 class="text-lg font-display font-bold text-ink-900 mb-2 group-hover:text-brandRed transition-colors">
+            <h3 class="text-lg font-display font-bold text-ink-900 mb-2 group-hover:text-brandRed transition-colors line-clamp-2">
               <?= sanitize($project['title']) ?>
             </h3>
-            <p class="text-sm text-slate-500 leading-relaxed mb-4">
+            <p class="text-sm text-slate-500 leading-relaxed mb-4 line-clamp-2 flex-1">
               <?= sanitize($project['description']) ?>
             </p>
-            <div class="mb-3">
+            <div class="mb-3 mt-auto">
               <div class="flex justify-between text-xs mb-1.5">
                 <span class="font-semibold text-slate-600">Progress</span>
                 <span class="font-bold text-teal-500">100%</span>
@@ -240,7 +281,7 @@ include dirname(__DIR__) . '/includes/header.php';
                 <div class="progress-bar-fill h-full bg-gradient-to-r from-teal-500 to-teal-400 rounded-full" style="width: 100%"></div>
               </div>
             </div>
-            <div class="flex items-center justify-between">
+            <div class="flex items-center justify-between pt-2 border-t border-gray-50">
               <span class="text-xs text-slate-500"><i class="fa-solid fa-users mr-1"></i><?= number_format($project['beneficiaries_count']) ?> beneficiaries</span>
               <span class="text-brandRed text-xs font-semibold group-hover:underline">View Details <i class="fa-solid fa-arrow-right text-[10px]"></i></span>
             </div>
@@ -252,45 +293,144 @@ include dirname(__DIR__) . '/includes/header.php';
   </section>
 
   <!-- PROJECT DASHBOARD -->
-  <section id="dashboard" class="py-16 sm:py-20 bg-ink-900 text-white">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="text-center mb-12">
-        <h2 class="text-2xl sm:text-3xl font-display font-bold mb-3"><?= $projSections['projects_dashboard']['section_title'] ?? '' ?></h2>
-        <p class="text-white/60 max-w-lg mx-auto"><?= sanitize($dashData['subtitle'] ?? '') ?></p>
+  <section id="dashboard" class="py-16 sm:py-20 bg-ink-900 text-white relative overflow-hidden">
+    <!-- Background Effects -->
+    <div class="absolute top-0 right-0 w-96 h-96 bg-brandRed/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
+    <div class="absolute bottom-0 left-0 w-64 h-64 bg-teal-500/5 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2"></div>
+    
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+      <!-- Section Header -->
+      <div class="text-center mb-14">
+        <div class="flex items-center justify-center gap-3 mb-4">
+          <div class="w-12 h-0.5 bg-brandRed"></div>
+          <span class="text-brandRed text-[11px] font-bold uppercase tracking-widest">Analytics</span>
+          <div class="w-12 h-0.5 bg-brandRed"></div>
+        </div>
+        <h2 class="text-3xl sm:text-4xl font-display font-bold mb-4"><?= $projSections['projects_dashboard']['section_title'] ?? 'Project Dashboard' ?></h2>
+        <p class="text-white/50 max-w-xl mx-auto"><?= sanitize($dashData['subtitle'] ?? 'Real-time overview of our project portfolio and impact metrics.') ?></p>
       </div>
 
       <!-- Metric Cards -->
-      <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-12">
-        <?php foreach ($dashData['metrics'] ?? [] as $metric): ?>
-        <div class="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-5 sm:p-6 text-center stat-card">
-          <div class="w-12 h-12 bg-<?= $metric['color'] ?>/20 rounded-xl flex items-center justify-center mx-auto mb-3">
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 mb-14">
+        <?php foreach ($dashData['metrics'] ?? [] as $i => $metric): ?>
+        <div class="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-5 sm:p-6 text-center dashboard-stat-card group hover:bg-white/10 transition-all duration-300">
+          <div class="w-14 h-14 bg-<?= $metric['color'] ?>/15 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
             <i class="<?= $metric['icon'] ?> text-<?= $metric['color'] ?> text-xl"></i>
           </div>
-          <div class="text-2xl sm:text-3xl font-display font-bold text-white mb-1"><?= $metric['value'] ?></div>
-          <div class="text-xs text-white/50 uppercase tracking-wider font-medium"><?= $metric['label'] ?></div>
+          <div class="text-3xl sm:text-4xl font-display font-bold text-white mb-1 dashboard-counter" data-target="<?= preg_replace('/[^0-9]/', '', $metric['value']) ?>">0</div>
+          <div class="text-xs text-white/40 uppercase tracking-wider font-medium"><?= $metric['label'] ?></div>
         </div>
         <?php endforeach; ?>
       </div>
 
-      <!-- Sector Distribution Bar Chart -->
-      <div class="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6 sm:p-8">
-        <h3 class="text-lg font-display font-bold mb-6 flex items-center gap-2">
-          <i class="fa-solid fa-chart-bar text-brandRed"></i> Projects by Sector
-        </h3>
-        <div class="space-y-5">
-          <?php foreach ($dashData['sectors'] ?? [] as $sector): ?>
-          <div>
-            <div class="flex justify-between text-sm mb-1.5">
-              <span class="text-white/80 font-medium"><?= $sector['name'] ?></span>
-              <span class="text-white/60 font-semibold"><?= $sector['count'] ?> projects</span>
+      <!-- Sector Distribution - Donut Chart -->
+      <?php $sectors = $dashData['sectors'] ?? []; ?>
+      <?php if (!empty($sectors)): ?>
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- Donut Chart -->
+        <div class="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6 sm:p-8">
+          <h3 class="text-lg font-display font-bold mb-8 flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-brandRed/15 flex items-center justify-center">
+              <i class="fa-solid fa-chart-pie text-brandRed"></i>
             </div>
-            <div class="w-full h-3 bg-white/10 rounded-full overflow-hidden">
-              <div class="bar-chart-bar h-full bg-gradient-to-r <?= $sector['gradient'] ?> rounded-full" style="width: 0%" data-width="<?= $sector['percent'] ?>%"></div>
+            Projects by Sector
+          </h3>
+          
+          <div class="flex flex-col items-center">
+            <!-- SVG Donut Chart -->
+            <div class="relative w-56 h-56 mb-8">
+              <svg viewBox="0 0 100 100" class="w-full h-full transform -rotate-90">
+                <?php
+                $total = array_sum(array_column($sectors, 'count'));
+                $offset = 0;
+                $radius = 40;
+                $circumference = 2 * pi() * $radius;
+                ?>
+                <?php foreach ($sectors as $sector): ?>
+                  <?php
+                  $percent = $total > 0 ? ($sector['count'] / $total) : 0;
+                  $dashLength = $circumference * $percent;
+                  $dashGap = $circumference - $dashLength;
+                  ?>
+                  <circle cx="50" cy="50" r="<?= $radius ?>" fill="none" stroke="<?= $sector['color'] ?>" stroke-width="12"
+                    stroke-dasharray="<?= $dashLength ?> <?= $dashGap ?>"
+                    stroke-dashoffset="<?= -$offset ?>"
+                    stroke-linecap="round"
+                    class="donut-segment transition-all duration-500 hover:opacity-80"
+                    style="filter: drop-shadow(0 0 6px <?= $sector['color'] ?>40);"
+                  />
+                  <?php $offset += $dashLength; ?>
+                <?php endforeach; ?>
+              </svg>
+              <!-- Center Text -->
+              <div class="absolute inset-0 flex flex-col items-center justify-center">
+                <span class="text-4xl font-display font-bold text-white"><?= $total ?></span>
+                <span class="text-xs text-white/50 uppercase tracking-wider">Total</span>
+              </div>
+            </div>
+
+            <!-- Legend -->
+            <div class="grid grid-cols-2 gap-3 w-full">
+              <?php foreach ($sectors as $sector): ?>
+              <div class="flex items-center gap-3 bg-white/5 rounded-xl px-4 py-3">
+                <div class="w-3 h-3 rounded-full flex-shrink-0" style="background-color: <?= $sector['color'] ?>;"></div>
+                <div class="flex-1 min-w-0">
+                  <div class="text-xs font-medium text-white/80 truncate"><?= $sector['name'] ?></div>
+                  <div class="text-[10px] text-white/40"><?= $sector['count'] ?> projects</div>
+                </div>
+                <span class="text-sm font-bold text-white/90"><?= round($sector['percent']) ?>%</span>
+              </div>
+              <?php endforeach; ?>
             </div>
           </div>
-          <?php endforeach; ?>
+        </div>
+
+        <!-- Sector Bar Details -->
+        <div class="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6 sm:p-8">
+          <h3 class="text-lg font-display font-bold mb-8 flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-teal-500/15 flex items-center justify-center">
+              <i class="fa-solid fa-chart-simple text-teal-400"></i>
+            </div>
+            Sector Breakdown
+          </h3>
+          
+          <div class="space-y-6">
+            <?php foreach ($sectors as $i => $sector): ?>
+            <div class="sector-bar-item">
+              <div class="flex items-center justify-between mb-2">
+                <div class="flex items-center gap-3">
+                  <span class="text-xs font-bold text-white/30 w-5"><?= str_pad($i + 1, 2, '0', STR_PAD_LEFT) ?></span>
+                  <span class="text-sm text-white/90 font-medium"><?= $sector['name'] ?></span>
+                </div>
+                <div class="flex items-center gap-3">
+                  <span class="text-xs text-white/50"><?= $sector['count'] ?> projects</span>
+                  <span class="text-sm font-bold" style="color: <?= $sector['color'] ?>;"><?= round($sector['percent']) ?>%</span>
+                </div>
+              </div>
+              <div class="w-full h-2.5 bg-white/5 rounded-full overflow-hidden ml-8">
+                <div class="sector-bar-fill h-full rounded-full transition-all duration-1000 ease-out" 
+                  style="width: 0%; background: linear-gradient(90deg, <?= $sector['color'] ?>, <?= $sector['color'] ?>CC);" 
+                  data-width="<?= $sector['percent'] ?>%"></div>
+              </div>
+            </div>
+            <?php endforeach; ?>
+          </div>
+
+          <!-- Summary Card -->
+          <div class="mt-8 bg-gradient-to-r from-brandRed/10 to-transparent border border-brandRed/20 rounded-xl p-5">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 bg-brandRed/20 rounded-xl flex items-center justify-center">
+                <i class="fa-solid fa-lightbulb text-brandRed"></i>
+              </div>
+              <div>
+                <div class="text-xs text-white/50 uppercase tracking-wider">Most Active Sector</div>
+                <div class="text-sm font-bold text-white"><?= $sectors[0]['name'] ?? 'N/A' ?> with <?= $sectors[0]['count'] ?? 0 ?> projects</div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
+      <?php endif; ?>
     </div>
   </section>
 
@@ -362,23 +502,55 @@ include dirname(__DIR__) . '/includes/header.php';
 <?php include dirname(__DIR__) . '/includes/footer.php'; ?>
 
 <script>
-  // Filter tabs functionality
+  var activeStatusFilter = 'all';
+  var activeCategoryFilter = '';
+
+  // Status filter tabs
   document.querySelectorAll('.filter-tab').forEach(function(tab) {
     tab.addEventListener('click', function() {
       document.querySelectorAll('.filter-tab').forEach(function(t) { t.classList.remove('active'); });
       this.classList.add('active');
-      var filter = this.getAttribute('data-filter');
-      filterProjects(filter);
+      activeStatusFilter = this.getAttribute('data-filter');
+      // Reset category filter
+      document.querySelectorAll('.category-tab').forEach(function(t) { t.classList.remove('active', 'border-brandRed', 'text-brandRed', 'bg-red-50'); t.classList.add('border-gray-200', 'text-slate-500'); });
+      activeCategoryFilter = '';
+      filterProjects();
     });
   });
 
-  function filterProjects(filter) {
+  // Category filter tabs
+  document.querySelectorAll('.category-tab').forEach(function(tab) {
+    tab.addEventListener('click', function() {
+      var wasActive = this.classList.contains('active');
+      document.querySelectorAll('.category-tab').forEach(function(t) { t.classList.remove('active', 'border-brandRed', 'text-brandRed', 'bg-red-50'); t.classList.add('border-gray-200', 'text-slate-500'); });
+      
+      if (wasActive) {
+        activeCategoryFilter = '';
+      } else {
+        this.classList.add('active', 'border-brandRed', 'text-brandRed', 'bg-red-50');
+        this.classList.remove('border-gray-200', 'text-slate-500');
+        activeCategoryFilter = this.getAttribute('data-category-filter');
+        // Reset status filter to 'all'
+        document.querySelectorAll('.filter-tab').forEach(function(t) { t.classList.remove('active'); });
+        document.querySelector('.filter-tab[data-filter="all"]').classList.add('active');
+        activeStatusFilter = 'all';
+      }
+      filterProjects();
+    });
+  });
+
+  function filterProjects() {
     var allCards = document.querySelectorAll('[data-category]');
     var visibleCount = 0;
 
     allCards.forEach(function(card) {
-      var categories = card.getAttribute('data-category').toLowerCase();
-      if (filter === 'all' || categories.indexOf(filter.toLowerCase()) !== -1) {
+      var status = card.getAttribute('data-category').toLowerCase();
+      var projectCat = card.getAttribute('data-project-category') || '';
+      
+      var statusMatch = activeStatusFilter === 'all' || status.indexOf(activeStatusFilter.toLowerCase()) !== -1;
+      var catMatch = !activeCategoryFilter || projectCat === activeCategoryFilter;
+      
+      if (statusMatch && catMatch) {
         card.style.display = '';
         card.style.opacity = '0';
         card.style.transform = 'translateY(10px)';
@@ -426,18 +598,55 @@ include dirname(__DIR__) . '/includes/header.php';
     }
   }
 
-  // Scroll-triggered animations for bar charts
-  var observer = new IntersectionObserver(function(entries) {
+  // Dashboard Animations
+  var dashboardObserver = new IntersectionObserver(function(entries) {
     entries.forEach(function(entry) {
       if (entry.isIntersecting) {
-        if (entry.target.closest('#dashboard')) {
-          document.querySelectorAll('.bar-chart-bar').forEach(function(bar) {
+        // Animate sector bars
+        document.querySelectorAll('.sector-bar-fill').forEach(function(bar, i) {
+          setTimeout(function() {
             bar.style.width = bar.getAttribute('data-width');
-          });
-        }
+          }, i * 150);
+        });
+
+        // Animate dashboard counters
+        document.querySelectorAll('.dashboard-counter').forEach(function(counter) {
+          if (counter.dataset.animated) return;
+          var target = parseInt(counter.dataset.target) || 0;
+          if (target === 0) return;
+          var duration = 2000;
+          var startTime = null;
+          function step(timestamp) {
+            if (!startTime) startTime = timestamp;
+            var progress = Math.min((timestamp - startTime) / duration, 1);
+            var eased = 1 - Math.pow(1 - progress, 3);
+            counter.textContent = Math.floor(eased * target).toLocaleString();
+            if (progress < 1) {
+              requestAnimationFrame(step);
+            } else {
+              counter.textContent = target.toLocaleString();
+              counter.dataset.animated = 'true';
+            }
+          }
+          requestAnimationFrame(step);
+        });
+
+        // Animate donut segments
+        document.querySelectorAll('.donut-segment').forEach(function(seg, i) {
+          seg.style.opacity = '0';
+          seg.style.transform = 'scale(0.9)';
+          setTimeout(function() {
+            seg.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+            seg.style.opacity = '1';
+            seg.style.transform = 'scale(1)';
+          }, i * 100);
+        });
+
+        dashboardObserver.unobserve(entry.target);
       }
     });
   }, { threshold: 0.1 });
 
-  document.querySelectorAll('#dashboard').forEach(function(el) { observer.observe(el); });
+  var dashboardSection = document.getElementById('dashboard');
+  if (dashboardSection) dashboardObserver.observe(dashboardSection);
 </script>

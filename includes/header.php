@@ -10,6 +10,20 @@
 if (!isset($base)) $base = '';
 if (!isset($pageTitle)) $pageTitle = 'World Relief Committee (WRC) - Official NGO Portal';
 if (!isset($metaDescription)) $metaDescription = 'World Relief Committee (WRC) is a non-profit humanitarian organization delivering health, education, WASH, food security, and emergency disaster relief globally.';
+
+// Detect current section for navbar active state
+$currentFile = basename($_SERVER['PHP_SELF']);
+$currentDir = basename(dirname($_SERVER['PHP_SELF']));
+$navActive = 'home';
+if ($currentDir === 'about' || $currentFile === 'about') $navActive = 'about';
+elseif ($currentDir === 'our-work' || $currentDir === 'projects') $navActive = 'our-work';
+elseif ($currentDir === 'where-we-work') $navActive = 'where-we-work';
+elseif ($currentDir === 'impact') $navActive = 'impact';
+elseif ($currentDir === 'resources') $navActive = 'resources';
+elseif ($currentDir === 'news') $navActive = 'news';
+elseif ($currentDir === 'get-involved') $navActive = 'get-involved';
+elseif ($currentDir === 'contact') $navActive = 'contact';
+elseif ($currentFile === 'index.php' && $currentDir === '') $navActive = 'home';
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -121,13 +135,13 @@ if (!isset($metaDescription)) $metaDescription = 'World Relief Committee (WRC) i
         <nav class="hidden lg:flex items-center gap-1 xl:gap-1.5 text-[11px] xl:text-xs font-medium text-slate-600">
 
           <!-- 1. HOME -->
-          <a href="<?= $base ?>index.php" class="nav-link-item px-2.5 py-2 rounded-lg text-brandRed font-semibold hover:bg-slate-800/60 transition-all">
+          <a href="<?= $base ?>index.php" class="nav-link-item px-2.5 py-2 rounded-lg <?= $navActive === 'home' ? 'text-brandRed font-semibold' : 'hover:text-white hover:bg-slate-800/60' ?> transition-all">
             HOME
           </a>
 
           <!-- 2. ABOUT US -->
           <div class="nav-item-dropdown">
-            <a href="<?= $base ?>about/index.php" class="nav-link-item px-2.5 py-2 rounded-lg hover:text-white hover:bg-slate-800/60 transition-all flex items-center gap-1">
+            <a href="<?= $base ?>about/index.php" class="nav-link-item px-2.5 py-2 rounded-lg <?= $navActive === 'about' ? 'text-brandRed font-semibold' : 'hover:text-white hover:bg-slate-800/60' ?> transition-all flex items-center gap-1">
               ABOUT US <i class="fa-solid fa-chevron-down text-[8px] opacity-60"></i>
             </a>
             <div class="dropdown-menu absolute top-full left-0 w-64 bg-white border border-gray-100 rounded-2xl shadow-xl p-3 text-slate-600 text-xs">
@@ -153,7 +167,7 @@ if (!isset($metaDescription)) $metaDescription = 'World Relief Committee (WRC) i
 
           <!-- 3. OUR WORK (MEGA MENU) -->
           <div class="nav-item-dropdown">
-            <a href="<?= $base ?>our-work/index.php" class="nav-link-item px-2.5 py-2 rounded-lg hover:text-white hover:bg-slate-800/60 transition-all flex items-center gap-1">
+            <a href="<?= $base ?>our-work/index.php" class="nav-link-item px-2.5 py-2 rounded-lg <?= $navActive === 'our-work' ? 'text-brandRed font-semibold' : 'hover:text-white hover:bg-slate-800/60' ?> transition-all flex items-center gap-1">
               OUR WORK <i class="fa-solid fa-chevron-down text-[8px] opacity-60"></i>
             </a>
             <div class="dropdown-menu absolute top-full left-0 w-56 bg-white border border-gray-100 rounded-2xl shadow-xl p-2 text-slate-600 text-xs">
@@ -167,7 +181,7 @@ if (!isset($metaDescription)) $metaDescription = 'World Relief Committee (WRC) i
 
           <!-- 4. WHERE WE WORK -->
           <div class="nav-item-dropdown">
-            <a href="<?= $base ?>where-we-work/index.php" class="nav-link-item px-2.5 py-2 rounded-lg hover:text-white hover:bg-slate-800/60 transition-all flex items-center gap-1">
+            <a href="<?= $base ?>where-we-work/index.php" class="nav-link-item px-2.5 py-2 rounded-lg <?= $navActive === 'where-we-work' ? 'text-brandRed font-semibold' : 'hover:text-white hover:bg-slate-800/60' ?> transition-all flex items-center gap-1">
               WHERE WE WORK <i class="fa-solid fa-chevron-down text-[8px] opacity-60"></i>
             </a>
             <div class="dropdown-menu absolute top-full left-0 w-56 bg-white border border-gray-100 rounded-2xl shadow-xl p-2 text-slate-600 text-xs">
@@ -182,7 +196,7 @@ if (!isset($metaDescription)) $metaDescription = 'World Relief Committee (WRC) i
 
           <!-- 6. IMPACT -->
           <div class="nav-item-dropdown">
-            <a href="<?= $base ?>impact/index.php" class="nav-link-item px-2.5 py-2 rounded-lg hover:text-white hover:bg-slate-800/60 transition-all flex items-center gap-1">
+            <a href="<?= $base ?>impact/index.php" class="nav-link-item px-2.5 py-2 rounded-lg <?= $navActive === 'impact' ? 'text-brandRed font-semibold' : 'hover:text-white hover:bg-slate-800/60' ?> transition-all flex items-center gap-1">
               IMPACT <i class="fa-solid fa-chevron-down text-[8px] opacity-60"></i>
             </a>
             <div class="dropdown-menu absolute top-full left-0 w-56 bg-white border border-gray-100 rounded-2xl shadow-xl p-2 text-slate-600 text-xs">
@@ -196,45 +210,38 @@ if (!isset($metaDescription)) $metaDescription = 'World Relief Committee (WRC) i
 
           <!-- 7. RESOURCES -->
           <div class="nav-item-dropdown">
-            <a href="<?= $base ?>resources/index.php" class="nav-link-item px-2.5 py-2 rounded-lg hover:text-white hover:bg-slate-800/60 transition-all flex items-center gap-1">
+            <a href="<?= $base ?>resources/index.php" class="nav-link-item px-2.5 py-2 rounded-lg <?= $navActive === 'resources' ? 'text-brandRed font-semibold' : 'hover:text-white hover:bg-slate-800/60' ?> transition-all flex items-center gap-1">
               RESOURCES <i class="fa-solid fa-chevron-down text-[8px] opacity-60"></i>
             </a>
             <div class="dropdown-menu absolute top-full right-0 w-56 bg-white border border-gray-100 rounded-2xl shadow-xl p-2 text-slate-600 text-xs">
-              <a href="<?= $base ?>resources/index.php#publications" class="block px-3 py-2 rounded-xl hover:bg-slate-800 hover:text-white transition-colors"><i class="fa-solid fa-book mr-2 text-slate-400"></i> Publications</a>
               <a href="<?= $base ?>resources/index.php#annual-reports" class="block px-3 py-2 rounded-xl hover:bg-slate-800 hover:text-white transition-colors"><i class="fa-solid fa-file-pdf mr-2 text-slate-400"></i> Annual Reports</a>
               <a href="<?= $base ?>resources/index.php#financial-reports" class="block px-3 py-2 rounded-xl hover:bg-slate-800 hover:text-white transition-colors"><i class="fa-solid fa-coins mr-2 text-slate-400"></i> Financial Reports</a>
               <a href="<?= $base ?>resources/index.php#audit-reports" class="block px-3 py-2 rounded-xl hover:bg-slate-800 hover:text-white transition-colors"><i class="fa-solid fa-magnifying-glass-chart mr-2 text-slate-400"></i> Audit Reports</a>
-              <a href="<?= $base ?>resources/index.php#policies" class="block px-3 py-2 rounded-xl hover:bg-slate-800 hover:text-white transition-colors"><i class="fa-solid fa-shield-halved mr-2 text-slate-400"></i> Policies</a>
-              <a href="<?= $base ?>resources/index.php#downloads" class="block px-3 py-2 rounded-xl hover:bg-slate-800 hover:text-white transition-colors"><i class="fa-solid fa-download mr-2 text-slate-400"></i> Downloads</a>
-              <a href="<?= $base ?>resources/index.php#media-kit" class="block px-3 py-2 rounded-xl hover:bg-slate-800 hover:text-white transition-colors"><i class="fa-solid fa-photo-film mr-2 text-slate-400"></i> Media Kit</a>
+              <a href="<?= $base ?>resources/index.php#registration" class="block px-3 py-2 rounded-xl hover:bg-slate-800 hover:text-white transition-colors"><i class="fa-solid fa-stamp mr-2 text-slate-400"></i> Registration</a>
             </div>
           </div>
 
           <!-- 8. NEWS & MEDIA -->
           <div class="nav-item-dropdown">
-            <a href="<?= $base ?>news/index.php" class="nav-link-item px-2.5 py-2 rounded-lg hover:text-white hover:bg-slate-800/60 transition-all flex items-center gap-1">
+            <a href="<?= $base ?>news/index.php" class="nav-link-item px-2.5 py-2 rounded-lg <?= $navActive === 'news' ? 'text-brandRed font-semibold' : 'hover:text-white hover:bg-slate-800/60' ?> transition-all flex items-center gap-1">
               NEWS & MEDIA <i class="fa-solid fa-chevron-down text-[8px] opacity-60"></i>
             </a>
             <div class="dropdown-menu absolute top-full right-0 w-56 bg-white border border-gray-100 rounded-2xl shadow-xl p-2 text-slate-600 text-xs">
               <a href="<?= $base ?>news/index.php#news" class="block px-3 py-2 rounded-xl hover:bg-slate-800 hover:text-white transition-colors"><i class="fa-solid fa-newspaper mr-2 text-slate-400"></i> Latest News</a>
-              <a href="<?= $base ?>news/index.php#press" class="block px-3 py-2 rounded-xl hover:bg-slate-800 hover:text-white transition-colors"><i class="fa-solid fa-bullhorn mr-2 text-slate-400"></i> Press Releases</a>
-              <a href="<?= $base ?>news/index.php#events" class="block px-3 py-2 rounded-xl hover:bg-slate-800 hover:text-white transition-colors"><i class="fa-solid fa-calendar-days mr-2 text-slate-400"></i> Events</a>
               <a href="<?= $base ?>news/index.php#photos" class="block px-3 py-2 rounded-xl hover:bg-slate-800 hover:text-white transition-colors"><i class="fa-solid fa-images mr-2 text-slate-400"></i> Photo Gallery</a>
               <a href="<?= $base ?>news/index.php#videos" class="block px-3 py-2 rounded-xl hover:bg-slate-800 hover:text-white transition-colors"><i class="fa-solid fa-video mr-2 text-slate-400"></i> Video Gallery</a>
-              <a href="<?= $base ?>news/index.php#blogs" class="block px-3 py-2 rounded-xl hover:bg-slate-800 hover:text-white transition-colors"><i class="fa-solid fa-blog mr-2 text-slate-400"></i> Blogs</a>
             </div>
           </div>
 
           <!-- 9. GET INVOLVED -->
           <div class="nav-item-dropdown">
-            <a href="<?= $base ?>get-involved/index.php" class="nav-link-item px-2.5 py-2 rounded-lg hover:text-white hover:bg-slate-800/60 transition-all flex items-center gap-1">
+            <a href="<?= $base ?>get-involved/index.php" class="nav-link-item px-2.5 py-2 rounded-lg <?= $navActive === 'get-involved' ? 'text-brandRed font-semibold' : 'hover:text-white hover:bg-slate-800/60' ?> transition-all flex items-center gap-1">
               GET INVOLVED <i class="fa-solid fa-chevron-down text-[8px] opacity-60"></i>
             </a>
             <div class="dropdown-menu absolute top-full right-0 w-56 bg-white border border-gray-100 rounded-2xl shadow-xl p-2 text-slate-600 text-xs">
               <a href="<?= $base ?>get-involved/contribute-with-us.php" class="block px-3 py-2 rounded-xl hover:bg-slate-800 hover:text-white transition-colors"><i class="fa-solid fa-handshake mr-2 text-slate-400"></i> Contribute With Us</a>
               <a href="<?= $base ?>get-involved/index.php#volunteer" class="block px-3 py-2 rounded-xl hover:bg-slate-800 hover:text-white transition-colors"><i class="fa-solid fa-hands-holding-child mr-2 text-slate-400"></i> Volunteer</a>
               <a href="<?= $base ?>get-involved/index.php#careers" class="block px-3 py-2 rounded-xl hover:bg-slate-800 hover:text-white transition-colors"><i class="fa-solid fa-user-plus mr-2 text-slate-400"></i> Careers</a>
-              <a href="<?= $base ?>get-involved/index.php#internships" class="block px-3 py-2 rounded-xl hover:bg-slate-800 hover:text-white transition-colors"><i class="fa-solid fa-user-graduate mr-2 text-slate-400"></i> Internships</a>
               <a href="<?= $base ?>get-involved/index.php#partner" class="block px-3 py-2 rounded-xl hover:bg-slate-800 hover:text-white transition-colors"><i class="fa-solid fa-handshake-angle mr-2 text-slate-400"></i> Become a Partner</a>
               <a href="<?= $base ?>get-involved/index.php#membership" class="block px-3 py-2 rounded-xl hover:bg-slate-800 hover:text-white transition-colors"><i class="fa-solid fa-id-card-clip mr-2 text-slate-400"></i> Membership</a>
             </div>
@@ -242,7 +249,7 @@ if (!isset($metaDescription)) $metaDescription = 'World Relief Committee (WRC) i
 
           <!-- 10. CONTACT -->
           <div class="nav-item-dropdown">
-            <a href="<?= $base ?>contact/index.php" class="nav-link-item px-2.5 py-2 rounded-lg hover:text-white hover:bg-slate-800/60 transition-all flex items-center gap-1">
+            <a href="<?= $base ?>contact/index.php" class="nav-link-item px-2.5 py-2 rounded-lg <?= $navActive === 'contact' ? 'text-brandRed font-semibold' : 'hover:text-white hover:bg-slate-800/60' ?> transition-all flex items-center gap-1">
               CONTACT <i class="fa-solid fa-chevron-down text-[8px] opacity-60"></i>
             </a>
             <div class="dropdown-menu absolute top-full right-0 w-56 bg-white border border-gray-100 rounded-2xl shadow-xl p-2 text-slate-600 text-xs">
@@ -358,12 +365,10 @@ if (!isset($metaDescription)) $metaDescription = 'World Relief Committee (WRC) i
           <i class="acc-icon fa-solid fa-chevron-down"></i>
         </button>
         <div class="mobile-tray-submenu"><div>
-          <a href="<?= $base ?>resources/index.php">Publications</a>
           <a href="<?= $base ?>resources/index.php#annual-reports">Annual Reports</a>
           <a href="<?= $base ?>resources/index.php#financial-reports">Financial Reports</a>
           <a href="<?= $base ?>resources/index.php#audit-reports">Audit Reports</a>
-          <a href="<?= $base ?>resources/index.php#policies">Policies</a>
-          <a href="<?= $base ?>resources/index.php#downloads">Downloads</a>
+          <a href="<?= $base ?>resources/index.php#registration">Registration</a>
         </div></div>
 
         <button class="mobile-tray-accordion-btn" data-delay="0.40">
@@ -372,11 +377,8 @@ if (!isset($metaDescription)) $metaDescription = 'World Relief Committee (WRC) i
         </button>
         <div class="mobile-tray-submenu"><div>
           <a href="<?= $base ?>news/index.php">Latest News</a>
-          <a href="<?= $base ?>news/index.php#press">Press Releases</a>
-          <a href="<?= $base ?>news/index.php#events">Events</a>
           <a href="<?= $base ?>news/index.php#photos">Photo Gallery</a>
           <a href="<?= $base ?>news/index.php#videos">Video Gallery</a>
-          <a href="<?= $base ?>news/index.php#blogs">Blogs</a>
         </div></div>
 
         <button class="mobile-tray-accordion-btn" data-delay="0.45">
@@ -387,7 +389,6 @@ if (!isset($metaDescription)) $metaDescription = 'World Relief Committee (WRC) i
           <a href="<?= $base ?>get-involved/contribute-with-us.php">Contribute With Us</a>
           <a href="<?= $base ?>get-involved/index.php#volunteer">Volunteer</a>
           <a href="<?= $base ?>get-involved/index.php#careers">Careers</a>
-          <a href="<?= $base ?>get-involved/index.php#internships">Internships</a>
           <a href="<?= $base ?>get-involved/index.php#partner">Become a Partner</a>
           <a href="<?= $base ?>get-involved/index.php#membership">Membership</a>
         </div></div>

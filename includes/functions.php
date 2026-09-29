@@ -66,7 +66,11 @@ function getById(string $table, int $id): ?array {
         'partners', 'provinces', 'campaigns', 'contact_submissions',
         'newsletter_subscribers', 'donation_tiers', 'bank_accounts', 'job_listings',
         'sdg_goals', 'sdg_contributions', 'impact_stats', 'organizational_structure',
-        'hero_sliders', 'homepage_sections', 'site_settings'
+        'hero_sliders', 'homepage_sections', 'site_settings',
+        'photo_gallery', 'video_gallery', 'success_stories', 'events',
+        'project_donors', 'get_involved_hero', 'get_involved_cta',
+        'get_involved_volunteer', 'get_involved_partner', 'get_involved_membership',
+        'contact_hero', 'contact_content',
     ];
 
     if (!in_array($table, $allowed)) {
@@ -115,8 +119,10 @@ function getRows(string $table, $conditions = [], string $orderBy = 'sort_order 
         'contact_hero', 'contact_content',
         'impact_hero', 'impact_content',
         'where_we_work_hero', 'where_we_work_content', 'where_we_work_districts',
+        'district_coordinates',
         'news_hero', 'resources_hero',
         'get_involved_hero', 'get_involved_cta',
+        'get_involved_volunteer', 'get_involved_partner', 'get_involved_membership',
         'contribute_hero', 'contribute_impact', 'contribute_impact_items',
         'contribute_transparency', 'contribute_transparency_items',
         'contribute_why', 'contribute_why_stats',
@@ -330,7 +336,7 @@ function formatDate(string $date, string $format = 'M d, Y'): string {
 
 function getImageUrl(string $path): string {
     if (empty($path)) {
-        return 'assets/images/hero.jpg';
+        return 'assets/images/hero/about-hero.jpg';
     }
     // If path already starts with assets/ or http, return as-is
     if (strpos($path, 'assets/') === 0 || strpos($path, 'http') === 0) {

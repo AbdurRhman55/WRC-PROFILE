@@ -48,7 +48,7 @@ include dirname(__DIR__) . '/includes/header.php';
   <!-- HERO SECTION -->
   <section class="relative bg-slate-900 text-white min-h-[420px] flex items-center py-20 overflow-hidden">
     <div class="absolute inset-0 z-0">
-      <img src="<?= $base ?><?= $heroData['hero_image'] ?? 'assets/images/hero.jpg' ?>" alt="WRC Team" class="w-full h-full object-cover opacity-30 mix-blend-luminosity">
+      <img src="<?= $base ?><?= $heroData['hero_image'] ?? 'assets/images/hero/about-hero.jpg' ?>" alt="WRC Team" class="w-full h-full object-cover opacity-30 mix-blend-luminosity">
       <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-900/80 to-slate-900/60"></div>
     </div>
     <div class="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
@@ -119,7 +119,7 @@ include dirname(__DIR__) . '/includes/header.php';
 
   <!-- CTA BANNER -->
   <section class="py-20 bg-slate-950 text-white text-center relative overflow-hidden">
-    <div class="absolute inset-0 bg-[url('../assets/images/hero.jpg')] bg-cover bg-center mix-blend-multiply opacity-10"></div>
+    <div class="absolute inset-0 bg-[url('../assets/images/hero/about-hero.jpg')] bg-cover bg-center mix-blend-multiply opacity-10"></div>
     <div class="container relative z-10 mx-auto px-4">
       <h2 class="text-3xl md:text-4xl font-display font-bold text-white mb-4 max-w-2xl mx-auto leading-tight">
         Together, we can turn compassion into meaningful action.

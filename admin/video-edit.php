@@ -50,7 +50,7 @@ include __DIR__ . '/includes/header.php';
 <div class="mb-4 px-4 py-3 rounded-xl text-sm font-medium bg-<?= $flash['type'] === 'success' ? 'green-50 text-green-700 border border-green-200' : 'red-50 text-red-700 border border-red-200' ?>"><?= $flash['message'] ?></div>
 <?php endif; ?>
 
-<form method="POST" enctype="multipart/form-data" class="space-y-6">
+<form method="POST" class="space-y-6">
   <input type="hidden" name="csrf_token" value="<?= generateCSRF() ?>">
 
   <div class="bg-white rounded-2xl border border-slate-200 p-6">
@@ -68,13 +68,8 @@ include __DIR__ . '/includes/header.php';
         <label class="block text-xs font-semibold text-slate-600 mb-1">Video URL</label>
         <input type="text" name="video_url" value="<?= htmlspecialchars($video['video_url'] ?? '') ?>" placeholder="https://youtube.com/watch?v=..." class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-brandRed/20 focus:border-brandRed">
       </div>
-      <div>
-        <label class="block text-xs font-semibold text-slate-600 mb-1">Upload Thumbnail</label>
-        <input type="file" name="thumbnail_file" accept="image/*" class="w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-brandRed file:text-white hover:file:bg-red-700">
-      </div>
-      <div>
-        <label class="block text-xs font-semibold text-slate-600 mb-1">Or Thumbnail Path</label>
-        <input type="text" name="thumbnail_path" value="<?= htmlspecialchars($video['thumbnail_path'] ?? '') ?>" placeholder="assets/images/..." class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-brandRed/20 focus:border-brandRed">
+      <div class="md:col-span-2">
+        <?php uploadWidget('thumbnail_path', 'Thumbnail Image', $video['thumbnail_path'] ?? '', 'image', 'video_thumbnail_upload'); ?>
       </div>
       <div>
         <label class="block text-xs font-semibold text-slate-600 mb-1">Duration</label>
@@ -85,9 +80,6 @@ include __DIR__ . '/includes/header.php';
         <input type="number" name="sort_order" value="<?= $video['sort_order'] ?? 0 ?>" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-brandRed/20 focus:border-brandRed">
       </div>
     </div>
-    <?php if (!empty($video['thumbnail_path'])): ?>
-    <div class="mt-4"><img src="/<?= $video['thumbnail_path'] ?>" alt="" class="w-48 h-27 object-cover rounded-xl border border-slate-200"></div>
-    <?php endif; ?>
   </div>
 
   <div class="bg-white rounded-2xl border border-slate-200 p-6">

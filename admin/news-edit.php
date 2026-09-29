@@ -35,6 +35,7 @@ if (isPost()) {
 
     if (empty($title)) $errors[] = 'Title is required.';
     if (empty($slug)) $slug = createSlug($title);
+    if (!checkSlugUnique('news_articles', $slug, $isEdit ? (int) $_GET['id'] : 0)) $errors[] = 'An article with this slug already exists.';
     $validCategories = ['press_release', 'report', 'story', 'blog', 'event'];
     if (!in_array($category, $validCategories)) $errors[] = 'Invalid category.';
 

@@ -10,7 +10,7 @@ $pageTitle = 'World Relief Committee (WRC) - Official NGO Portal';
 $metaDescription = 'World Relief Committee (WRC) is a non-profit humanitarian organization delivering health, education, WASH, food security, and emergency disaster relief globally.';
 
 // Fetch dynamic data
-$heroSlides = getRows('hero_sliders', 'is_active = 1 ORDER BY sort_order ASC');
+$heroSlides = getRows('hero_sliders', ['page' => 'homepage', 'is_active' => 1], 'sort_order ASC');
 $impactStats = getRows('impact_stats', "display_page = 'home_hero' ORDER BY sort_order ASC");
 $partners = getRows('partners', 'is_active = 1 ORDER BY sort_order ASC');
 $activeProjects = getRows('projects', "status = 'active' ORDER BY start_date DESC LIMIT 3");
@@ -63,15 +63,19 @@ include __DIR__ . '/includes/header.php';
     <div id="hero-slider"
         class="absolute inset-0 z-0 w-full h-full transition-transform duration-1000 ease-in-out flex">
         <?php foreach ($heroSlides as $i => $slide): ?>
+        <?php
+            $slideImage = !empty($slide['image_path']) ? $slide['image_path'] : 'assets/images/hero.jpg';
+            if (strpos($slideImage, 'assets/') !== 0 && strpos($slideImage, 'http') !== 0 && strpos($slideImage, 'uploads/') !== 0) {
+                $slideImage = 'assets/images/' . $slideImage;
+            }
+        ?>
         <div class="w-full h-full flex-shrink-0 relative">
-            <div class="absolute inset-0 opacity-40 mix-blend-luminosity bg-cover bg-center"
-                style="background-image: url('<?= $base ?><?= $slide['image_path'] ?? 'assets/images/hero.jpg' ?>');">
-            </div>
+            <img src="<?= $base ?><?= $slideImage ?>" alt="<?= sanitize($slide['title'] ?? 'Slide') ?>" class="absolute inset-0 w-full h-full object-cover" loading="<?= $i === 0 ? 'eager' : 'lazy' ?>">
         </div>
         <?php endforeach; ?>
     </div>
 
-    <div class="absolute inset-0 hero-gradient z-0 pointer-events-none"></div>
+    <div class="absolute inset-0 bg-gradient-to-br from-slate-950/70 via-slate-900/50 to-brandRed/20 z-[1] pointer-events-none"></div>
 
     <!-- Slider Navigation (Arrows) -->
     <button id="slider-prev"
@@ -87,35 +91,41 @@ include __DIR__ . '/includes/header.php';
     <div class="absolute bottom-6 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2" id="slider-dots">
         <?php foreach ($heroSlides as $i => $slide): ?>
         <button
-            class="<?= $i === 0 ? 'w-3 h-3 rounded-full bg-brandRed shadow-md transition-all duration-300' : 'w-2.5 h-2.5 rounded-full bg-white/50 hover:bg-white shadow-md transition-all duration-300' ?>"
+            class="<?= $i === 0 ? 'w-4 h-3 rounded-full bg-brandRed shadow-md' : 'w-3 h-3 rounded-full bg-white/50 hover:bg-white' ?> transition-all duration-300"
             data-index="<?= $i ?>" aria-label="Go to slide <?= $i + 1 ?>"></button>
         <?php endforeach; ?>
     </div>
 
-    <!-- Content -->
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full py-16 lg:py-24">
-        <div class="max-w-3xl animate-fade-in-up">
-            <span
-                class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider bg-slate-900/60 backdrop-blur-sm text-slate-100 border border-white/20 mb-6">
-                <i class="fa-solid fa-globe text-brandRed"></i> World Relief Committee NGO
-            </span>
-            <h1
-                class="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-white leading-tight mb-6 font-heading drop-shadow-md">
-                <?= $heroSlides[0]['title'] ?? 'Empowering Hope, Rebuilding Lives Worldwide.' ?>
-            </h1>
-            <p class="text-base sm:text-lg text-slate-200 mb-8 leading-relaxed drop-shadow-sm max-w-2xl">
-                <?= $heroSlides[0]['subtitle'] ?? 'WRC is dedicated to providing immediate emergency aid, clean water solutions, nutritious food packs, and sustainable education to vulnerable communities in crisis.' ?>
-            </p>
-
-            <div class="flex flex-wrap gap-4 items-center">
-                <a href="<?= $base ?>our-work/index.php"
-                    class="bg-brandRed hover:bg-brandRed-hover text-white font-bold text-sm sm:text-base px-7 py-3.5 rounded-xl shadow-lg shadow-brandRed/30 transition-all flex items-center gap-2 transform hover:-translate-y-1">
-                    <i class="fa-solid fa-arrow-right"></i> Explore Our Work
-                </a>
-                <a href="<?= $base ?>get-involved/contribute-with-us.php"
-                    class="bg-white/10 hover:bg-white/25 backdrop-blur-md text-white border border-white/30 font-semibold text-sm sm:text-base px-6 py-3.5 rounded-xl transition-all flex items-center gap-2 transform hover:-translate-y-1">
-                    Contribute With Us <i class="fa-solid fa-handshake text-xs"></i>
-                </a>
+    <!-- Dynamic Content Overlay -->
+    <div class="absolute inset-0 z-10 flex items-center pointer-events-none">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
+            <div id="hero-content" class="max-w-3xl pointer-events-auto animate-fade-in-up">
+                <?php $firstSlide = $heroSlides[0] ?? []; ?>
+                <?php if (!empty($firstSlide['badge'])): ?>
+                <span class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest bg-brandRed/90 text-white mb-4 backdrop-blur-sm">
+                    <i class="fa-solid fa-globe"></i> <?= sanitize($firstSlide['badge']) ?>
+                </span>
+                <?php else: ?>
+                <span class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest bg-slate-900/60 backdrop-blur-sm text-slate-100 border border-white/20 mb-6">
+                    <i class="fa-solid fa-globe text-brandRed"></i> World Relief Committee NGO
+                </span>
+                <?php endif; ?>
+                <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-white leading-tight mb-6 font-heading drop-shadow-md">
+                    <?= sanitize($firstSlide['title'] ?? 'Empowering Hope, Rebuilding Lives Worldwide.') ?>
+                </h1>
+                <p class="text-base sm:text-lg text-slate-200 mb-8 leading-relaxed drop-shadow-sm max-w-2xl">
+                    <?= sanitize($firstSlide['subtitle'] ?? 'WRC is dedicated to providing immediate emergency aid, clean water solutions, nutritious food packs, and sustainable education to vulnerable communities in crisis.') ?>
+                </p>
+                <div class="flex flex-wrap gap-4 items-center">
+                    <a href="<?= $base ?><?= $firstSlide['cta_link'] ?? 'our-work/index.php' ?>"
+                        class="bg-brandRed hover:bg-brandRed-hover text-white font-bold text-sm sm:text-base px-7 py-3.5 rounded-xl shadow-lg shadow-brandRed/30 transition-all flex items-center gap-2 transform hover:-translate-y-1">
+                        <?= sanitize($firstSlide['cta_text'] ?? 'Explore Our Work') ?> <i class="fa-solid fa-arrow-right text-xs"></i>
+                    </a>
+                    <a href="<?= $base ?>get-involved/contribute-with-us.php"
+                        class="bg-white/10 hover:bg-white/25 backdrop-blur-md text-white border border-white/30 font-semibold text-sm sm:text-base px-6 py-3.5 rounded-xl transition-all flex items-center gap-2 transform hover:-translate-y-1">
+                        Contribute With Us <i class="fa-solid fa-handshake text-xs"></i>
+                    </a>
+                </div>
             </div>
         </div>
     </div>
@@ -575,21 +585,52 @@ const slider = document.getElementById('hero-slider');
 const prevBtn = document.getElementById('slider-prev');
 const nextBtn = document.getElementById('slider-next');
 const dots = document.querySelectorAll('#slider-dots button');
+const contentEl = document.getElementById('hero-content');
 let currentSlide = 0;
 const slideCount = <?= $slideCount ?>;
 let slideInterval;
 
+const slideContents = <?= json_encode(array_map(function($s) {
+    return [
+        'badge' => $s['badge'] ?? '',
+        'title' => $s['title'] ?? '',
+        'subtitle' => $s['subtitle'] ?? '',
+        'cta_text' => $s['cta_text'] ?? 'Explore Our Work',
+        'cta_link' => $s['cta_link'] ?? 'our-work/index.php',
+    ];
+}, $heroSlides)) ?>;
+
+function renderContent(index) {
+    if (!contentEl || !slideContents[index]) return;
+    var s = slideContents[index];
+    contentEl.style.opacity = '0';
+    contentEl.style.transform = 'translateY(15px)';
+    setTimeout(function() {
+        var badgeHtml = s.badge
+            ? '<span class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest bg-brandRed/90 text-white mb-4 backdrop-blur-sm"><i class="fa-solid fa-globe"></i> ' + s.badge + '</span>'
+            : '<span class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest bg-slate-900/60 backdrop-blur-sm text-slate-100 border border-white/20 mb-6"><i class="fa-solid fa-globe text-brandRed"></i> World Relief Committee NGO</span>';
+        contentEl.innerHTML = badgeHtml +
+            '<h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-white leading-tail mb-6 font-heading drop-shadow-md">' + s.title + '</h1>' +
+            '<p class="text-base sm:text-lg text-slate-200 mb-8 leading-relaxed drop-shadow-sm max-w-2xl">' + s.subtitle + '</p>' +
+            '<div class="flex flex-wrap gap-4 items-center">' +
+            '<a href="<?= $base ?>' + s.cta_link + '" class="bg-brandRed hover:bg-brandRed-hover text-white font-bold text-sm sm:text-base px-7 py-3.5 rounded-xl shadow-lg shadow-brandRed/30 transition-all flex items-center gap-2 transform hover:-translate-y-1">' + s.cta_text + ' <i class="fa-solid fa-arrow-right text-xs"></i></a>' +
+            '<a href="<?= $base ?>get-involved/contribute-with-us.php" class="bg-white/10 hover:bg-white/25 backdrop-blur-md text-white border border-white/30 font-semibold text-sm sm:text-base px-6 py-3.5 rounded-xl transition-all flex items-center gap-2 transform hover:-translate-y-1">Contribute With Us <i class="fa-solid fa-handshake text-xs"></i></a>' +
+            '</div>';
+        contentEl.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+        contentEl.style.opacity = '1';
+        contentEl.style.transform = 'translateY(0)';
+    }, 200);
+}
+
 function updateSlider() {
     if (slider) {
-        slider.style.transform = `translateX(-${currentSlide * 100}%)`;
-        dots.forEach((dot, index) => {
-            if (index === currentSlide) {
-                dot.className = 'w-3 h-3 rounded-full bg-brandRed shadow-md transition-all duration-300';
-            } else {
-                dot.className =
-                    'w-2.5 h-2.5 rounded-full bg-white/50 hover:bg-white shadow-md transition-all duration-300';
-            }
+        slider.style.transform = 'translateX(-' + currentSlide * 100 + '%)';
+        dots.forEach(function(dot, index) {
+            dot.className = index === currentSlide
+                ? 'w-4 h-3 rounded-full bg-brandRed shadow-md transition-all duration-300'
+                : 'w-3 h-3 rounded-full bg-white/50 hover:bg-white transition-all duration-300';
         });
+        renderContent(currentSlide);
     }
 }
 
@@ -604,7 +645,7 @@ function prevSlide() {
 }
 
 function startSlider() {
-    slideInterval = setInterval(nextSlide, 3000);
+    slideInterval = setInterval(nextSlide, 5000);
 }
 
 function resetSlider() {
@@ -613,24 +654,29 @@ function resetSlider() {
 }
 
 if (nextBtn && prevBtn && dots.length > 0) {
-    nextBtn.addEventListener('click', () => {
-        nextSlide();
-        resetSlider();
-    });
-
-    prevBtn.addEventListener('click', () => {
-        prevSlide();
-        resetSlider();
-    });
-
-    dots.forEach(dot => {
-        dot.addEventListener('click', (e) => {
+    nextBtn.addEventListener('click', function() { nextSlide(); resetSlider(); });
+    prevBtn.addEventListener('click', function() { prevSlide(); resetSlider(); });
+    dots.forEach(function(dot) {
+        dot.addEventListener('click', function(e) {
             currentSlide = parseInt(e.target.getAttribute('data-index'));
             updateSlider();
             resetSlider();
         });
     });
-
     startSlider();
 }
+
+// Touch/Swipe support
+var touchStartX = 0;
+var touchEndX = 0;
+var heroSection = document.getElementById('hero-slider');
+if (heroSection) {
+    heroSection.addEventListener('touchstart', function(e) { touchStartX = e.changedTouches[0].screenX; }, {passive: true});
+    heroSection.addEventListener('touchend', function(e) {
+        touchEndX = e.changedTouches[0].screenX;
+        if (touchStartX - touchEndX > 50) { nextSlide(); resetSlider(); }
+        else if (touchEndX - touchStartX > 50) { prevSlide(); resetSlider(); }
+    }, {passive: true});
+}
+</script>
 </script>

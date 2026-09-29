@@ -50,19 +50,14 @@ include __DIR__ . '/includes/header.php';
 <div class="mb-4 px-4 py-3 rounded-xl text-sm font-medium bg-<?= $flash['type'] === 'success' ? 'green-50 text-green-700 border border-green-200' : 'red-50 text-red-700 border border-red-200' ?>"><?= $flash['message'] ?></div>
 <?php endif; ?>
 
-<form method="POST" enctype="multipart/form-data" class="space-y-6">
+<form method="POST" class="space-y-6">
   <input type="hidden" name="csrf_token" value="<?= generateCSRF() ?>">
 
   <div class="bg-white rounded-2xl border border-slate-200 p-6">
     <h2 class="text-sm font-bold text-slate-900 uppercase tracking-wider mb-4">Photo Details</h2>
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <div>
-        <label class="block text-xs font-semibold text-slate-600 mb-1">Upload Image</label>
-        <input type="file" name="image_file" accept="image/*" class="w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-brandRed file:text-white hover:file:bg-red-700">
-      </div>
-      <div>
-        <label class="block text-xs font-semibold text-slate-600 mb-1">Or Image Path</label>
-        <input type="text" name="image_path" value="<?= htmlspecialchars($photo['image_path'] ?? '') ?>" placeholder="assets/images/..." class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-brandRed/20 focus:border-brandRed">
+      <div class="md:col-span-2">
+        <?php uploadWidget('image_path', 'Photo Image *', $photo['image_path'] ?? '', 'image', 'photo_image_upload'); ?>
       </div>
       <div>
         <label class="block text-xs font-semibold text-slate-600 mb-1">Alt Text</label>
@@ -85,9 +80,6 @@ include __DIR__ . '/includes/header.php';
         <input type="number" name="sort_order" value="<?= $photo['sort_order'] ?? 0 ?>" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-brandRed/20 focus:border-brandRed">
       </div>
     </div>
-    <?php if (!empty($photo['image_path'])): ?>
-    <div class="mt-4"><img src="/<?= $photo['image_path'] ?>" alt="" class="w-40 h-30 object-cover rounded-xl border border-slate-200"></div>
-    <?php endif; ?>
   </div>
 
   <div class="bg-white rounded-2xl border border-slate-200 p-6">

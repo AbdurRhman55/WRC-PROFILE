@@ -22,6 +22,11 @@ if (isPost()) {
 
 $projects = getRows('projects', [], 'sort_order ASC');
 
+$provancesById = [];
+foreach (getRows('provinces', ['is_active' => 1], 'sort_order ASC') as $prov) {
+    $provancesById[$prov['id']] = $prov['name'];
+}
+
 include __DIR__ . '/includes/header.php';
 ?>
 
@@ -51,6 +56,8 @@ include __DIR__ . '/includes/header.php';
         <tr class="bg-slate-50 border-b border-slate-200">
           <th class="text-left px-5 py-3 font-semibold text-slate-600 text-xs uppercase tracking-wider">ID</th>
           <th class="text-left px-5 py-3 font-semibold text-slate-600 text-xs uppercase tracking-wider">Title</th>
+          <th class="text-left px-5 py-3 font-semibold text-slate-600 text-xs uppercase tracking-wider">Location</th>
+          <th class="text-left px-5 py-3 font-semibold text-slate-600 text-xs uppercase tracking-wider">Category</th>
           <th class="text-left px-5 py-3 font-semibold text-slate-600 text-xs uppercase tracking-wider">Status</th>
           <th class="text-left px-5 py-3 font-semibold text-slate-600 text-xs uppercase tracking-wider">Progress</th>
           <th class="text-left px-5 py-3 font-semibold text-slate-600 text-xs uppercase tracking-wider">Active</th>
@@ -60,7 +67,7 @@ include __DIR__ . '/includes/header.php';
       <tbody id="tableBody">
         <?php if (empty($projects)): ?>
         <tr>
-          <td colspan="7" class="px-5 py-12 text-center text-slate-400">
+          <td colspan="8" class="px-5 py-12 text-center text-slate-400">
             <i class="fa-solid fa-folder-open text-3xl mb-3 block text-slate-300"></i>
             No projects found.
           </td>
@@ -70,6 +77,31 @@ include __DIR__ . '/includes/header.php';
         <tr class="border-b border-slate-100 hover:bg-slate-50 transition-colors <?= $i % 2 === 0 ? '' : 'bg-slate-50/50' ?>">
           <td class="px-5 py-3 text-slate-500 font-mono text-xs"><?= $project['id'] ?></td>
           <td class="px-5 py-3 font-semibold text-slate-900"><?= htmlspecialchars($project['title']) ?></td>
+          <td class="px-5 py-3 text-slate-600 text-xs">
+            <?php if (!empty($project['district']) || !empty($project['province_id'])): ?>
+            <i class="fa-solid fa-location-dot text-brandRed/70 mr-1"></i>
+            <?= htmlspecialchars($project['district'] ?? '') ?> <?= !empty($project['district']) && !empty($project['province_id']) ? '·' : '' ?> <?= htmlspecialchars($provancesById[$project['province_id']] ?? '') ?>
+            <?php else: ?>
+            <span class="text-slate-300">—</span>
+            <?php endif; ?>
+          </td>
+          <td class="px-5 py-3">
+            <?php
+              $catColors = [
+                'Health' => 'bg-rose-50 text-rose-600 border-rose-200',
+                'Education' => 'bg-blue-50 text-blue-600 border-blue-200',
+                'WASH' => 'bg-cyan-50 text-cyan-600 border-cyan-200',
+                'Food Security' => 'bg-amber-50 text-amber-600 border-amber-200',
+                'Emergency Response' => 'bg-red-50 text-red-600 border-red-200',
+                'Child Protection' => 'bg-purple-50 text-purple-600 border-purple-200',
+                'Shelter' => 'bg-orange-50 text-orange-600 border-orange-200',
+                'Gender Equality' => 'bg-pink-50 text-pink-600 border-pink-200',
+                'Climate Resilience' => 'bg-emerald-50 text-emerald-600 border-emerald-200',
+              ];
+              $catColor = $catColors[$project['category'] ?? ''] ?? 'bg-slate-50 text-slate-600 border-slate-200';
+            ?>
+            <span class="inline-flex items-center text-[11px] font-semibold px-2 py-0.5 rounded-full border <?= $catColor ?>"><?= htmlspecialchars($project['category'] ?? 'General') ?></span>
+          </td>
           <td class="px-5 py-3">
             <?php
               $statusColors = ['active' => 'bg-green-50 text-green-600 border-green-200', 'completed' => 'bg-blue-50 text-blue-600 border-blue-200', 'upcoming' => 'bg-amber-50 text-amber-600 border-amber-200'];

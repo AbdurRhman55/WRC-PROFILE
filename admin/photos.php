@@ -7,8 +7,8 @@ $pageTitle = 'Photo Gallery';
 if (isPost() && isset($_POST['delete_id'])) {
     if (!verifyCSRF($_POST['csrf_token'] ?? '')) { redirect('photos.php'); }
     $photo = getRow('photo_gallery', ['id' => (int) $_POST['delete_id']]);
-    if ($photo && $photo['image_path'] && file_exists(__DIR__ . '/..//' . $photo['image_path'])) {
-        unlink(__DIR__ . '/..//' . $photo['image_path']);
+    if ($photo && $photo['image_path'] && file_exists(__DIR__ . '/../' . $photo['image_path'])) {
+        unlink(__DIR__ . '/../' . $photo['image_path']);
     }
     global $pdo;
     $pdo->prepare("DELETE FROM photo_gallery WHERE id = ?")->execute([(int) $_POST['delete_id']]);

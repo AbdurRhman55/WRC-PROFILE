@@ -64,7 +64,7 @@ include __DIR__ . '/includes/header.php';
 <div class="mb-4 px-4 py-3 rounded-xl text-sm font-medium bg-<?= $flash['type'] === 'success' ? 'green-50 text-green-700 border border-green-200' : 'red-50 text-red-700 border border-red-200' ?>"><?= $flash['message'] ?></div>
 <?php endif; ?>
 
-<form method="POST" enctype="multipart/form-data" class="space-y-6">
+<form method="POST" class="space-y-6">
   <div class="bg-white rounded-2xl border border-slate-200 p-6">
     <h2 class="text-sm font-bold text-slate-900 uppercase tracking-wider mb-4">Story Details</h2>
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -98,21 +98,9 @@ include __DIR__ . '/includes/header.php';
 
   <div class="bg-white rounded-2xl border border-slate-200 p-6">
     <h2 class="text-sm font-bold text-slate-900 uppercase tracking-wider mb-4">Photo</h2>
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <div>
-        <label class="block text-xs font-semibold text-slate-600 mb-1">Upload Image</label>
-        <input type="file" name="image_file" accept="image/*" class="w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-brandRed file:text-white hover:file:bg-red-700">
-      </div>
-      <div>
-        <label class="block text-xs font-semibold text-slate-600 mb-1">Or Image URL</label>
-        <input type="text" name="image_path" value="<?= htmlspecialchars($story['image_path'] ?? '') ?>" placeholder="assets/images/..." class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-brandRed/20 focus:border-brandRed">
-      </div>
+    <div class="md:col-span-2">
+      <?php uploadWidget('image_path', 'Person Photo', $story['image_path'] ?? '', 'image', 'story_image_upload'); ?>
     </div>
-    <?php if (!empty($story['image_path'])): ?>
-    <div class="mt-4">
-      <img src="/<?= $story['image_path'] ?>" alt="" class="w-32 h-32 object-cover rounded-xl border border-slate-200">
-    </div>
-    <?php endif; ?>
   </div>
 
   <div class="bg-white rounded-2xl border border-slate-200 p-6">

@@ -1,5 +1,5 @@
 <?php
-require __DIR__ . '/config.php';
+require_once __DIR__ . '/config.php';
 requireAdmin();
 
 $jobs = getRows('job_listings', [], 'posted_at DESC');
@@ -7,6 +7,10 @@ $types = ['full_time' => 'Full Time', 'part_time' => 'Part Time', 'contract' => 
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_POST['delete_id'])) {
+        if (!isset($_POST['csrf_token']) || !verifyCSRF($_POST['csrf_token'])) {
+            setFlash('error', 'Invalid security token.');
+            redirect('jobs.php');
+        }
         $id = (int) $_POST['delete_id'];
         $pdo->prepare("DELETE FROM job_listings WHERE id = ?")->execute([$id]);
         setFlash('success', 'Job listing deleted.');
@@ -71,6 +75,7 @@ include __DIR__ . '/includes/header.php';
             <div class="flex items-center justify-end gap-2">
               <a href="job-edit.php?id=<?= $job['id'] ?>" class="px-3 py-1.5 rounded-lg bg-slate-100 text-slate-600 text-xs font-semibold hover:bg-slate-200 transition-colors">Edit</a>
               <form method="POST" onsubmit="return confirm('Delete this job listing?')">
+                <input type="hidden" name="csrf_token" value="<?= generateCSRF() ?>">
                 <input type="hidden" name="delete_id" value="<?= $job['id'] ?>">
                 <button class="px-3 py-1.5 rounded-lg bg-red-50 text-red-600 text-xs font-semibold hover:bg-red-100 transition-colors">Delete</button>
               </form>

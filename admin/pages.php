@@ -618,22 +618,6 @@ if (isPost() && isset($_POST['save_sections'])) {
         if ($exists) { updateRow('where_we_work_content', $updateData, ['id' => $exists['id']]); } else { insertRow('where_we_work_content', $updateData); }
     }
 
-    function saveWhereWeWorkDistricts($sectionKey, $data) {
-        global $pdo;
-        $districts = $data['content']['districts'] ?? [];
-        $pdo->exec("DELETE FROM where_we_work_districts");
-        foreach ($districts as $i => $d) {
-            insertRow('where_we_work_districts', [
-                'district' => $d['district'] ?? '',
-                'province' => $d['province'] ?? '',
-                'programs' => $d['programs'] ?? '',
-                'beneficiaries' => $d['beneficiaries'] ?? '',
-                'year' => $d['year'] ?? '',
-                'sort_order' => $i,
-            ]);
-        }
-    }
-
     function saveContributeImpact($sectionKey, $data) {
         global $pdo;
         $content = $data['content'] ?? [];
@@ -682,6 +666,73 @@ if (isPost() && isset($_POST['save_sections'])) {
         }
     }
 
+    function saveGetInvolvedVolunteer($sectionKey, $data) {
+        global $pdo;
+        $content = $data['content'] ?? [];
+        $exists = getRow('get_involved_volunteer');
+        $updateData = [
+            'section_title' => $data['section_title'] ?? '',
+            'section_subtitle' => $data['section_subtitle'] ?? '',
+            'description' => $content['description'] ?? '',
+            'requirements' => json_encode($content['requirements'] ?? [], JSON_UNESCAPED_UNICODE),
+            'stat1_value' => $content['stat1_value'] ?? '',
+            'stat1_label' => $content['stat1_label'] ?? '',
+            'stat2_value' => $content['stat2_value'] ?? '',
+            'stat2_label' => $content['stat2_label'] ?? '',
+            'stat3_value' => $content['stat3_value'] ?? '',
+            'stat3_label' => $content['stat3_label'] ?? '',
+        ];
+        if ($exists) { updateRow('get_involved_volunteer', $updateData, ['id' => $exists['id']]); } else { insertRow('get_involved_volunteer', $updateData); }
+    }
+
+    function saveGetInvolvedPartner($sectionKey, $data) {
+        global $pdo;
+        $content = $data['content'] ?? [];
+        $exists = getRow('get_involved_partner');
+        $updateData = [
+            'section_title' => $data['section_title'] ?? '',
+            'section_subtitle' => $data['section_subtitle'] ?? '',
+            'description' => $content['description'] ?? '',
+            'partner_types' => json_encode($content['partner_types'] ?? [], JSON_UNESCAPED_UNICODE),
+        ];
+        if ($exists) { updateRow('get_involved_partner', $updateData, ['id' => $exists['id']]); } else { insertRow('get_involved_partner', $updateData); }
+    }
+
+    function saveGetInvolvedMembership($sectionKey, $data) {
+        global $pdo;
+        $content = $data['content'] ?? [];
+        $exists = getRow('get_involved_membership');
+        $updateData = [
+            'section_title' => $data['section_title'] ?? '',
+            'section_subtitle' => $data['section_subtitle'] ?? '',
+            'description' => $content['description'] ?? '',
+            'benefits' => json_encode($content['benefits'] ?? [], JSON_UNESCAPED_UNICODE),
+            'membership_types' => json_encode($content['membership_types'] ?? [], JSON_UNESCAPED_UNICODE),
+        ];
+        if ($exists) { updateRow('get_involved_membership', $updateData, ['id' => $exists['id']]); } else { insertRow('get_involved_membership', $updateData); }
+    }
+
+    function saveResourcesRegistration($sectionKey, $data) {
+        global $pdo;
+        $content = $data['content'] ?? [];
+        $items = $content['items'] ?? [];
+        $pdo->exec("DELETE FROM resources_registration");
+        foreach ($items as $i => $item) {
+            insertRow('resources_registration', [
+                'title' => $item['title'] ?? '',
+                'description' => $item['description'] ?? '',
+                'registration_number' => $item['registration_number'] ?? '',
+                'issuing_authority' => $item['issuing_authority'] ?? '',
+                'issue_date' => !empty($item['issue_date']) ? $item['issue_date'] : null,
+                'document_type' => $item['document_type'] ?? 'certificate',
+                'icon' => $item['icon'] ?? 'fa-stamp',
+                'badge' => $item['badge'] ?? '',
+                'is_active' => 1,
+                'sort_order' => $i,
+            ]);
+        }
+    }
+
     // Dispatch: save each section to its dedicated table or homepage_sections
     $dedicatedSections = [
         'about_hero' => 'saveHeroSection',
@@ -724,10 +775,13 @@ if (isPost() && isset($_POST['save_sections'])) {
         'impact_cta' => 'saveImpactCta',
         'where_we_work_hero' => 'saveWhereWeWorkHero',
         'where_we_work_content' => 'saveWhereWeWorkContent',
-        'where_we_work_districts' => 'saveWhereWeWorkDistricts',
         'news_hero' => 'saveNewsHero',
         'resources_hero' => 'saveGenericHero',
+        'resources_registration' => 'saveResourcesRegistration',
         'get_involved_hero' => 'saveGetInvolvedHero',
+        'get_involved_volunteer' => 'saveGetInvolvedVolunteer',
+        'get_involved_partner' => 'saveGetInvolvedPartner',
+        'get_involved_membership' => 'saveGetInvolvedMembership',
         'get_involved_cta' => 'saveCtaSection',
         'contribute_hero' => 'saveContributeHero',
         'contribute_impact' => 'saveContributeImpact',
@@ -881,16 +935,13 @@ $pages = [
             'news_hero' => 'Hero Section',
         ]
     ],
-    'resources' => [
-        'label' => 'Resources',
-        'sections' => [
-            'resources_hero' => 'Hero Section',
-        ]
-    ],
     'get-involved' => [
         'label' => 'Get Involved',
         'sections' => [
             'get_involved_hero' => 'Hero Section',
+            'get_involved_volunteer' => 'Volunteer Registration',
+            'get_involved_partner' => 'Partner Section',
+            'get_involved_membership' => 'Membership Section',
             'get_involved_cta' => 'CTA Banner',
         ]
     ],
@@ -923,7 +974,6 @@ $pages = [
         'sections' => [
             'where_we_work_hero' => 'Hero Section',
             'where_we_work_content' => 'Geographic Coverage',
-            'where_we_work_districts' => 'District Table',
         ]
     ],
 ];
@@ -1267,13 +1317,6 @@ function loadDedicatedSection($sectionKey, $defaultTitle) {
                 ];
             }
             break;
-        case 'where_we_work_districts':
-            $districts = getRows('where_we_work_districts', [], 'sort_order ASC');
-            return [
-                'section_key' => $sectionKey, 'section_title' => 'District Coverage Table',
-                'section_subtitle' => '', 'content' => ['districts' => $districts], 'is_active' => 1,
-            ];
-            break;
         case 'news_hero':
             $row = getRow('news_hero');
             if ($row) return [
@@ -1291,12 +1334,66 @@ function loadDedicatedSection($sectionKey, $defaultTitle) {
                 ];
             }
             break;
+        case 'resources_registration':
+            $items = getRows('resources_registration', [], 'sort_order ASC');
+            return [
+                'section_key' => $sectionKey, 'section_title' => 'Registration & Certifications',
+                'section_subtitle' => '', 'content' => ['items' => $items], 'is_active' => 1,
+            ];
+            break;
         case 'get_involved_hero':
             $row = getRow('get_involved_hero');
             if ($row) return [
                 'section_key' => $sectionKey, 'section_title' => $row['section_title'] ?? '',
                 'section_subtitle' => $row['section_subtitle'] ?? '', 'content' => $row, 'is_active' => 1,
             ];
+            break;
+        case 'get_involved_volunteer':
+            $row = getRow('get_involved_volunteer');
+            if ($row) {
+                $requirements = json_decode($row['requirements'] ?? '[]', true);
+                return [
+                    'section_key' => $sectionKey, 'section_title' => $row['section_title'] ?? '',
+                    'section_subtitle' => $row['section_subtitle'] ?? '',
+                    'content' => [
+                        'description' => $row['description'] ?? '',
+                        'requirements' => $requirements,
+                        'stat1_value' => $row['stat1_value'] ?? '', 'stat1_label' => $row['stat1_label'] ?? '',
+                        'stat2_value' => $row['stat2_value'] ?? '', 'stat2_label' => $row['stat2_label'] ?? '',
+                        'stat3_value' => $row['stat3_value'] ?? '', 'stat3_label' => $row['stat3_label'] ?? '',
+                    ], 'is_active' => 1,
+                ];
+            }
+            break;
+        case 'get_involved_partner':
+            $row = getRow('get_involved_partner');
+            if ($row) {
+                $partnerTypes = json_decode($row['partner_types'] ?? '[]', true);
+                return [
+                    'section_key' => $sectionKey, 'section_title' => $row['section_title'] ?? '',
+                    'section_subtitle' => $row['section_subtitle'] ?? '',
+                    'content' => [
+                        'description' => $row['description'] ?? '',
+                        'partner_types' => $partnerTypes,
+                    ], 'is_active' => 1,
+                ];
+            }
+            break;
+        case 'get_involved_membership':
+            $row = getRow('get_involved_membership');
+            if ($row) {
+                $benefits = json_decode($row['benefits'] ?? '[]', true);
+                $membershipTypes = json_decode($row['membership_types'] ?? '[]', true);
+                return [
+                    'section_key' => $sectionKey, 'section_title' => $row['section_title'] ?? '',
+                    'section_subtitle' => $row['section_subtitle'] ?? '',
+                    'content' => [
+                        'description' => $row['description'] ?? '',
+                        'benefits' => $benefits,
+                        'membership_types' => $membershipTypes,
+                    ], 'is_active' => 1,
+                ];
+            }
             break;
         case 'get_involved_cta':
             $row = getRow('get_involved_cta');
@@ -1445,7 +1542,22 @@ include __DIR__ . '/includes/header.php';
       <div class="field-row">
         <div class="field-group">
           <label>Hero Image</label>
-          <input type="text" data-field="content.hero_image" value="<?= htmlspecialchars($content['hero_image'] ?? $content['image_path'] ?? '') ?>" placeholder="assets/images/hero.jpg">
+          <?php
+            $heroImgId = 'hero_img_' . preg_replace('/[^a-z0-9]/', '_', $sKey);
+          ?>
+          <input type="text" data-field="content.hero_image" id="<?= $heroImgId ?>"
+            value="<?= htmlspecialchars($content['hero_image'] ?? $content['image_path'] ?? '') ?>"
+            placeholder="assets/images/hero/about-hero.jpg"
+            class="upload-path-input">
+          <div class="upload-widget" data-type="image" data-target="<?= $heroImgId ?>" style="margin-top:8px">
+            <div class="upload-zone">
+              <input type="file" accept="image/*">
+              <div class="upload-placeholder">
+                <i class="fa-solid fa-cloud-arrow-up"></i>
+                <p>Click or drag to upload hero image</p>
+              </div>
+            </div>
+          </div>
         </div>
         <div class="field-group">
           <label>Subtitle</label>
@@ -1739,16 +1851,6 @@ include __DIR__ . '/includes/header.php';
       </div>
 
       <?php
-      // ===== WHERE WE WORK DISTRICTS (table) =====
-      elseif ($sKey === 'where_we_work_districts'):
-      ?>
-      <div style="padding:1rem;background:#f8fafc;border-radius:0.75rem;border:1px solid #e2e8f0;">
-        <p style="font-size:0.75rem;font-weight:700;color:#ca0000;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.75rem;">District Coverage Table</p>
-        <div id="districtsList_where_we_work_districts" class="space-y-2"></div>
-        <button type="button" class="add-btn" onclick="addDistrict_where_we_work_districts()"><i class="fa-solid fa-plus text-xs"></i> Add District</button>
-      </div>
-
-      <?php
       // ===== STATS / DASHBOARD SECTIONS =====
       elseif (in_array($sKey, ['projects_dashboard','causes_impact','history_stats','resources_hero','contribute_why'])):
       ?>
@@ -1880,7 +1982,17 @@ include __DIR__ . '/includes/header.php';
       <div class="field-row">
         <div class="field-group">
           <label>Hero Image</label>
-          <input type="text" data-field="content.hero_image" value="<?= htmlspecialchars($content['hero_image'] ?? '') ?>">
+          <?php $heroImgId = 'hero_img_' . preg_replace('/[^a-z0-9]/', '_', $sKey); ?>
+          <input type="text" data-field="content.hero_image" id="<?= $heroImgId ?>" value="<?= htmlspecialchars($content['hero_image'] ?? '') ?>" class="upload-path-input">
+          <div class="upload-widget" data-type="image" data-target="<?= $heroImgId ?>" style="margin-top:8px">
+            <div class="upload-zone">
+              <input type="file" accept="image/*">
+              <div class="upload-placeholder">
+                <i class="fa-solid fa-cloud-arrow-up"></i>
+                <p>Click or drag to upload hero image</p>
+              </div>
+            </div>
+          </div>
         </div>
         <div class="field-group">
           <label>Badge</label>
@@ -1903,13 +2015,130 @@ include __DIR__ . '/includes/header.php';
       </div>
 
       <?php
+      // ===== GET INVOLVED VOLUNTEER =====
+      elseif ($sKey === 'get_involved_volunteer'):
+      ?>
+      <div class="field-row">
+        <div class="field-group">
+          <label>Section Title</label>
+          <input type="text" data-field="section_title" value="<?= htmlspecialchars($sData['section_title'] ?? '') ?>">
+        </div>
+        <div class="field-group">
+          <label>Section Subtitle</label>
+          <input type="text" data-field="section_subtitle" value="<?= htmlspecialchars($sData['section_subtitle'] ?? '') ?>">
+        </div>
+      </div>
+      <div class="field-group">
+        <label>Description</label>
+        <textarea data-field="content.description" rows="3"><?= htmlspecialchars($content['description'] ?? '') ?></textarea>
+      </div>
+      <div class="field-group">
+        <label>Requirements</label>
+        <div id="requirementsList_get_involved_volunteer" class="space-y-2"></div>
+        <button type="button" class="add-btn" onclick="addRequirement_get_involved_volunteer()"><i class="fa-solid fa-plus text-xs"></i> Add Requirement</button>
+      </div>
+      <div class="field-row-3">
+        <div class="field-group">
+          <label>Stat 1 Value</label>
+          <input type="text" data-field="content.stat1_value" value="<?= htmlspecialchars($content['stat1_value'] ?? '') ?>" placeholder="500+">
+        </div>
+        <div class="field-group">
+          <label>Stat 1 Label</label>
+          <input type="text" data-field="content.stat1_label" value="<?= htmlspecialchars($content['stat1_label'] ?? '') ?>" placeholder="Active Volunteers">
+        </div>
+      </div>
+      <div class="field-row-3">
+        <div class="field-group">
+          <label>Stat 2 Value</label>
+          <input type="text" data-field="content.stat2_value" value="<?= htmlspecialchars($content['stat2_value'] ?? '') ?>" placeholder="30+">
+        </div>
+        <div class="field-group">
+          <label>Stat 2 Label</label>
+          <input type="text" data-field="content.stat2_label" value="<?= htmlspecialchars($content['stat2_label'] ?? '') ?>" placeholder="Districts Covered">
+        </div>
+      </div>
+      <div class="field-row-3">
+        <div class="field-group">
+          <label>Stat 3 Value</label>
+          <input type="text" data-field="content.stat3_value" value="<?= htmlspecialchars($content['stat3_value'] ?? '') ?>" placeholder="12k+">
+        </div>
+        <div class="field-group">
+          <label>Stat 3 Label</label>
+          <input type="text" data-field="content.stat3_label" value="<?= htmlspecialchars($content['stat3_label'] ?? '') ?>" placeholder="Hours Contributed">
+        </div>
+      </div>
+
+      <?php
+      // ===== GET INVOLVED PARTNER =====
+      elseif ($sKey === 'get_involved_partner'):
+      ?>
+      <div class="field-row">
+        <div class="field-group">
+          <label>Section Title</label>
+          <input type="text" data-field="section_title" value="<?= htmlspecialchars($sData['section_title'] ?? '') ?>">
+        </div>
+        <div class="field-group">
+          <label>Section Subtitle</label>
+          <input type="text" data-field="section_subtitle" value="<?= htmlspecialchars($sData['section_subtitle'] ?? '') ?>">
+        </div>
+      </div>
+      <div class="field-group">
+        <label>Description</label>
+        <textarea data-field="content.description" rows="3"><?= htmlspecialchars($content['description'] ?? '') ?></textarea>
+      </div>
+      <div class="field-group">
+        <label>Partner Types</label>
+        <div id="partnerTypesList_get_involved_partner" class="space-y-2"></div>
+        <button type="button" class="add-btn" onclick="addPartnerType_get_involved_partner()"><i class="fa-solid fa-plus text-xs"></i> Add Partner Type</button>
+      </div>
+
+      <?php
+      // ===== GET INVOLVED MEMBERSHIP =====
+      elseif ($sKey === 'get_involved_membership'):
+      ?>
+      <div class="field-row">
+        <div class="field-group">
+          <label>Section Title</label>
+          <input type="text" data-field="section_title" value="<?= htmlspecialchars($sData['section_title'] ?? '') ?>">
+        </div>
+        <div class="field-group">
+          <label>Section Subtitle</label>
+          <input type="text" data-field="section_subtitle" value="<?= htmlspecialchars($sData['section_subtitle'] ?? '') ?>">
+        </div>
+      </div>
+      <div class="field-group">
+        <label>Description</label>
+        <textarea data-field="content.description" rows="3"><?= htmlspecialchars($content['description'] ?? '') ?></textarea>
+      </div>
+      <div class="field-group">
+        <label>Member Benefits</label>
+        <div id="benefitsList_get_involved_membership" class="space-y-2"></div>
+        <button type="button" class="add-btn" onclick="addBenefit_get_involved_membership()"><i class="fa-solid fa-plus text-xs"></i> Add Benefit</button>
+      </div>
+      <div class="field-group">
+        <label>Membership Types</label>
+        <div id="membershipTypesList_get_involved_membership" class="space-y-2"></div>
+        <button type="button" class="add-btn" onclick="addMembershipType_get_involved_membership()"><i class="fa-solid fa-plus text-xs"></i> Add Membership Type</button>
+      </div>
+
+      <?php
       // ===== CONTRIBUTE HERO =====
       elseif ($sKey === 'contribute_hero'):
       ?>
       <div class="field-row">
         <div class="field-group">
           <label>Hero Image</label>
-          <input type="text" data-field="content.hero_image" value="<?= htmlspecialchars($content['hero_image'] ?? '') ?>">
+          <?php $heroImgId = 'hero_img_' . preg_replace('/[^a-z0-9]/', '_', $sKey); ?>
+          <input type="text" data-field="content.hero_image" id="<?= $heroImgId ?>" value="<?= htmlspecialchars($content['hero_image'] ?? '') ?>" class="upload-path-input">
+          <div class="upload-widget" data-type="image" data-target="<?= $heroImgId ?>" style="margin-top:8px">
+            <div class="upload-zone">
+              <input type="file" accept="image/*">
+              <div class="upload-placeholder">
+                <i class="fa-solid fa-cloud-arrow-up"></i>
+                <p>Click or drag to upload hero image</p>
+              </div>
+            </div>
+          </div>
         </div>
         <div class="field-group">
           <label>Badge</label>
@@ -1934,7 +2163,17 @@ include __DIR__ . '/includes/header.php';
       <div class="field-row">
         <div class="field-group">
           <label>Hero Image</label>
-          <input type="text" data-field="content.hero_image" value="<?= htmlspecialchars($content['hero_image'] ?? '') ?>">
+          <?php $heroImgId = 'hero_img_' . preg_replace('/[^a-z0-9]/', '_', $sKey); ?>
+          <input type="text" data-field="content.hero_image" id="<?= $heroImgId ?>" value="<?= htmlspecialchars($content['hero_image'] ?? '') ?>" class="upload-path-input">
+          <div class="upload-widget" data-type="image" data-target="<?= $heroImgId ?>" style="margin-top:8px">
+            <div class="upload-zone">
+              <input type="file" accept="image/*">
+              <div class="upload-placeholder">
+                <i class="fa-solid fa-cloud-arrow-up"></i>
+                <p>Click or drag to upload hero image</p>
+              </div>
+            </div>
+          </div>
         </div>
         <div class="field-group">
           <label>Tagline</label>
@@ -1963,6 +2202,16 @@ include __DIR__ . '/includes/header.php';
         <label>Stats</label>
         <div id="statsList_<?= $sKey ?>" class="space-y-2"></div>
         <button type="button" class="add-btn" onclick="addStat_<?= $sKey ?>()"><i class="fa-solid fa-plus text-xs"></i> Add Stat</button>
+      </div>
+
+      <?php
+      // ===== RESOURCES REGISTRATION =====
+      elseif ($sKey === 'resources_registration'):
+      ?>
+      <div class="field-group">
+        <label>Registration Documents</label>
+        <div id="itemsList_resources_registration" class="space-y-2"></div>
+        <button type="button" class="add-btn" onclick="addItem_resources_registration()"><i class="fa-solid fa-plus text-xs"></i> Add Registration</button>
       </div>
 
       <?php
@@ -2091,6 +2340,18 @@ document.getElementById('sectionsForm').addEventListener('submit', function(e) {
     }
     if (typeof window['districtsArr_' + key] !== 'undefined') {
       allData[key].content.districts = window['districtsArr_' + key];
+    }
+    if (typeof window['requirementsArr_' + key] !== 'undefined') {
+      allData[key].content.requirements = window['requirementsArr_' + key];
+    }
+    if (typeof window['partnerTypesArr_' + key] !== 'undefined') {
+      allData[key].content.partner_types = window['partnerTypesArr_' + key];
+    }
+    if (typeof window['benefitsArr_' + key] !== 'undefined') {
+      allData[key].content.benefits = window['benefitsArr_' + key];
+    }
+    if (typeof window['membershipTypesArr_' + key] !== 'undefined') {
+      allData[key].content.membership_types = window['membershipTypesArr_' + key];
     }
     if (typeof window['projectsArr_' + key] !== 'undefined') {
       allData[key].content.projects = window['projectsArr_' + key];
@@ -2306,19 +2567,77 @@ function addQuickLink_where_we_work_content() { quickLinksArr_where_we_work_cont
 renderQuickLinks_where_we_work_content();
 <?php endif; ?>
 
-<?php if (isset($sections['where_we_work_districts'])): ?>
-// ===== WHERE WE WORK: DISTRICTS TABLE =====
-var districtsArr_where_we_work_districts = <?= json_encode($sections['where_we_work_districts']['content']['districts'] ?? [], JSON_HEX_TAG) ?>;
-function renderDistricts_where_we_work_districts() {
-  var el = document.getElementById('districtsList_where_we_work_districts');
+<?php if (isset($sections['resources_registration'])): ?>
+// ===== RESOURCES: REGISTRATION ITEMS =====
+var itemsArr_resources_registration = <?= json_encode($sections['resources_registration']['content']['items'] ?? [], JSON_HEX_TAG) ?>;
+function renderItems_resources_registration() {
+  var el = document.getElementById('itemsList_resources_registration');
   if (!el) return;
   el.innerHTML = '';
-  districtsArr_where_we_work_districts.forEach(function(item, i) {
-    el.innerHTML += '<div class="dynamic-item"><button type="button" class="remove-btn" onclick="districtsArr_where_we_work_districts.splice('+i+',1);renderDistricts_where_we_work_districts()"><i class="fa-solid fa-xmark"></i></button><div class="field-row"><div class="field-group"><label>District</label><input value="'+(item.district||'').replace(/"/g,'&quot;')+'" onchange="districtsArr_where_we_work_districts['+i+'].district=this.value"></div><div class="field-group"><label>Province</label><input value="'+(item.province||'').replace(/"/g,'&quot;')+'" onchange="districtsArr_where_we_work_districts['+i+'].province=this.value" placeholder="Khyber Pakhtunkhwa"></div><div class="field-group"><label>Programs</label><input value="'+(item.programs||'').replace(/"/g,'&quot;')+'" onchange="districtsArr_where_we_work_districts['+i+'].programs=this.value"></div><div class="field-group"><label>Beneficiaries</label><input value="'+(item.beneficiaries||'').replace(/"/g,'&quot;')+'" onchange="districtsArr_where_we_work_districts['+i+'].beneficiaries=this.value" placeholder="25,000+"></div><div class="field-group"><label>Year</label><input value="'+(item.year||'').replace(/"/g,'&quot;')+'" onchange="districtsArr_where_we_work_districts['+i+'].year=this.value" placeholder="2010"></div></div></div>';
+  itemsArr_resources_registration.forEach(function(item, i) {
+    el.innerHTML += '<div class="dynamic-item"><button type="button" class="remove-btn" onclick="itemsArr_resources_registration.splice('+i+',1);renderItems_resources_registration()"><i class="fa-solid fa-xmark"></i></button><div class="field-row"><div class="field-group"><label>Title</label><input value="'+(item.title||'').replace(/"/g,'&quot;')+'" onchange="itemsArr_resources_registration['+i+'].title=this.value" placeholder="NGO Registration Certificate"></div><div class="field-group"><label>Badge</label><input value="'+(item.badge||'').replace(/"/g,'&quot;')+'" onchange="itemsArr_resources_registration['+i+'].badge=this.value" placeholder="Registered"></div></div><div class="field-group"><label>Description</label><textarea rows="2" onchange="itemsArr_resources_registration['+i+'].description=this.value">'+(item.description||'').replace(/</g,'&lt;')+'</textarea></div><div class="field-row"><div class="field-group"><label>Icon</label><input value="'+(item.icon||'').replace(/"/g,'&quot;')+'" onchange="itemsArr_resources_registration['+i+'].icon=this.value" placeholder="fa-stamp"></div><div class="field-group"><label>Registration #</label><input value="'+(item.registration_number||'').replace(/"/g,'&quot;')+'" onchange="itemsArr_resources_registration['+i+'].registration_number=this.value"></div></div><div class="field-row"><div class="field-group"><label>Issuing Authority</label><input value="'+(item.issuing_authority||'').replace(/"/g,'&quot;')+'" onchange="itemsArr_resources_registration['+i+'].issuing_authority=this.value"></div><div class="field-group"><label>Issue Date</label><input type="date" value="'+(item.issue_date||'').replace(/"/g,'&quot;')+'" onchange="itemsArr_resources_registration['+i+'].issue_date=this.value"></div></div></div>';
   });
 }
-function addDistrict_where_we_work_districts() { districtsArr_where_we_work_districts.push({district:'',province:'',programs:'',beneficiaries:'',year:''}); renderDistricts_where_we_work_districts(); }
-renderDistricts_where_we_work_districts();
+function addItem_resources_registration() { itemsArr_resources_registration.push({title:'',description:'',registration_number:'',issuing_authority:'',issue_date:'',icon:'fa-stamp',badge:'',document_type:'certificate'}); renderItems_resources_registration(); }
+renderItems_resources_registration();
+<?php endif; ?>
+
+<?php if (isset($sections['get_involved_volunteer'])): ?>
+// ===== GET INVOLVED: VOLUNTEER REQUIREMENTS =====
+var requirementsArr_get_involved_volunteer = <?= json_encode($sections['get_involved_volunteer']['content']['requirements'] ?? [], JSON_HEX_TAG) ?>;
+function renderRequirements_get_involved_volunteer() {
+  var el = document.getElementById('requirementsList_get_involved_volunteer');
+  if (!el) return;
+  el.innerHTML = '';
+  requirementsArr_get_involved_volunteer.forEach(function(item, i) {
+    el.innerHTML += '<div class="dynamic-item"><button type="button" class="remove-btn" onclick="requirementsArr_get_involved_volunteer.splice('+i+',1);renderRequirements_get_involved_volunteer()"><i class="fa-solid fa-xmark"></i></button><div class="field-group"><label>Requirement</label><input value="'+item.replace(/"/g,'&quot;')+'" onchange="requirementsArr_get_involved_volunteer['+i+']=this.value" placeholder="Must be 18 years or older"></div></div>';
+  });
+}
+function addRequirement_get_involved_volunteer() { requirementsArr_get_involved_volunteer.push(''); renderRequirements_get_involved_volunteer(); }
+renderRequirements_get_involved_volunteer();
+<?php endif; ?>
+
+<?php if (isset($sections['get_involved_partner'])): ?>
+// ===== GET INVOLVED: PARTNER TYPES =====
+var partnerTypesArr_get_involved_partner = <?= json_encode($sections['get_involved_partner']['content']['partner_types'] ?? [], JSON_HEX_TAG) ?>;
+function renderPartnerTypes_get_involved_partner() {
+  var el = document.getElementById('partnerTypesList_get_involved_partner');
+  if (!el) return;
+  el.innerHTML = '';
+  partnerTypesArr_get_involved_partner.forEach(function(item, i) {
+    el.innerHTML += '<div class="dynamic-item"><button type="button" class="remove-btn" onclick="partnerTypesArr_get_involved_partner.splice('+i+',1);renderPartnerTypes_get_involved_partner()"><i class="fa-solid fa-xmark"></i></button><div class="field-row"><div class="field-group"><label>Icon</label><input value="'+(item.icon||'').replace(/"/g,'&quot;')+'" onchange="partnerTypesArr_get_involved_partner['+i+'].icon=this.value" placeholder="fa-building-columns"></div><div class="field-group"><label>Title</label><input value="'+(item.title||'').replace(/"/g,'&quot;')+'" onchange="partnerTypesArr_get_involved_partner['+i+'].title=this.value"></div></div><div class="field-group"><label>Description</label><textarea rows="2" onchange="partnerTypesArr_get_involved_partner['+i+'].description=this.value">'+(item.description||'').replace(/</g,'&lt;')+'</textarea></div></div>';
+  });
+}
+function addPartnerType_get_involved_partner() { partnerTypesArr_get_involved_partner.push({icon:'',title:'',description:''}); renderPartnerTypes_get_involved_partner(); }
+renderPartnerTypes_get_involved_partner();
+<?php endif; ?>
+
+<?php if (isset($sections['get_involved_membership'])): ?>
+// ===== GET INVOLVED: MEMBER BENEFITS =====
+var benefitsArr_get_involved_membership = <?= json_encode($sections['get_involved_membership']['content']['benefits'] ?? [], JSON_HEX_TAG) ?>;
+function renderBenefits_get_involved_membership() {
+  var el = document.getElementById('benefitsList_get_involved_membership');
+  if (!el) return;
+  el.innerHTML = '';
+  benefitsArr_get_involved_membership.forEach(function(item, i) {
+    el.innerHTML += '<div class="dynamic-item"><button type="button" class="remove-btn" onclick="benefitsArr_get_involved_membership.splice('+i+',1);renderBenefits_get_involved_membership()"><i class="fa-solid fa-xmark"></i></button><div class="field-row"><div class="field-group"><label>Icon</label><input value="'+(item.icon||'').replace(/"/g,'&quot;')+'" onchange="benefitsArr_get_involved_membership['+i+'].icon=this.value" placeholder="fa-newspaper"></div><div class="field-group"><label>Title</label><input value="'+(item.title||'').replace(/"/g,'&quot;')+'" onchange="benefitsArr_get_involved_membership['+i+'].title=this.value"></div></div><div class="field-group"><label>Description</label><textarea rows="2" onchange="benefitsArr_get_involved_membership['+i+'].description=this.value">'+(item.description||'').replace(/</g,'&lt;')+'</textarea></div></div>';
+  });
+}
+function addBenefit_get_involved_membership() { benefitsArr_get_involved_membership.push({icon:'',title:'',description:''}); renderBenefits_get_involved_membership(); }
+renderBenefits_get_involved_membership();
+
+// ===== GET INVOLVED: MEMBERSHIP TYPES =====
+var membershipTypesArr_get_involved_membership = <?= json_encode($sections['get_involved_membership']['content']['membership_types'] ?? [], JSON_HEX_TAG) ?>;
+function renderMembershipTypes_get_involved_membership() {
+  var el = document.getElementById('membershipTypesList_get_involved_membership');
+  if (!el) return;
+  el.innerHTML = '';
+  membershipTypesArr_get_involved_membership.forEach(function(item, i) {
+    el.innerHTML += '<div class="dynamic-item"><button type="button" class="remove-btn" onclick="membershipTypesArr_get_involved_membership.splice('+i+',1);renderMembershipTypes_get_involved_membership()"><i class="fa-solid fa-xmark"></i></button><div class="field-row"><div class="field-group"><label>Type</label><input value="'+(item.type||'').replace(/"/g,'&quot;')+'" onchange="membershipTypesArr_get_involved_membership['+i+'].type=this.value" placeholder="Individual"></div><div class="field-group"><label>Price</label><input value="'+(item.price||'').replace(/"/g,'&quot;')+'" onchange="membershipTypesArr_get_involved_membership['+i+'].price=this.value" placeholder="Free / Annual"></div></div></div>';
+  });
+}
+function addMembershipType_get_involved_membership() { membershipTypesArr_get_involved_membership.push({type:'',price:''}); renderMembershipTypes_get_involved_membership(); }
+renderMembershipTypes_get_involved_membership();
 <?php endif; ?>
 
 </script>

@@ -4,28 +4,22 @@ require_once dirname(__DIR__) . '/includes/functions.php';
 
 $base = '../';
 $pageTitle = 'Get Involved | WRC';
-$metaDescription = 'Join World Relief Committee as a volunteer, explore career opportunities, apply for internships, or become a partner or member.';
+$metaDescription = 'Join World Relief Committee as a volunteer, explore career opportunities, or become a partner or member.';
 
-// Fetch homepage sections for this page
-$homepageSections = getRows('homepage_sections', 'is_active = 1 ORDER BY sort_order ASC');
-$pageSections = [];
-foreach ($homepageSections as $section) {
-    if (strpos($section['section_key'], 'get_involved_') === 0) {
-        $pageSections[$section['section_key']] = $section;
-        $pageSections[$section['section_key']]['parsed_content'] = json_decode($section['content'] ?? '{}', true);
-    }
-}
-
-// Override with dedicated table data
+// Fetch hero & CTA from dedicated tables
 $heroRow = getRow('get_involved_hero');
-if ($heroRow) $pageSections['get_involved_hero'] = ['section_key' => 'get_involved_hero', 'section_title' => $heroRow['section_title'] ?? '', 'section_subtitle' => $heroRow['section_subtitle'] ?? '', 'parsed_content' => $heroRow];
 $ctaRow = getRow('get_involved_cta');
-if ($ctaRow) $pageSections['get_involved_cta'] = ['section_key' => 'get_involved_cta', 'section_title' => $ctaRow['section_title'], 'section_subtitle' => $ctaRow['section_subtitle'] ?? '', 'parsed_content' => $ctaRow];
 
-$hero     = $pageSections['get_involved_hero'] ?? null;
-$heroData = $hero['parsed_content'] ?? [];
-$cta      = $pageSections['get_involved_cta'] ?? null;
-$ctaData  = $cta['parsed_content'] ?? [];
+// Fetch section data from dedicated tables
+$volunteerRow = getRow('get_involved_volunteer');
+$volunteerRequirements = json_decode($volunteerRow['requirements'] ?? '[]', true);
+
+$partnerRow = getRow('get_involved_partner');
+$partnerTypes = json_decode($partnerRow['partner_types'] ?? '[]', true);
+
+$membershipRow = getRow('get_involved_membership');
+$memberBenefits = json_decode($membershipRow['benefits'] ?? '[]', true);
+$memberTypes = json_decode($membershipRow['membership_types'] ?? '[]', true);
 
 // Fetch open job listings
 $jobs = getRows('job_listings', 'is_active = 1 ORDER BY id ASC');
@@ -35,35 +29,48 @@ include dirname(__DIR__) . '/includes/header.php';
 
 <main class="flex-grow">
 
-<!-- ============================================================ -->
-<!-- HERO SECTION                                                  -->
-<!-- ============================================================ -->
-<section class="relative w-full bg-slate-900 text-white overflow-hidden" style="min-height:420px;">
-  <div class="absolute inset-0 opacity-30 bg-cover bg-center" style="background-image:url('<?= $base ?><?= $heroData['hero_image'] ?? 'assets/images/hero.jpg' ?>');"></div>
-  <div class="absolute inset-0 bg-gradient-to-br from-brandRed/80 via-slate-900/90 to-slate-900/95"></div>
-  <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 md:py-32 flex flex-col items-center text-center">
-    <div class="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-white/20 text-white/90 text-[11px] font-semibold uppercase tracking-widest px-4 py-2 rounded-full mb-6">
-      <i class="fa-solid fa-hand-holding-heart text-brandRed text-xs"></i> <?= $hero ? sanitize($heroData['badge'] ?? 'Join Our Mission') : 'Join Our Mission' ?>
-    </div>
-    <h1 class="text-4xl md:text-6xl font-bold font-heading tracking-tight mb-5" style="font-family:'Fraunces',serif;"><?= $hero ? sanitize($hero['section_title']) : 'Get Involved' ?></h1>
-    <p class="max-w-2xl text-lg md:text-xl text-slate-300 leading-relaxed mb-8"><?= $hero ? sanitize($hero['section_subtitle']) : 'Make a lasting difference in the lives of vulnerable communities. Whether you volunteer, work with us, partner, or become a member, every action counts.' ?></p>
-    <div class="flex flex-wrap justify-center gap-3">
-      <a href="#volunteer" class="bg-brandRed hover:bg-brandRed-hover text-white font-bold text-sm px-7 py-3.5 rounded-xl shadow-lg transition-all"><i class="fa-solid fa-hands-holding-child mr-2"></i><?= sanitize($heroData['button1_text'] ?? 'Volunteer Now') ?></a>
-      <a href="#careers" class="bg-white/10 hover:bg-white/20 border border-white/30 text-white font-bold text-sm px-7 py-3.5 rounded-xl backdrop-blur-sm transition-all"><i class="fa-solid fa-briefcase mr-2"></i><?= sanitize($heroData['button2_text'] ?? 'View Careers') ?></a>
+<!-- HERO SECTION -->
+<section class="relative w-full bg-slate-900 text-white overflow-hidden min-h-[480px] md:min-h-[540px] flex items-center">
+  <div class="absolute inset-0">
+    <?php
+      $heroImg = $heroRow['hero_image'] ?? 'assets/images/hero/get-involved-hero.jpg';
+      if (strpos($heroImg, 'assets/') !== 0 && strpos($heroImg, 'http') !== 0 && strpos($heroImg, 'uploads/') !== 0) {
+          $heroImg = 'assets/images/' . $heroImg;
+      }
+    ?>
+    <img src="<?= $base ?><?= $heroImg ?>" alt="Get Involved" class="absolute inset-0 w-full h-full object-cover">
+    <div class="absolute inset-0 bg-gradient-to-br from-brandRed/50 via-slate-900/60 to-slate-900/80"></div>
+  </div>
+  <div class="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-20 lg:py-24">
+    <div class="max-w-3xl mx-auto text-center">
+      <div class="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-white/20 text-white/90 text-[11px] font-semibold uppercase tracking-widest px-4 py-2 rounded-full mb-6">
+        <i class="fa-solid fa-hand-holding-heart text-white text-xs"></i> <?= sanitize($heroRow['badge'] ?? 'Join Our Mission') ?>
+      </div>
+      <h1 class="text-4xl md:text-5xl lg:text-6xl font-extrabold leading-tight mb-6" style="font-family:'Fraunces',serif;">
+        <?= sanitize($heroRow['section_title'] ?? 'Get Involved') ?>
+      </h1>
+      <p class="text-lg md:text-xl text-white/75 leading-relaxed mb-10 max-w-2xl mx-auto">
+        <?= sanitize($heroRow['section_subtitle'] ?? '') ?>
+      </p>
+      <div class="flex flex-wrap justify-center gap-4">
+        <a href="#volunteer" class="bg-white text-slate-900 hover:bg-slate-100 font-bold text-sm px-8 py-4 rounded-xl shadow-lg transition-all flex items-center gap-2 transform hover:-translate-y-0.5">
+          <i class="fa-solid fa-hands-holding-child text-brandRed"></i> <?= sanitize($heroRow['button1_text'] ?? 'Volunteer Now') ?>
+        </a>
+        <a href="#careers" class="bg-white/10 hover:bg-white/20 border border-white/30 text-white font-bold text-sm px-8 py-4 rounded-xl backdrop-blur-sm transition-all flex items-center gap-2 transform hover:-translate-y-0.5">
+          <i class="fa-solid fa-briefcase"></i> <?= sanitize($heroRow['button2_text'] ?? 'View Careers') ?>
+        </a>
+      </div>
     </div>
   </div>
 </section>
 
 
-<!-- ============================================================ -->
-<!-- QUICK NAV STRIP                                               -->
-<!-- ============================================================ -->
+<!-- QUICK NAV STRIP -->
 <section class="bg-white border-b border-slate-200 sticky top-20 z-40">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <div class="flex overflow-x-auto gap-1 py-2 scrollbar-hide" style="scrollbar-width:none;">
       <a href="#volunteer" class="shrink-0 text-xs font-semibold px-4 py-2 rounded-lg hover:bg-brandRed hover:text-white text-slate-600 transition-all whitespace-nowrap"><i class="fa-solid fa-hands-holding-child mr-1.5 text-brandRed"></i> Volunteer</a>
       <a href="#careers" class="shrink-0 text-xs font-semibold px-4 py-2 rounded-lg hover:bg-brandRed hover:text-white text-slate-600 transition-all whitespace-nowrap"><i class="fa-solid fa-briefcase mr-1.5 text-brandRed"></i> Careers</a>
-      <a href="#internships" class="shrink-0 text-xs font-semibold px-4 py-2 rounded-lg hover:bg-brandRed hover:text-white text-slate-600 transition-all whitespace-nowrap"><i class="fa-solid fa-user-graduate mr-1.5 text-brandRed"></i> Internships</a>
       <a href="#partner" class="shrink-0 text-xs font-semibold px-4 py-2 rounded-lg hover:bg-brandRed hover:text-white text-slate-600 transition-all whitespace-nowrap"><i class="fa-solid fa-handshake-angle mr-1.5 text-brandRed"></i> Partner</a>
       <a href="#membership" class="shrink-0 text-xs font-semibold px-4 py-2 rounded-lg hover:bg-brandRed hover:text-white text-slate-600 transition-all whitespace-nowrap"><i class="fa-solid fa-id-card-clip mr-1.5 text-brandRed"></i> Membership</a>
     </div>
@@ -71,9 +78,7 @@ include dirname(__DIR__) . '/includes/header.php';
 </section>
 
 
-<!-- ============================================================ -->
-<!-- 1. VOLUNTEER REGISTRATION                                     -->
-<!-- ============================================================ -->
+<!-- 1. VOLUNTEER REGISTRATION -->
 <section id="volunteer" class="py-20 md:py-28 bg-white">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <div class="grid lg:grid-cols-2 gap-16 items-start">
@@ -83,35 +88,36 @@ include dirname(__DIR__) . '/includes/header.php';
         <div class="inline-flex items-center gap-2 bg-red-50 text-brandRed text-[11px] font-bold uppercase tracking-widest px-3 py-1.5 rounded-full mb-4">
           <i class="fa-solid fa-hands-holding-child"></i> Volunteer
         </div>
-        <h2 class="text-3xl md:text-4xl font-bold font-heading text-slate-900 mb-5" style="font-family:'Fraunces',serif;">Make a Hands-On Difference</h2>
-        <p class="text-slate-600 leading-relaxed mb-6">Volunteering with WRC allows you to directly contribute to life-changing programs across Pakistan. From teaching children in displacement camps to assisting in emergency medical camps, your time and skills can transform lives.</p>
+        <h2 class="text-3xl md:text-4xl font-bold font-heading text-slate-900 mb-5" style="font-family:'Fraunces',serif;"><?= sanitize($volunteerRow['section_title'] ?? 'Make a Hands-On Difference') ?></h2>
+        <p class="text-slate-600 leading-relaxed mb-6"><?= sanitize($volunteerRow['description'] ?? '') ?></p>
 
+        <?php if (!empty($volunteerRequirements)): ?>
         <div class="bg-slate-50 rounded-2xl border border-slate-200/60 p-6 mb-6">
           <h3 class="font-bold text-slate-900 mb-3 text-sm flex items-center gap-2"><i class="fa-solid fa-clipboard-check text-brandRed"></i> Requirements</h3>
           <ul class="space-y-2.5 text-sm text-slate-600">
-            <li class="flex items-start gap-2.5"><i class="fa-solid fa-check text-brandRed mt-0.5 text-xs"></i> Must be 18 years or older</li>
-            <li class="flex items-start gap-2.5"><i class="fa-solid fa-check text-brandRed mt-0.5 text-xs"></i> Commitment of at least 4 hours per week</li>
-            <li class="flex items-start gap-2.5"><i class="fa-solid fa-check text-brandRed mt-0.5 text-xs"></i> Willingness to work in field or remote settings</li>
-            <li class="flex items-start gap-2.5"><i class="fa-solid fa-check text-brandRed mt-0.5 text-xs"></i> Background check and reference verification</li>
-            <li class="flex items-start gap-2.5"><i class="fa-solid fa-check text-brandRed mt-0.5 text-xs"></i> Respect for WRC's code of conduct and safeguarding policy</li>
-            <li class="flex items-start gap-2.5"><i class="fa-solid fa-check text-brandRed mt-0.5 text-xs"></i> Valid CNIC or passport for identification</li>
+            <?php foreach ($volunteerRequirements as $req): ?>
+            <li class="flex items-start gap-2.5"><i class="fa-solid fa-check text-brandRed mt-0.5 text-xs"></i> <?= sanitize($req) ?></li>
+            <?php endforeach; ?>
           </ul>
         </div>
+        <?php endif; ?>
 
+        <?php if (!empty($volunteerRow['stat1_value'])): ?>
         <div class="grid grid-cols-3 gap-4">
           <div class="bg-red-50 rounded-xl p-4 text-center">
-            <p class="text-2xl font-bold text-brandRed">500+</p>
-            <p class="text-xs text-slate-600 mt-1">Active Volunteers</p>
+            <p class="text-2xl font-bold text-brandRed"><?= sanitize($volunteerRow['stat1_value']) ?></p>
+            <p class="text-xs text-slate-600 mt-1"><?= sanitize($volunteerRow['stat1_label']) ?></p>
           </div>
           <div class="bg-red-50 rounded-xl p-4 text-center">
-            <p class="text-2xl font-bold text-brandRed">30+</p>
-            <p class="text-xs text-slate-600 mt-1">Districts Covered</p>
+            <p class="text-2xl font-bold text-brandRed"><?= sanitize($volunteerRow['stat2_value']) ?></p>
+            <p class="text-xs text-slate-600 mt-1"><?= sanitize($volunteerRow['stat2_label']) ?></p>
           </div>
           <div class="bg-red-50 rounded-xl p-4 text-center">
-            <p class="text-2xl font-bold text-brandRed">12k+</p>
-            <p class="text-xs text-slate-600 mt-1">Hours Contributed</p>
+            <p class="text-2xl font-bold text-brandRed"><?= sanitize($volunteerRow['stat3_value']) ?></p>
+            <p class="text-xs text-slate-600 mt-1"><?= sanitize($volunteerRow['stat3_label']) ?></p>
           </div>
         </div>
+        <?php endif; ?>
       </div>
 
       <!-- RIGHT FORM -->
@@ -171,9 +177,7 @@ include dirname(__DIR__) . '/includes/header.php';
 </section>
 
 
-<!-- ============================================================ -->
-<!-- 2. CAREERS BOARD                                              -->
-<!-- ============================================================ -->
+<!-- 2. CAREERS BOARD -->
 <section id="careers" class="py-20 md:py-28 bg-slate-50">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
@@ -339,119 +343,8 @@ include dirname(__DIR__) . '/includes/header.php';
 </section>
 
 
-<!-- ============================================================ -->
-<!-- 3. INTERNSHIP PROGRAM                                         -->
-<!-- ============================================================ -->
-<section id="internships" class="py-20 md:py-28 bg-white">
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <div class="grid lg:grid-cols-2 gap-16 items-start">
-
-      <!-- LEFT: DETAILS -->
-      <div>
-        <div class="inline-flex items-center gap-2 bg-red-50 text-brandRed text-[11px] font-bold uppercase tracking-widest px-3 py-1.5 rounded-full mb-4">
-          <i class="fa-solid fa-user-graduate"></i> Internships
-        </div>
-        <h2 class="text-3xl md:text-4xl font-bold font-heading text-slate-900 mb-5" style="font-family:'Fraunces',serif;">Launch Your Humanitarian Career</h2>
-        <p class="text-slate-600 leading-relaxed mb-6">Our internship program gives university students and recent graduates hands-on experience in humanitarian operations, development research, and nonprofit management across Pakistan.</p>
-
-        <div class="space-y-4 mb-6">
-          <div class="bg-slate-50 rounded-xl border border-slate-200/60 p-5">
-            <div class="flex items-start gap-3">
-              <div class="w-10 h-10 rounded-lg bg-brandRed/10 text-brandRed flex items-center justify-center shrink-0"><i class="fa-solid fa-handshake text-sm"></i></div>
-              <div>
-                <h4 class="font-bold text-slate-900 text-sm">University Partnerships</h4>
-                <p class="text-xs text-slate-600 mt-1 leading-relaxed">WRC partners with leading universities including University of Peshawar, Islamia College University, and Pakistan Institute of Development Economics (PIDE) to offer structured internship placements.</p>
-              </div>
-            </div>
-          </div>
-          <div class="bg-slate-50 rounded-xl border border-slate-200/60 p-5">
-            <div class="flex items-start gap-3">
-              <div class="w-10 h-10 rounded-lg bg-brandRed/10 text-brandRed flex items-center justify-center shrink-0"><i class="fa-solid fa-calendar-days text-sm"></i></div>
-              <div>
-                <h4 class="font-bold text-slate-900 text-sm">Duration</h4>
-                <p class="text-xs text-slate-600 mt-1 leading-relaxed">Internships range from 3 to 6 months, with flexible scheduling to accommodate academic calendars. Extensions are available for exceptional performers.</p>
-              </div>
-            </div>
-          </div>
-          <div class="bg-slate-50 rounded-xl border border-slate-200/60 p-5">
-            <div class="flex items-start gap-3">
-              <div class="w-10 h-10 rounded-lg bg-brandRed/10 text-brandRed flex items-center justify-center shrink-0"><i class="fa-solid fa-gift text-sm"></i></div>
-              <div>
-                <h4 class="font-bold text-slate-900 text-sm">Benefits</h4>
-                <div class="flex flex-wrap gap-2 mt-2">
-                  <span class="bg-white text-slate-700 text-[11px] font-medium px-3 py-1 rounded-full border border-slate-200"><i class="fa-solid fa-certificate text-brandRed mr-1"></i> Completion Certificate</span>
-                  <span class="bg-white text-slate-700 text-[11px] font-medium px-3 py-1 rounded-full border border-slate-200"><i class="fa-solid fa-money-bill text-brandRed mr-1"></i> Monthly Stipend</span>
-                  <span class="bg-white text-slate-700 text-[11px] font-medium px-3 py-1 rounded-full border border-slate-200"><i class="fa-solid fa-user-tie text-brandRed mr-1"></i> Mentorship</span>
-                  <span class="bg-white text-slate-700 text-[11px] font-medium px-3 py-1 rounded-full border border-slate-200"><i class="fa-solid fa-rocket text-brandRed mr-1"></i> Job Pipeline</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- RIGHT: FORM -->
-      <div class="bg-slate-50 rounded-3xl border border-slate-200/60 p-8 md:p-10 shadow-sm">
-        <h3 class="text-xl font-bold text-slate-900 mb-1">Apply for Internship</h3>
-        <p class="text-sm text-slate-500 mb-6">Tell us about yourself and we'll match you with the right team.</p>
-
-        <form id="internship-form" class="space-y-5" novalidate>
-          <div class="grid md:grid-cols-2 gap-5">
-            <div>
-              <label for="int-name" class="block text-xs font-semibold text-slate-700 mb-1.5">Full Name <span class="text-brandRed">*</span></label>
-              <input type="text" id="int-name" name="name" required placeholder="Your full name" class="w-full px-4 py-3 rounded-xl border border-slate-300 bg-white text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-brandRed/30 focus:border-brandRed transition-all" />
-            </div>
-            <div>
-              <label for="int-email" class="block text-xs font-semibold text-slate-700 mb-1.5">Email <span class="text-brandRed">*</span></label>
-              <input type="email" id="int-email" name="email" required placeholder="your@email.com" class="w-full px-4 py-3 rounded-xl border border-slate-300 bg-white text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-brandRed/30 focus:border-brandRed transition-all" />
-            </div>
-          </div>
-          <div>
-            <label for="int-university" class="block text-xs font-semibold text-slate-700 mb-1.5">University / College <span class="text-brandRed">*</span></label>
-            <input type="text" id="int-university" name="university" required placeholder="e.g. University of Peshawar" class="w-full px-4 py-3 rounded-xl border border-slate-300 bg-white text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-brandRed/30 focus:border-brandRed transition-all" />
-          </div>
-          <div class="grid md:grid-cols-2 gap-5">
-            <div>
-              <label for="int-degree" class="block text-xs font-semibold text-slate-700 mb-1.5">Program / Degree <span class="text-brandRed">*</span></label>
-              <input type="text" id="int-degree" name="degree" required placeholder="e.g. BS Social Work" class="w-full px-4 py-3 rounded-xl border border-slate-300 bg-white text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-brandRed/30 focus:border-brandRed transition-all" />
-            </div>
-            <div>
-              <label for="int-department" class="block text-xs font-semibold text-slate-700 mb-1.5">Preferred Department <span class="text-brandRed">*</span></label>
-              <select id="int-department" name="department" required class="w-full px-4 py-3 rounded-xl border border-slate-300 bg-white text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-brandRed/30 focus:border-brandRed transition-all">
-                <option value="" disabled selected>Select department</option>
-                <option value="health">Health</option>
-                <option value="education">Education</option>
-                <option value="wash">WASH</option>
-                <option value="livelihood">Livelihood</option>
-                <option value="mne">Monitoring & Evaluation</option>
-                <option value="finance">Finance & Admin</option>
-                <option value="hr">Human Resources</option>
-                <option value="comms">Communications</option>
-              </select>
-            </div>
-          </div>
-          <div>
-            <label for="int-availability" class="block text-xs font-semibold text-slate-700 mb-1.5">Availability Start Date <span class="text-brandRed">*</span></label>
-            <input type="date" id="int-availability" name="availability" required class="w-full px-4 py-3 rounded-xl border border-slate-300 bg-white text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-brandRed/30 focus:border-brandRed transition-all" />
-          </div>
-          <button type="submit" class="w-full bg-brandRed hover:bg-brandRed-hover text-white font-bold text-sm py-3.5 rounded-xl shadow-md transition-all flex items-center justify-center gap-2">
-            <i class="fa-solid fa-paper-plane text-xs"></i> Submit Application
-          </button>
-        </form>
-        <div id="internship-success" class="hidden mt-4 bg-green-50 border border-green-200 text-green-800 text-sm rounded-xl p-4 flex items-start gap-3">
-          <i class="fa-solid fa-circle-check text-green-600 mt-0.5"></i>
-          <div><strong>Application received!</strong> We will review your internship application and contact you within one week.</div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-
-<!-- ============================================================ -->
-<!-- 4. BECOME A PARTNER                                           -->
-<!-- ============================================================ -->
-<section id="partner" class="py-20 md:py-28 bg-slate-50">
+<!-- 3. BECOME A PARTNER -->
+<section id="partner" class="py-20 md:py-28 bg-white">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <div class="grid lg:grid-cols-2 gap-16 items-start">
 
@@ -460,35 +353,24 @@ include dirname(__DIR__) . '/includes/header.php';
         <div class="inline-flex items-center gap-2 bg-red-50 text-brandRed text-[11px] font-bold uppercase tracking-widest px-3 py-1.5 rounded-full mb-4">
           <i class="fa-solid fa-handshake-angle"></i> Partnerships
         </div>
-        <h2 class="text-3xl md:text-4xl font-bold font-heading text-slate-900 mb-5" style="font-family:'Fraunces',serif;">Become a Partner</h2>
-        <p class="text-slate-600 leading-relaxed mb-6">WRC collaborates with institutions, governments, and organizations to scale humanitarian impact. We welcome partnerships that align with our mission of serving vulnerable communities.</p>
+        <h2 class="text-3xl md:text-4xl font-bold font-heading text-slate-900 mb-5" style="font-family:'Fraunces',serif;"><?= sanitize($partnerRow['section_title'] ?? 'Become a Partner') ?></h2>
+        <p class="text-slate-600 leading-relaxed mb-6"><?= sanitize($partnerRow['description'] ?? '') ?></p>
 
+        <?php if (!empty($partnerTypes)): ?>
         <div class="grid sm:grid-cols-2 gap-4 mb-6">
-          <div class="bg-white rounded-xl border border-slate-200/60 p-5 hover:shadow-md transition-shadow">
-            <div class="w-10 h-10 rounded-lg bg-brandRed/10 text-brandRed flex items-center justify-center mb-3 text-lg"><i class="fa-solid fa-building-columns"></i></div>
-            <h4 class="font-bold text-slate-900 text-sm mb-1">Institutional Partners</h4>
-            <p class="text-xs text-slate-600 leading-relaxed">Universities, research centers, and government agencies collaborating on programs and studies.</p>
+          <?php foreach ($partnerTypes as $pt): ?>
+          <div class="bg-slate-50 rounded-xl border border-slate-200/60 p-5 hover:shadow-md transition-shadow">
+            <div class="w-10 h-10 rounded-lg bg-brandRed/10 text-brandRed flex items-center justify-center mb-3 text-lg"><i class="fa-solid <?= sanitize($pt['icon'] ?? 'fa-handshake') ?>"></i></div>
+            <h4 class="font-bold text-slate-900 text-sm mb-1"><?= sanitize($pt['title'] ?? '') ?></h4>
+            <p class="text-xs text-slate-600 leading-relaxed"><?= sanitize($pt['description'] ?? '') ?></p>
           </div>
-          <div class="bg-white rounded-xl border border-slate-200/60 p-5 hover:shadow-md transition-shadow">
-            <div class="w-10 h-10 rounded-lg bg-brandRed/10 text-brandRed flex items-center justify-center mb-3 text-lg"><i class="fa-solid fa-building"></i></div>
-            <h4 class="font-bold text-slate-900 text-sm mb-1">Corporate Partners</h4>
-            <p class="text-xs text-slate-600 leading-relaxed">Businesses investing in CSR initiatives and sustainable community development projects.</p>
-          </div>
-          <div class="bg-white rounded-xl border border-slate-200/60 p-5 hover:shadow-md transition-shadow">
-            <div class="w-10 h-10 rounded-lg bg-brandRed/10 text-brandRed flex items-center justify-center mb-3 text-lg"><i class="fa-solid fa-globe"></i></div>
-            <h4 class="font-bold text-slate-900 text-sm mb-1">International NGOs</h4>
-            <p class="text-xs text-slate-600 leading-relaxed">Global humanitarian organizations co-implementing multi-country programs.</p>
-          </div>
-          <div class="bg-white rounded-xl border border-slate-200/60 p-5 hover:shadow-md transition-shadow">
-            <div class="w-10 h-10 rounded-lg bg-brandRed/10 text-brandRed flex items-center justify-center mb-3 text-lg"><i class="fa-solid fa-hand-holding-heart"></i></div>
-            <h4 class="font-bold text-slate-900 text-sm mb-1">Donor Agencies</h4>
-            <p class="text-xs text-slate-600 leading-relaxed">Bilateral and multilateral donors funding life-saving humanitarian programs.</p>
-          </div>
+          <?php endforeach; ?>
         </div>
+        <?php endif; ?>
       </div>
 
       <!-- RIGHT: FORM -->
-      <div class="bg-white rounded-3xl border border-slate-200/60 p-8 md:p-10 shadow-sm">
+      <div class="bg-slate-50 rounded-3xl border border-slate-200/60 p-8 md:p-10 shadow-sm">
         <h3 class="text-xl font-bold text-slate-900 mb-1">Partnership Inquiry</h3>
         <p class="text-sm text-slate-500 mb-6">Share your details and partnership idea. Our team will respond within 3 business days.</p>
 
@@ -537,10 +419,8 @@ include dirname(__DIR__) . '/includes/header.php';
 </section>
 
 
-<!-- ============================================================ -->
-<!-- 5. MEMBERSHIP                                                 -->
-<!-- ============================================================ -->
-<section id="membership" class="py-20 md:py-28 bg-white">
+<!-- 4. MEMBERSHIP -->
+<section id="membership" class="py-20 md:py-28 bg-slate-50">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <div class="grid lg:grid-cols-2 gap-16 items-start">
 
@@ -549,65 +429,40 @@ include dirname(__DIR__) . '/includes/header.php';
         <div class="inline-flex items-center gap-2 bg-red-50 text-brandRed text-[11px] font-bold uppercase tracking-widest px-3 py-1.5 rounded-full mb-4">
           <i class="fa-solid fa-id-card-clip"></i> Membership
         </div>
-        <h2 class="text-3xl md:text-4xl font-bold font-heading text-slate-900 mb-5" style="font-family:'Fraunces',serif;">Become a WRC Member</h2>
-        <p class="text-slate-600 leading-relaxed mb-6">Join our growing community of individuals committed to humanitarian service. WRC membership gives you exclusive updates, event invitations, and opportunities to contribute directly to our programs.</p>
+        <h2 class="text-3xl md:text-4xl font-bold font-heading text-slate-900 mb-5" style="font-family:'Fraunces',serif;"><?= sanitize($membershipRow['section_title'] ?? 'Become a WRC Member') ?></h2>
+        <p class="text-slate-600 leading-relaxed mb-6"><?= sanitize($membershipRow['description'] ?? '') ?></p>
 
+        <?php if (!empty($memberBenefits)): ?>
         <div class="space-y-4 mb-6">
+          <?php foreach ($memberBenefits as $b): ?>
           <div class="flex items-start gap-4">
-            <div class="w-10 h-10 rounded-lg bg-brandRed/10 text-brandRed flex items-center justify-center shrink-0"><i class="fa-solid fa-newspaper text-sm"></i></div>
+            <div class="w-10 h-10 rounded-lg bg-brandRed/10 text-brandRed flex items-center justify-center shrink-0"><i class="fa-solid <?= sanitize($b['icon'] ?? 'fa-check') ?> text-sm"></i></div>
             <div>
-              <h4 class="font-bold text-slate-900 text-sm">Exclusive Updates</h4>
-              <p class="text-xs text-slate-600 mt-0.5">Receive quarterly newsletters and impact reports before public release.</p>
+              <h4 class="font-bold text-slate-900 text-sm"><?= sanitize($b['title'] ?? '') ?></h4>
+              <p class="text-xs text-slate-600 mt-0.5"><?= sanitize($b['description'] ?? '') ?></p>
             </div>
           </div>
-          <div class="flex items-start gap-4">
-            <div class="w-10 h-10 rounded-lg bg-brandRed/10 text-brandRed flex items-center justify-center shrink-0"><i class="fa-solid fa-calendar-check text-sm"></i></div>
-            <div>
-              <h4 class="font-bold text-slate-900 text-sm">Event Invitations</h4>
-              <p class="text-xs text-slate-600 mt-0.5">Priority access to WRC events, conferences, and field visits.</p>
-            </div>
-          </div>
-          <div class="flex items-start gap-4">
-            <div class="w-10 h-10 rounded-lg bg-brandRed/10 text-brandRed flex items-center justify-center shrink-0"><i class="fa-solid fa-tags text-sm"></i></div>
-            <div>
-              <h4 class="font-bold text-slate-900 text-sm">Discounted Merchandise</h4>
-              <p class="text-xs text-slate-600 mt-0.5">Special pricing on WRC-branded merchandise and event tickets.</p>
-            </div>
-          </div>
-          <div class="flex items-start gap-4">
-            <div class="w-10 h-10 rounded-lg bg-brandRed/10 text-brandRed flex items-center justify-center shrink-0"><i class="fa-solid fa-vote-yea text-sm"></i></div>
-            <div>
-              <h4 class="font-bold text-slate-900 text-sm">Voting Rights</h4>
-              <p class="text-xs text-slate-600 mt-0.5">Eligible to vote in annual general meetings and elect board members.</p>
-            </div>
-          </div>
+          <?php endforeach; ?>
         </div>
+        <?php endif; ?>
 
-        <div class="bg-slate-50 rounded-2xl border border-slate-200/60 p-6">
+        <?php if (!empty($memberTypes)): ?>
+        <div class="bg-white rounded-2xl border border-slate-200/60 p-6">
           <h4 class="font-bold text-slate-900 text-sm mb-3">Membership Types</h4>
           <div class="space-y-3">
+            <?php foreach ($memberTypes as $mt): ?>
             <div class="flex items-center justify-between">
-              <div class="flex items-center gap-2 text-sm text-slate-700"><i class="fa-solid fa-user text-brandRed text-xs"></i> Individual</div>
-              <span class="text-xs font-semibold text-slate-500">Free / Annual</span>
+              <div class="flex items-center gap-2 text-sm text-slate-700"><i class="fa-solid fa-user text-brandRed text-xs"></i> <?= sanitize($mt['type'] ?? '') ?></div>
+              <span class="text-xs font-semibold text-slate-500"><?= sanitize($mt['price'] ?? '') ?></span>
             </div>
-            <div class="flex items-center justify-between">
-              <div class="flex items-center gap-2 text-sm text-slate-700"><i class="fa-solid fa-users text-brandRed text-xs"></i> Family</div>
-              <span class="text-xs font-semibold text-slate-500">Free / Annual</span>
-            </div>
-            <div class="flex items-center justify-between">
-              <div class="flex items-center gap-2 text-sm text-slate-700"><i class="fa-solid fa-building text-brandRed text-xs"></i> Organizational</div>
-              <span class="text-xs font-semibold text-slate-500">Annual Fee</span>
-            </div>
-            <div class="flex items-center justify-between">
-              <div class="flex items-center gap-2 text-sm text-slate-700"><i class="fa-solid fa-star text-brandRed text-xs"></i> Lifetime</div>
-              <span class="text-xs font-semibold text-slate-500">One-Time</span>
-            </div>
+            <?php endforeach; ?>
           </div>
         </div>
+        <?php endif; ?>
       </div>
 
       <!-- RIGHT: FORM -->
-      <div class="bg-slate-50 rounded-3xl border border-slate-200/60 p-8 md:p-10 shadow-sm">
+      <div class="bg-white rounded-3xl border border-slate-200/60 p-8 md:p-10 shadow-sm">
         <h3 class="text-xl font-bold text-slate-900 mb-1">Membership Registration</h3>
         <p class="text-sm text-slate-500 mb-6">Complete the form below to become a registered WRC member.</p>
 
@@ -652,16 +507,14 @@ include dirname(__DIR__) . '/includes/header.php';
 </section>
 
 
-<!-- ============================================================ -->
-<!-- CTA BANNER                                                    -->
-<!-- ============================================================ -->
+<!-- CTA BANNER -->
 <section class="bg-gradient-to-br from-brandRed to-brandRed-hover py-16">
   <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-white">
-    <h2 class="text-2xl md:text-3xl font-bold mb-4" style="font-family:'Fraunces',serif;"><?= $cta ? sanitize($cta['section_title']) : 'Ready to Make an Impact?' ?></h2>
-    <p class="text-white/80 text-sm mb-8 max-w-xl mx-auto"><?= $cta ? sanitize($cta['section_subtitle']) : 'Every contribution, every volunteer hour, every partnership brings us closer to a world where no community is left behind.' ?></p>
+    <h2 class="text-2xl md:text-3xl font-bold mb-4" style="font-family:'Fraunces',serif;"><?= sanitize($ctaRow['section_title'] ?? 'Ready to Make an Impact?') ?></h2>
+    <p class="text-white/80 text-sm mb-8 max-w-xl mx-auto"><?= sanitize($ctaRow['description'] ?? '') ?></p>
     <div class="flex flex-wrap justify-center gap-3">
-      <a href="<?= $base ?><?= $ctaData['button1_link'] ?? 'get-involved/contribute-with-us.php' ?>" class="bg-white text-brandRed hover:bg-slate-100 font-bold text-sm px-7 py-3.5 rounded-xl shadow-lg transition-all"><i class="fa-solid fa-handshake mr-2"></i><?= sanitize($ctaData['button1_text'] ?? 'Donate Now') ?></a>
-      <a href="#volunteer" class="bg-white/10 hover:bg-white/20 border border-white/30 text-white font-bold text-sm px-7 py-3.5 rounded-xl backdrop-blur-sm transition-all"><i class="fa-solid fa-hands-holding-child mr-2"></i><?= sanitize($ctaData['button2_text'] ?? 'Volunteer') ?></a>
+      <a href="<?= $base ?><?= $ctaRow['button1_link'] ?? 'get-involved/contribute-with-us.php' ?>" class="bg-white text-brandRed hover:bg-slate-100 font-bold text-sm px-7 py-3.5 rounded-xl shadow-lg transition-all"><i class="fa-solid fa-handshake mr-2"></i><?= sanitize($ctaRow['button1_text'] ?? 'Donate Now') ?></a>
+      <a href="#volunteer" class="bg-white/10 hover:bg-white/20 border border-white/30 text-white font-bold text-sm px-7 py-3.5 rounded-xl backdrop-blur-sm transition-all"><i class="fa-solid fa-hands-holding-child mr-2"></i><?= sanitize($ctaRow['button2_text'] ?? 'Volunteer') ?></a>
     </div>
   </div>
 </section>
@@ -742,11 +595,10 @@ $extraScripts = <<<SCRIPT
   }
 
   handleForm('volunteer-form', 'volunteer-success', 'volunteer');
-  handleForm('internship-form', 'internship-success', 'internship');
   handleForm('partner-form', 'partner-success', 'partner');
   handleForm('membership-form', 'membership-success', 'membership');
 
-  // Job apply form special handler (includes position name)
+  // Job apply form special handler
   var jobForm = document.getElementById('job-apply-form');
   if (jobForm) {
     jobForm.addEventListener('submit', function(e) {

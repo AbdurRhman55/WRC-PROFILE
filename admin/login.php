@@ -30,7 +30,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmt->execute([$user['id']]);
 
             if ($remember) {
-                session_set_cookie_params(86400 * 30);
+                $params = session_get_cookie_params();
+                setcookie(session_name(), session_id(), time() + (86400 * 30), $params['path'], $params['domain'], $params['secure'], $params['httponly']);
             }
 
             header('Location: index.php');

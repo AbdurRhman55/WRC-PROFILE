@@ -7,7 +7,12 @@ $pageTitle = 'Video Gallery';
 if (isPost() && isset($_POST['delete_id'])) {
     if (!verifyCSRF($_POST['csrf_token'] ?? '')) { redirect('videos.php'); }
     global $pdo;
-    $pdo->prepare("DELETE FROM video_gallery WHERE id = ?")->execute([(int) $_POST['delete_id']]);
+    $videoId = (int) $_POST['delete_id'];
+    $video = getRow('video_gallery', ['id' => $videoId]);
+    if ($video && !empty($video['thumbnail_path']) && file_exists(__DIR__ . '/../' . $video['thumbnail_path'])) {
+        unlink(__DIR__ . '/../' . $video['thumbnail_path']);
+    }
+    $pdo->prepare("DELETE FROM video_gallery WHERE id = ?")->execute([$videoId]);
     setFlash('success', 'Video deleted.');
     redirect('videos.php');
 }

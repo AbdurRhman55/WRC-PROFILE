@@ -1,319 +1,175 @@
 <?php
 /**
  * WRC News & Media Center (Dynamic)
- * News articles, press releases, events, galleries, blogs
+ * Sections: Hero, Latest News, Photo Gallery, Video Gallery
  */
 require_once dirname(__DIR__) . '/includes/config.php';
 require_once dirname(__DIR__) . '/includes/functions.php';
 
 $base = '../';
 
-// Fetch all homepage_sections and filter for news_hero
-$allSections = getRows('homepage_sections', '', '');
-$newsSections = [];
-foreach ($allSections as $section) {
-    if (strpos($section['section_key'], 'news_') === 0) {
-        $newsSections[$section['section_key']] = $section;
-        $newsSections[$section['section_key']]['parsed_content'] = json_decode($section['content'] ?? '{}', true);
-    }
+// Fetch hero slides from dedicated table
+$heroSlides = getRows('hero_sliders', ['page' => 'news', 'is_active' => 1], 'sort_order ASC');
+if (empty($heroSlides)) {
+    $heroSlides = [['title' => 'News & Media Center', 'subtitle' => 'Stay updated with the latest stories, reports, and media from our field operations.', 'image_path' => 'assets/images/hero/hero-slider-1.jpg', 'badge' => 'News & Media', 'cta_text' => 'Latest News', 'cta_link' => '#news']];
 }
 
-// Override with dedicated table data
-$heroRow = getRow('news_hero');
-if ($heroRow) $newsSections['news_hero'] = ['section_key' => 'news_hero', 'section_title' => $heroRow['section_title'] ?? '', 'section_subtitle' => $heroRow['section_subtitle'] ?? '', 'parsed_content' => $heroRow];
-
-// Hero data
-$heroSection = $newsSections['news_hero'] ?? null;
-$heroData = $heroSection['parsed_content'] ?? [];
-
-// Fetch all active news articles ordered by published date
+// Fetch all active news articles
 $news = getRows('news_articles', 'is_published = 1 ORDER BY published_at DESC');
-$news = array_map(function($n) { $n['published_date'] = $n['published_at'] ?? ''; return $n; }, $news);
 
-// Filter by category
-$pressReleases = array_filter($news, function ($n) {
-    return ($n['category'] ?? '') === 'press_release';
-});
-$blogs = array_filter($news, function ($n) {
-    return ($n['category'] ?? '') === 'blog';
-});
+// Fetch photos from DB
+$photos = getRows('photo_gallery', ['is_active' => 1], 'sort_order ASC');
 
-// Category color map
+// Fetch unique photo categories
+global $pdo;
+$photoCatStmt = $pdo->query("SELECT DISTINCT category FROM photo_gallery WHERE is_active = 1 AND category != '' ORDER BY category ASC");
+$photoCategories = $photoCatStmt->fetchAll(PDO::FETCH_COLUMN);
+
+// Fetch videos from DB
+$videos = getRows('video_gallery', ['is_active' => 1], 'sort_order ASC');
+
+// Category color map for news
 $categoryColors = [
-    'relief'        => 'bg-brandRed',
-    'wash'          => 'bg-teal-500',
-    'health'        => 'bg-blue-500',
-    'education'     => 'bg-amber-500',
-    'food_security' => 'bg-green-500',
-    'nutrition'     => 'bg-purple-500',
-    'livelihood'    => 'bg-orange-500',
     'press_release' => 'bg-brandRed',
-    'blog'          => 'bg-brandRed',
-    'event'         => 'bg-teal-500',
+    'report'        => 'bg-teal-500',
+    'story'         => 'bg-purple-500',
+    'blog'          => 'bg-blue-500',
+    'event'         => 'bg-amber-500',
 ];
-
 $categoryLabels = [
-    'relief'        => 'Relief',
-    'wash'          => 'WASH',
-    'health'        => 'Health',
-    'education'     => 'Education',
-    'food_security' => 'Food Security',
-    'nutrition'     => 'Nutrition',
-    'livelihood'    => 'Livelihood',
     'press_release' => 'Press Release',
+    'report'        => 'Report',
+    'story'         => 'Story',
     'blog'          => 'Blog',
     'event'         => 'Event',
 ];
 
-// Press release icon/color map based on sub_type or default
-$pressIconMap = [
-    'official_statement' => ['icon' => 'fa-bullhorn', 'bg' => 'bg-brandRed/10', 'color' => 'text-brandRed', 'btnBg' => 'bg-brandRed', 'btnHover' => 'hover:bg-brandRed-hover'],
-    'annual_report'      => ['icon' => 'fa-file-lines', 'bg' => 'bg-teal-500/10', 'color' => 'text-teal-500', 'btnBg' => 'bg-teal-500', 'btnHover' => 'hover:bg-teal-600'],
-    'partnership'        => ['icon' => 'fa-handshake', 'bg' => 'bg-gold-400/10', 'color' => 'text-gold-500', 'btnBg' => 'bg-gold-500', 'btnHover' => 'hover:bg-gold-600'],
-    'emergency_appeal'   => ['icon' => 'fa-triangle-exclamation', 'bg' => 'bg-blue-500/10', 'color' => 'text-blue-500', 'btnBg' => 'bg-blue-500', 'btnHover' => 'hover:bg-blue-600'],
-];
-
 $pageTitle = 'News & Media Center | WRC';
-$metaDescription = 'Stay informed with the latest updates from WRC. Browse news articles, press releases, event calendars, photo galleries, and video reports from the field.';
+$metaDescription = 'Stay informed with the latest updates from WRC. Browse news articles, photo galleries, and video reports from the field.';
 
 include dirname(__DIR__) . '/includes/header.php';
 ?>
 
 <main class="flex-grow">
 
-<!-- ============================================================ -->
-<!-- HERO SECTION -->
-<!-- ============================================================ -->
-<section class="relative w-full bg-ink-900 text-white min-h-[420px] flex items-center overflow-hidden">
-  <div class="absolute inset-0 z-0">
-    <div class="absolute inset-0 bg-cover bg-center opacity-30" style="background-image: url('<?= $base ?><?= $heroData['hero_image'] ?? 'assets/images/hero.jpg' ?>');"></div>
-    <div class="absolute inset-0 bg-gradient-to-br from-ink-900 via-ink-800/95 to-brandRed/20"></div>
-  </div>
-  <div class="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
-    <div class="max-w-3xl">
-      <div class="flex items-center gap-2 mb-4">
-        <a href="<?= $base ?>index.php" class="text-white/60 hover:text-white text-sm transition-colors">Home</a>
-        <i class="fa-solid fa-chevron-right text-[9px] text-white/40"></i>
-        <span class="text-brandRed text-sm font-semibold">News & Media</span>
-      </div>
-      <h1 class="text-4xl sm:text-5xl lg:text-6xl font-display font-bold leading-tight mb-5">
-        <?= $heroSection ? sanitize($heroSection['section_title']) : 'News & <span class="text-brandRed">Media</span> Center' ?>
-      </h1>
-      <p class="text-lg text-white/70 max-w-2xl leading-relaxed mb-8">
-        <?= $heroSection ? sanitize($heroSection['section_subtitle'] ?? $heroData['subtitle'] ?? '') : 'Stay informed with the latest updates from WRC. Browse our news articles, press releases, event calendars, photo galleries, and video reports from the field.' ?>
-      </p>
-      <div class="flex flex-wrap gap-3">
-        <a href="#news" class="bg-brandRed hover:bg-brandRed-hover text-white text-sm font-semibold px-6 py-3 rounded-xl transition-all flex items-center gap-2 shadow-lg shadow-brandRed/20">
-          <i class="fa-solid fa-newspaper text-xs"></i> <?= sanitize($heroData['button1_text'] ?? 'Latest News') ?>
-        </a>
-        <a href="#press" class="bg-white/10 hover:bg-white/20 text-white text-sm font-semibold px-6 py-3 rounded-xl border border-white/20 transition-all flex items-center gap-2">
-          <i class="fa-solid fa-bullhorn text-xs"></i> <?= sanitize($heroData['button2_text'] ?? 'Press Releases') ?>
-        </a>
-      </div>
+<!-- HERO SLIDER - FULL SCREEN -->
+<section class="relative w-full h-screen bg-ink-900 text-white overflow-hidden group" id="news-hero">
+
+    <!-- Slider Wrapper -->
+    <div id="news-hero-slider" class="absolute inset-0 z-0 w-full h-full transition-transform duration-1000 ease-in-out flex">
+        <?php foreach ($heroSlides as $i => $slide): ?>
+        <?php
+            $slideImage = !empty($slide['image_path']) ? $slide['image_path'] : 'assets/images/hero/hero-slider-1.jpg';
+            if (strpos($slideImage, 'assets/') !== 0 && strpos($slideImage, 'http') !== 0 && strpos($slideImage, 'uploads/') !== 0) {
+                $slideImage = 'assets/images/' . $slideImage;
+            }
+        ?>
+        <div class="w-full h-full flex-shrink-0 relative">
+            <img src="<?= $base ?><?= $slideImage ?>" alt="<?= sanitize($slide['title'] ?? 'Slide') ?>" class="absolute inset-0 w-full h-full object-cover" loading="<?= $i === 0 ? 'eager' : 'lazy' ?>">
+        </div>
+        <?php endforeach; ?>
     </div>
-  </div>
-  <div class="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-slate-50 to-transparent"></div>
+
+    <!-- Bottom Gradient for text readability only -->
+    <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent z-[1] pointer-events-none"></div>
+
+    <!-- Slider Navigation (Arrows) -->
+    <button id="news-slider-prev" class="absolute left-4 sm:left-8 top-1/2 -translate-y-1/2 z-20 w-12 h-12 sm:w-14 sm:h-14 flex items-center justify-center rounded-full bg-white/15 hover:bg-brandRed/90 backdrop-blur-md border border-white/20 text-white opacity-0 group-hover:opacity-100 transition-all duration-300 shadow-lg" aria-label="Previous slide">
+        <i class="fa-solid fa-chevron-left text-lg"></i>
+    </button>
+    <button id="news-slider-next" class="absolute right-4 sm:right-8 top-1/2 -translate-y-1/2 z-20 w-12 h-12 sm:w-14 sm:h-14 flex items-center justify-center rounded-full bg-white/15 hover:bg-brandRed/90 backdrop-blur-md border border-white/20 text-white opacity-0 group-hover:opacity-100 transition-all duration-300 shadow-lg" aria-label="Next slide">
+        <i class="fa-solid fa-chevron-right text-lg"></i>
+    </button>
+
+    <!-- Slider Pagination (Dots) -->
+    <div class="absolute bottom-8 left-1/2 -translate-x-1/2 z-20 flex items-center gap-3" id="news-slider-dots">
+        <?php foreach ($heroSlides as $i => $slide): ?>
+        <button class="<?= $i === 0 ? 'w-4 h-3 rounded-full bg-brandRed shadow-md' : 'w-3 h-3 rounded-full bg-white/40 hover:bg-white/70' ?> transition-all duration-300" data-index="<?= $i ?>" aria-label="Go to slide <?= $i + 1 ?>"></button>
+        <?php endforeach; ?>
+    </div>
+
+    <!-- Slide Content - Centered vertically -->
+    <div class="absolute inset-0 z-10 flex items-center pointer-events-none">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
+            <div id="news-hero-content" class="max-w-3xl pointer-events-auto">
+                <?php $firstSlide = $heroSlides[0]; ?>
+                <span class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest bg-brandRed/90 text-white mb-4 backdrop-blur-sm">
+                    <i class="fa-solid fa-newspaper"></i> <?= sanitize($firstSlide['badge'] ?? 'News & Media') ?>
+                </span>
+                <h1 class="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-display font-bold leading-[1.1] mb-4 drop-shadow-lg">
+                    <?= sanitize($firstSlide['title'] ?? 'News & Media Center') ?>
+                </h1>
+                <p class="text-lg sm:text-xl text-white/80 leading-relaxed mb-8 max-w-xl drop-shadow-sm">
+                    <?= sanitize($firstSlide['subtitle'] ?? 'Stay updated with the latest stories from the field.') ?>
+                </p>
+                <div class="flex flex-wrap gap-4">
+                    <a href="<?= $base ?><?= $firstSlide['cta_link'] ?? '#news' ?>" class="bg-brandRed hover:bg-brandRed-hover text-white font-bold text-sm px-8 py-4 rounded-xl shadow-lg shadow-brandRed/30 transition-all flex items-center gap-2 transform hover:-translate-y-0.5">
+                        <?= sanitize($firstSlide['cta_text'] ?? 'Latest News') ?> <i class="fa-solid fa-arrow-right text-xs"></i>
+                    </a>
+                    <a href="#photos" class="bg-white/15 hover:bg-white/25 backdrop-blur-sm text-white font-bold text-sm px-8 py-4 rounded-xl border border-white/25 transition-all flex items-center gap-2 transform hover:-translate-y-0.5">
+                        Photo Gallery <i class="fa-solid fa-images text-xs"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
 </section>
 
-
-<!-- ============================================================ -->
-<!-- LATEST NEWS GRID -->
-<!-- ============================================================ -->
-<section id="news" class="py-20 bg-slate-50">
+<!-- LATEST NEWS -->
+<section id="news" class="py-20 bg-white">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-12">
       <div>
         <span class="text-brandRed text-xs font-bold uppercase tracking-widest">Stay Updated</span>
         <h2 class="text-3xl sm:text-4xl font-display font-bold text-ink-900 mt-2">Latest <span class="text-brandRed">News</span></h2>
+        <p class="text-slate-500 mt-3">Recent stories, reports, and updates from our operations.</p>
       </div>
-      <a href="#" class="text-brandRed text-sm font-semibold hover:underline flex items-center gap-1 shrink-0">
-        View All News <i class="fa-solid fa-arrow-right text-xs"></i>
-      </a>
     </div>
 
+    <?php if (empty($news)): ?>
+    <div class="text-center py-16 bg-slate-50 rounded-2xl">
+      <i class="fa-solid fa-newspaper text-4xl text-slate-300 mb-4 block"></i>
+      <h3 class="text-lg font-bold text-slate-700 mb-2">No news articles yet</h3>
+      <p class="text-sm text-slate-400">Check back soon for the latest updates.</p>
+    </div>
+    <?php else: ?>
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-7">
       <?php foreach ($news as $item): ?>
       <?php
-        $cat = $item['category'] ?? 'relief';
-        $catColor = $categoryColors[$cat] ?? 'bg-brandRed';
+        $cat = $item['category'] ?? 'story';
+        $catColor = $categoryColors[$cat] ?? 'bg-slate-500';
         $catLabel = $categoryLabels[$cat] ?? ucfirst(str_replace('_', ' ', $cat));
-        $image = !empty($item['hero_image']) ? $item['hero_image'] : 'assets/images/hero.jpg';
-        if (strpos($image, 'assets/') !== 0 && strpos($image, 'http') !== 0) {
-            $image = 'assets/images/' . $image;
+        $newsImage = !empty($item['featured_image']) ? $item['featured_image'] : 'assets/images/hero/hero-slider-1.jpg';
+        if (strpos($newsImage, 'assets/') !== 0 && strpos($newsImage, 'http') !== 0) {
+            $newsImage = 'assets/images/' . $newsImage;
         }
       ?>
-      <article class="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 group border border-slate-100 hover:border-brandRed/10 program-card-hover">
+      <article class="bg-slate-50 rounded-2xl overflow-hidden border border-slate-100 hover:border-brandRed/20 hover:shadow-xl transition-all group program-card-hover">
         <div class="relative h-52 overflow-hidden">
-          <img src="<?= $base ?><?= $image ?>" alt="<?= sanitize($item['title'] ?? '') ?>" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy">
+          <img src="<?= $base ?><?= $newsImage ?>" alt="<?= sanitize($item['title'] ?? '') ?>" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy">
           <span class="absolute top-3 left-3 <?= $catColor ?> text-white text-[10px] font-bold uppercase tracking-wider px-3 py-1 rounded-full"><?= sanitize($catLabel) ?></span>
         </div>
-        <div class="p-5">
+        <div class="p-6">
           <div class="flex items-center gap-3 text-xs text-slate-400 mb-3">
-            <span class="flex items-center gap-1.5"><i class="fa-solid fa-calendar-days text-brandRed/60"></i> <?= formatDate($item['published_date'] ?? date('Y-m-d')) ?></span>
-            <span class="flex items-center gap-1.5"><i class="fa-solid fa-user text-brandRed/60"></i> <?= sanitize($item['author'] ?? 'WRC Staff') ?></span>
+            <span class="flex items-center gap-1.5"><i class="fa-solid fa-calendar-days text-brandRed/60"></i> <?= formatDate($item['published_at'] ?? date('Y-m-d')) ?></span>
+            <?php if (!empty($item['author'])): ?>
+            <span class="flex items-center gap-1.5"><i class="fa-solid fa-user-pen text-brandRed/60"></i> <?= sanitize($item['author']) ?></span>
+            <?php endif; ?>
           </div>
-          <h3 class="text-lg font-bold text-ink-900 leading-snug mb-2 group-hover:text-brandRed transition-colors"><?= sanitize($item['title'] ?? '') ?></h3>
-          <p class="text-sm text-slate-500 leading-relaxed mb-4"><?= sanitize($item['description'] ?? '') ?></p>
-          <a href="<?= $base ?>news/<?= sanitize($item['slug'] ?? '#') ?>" class="text-brandRed text-sm font-semibold hover:underline flex items-center gap-1">Read More <i class="fa-solid fa-arrow-right text-[10px]"></i></a>
+          <h3 class="text-lg font-bold text-ink-900 leading-snug mb-2 group-hover:text-brandRed transition-colors line-clamp-2"><?= sanitize($item['title'] ?? '') ?></h3>
+          <p class="text-sm text-slate-500 leading-relaxed mb-4 line-clamp-3"><?= sanitize($item['excerpt'] ?? '') ?></p>
+          <a href="<?= $base ?>news/detail.php?slug=<?= sanitize($item['slug'] ?? '#') ?>" class="text-brandRed text-sm font-semibold hover:underline flex items-center gap-1">Read More <i class="fa-solid fa-arrow-right text-[10px]"></i></a>
         </div>
       </article>
       <?php endforeach; ?>
     </div>
+    <?php endif; ?>
   </div>
 </section>
 
 
-<!-- ============================================================ -->
-<!-- PRESS RELEASES FEED -->
-<!-- ============================================================ -->
-<section id="press" class="py-20 bg-white">
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <div class="text-center mb-12">
-      <span class="text-brandRed text-xs font-bold uppercase tracking-widest">Official Statements</span>
-      <h2 class="text-3xl sm:text-4xl font-display font-bold text-ink-900 mt-2">Press <span class="text-brandRed">Releases</span></h2>
-      <p class="text-slate-500 mt-3 max-w-2xl mx-auto">Official statements, reports, and announcements from the World Relief Committee.</p>
-    </div>
-
-    <div class="space-y-5 max-w-4xl mx-auto">
-      <?php foreach ($pressReleases as $pr): ?>
-      <?php
-        $subType = $pr['sub_type'] ?? 'official_statement';
-        $iconData = $pressIconMap[$subType] ?? $pressIconMap['official_statement'];
-        $typeLabel = str_replace('_', ' ', ucfirst($subType));
-      ?>
-      <div class="bg-slate-50 rounded-2xl p-6 border border-slate-100 hover:border-brandRed/20 hover:shadow-md transition-all group program-card-hover">
-        <div class="flex flex-col md:flex-row md:items-center gap-5">
-          <div class="shrink-0 flex items-center justify-center w-16 h-16 rounded-xl <?= $iconData['bg'] ?> <?= $iconData['color'] ?>">
-            <i class="fa-solid <?= $iconData['icon'] ?> text-xl"></i>
-          </div>
-          <div class="flex-1 min-w-0">
-            <div class="flex items-center gap-3 text-xs text-slate-400 mb-1.5">
-              <span class="flex items-center gap-1"><i class="fa-solid fa-calendar-days"></i> <?= formatDate($pr['published_date'] ?? date('Y-m-d'), 'F d, Y') ?></span>
-              <span class="text-slate-300">|</span>
-              <span class="<?= $iconData['color'] ?> font-semibold"><?= sanitize($typeLabel) ?></span>
-            </div>
-            <h3 class="text-lg font-bold text-ink-900 group-hover:text-brandRed transition-colors mb-1.5"><?= sanitize($pr['title'] ?? '') ?></h3>
-            <p class="text-sm text-slate-500 leading-relaxed"><?= sanitize($pr['description'] ?? '') ?></p>
-          </div>
-          <?php if (!empty($pr['pdf_url'])): ?>
-          <a href="<?= $base ?><?= $pr['pdf_url'] ?>" class="shrink-0 inline-flex items-center gap-2 <?= $iconData['btnBg'] ?> text-white text-xs font-semibold px-5 py-2.5 rounded-xl <?= $iconData['btnHover'] ?> transition-all shadow-sm">
-            <i class="fa-solid fa-file-pdf"></i> Download PDF
-          </a>
-          <?php endif; ?>
-        </div>
-      </div>
-      <?php endforeach; ?>
-    </div>
-  </div>
-</section>
-
-
-<!-- ============================================================ -->
-<!-- EVENTS CALENDAR (Hardcoded - no events table yet) -->
-<!-- ============================================================ -->
-<section id="events" class="py-20 bg-sand-50">
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <div class="text-center mb-12">
-      <span class="text-brandRed text-xs font-bold uppercase tracking-widest">Mark Your Calendar</span>
-      <h2 class="text-3xl sm:text-4xl font-display font-bold text-ink-900 mt-2">Upcoming <span class="text-brandRed">Events</span></h2>
-      <p class="text-slate-500 mt-3 max-w-2xl mx-auto">Join us at our upcoming events and be part of the change.</p>
-    </div>
-
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-7">
-
-      <!-- Event Card 1 -->
-      <div class="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all border border-slate-100 hover:border-brandRed/10 program-card-hover group">
-        <div class="relative h-48 bg-gradient-to-br from-brandRed to-brandRed-hover overflow-hidden">
-          <div class="absolute inset-0 flex items-center justify-center">
-            <i class="fa-solid fa-truck-medical text-white/20 text-7xl"></i>
-          </div>
-          <div class="absolute inset-0 flex flex-col items-center justify-center text-white z-10">
-            <span class="text-5xl font-bold font-display leading-none">15</span>
-            <span class="text-sm font-semibold uppercase tracking-wider mt-1">September 2026</span>
-          </div>
-        </div>
-        <div class="p-6">
-          <div class="flex items-center gap-2 text-xs text-slate-400 mb-3">
-            <i class="fa-solid fa-location-dot text-brandRed/60"></i>
-            <span>Peshawar Sports Complex</span>
-          </div>
-          <h3 class="text-lg font-bold text-ink-900 mb-2 group-hover:text-brandRed transition-colors">Humanitarian Aid Drive</h3>
-          <p class="text-sm text-slate-500 leading-relaxed mb-4">Join us for a day of community service as we pack and distribute emergency relief kits to displaced families. Volunteers of all ages welcome.</p>
-          <div class="flex items-center gap-2 text-xs text-slate-400 mb-4">
-            <i class="fa-solid fa-clock text-brandRed/60"></i>
-            <span>9:00 AM - 4:00 PM (PKT)</span>
-          </div>
-          <a href="#" class="inline-flex items-center gap-2 bg-brandRed text-white text-xs font-semibold px-5 py-2.5 rounded-xl hover:bg-brandRed-hover transition-all shadow-sm">
-            <i class="fa-solid fa-hand-pointer text-[10px]"></i> Register Now
-          </a>
-        </div>
-      </div>
-
-      <!-- Event Card 2 -->
-      <div class="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all border border-slate-100 hover:border-brandRed/10 program-card-hover group">
-        <div class="relative h-48 bg-gradient-to-br from-teal-500 to-teal-600 overflow-hidden">
-          <div class="absolute inset-0 flex items-center justify-center">
-            <i class="fa-solid fa-users text-white/20 text-7xl"></i>
-          </div>
-          <div class="absolute inset-0 flex flex-col items-center justify-center text-white z-10">
-            <span class="text-5xl font-bold font-display leading-none">08</span>
-            <span class="text-sm font-semibold uppercase tracking-wider mt-1">October 2026</span>
-          </div>
-        </div>
-        <div class="p-6">
-          <div class="flex items-center gap-2 text-xs text-slate-400 mb-3">
-            <i class="fa-solid fa-location-dot text-teal-500/60"></i>
-            <span>WRC Head Office, Peshawar</span>
-          </div>
-          <h3 class="text-lg font-bold text-ink-900 mb-2 group-hover:text-brandRed transition-colors">Volunteer Orientation Workshop</h3>
-          <p class="text-sm text-slate-500 leading-relaxed mb-4">A comprehensive orientation for new and existing volunteers covering WRC's mission, field protocols, safety guidelines, and community engagement strategies.</p>
-          <div class="flex items-center gap-2 text-xs text-slate-400 mb-4">
-            <i class="fa-solid fa-clock text-teal-500/60"></i>
-            <span>10:00 AM - 1:00 PM (PKT)</span>
-          </div>
-          <a href="#" class="inline-flex items-center gap-2 bg-teal-500 text-white text-xs font-semibold px-5 py-2.5 rounded-xl hover:bg-teal-600 transition-all shadow-sm">
-            <i class="fa-solid fa-hand-pointer text-[10px]"></i> Register Now
-          </a>
-        </div>
-      </div>
-
-      <!-- Event Card 3 -->
-      <div class="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all border border-slate-100 hover:border-brandRed/10 program-card-hover group">
-        <div class="relative h-48 bg-gradient-to-br from-gold-400 to-gold-600 overflow-hidden">
-          <div class="absolute inset-0 flex items-center justify-center">
-            <i class="fa-solid fa-champagne-glasses text-white/20 text-7xl"></i>
-          </div>
-          <div class="absolute inset-0 flex flex-col items-center justify-center text-white z-10">
-            <span class="text-5xl font-bold font-display leading-none">20</span>
-            <span class="text-sm font-semibold uppercase tracking-wider mt-1">December 2026</span>
-          </div>
-        </div>
-        <div class="p-6">
-          <div class="flex items-center gap-2 text-xs text-slate-400 mb-3">
-            <i class="fa-solid fa-location-dot text-gold-500/60"></i>
-            <span>Marbella Wedding Hall, Peshawar</span>
-          </div>
-          <h3 class="text-lg font-bold text-ink-900 mb-2 group-hover:text-brandRed transition-colors">Annual Gala & Fundraiser</h3>
-          <p class="text-sm text-slate-500 leading-relaxed mb-4">WRC's flagship fundraising event celebrating a year of impact. Enjoy dinner, live entertainment, and exclusive stories from the field while supporting our mission.</p>
-          <div class="flex items-center gap-2 text-xs text-slate-400 mb-4">
-            <i class="fa-solid fa-clock text-gold-500/60"></i>
-            <span>6:30 PM - 10:00 PM (PKT)</span>
-          </div>
-          <a href="#" class="inline-flex items-center gap-2 bg-gold-500 text-white text-xs font-semibold px-5 py-2.5 rounded-xl hover:bg-gold-600 transition-all shadow-sm">
-            <i class="fa-solid fa-hand-pointer text-[10px]"></i> Register Now
-          </a>
-        </div>
-      </div>
-
-    </div>
-  </div>
-</section>
-
-
-<!-- ============================================================ -->
-<!-- PHOTO GALLERY (Hardcoded - no photos table yet) -->
-<!-- ============================================================ -->
-<section id="photos" class="py-20 bg-white">
+<!-- PHOTO GALLERY -->
+<section id="photos" class="py-20 bg-slate-50">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-12">
       <div>
@@ -321,49 +177,46 @@ include dirname(__DIR__) . '/includes/header.php';
         <h2 class="text-3xl sm:text-4xl font-display font-bold text-ink-900 mt-2">Photo <span class="text-brandRed">Gallery</span></h2>
         <p class="text-slate-500 mt-3">Moments captured from our field operations and community events.</p>
       </div>
+      <?php if (!empty($photoCategories)): ?>
       <div class="flex flex-wrap gap-2 shrink-0">
         <button class="photo-filter-btn active bg-brandRed text-white text-xs font-semibold px-4 py-2 rounded-full transition-all" data-filter="all">All</button>
-        <button class="photo-filter-btn bg-slate-100 text-slate-600 text-xs font-semibold px-4 py-2 rounded-full hover:bg-brandRed hover:text-white transition-all" data-filter="relief">Relief</button>
-        <button class="photo-filter-btn bg-slate-100 text-slate-600 text-xs font-semibold px-4 py-2 rounded-full hover:bg-brandRed hover:text-white transition-all" data-filter="wash">WASH</button>
-        <button class="photo-filter-btn bg-slate-100 text-slate-600 text-xs font-semibold px-4 py-2 rounded-full hover:bg-brandRed hover:text-white transition-all" data-filter="health">Health</button>
-        <button class="photo-filter-btn bg-slate-100 text-slate-600 text-xs font-semibold px-4 py-2 rounded-full hover:bg-brandRed hover:text-white transition-all" data-filter="education">Education</button>
+        <?php foreach ($photoCategories as $cat): ?>
+        <button class="photo-filter-btn bg-slate-200 text-slate-600 text-xs font-semibold px-4 py-2 rounded-full hover:bg-brandRed hover:text-white transition-all" data-filter="<?= htmlspecialchars($cat) ?>"><?= ucfirst(htmlspecialchars($cat)) ?></button>
+        <?php endforeach; ?>
       </div>
+      <?php endif; ?>
     </div>
 
-    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4" id="photo-grid">
-      <div class="gallery-item aspect-square bg-slate-200" data-src="<?= $base ?>assets/images/hero.jpg" data-category="relief">
-        <img src="<?= $base ?>assets/images/hero.jpg" alt="Flood relief operations" class="w-full h-full object-cover" loading="lazy">
-      </div>
-      <div class="gallery-item aspect-square bg-slate-200" data-src="<?= $base ?>assets/images/water.jpg" data-category="wash">
-        <img src="<?= $base ?>assets/images/water.jpg" alt="Clean water distribution" class="w-full h-full object-cover" loading="lazy">
-      </div>
-      <div class="gallery-item aspect-square bg-slate-200" data-src="<?= $base ?>assets/images/food.jpg" data-category="relief">
-        <img src="<?= $base ?>assets/images/food.jpg" alt="Food pack delivery" class="w-full h-full object-cover" loading="lazy">
-      </div>
-      <div class="gallery-item aspect-square bg-slate-200" data-src="<?= $base ?>assets/images/hero-slider-2.jpg" data-category="education">
-        <img src="<?= $base ?>assets/images/hero-slider-2.jpg" alt="School distribution drive" class="w-full h-full object-cover" loading="lazy">
-      </div>
-      <div class="gallery-item aspect-square bg-slate-200" data-src="<?= $base ?>assets/images/hero-slider-3.jpg" data-category="health">
-        <img src="<?= $base ?>assets/images/hero-slider-3.jpg" alt="Medical camp services" class="w-full h-full object-cover" loading="lazy">
-      </div>
-      <div class="gallery-item aspect-square bg-slate-200" data-src="<?= $base ?>assets/images/hero.jpg" data-category="wash">
-        <img src="<?= $base ?>assets/images/hero.jpg" alt="Water filtration plant" class="w-full h-full object-cover" loading="lazy">
-      </div>
-      <div class="gallery-item aspect-square bg-slate-200" data-src="<?= $base ?>assets/images/food.jpg" data-category="relief">
-        <img src="<?= $base ?>assets/images/food.jpg" alt="Community relief gathering" class="w-full h-full object-cover" loading="lazy">
-      </div>
-      <div class="gallery-item aspect-square bg-slate-200" data-src="<?= $base ?>assets/images/water.jpg" data-category="education">
-        <img src="<?= $base ?>assets/images/water.jpg" alt="Education support program" class="w-full h-full object-cover" loading="lazy">
-      </div>
+    <?php if (empty($photos)): ?>
+    <div class="text-center py-16 bg-white rounded-2xl">
+      <i class="fa-solid fa-images text-4xl text-slate-300 mb-4 block"></i>
+      <h3 class="text-lg font-bold text-slate-700 mb-2">No photos yet</h3>
+      <p class="text-sm text-slate-400">Photo gallery will be populated soon.</p>
     </div>
+    <?php else: ?>
+    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4" id="photo-grid">
+      <?php foreach ($photos as $photo): ?>
+      <?php
+        $photoPath = !empty($photo['image_path']) ? $photo['image_path'] : 'assets/images/hero/hero-slider-1.jpg';
+        if (strpos($photoPath, 'assets/') !== 0 && strpos($photoPath, 'http') !== 0 && strpos($photoPath, 'uploads/') !== 0) {
+            $photoPath = 'uploads/photos/' . $photoPath;
+        }
+      ?>
+      <div class="gallery-item aspect-square bg-slate-200 rounded-xl overflow-hidden cursor-pointer group" data-src="<?= $base ?><?= $photoPath ?>" data-category="<?= htmlspecialchars($photo['category'] ?? 'general') ?>" data-caption="<?= htmlspecialchars($photo['caption'] ?? $photo['alt_text'] ?? '') ?>">
+        <img src="<?= $base ?><?= $photoPath ?>" alt="<?= sanitize($photo['alt_text'] ?? $photo['caption'] ?? 'Photo') ?>" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" loading="lazy">
+        <div class="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors flex items-center justify-center opacity-0 group-hover:opacity-100">
+          <i class="fa-solid fa-expand text-white text-xl"></i>
+        </div>
+      </div>
+      <?php endforeach; ?>
+    </div>
+    <?php endif; ?>
   </div>
 </section>
 
 
-<!-- ============================================================ -->
-<!-- VIDEO GALLERY (Hardcoded - no videos table yet) -->
-<!-- ============================================================ -->
-<section id="videos" class="py-20 bg-slate-50">
+<!-- VIDEO GALLERY -->
+<section id="videos" class="py-20 bg-white">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <div class="text-center mb-12">
       <span class="text-brandRed text-xs font-bold uppercase tracking-widest">Watch & Learn</span>
@@ -371,128 +224,295 @@ include dirname(__DIR__) . '/includes/header.php';
       <p class="text-slate-500 mt-3 max-w-2xl mx-auto">Watch stories from the field and see the impact of your support in action.</p>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-7">
-
-      <!-- Video Card 1 -->
-      <div class="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all border border-slate-100 program-card-hover group">
-        <div class="relative aspect-video bg-slate-200 overflow-hidden">
-          <img src="<?= $base ?>assets/images/hero.jpg" alt="WRC documentary" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy">
-          <div class="absolute inset-0 bg-black/30 group-hover:bg-black/40 transition-colors flex items-center justify-center">
-            <button class="w-16 h-16 rounded-full bg-brandRed/90 hover:bg-brandRed text-white flex items-center justify-center shadow-lg shadow-brandRed/30 transition-all hover:scale-110" aria-label="Play video">
-              <i class="fa-solid fa-play text-xl ml-1"></i>
-            </button>
-          </div>
-          <div class="absolute bottom-3 left-3 bg-black/60 text-white text-[10px] font-semibold px-2.5 py-1 rounded-md">
-            <i class="fa-solid fa-clock mr-1"></i> 3:42
-          </div>
-        </div>
-        <div class="p-5">
-          <h3 class="text-lg font-bold text-ink-900 mb-1.5 group-hover:text-brandRed transition-colors">WRC in Action: Emergency Flood Response 2026</h3>
-          <p class="text-sm text-slate-500 leading-relaxed">A documentary look at WRC's rapid-response teams deploying across Sindh during the 2026 monsoon floods.</p>
-        </div>
-      </div>
-
-      <!-- Video Card 2 -->
-      <div class="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all border border-slate-100 program-card-hover group">
-        <div class="relative aspect-video bg-slate-200 overflow-hidden">
-          <img src="<?= $base ?>assets/images/water.jpg" alt="Water project video" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy">
-          <div class="absolute inset-0 bg-black/30 group-hover:bg-black/40 transition-colors flex items-center justify-center">
-            <button class="w-16 h-16 rounded-full bg-brandRed/90 hover:bg-brandRed text-white flex items-center justify-center shadow-lg shadow-brandRed/30 transition-all hover:scale-110" aria-label="Play video">
-              <i class="fa-solid fa-play text-xl ml-1"></i>
-            </button>
-          </div>
-          <div class="absolute bottom-3 left-3 bg-black/60 text-white text-[10px] font-semibold px-2.5 py-1 rounded-md">
-            <i class="fa-solid fa-clock mr-1"></i> 5:18
-          </div>
-        </div>
-        <div class="p-5">
-          <h3 class="text-lg font-bold text-ink-900 mb-1.5 group-hover:text-brandRed transition-colors">Clean Water, Brighter Futures: WASH Project Highlights</h3>
-          <p class="text-sm text-slate-500 leading-relaxed">See how solar-powered water systems are transforming remote communities in Khyber Pakhtunkhwa.</p>
-        </div>
-      </div>
-
-      <!-- Video Card 3 -->
-      <div class="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all border border-slate-100 program-card-hover group">
-        <div class="relative aspect-video bg-slate-200 overflow-hidden">
-          <img src="<?= $base ?>assets/images/hero-slider-2.jpg" alt="Education initiative video" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy">
-          <div class="absolute inset-0 bg-black/30 group-hover:bg-black/40 transition-colors flex items-center justify-center">
-            <button class="w-16 h-16 rounded-full bg-brandRed/90 hover:bg-brandRed text-white flex items-center justify-center shadow-lg shadow-brandRed/30 transition-all hover:scale-110" aria-label="Play video">
-              <i class="fa-solid fa-play text-xl ml-1"></i>
-            </button>
-          </div>
-          <div class="absolute bottom-3 left-3 bg-black/60 text-white text-[10px] font-semibold px-2.5 py-1 rounded-md">
-            <i class="fa-solid fa-clock mr-1"></i> 4:05
-          </div>
-        </div>
-        <div class="p-5">
-          <h3 class="text-lg font-bold text-ink-900 mb-1.5 group-hover:text-brandRed transition-colors">Back to School: Education for Every Child in Pakistan</h3>
-          <p class="text-sm text-slate-500 leading-relaxed">Follow our team as they deliver school kits and set up learning centers in remote Balochistan villages.</p>
-        </div>
-      </div>
-
+    <?php if (empty($videos)): ?>
+    <div class="text-center py-16 bg-slate-50 rounded-2xl">
+      <i class="fa-solid fa-video text-4xl text-slate-300 mb-4 block"></i>
+      <h3 class="text-lg font-bold text-slate-700 mb-2">No videos yet</h3>
+      <p class="text-sm text-slate-400">Video gallery will be populated soon.</p>
     </div>
-  </div>
-</section>
-
-
-<!-- ============================================================ -->
-<!-- BLOGS SECTION -->
-<!-- ============================================================ -->
-<section id="blogs" class="py-20 bg-white">
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-12">
-      <div>
-        <span class="text-brandRed text-xs font-bold uppercase tracking-widest">Insights & Perspectives</span>
-        <h2 class="text-3xl sm:text-4xl font-display font-bold text-ink-900 mt-2">From Our <span class="text-brandRed">Blog</span></h2>
-      </div>
-      <a href="#" class="text-brandRed text-sm font-semibold hover:underline flex items-center gap-1 shrink-0">
-        View All Posts <i class="fa-solid fa-arrow-right text-xs"></i>
-      </a>
-    </div>
-
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-7">
-      <?php foreach ($blogs as $blog): ?>
+    <?php else: ?>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-7">
+      <?php foreach ($videos as $video): ?>
       <?php
-        $blogCat = $blog['sub_type'] ?? 'opinion';
-        $blogCatColors = [
-            'opinion'     => 'bg-brandRed',
-            'perspective' => 'bg-teal-500',
-            'story'       => 'bg-purple-500',
-            'analysis'    => 'bg-blue-500',
-        ];
-        $blogCatLabels = [
-            'opinion'     => 'Opinion',
-            'perspective' => 'Perspective',
-            'story'       => 'Story',
-            'analysis'    => 'Analysis',
-        ];
-        $blogColor = $blogCatColors[$blogCat] ?? 'bg-brandRed';
-        $blogLabel = $blogCatLabels[$blogCat] ?? ucfirst($blogCat);
-        $blogImage = !empty($blog['hero_image']) ? $blog['hero_image'] : 'assets/images/food.jpg';
-        if (strpos($blogImage, 'assets/') !== 0 && strpos($blogImage, 'http') !== 0) {
-            $blogImage = 'assets/images/' . $blogImage;
+        $thumbPath = !empty($video['thumbnail_path']) ? $video['thumbnail_path'] : 'assets/images/hero/hero-slider-1.jpg';
+        if (strpos($thumbPath, 'assets/') !== 0 && strpos($thumbPath, 'http') !== 0 && strpos($thumbPath, 'uploads/') !== 0) {
+            $thumbPath = 'uploads/videos/' . $thumbPath;
         }
+        $videoUrl = $video['video_url'] ?? '';
+        $isYouTube = preg_match('/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]+)/', $videoUrl, $ytMatch);
+        $embedUrl = $isYouTube ? "https://www.youtube.com/embed/{$ytMatch[1]}" : $videoUrl;
       ?>
-      <article class="bg-slate-50 rounded-2xl overflow-hidden border border-slate-100 hover:border-brandRed/20 hover:shadow-xl transition-all group program-card-hover">
-        <div class="relative h-52 overflow-hidden">
-          <img src="<?= $base ?><?= $blogImage ?>" alt="<?= sanitize($blog['title'] ?? '') ?>" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy">
-          <span class="absolute top-3 left-3 <?= $blogColor ?> text-white text-[10px] font-bold uppercase tracking-wider px-3 py-1 rounded-full"><?= sanitize($blogLabel) ?></span>
-        </div>
-        <div class="p-6">
-          <div class="flex items-center gap-3 text-xs text-slate-400 mb-3">
-            <span class="flex items-center gap-1.5"><i class="fa-solid fa-calendar-days text-brandRed/60"></i> <?= formatDate($blog['published_date'] ?? date('Y-m-d')) ?></span>
-            <span class="flex items-center gap-1.5"><i class="fa-solid fa-user-pen text-brandRed/60"></i> <?= sanitize($blog['author'] ?? 'WRC Staff') ?></span>
+      <div class="bg-slate-50 rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all border border-slate-100 program-card-hover group">
+        <div class="relative aspect-video bg-slate-200 overflow-hidden video-card" data-video-url="<?= htmlspecialchars($embedUrl) ?>">
+          <img src="<?= $base ?><?= $thumbPath ?>" alt="<?= sanitize($video['title'] ?? 'Video') ?>" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy">
+          <div class="absolute inset-0 bg-black/30 group-hover:bg-black/40 transition-colors flex items-center justify-center">
+            <button class="w-16 h-16 rounded-full bg-brandRed/90 hover:bg-brandRed text-white flex items-center justify-center shadow-lg shadow-brandRed/30 transition-all hover:scale-110 video-play-btn" aria-label="Play video">
+              <i class="fa-solid fa-play text-xl ml-1"></i>
+            </button>
           </div>
-          <h3 class="text-lg font-bold text-ink-900 leading-snug mb-2 group-hover:text-brandRed transition-colors"><?= sanitize($blog['title'] ?? '') ?></h3>
-          <p class="text-sm text-slate-500 leading-relaxed mb-4"><?= sanitize($blog['description'] ?? '') ?></p>
-          <a href="<?= $base ?>news/<?= sanitize($blog['slug'] ?? '#') ?>" class="text-brandRed text-sm font-semibold hover:underline flex items-center gap-1">Read Post <i class="fa-solid fa-arrow-right text-[10px]"></i></a>
+          <?php if (!empty($video['duration'])): ?>
+          <div class="absolute bottom-3 left-3 bg-black/60 text-white text-[10px] font-semibold px-2.5 py-1 rounded-md">
+            <i class="fa-solid fa-clock mr-1"></i> <?= sanitize($video['duration']) ?>
+          </div>
+          <?php endif; ?>
         </div>
-      </article>
+        <div class="p-5">
+          <h3 class="text-lg font-bold text-ink-900 mb-1.5 group-hover:text-brandRed transition-colors line-clamp-2"><?= sanitize($video['title'] ?? '') ?></h3>
+          <?php if (!empty($video['description'])): ?>
+          <p class="text-sm text-slate-500 leading-relaxed line-clamp-2"><?= sanitize($video['description']) ?></p>
+          <?php endif; ?>
+        </div>
+      </div>
       <?php endforeach; ?>
     </div>
+    <?php endif; ?>
   </div>
 </section>
 
 </main>
 
+<!-- VIDEO MODAL -->
+<div id="video-modal" class="fixed inset-0 z-[100] bg-black/90 backdrop-blur-sm hidden items-center justify-center p-4" role="dialog" aria-modal="true">
+  <button id="video-modal-close" class="absolute top-6 right-6 text-white/50 hover:text-white text-3xl z-10 transition-colors w-12 h-12 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20" aria-label="Close">
+    <i class="fa-solid fa-xmark"></i>
+  </button>
+  <div class="w-full max-w-4xl">
+    <div class="relative aspect-video bg-black rounded-xl overflow-hidden">
+      <iframe id="video-iframe" src="" class="w-full h-full" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+    </div>
+  </div>
+</div>
+
+<!-- PHOTO LIGHTBOX -->
+<div id="lightbox-modal" class="fixed inset-0 z-[100] bg-black/95 backdrop-blur-sm hidden items-center justify-center p-4" role="dialog" aria-modal="true">
+  <button id="lightbox-close" class="absolute top-6 right-6 text-white/50 hover:text-white text-3xl z-10 transition-colors w-12 h-12 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20" aria-label="Close lightbox">
+    <i class="fa-solid fa-xmark"></i>
+  </button>
+  <button id="lightbox-prev" class="absolute left-4 lg:left-8 top-1/2 -translate-y-1/2 text-white/50 hover:text-white text-2xl z-10 transition-all w-12 h-12 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20" aria-label="Previous image">
+    <i class="fa-solid fa-chevron-left"></i>
+  </button>
+  <button id="lightbox-next" class="absolute right-4 lg:right-8 top-1/2 -translate-y-1/2 text-white/50 hover:text-white text-2xl z-10 transition-all w-12 h-12 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20" aria-label="Next image">
+    <i class="fa-solid fa-chevron-right"></i>
+  </button>
+  <div class="max-w-5xl max-h-[85vh] flex flex-col items-center gap-4">
+    <img id="lightbox-img" src="" alt="" class="max-w-full max-h-[75vh] object-contain rounded-xl">
+    <p id="lightbox-caption" class="text-white/70 text-sm text-center"></p>
+    <span id="lightbox-counter" class="text-white/40 text-xs font-mono"></span>
+  </div>
+</div>
+
 <?php include dirname(__DIR__) . '/includes/footer.php'; ?>
+
+<script>
+(function(){
+  // === NEWS HERO SLIDER ===
+  const slider = document.getElementById('news-hero-slider');
+  const prevBtn = document.getElementById('news-slider-prev');
+  const nextBtn = document.getElementById('news-slider-next');
+  const dots = document.querySelectorAll('#news-slider-dots button');
+  const slides = slider ? slider.querySelectorAll(':scope > div') : [];
+  const slideContents = <?= json_encode(array_map(function($s) {
+      return [
+          'badge' => $s['badge'] ?? 'News & Media',
+          'title' => $s['title'] ?? '',
+          'subtitle' => $s['subtitle'] ?? '',
+          'cta_text' => $s['cta_text'] ?? 'Latest News',
+          'cta_link' => $s['cta_link'] ?? '#news',
+      ];
+  }, $heroSlides)) ?>;
+  let currentSlide = 0;
+  const slideCount = slides.length;
+  let slideInterval;
+  const contentEl = document.getElementById('news-hero-content');
+
+  function renderContent(index) {
+      if (!contentEl || !slideContents[index]) return;
+      const s = slideContents[index];
+      contentEl.style.opacity = '0';
+      contentEl.style.transform = 'translateY(15px)';
+      setTimeout(() => {
+          contentEl.innerHTML = `
+              <span class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest bg-brandRed/90 text-white mb-4 backdrop-blur-sm">
+                  <i class="fa-solid fa-newspaper"></i> ${s.badge}
+              </span>
+              <h1 class="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-display font-bold leading-[1.1] mb-4 drop-shadow-lg">
+                  ${s.title}
+              </h1>
+              <p class="text-lg sm:text-xl text-white/80 leading-relaxed mb-8 max-w-xl drop-shadow-sm">
+                  ${s.subtitle}
+              </p>
+              <div class="flex flex-wrap gap-4">
+                  <a href="<?= $base ?>${s.cta_link}" class="bg-brandRed hover:bg-brandRed-hover text-white font-bold text-sm px-8 py-4 rounded-xl shadow-lg shadow-brandRed/30 transition-all flex items-center gap-2 transform hover:-translate-y-0.5">
+                      ${s.cta_text} <i class="fa-solid fa-arrow-right text-xs"></i>
+                  </a>
+                  <a href="#photos" class="bg-white/15 hover:bg-white/25 backdrop-blur-sm text-white font-bold text-sm px-8 py-4 rounded-xl border border-white/25 transition-all flex items-center gap-2 transform hover:-translate-y-0.5">
+                      Photo Gallery <i class="fa-solid fa-images text-xs"></i>
+                  </a>
+              </div>
+          `;
+          contentEl.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+          contentEl.style.opacity = '1';
+          contentEl.style.transform = 'translateY(0)';
+      }, 200);
+  }
+
+  function updateSlider() {
+      if (slider) {
+          slider.style.transform = `translateX(-${currentSlide * 100}%)`;
+          dots.forEach((dot, index) => {
+              dot.className = index === currentSlide
+                  ? 'w-4 h-3 rounded-full bg-brandRed shadow-md transition-all duration-300'
+                  : 'w-3 h-3 rounded-full bg-white/40 hover:bg-white/70 transition-all duration-300';
+          });
+          renderContent(currentSlide);
+      }
+  }
+
+  function nextSlide() { currentSlide = (currentSlide + 1) % slideCount; updateSlider(); }
+  function prevSlide() { currentSlide = (currentSlide - 1 + slideCount) % slideCount; updateSlider(); }
+  function startSlider() { slideInterval = setInterval(nextSlide, 5000); }
+  function resetSlider() { clearInterval(slideInterval); startSlider(); }
+
+  if (nextBtn && prevBtn && dots.length > 0) {
+      nextBtn.addEventListener('click', () => { nextSlide(); resetSlider(); });
+      prevBtn.addEventListener('click', () => { prevSlide(); resetSlider(); });
+      dots.forEach(dot => {
+          dot.addEventListener('click', function() {
+              currentSlide = parseInt(this.dataset.index);
+              updateSlider();
+              resetSlider();
+          });
+      });
+      startSlider();
+  }
+
+  // Touch support for slider
+  let touchStartX = 0;
+  const heroEl = document.getElementById('news-hero');
+  if (heroEl) {
+      heroEl.addEventListener('touchstart', e => { touchStartX = e.touches[0].clientX; }, { passive: true });
+      heroEl.addEventListener('touchend', e => {
+          const diff = touchStartX - e.changedTouches[0].clientX;
+          if (Math.abs(diff) > 50) {
+              diff > 0 ? nextSlide() : prevSlide();
+              resetSlider();
+          }
+      }, { passive: true });
+  }
+
+  // === PHOTO GALLERY FILTER ===
+  var photoFilterBtns = document.querySelectorAll('.photo-filter-btn');
+  var photoItems = document.querySelectorAll('#photo-grid .gallery-item');
+
+  photoFilterBtns.forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      photoFilterBtns.forEach(function(b) { b.classList.remove('active', 'bg-brandRed', 'text-white'); b.classList.add('bg-slate-200', 'text-slate-600'); });
+      this.classList.add('active', 'bg-brandRed', 'text-white');
+      this.classList.remove('bg-slate-200', 'text-slate-600');
+      
+      var filter = this.getAttribute('data-filter');
+      photoItems.forEach(function(item) {
+        if (filter === 'all' || item.getAttribute('data-category') === filter) {
+          item.style.display = '';
+          item.style.opacity = '0';
+          item.style.transform = 'scale(0.9)';
+          setTimeout(function() {
+            item.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+            item.style.opacity = '1';
+            item.style.transform = 'scale(1)';
+          }, 50);
+        } else {
+          item.style.display = 'none';
+        }
+      });
+    });
+  });
+
+  // === PHOTO LIGHTBOX ===
+  var lightboxModal = document.getElementById('lightbox-modal');
+  var lightboxImg = document.getElementById('lightbox-img');
+  var lightboxCaption = document.getElementById('lightbox-caption');
+  var lightboxCounter = document.getElementById('lightbox-counter');
+  var lightboxItems = document.querySelectorAll('#photo-grid .gallery-item');
+  var lightboxCurrent = 0;
+  var visiblePhotos = Array.from(lightboxItems);
+
+  function openLightbox(index) {
+    lightboxCurrent = index;
+    var item = visiblePhotos[lightboxCurrent];
+    lightboxImg.src = item.dataset.src || '';
+    lightboxCaption.textContent = item.dataset.caption || '';
+    lightboxCounter.textContent = (lightboxCurrent + 1) + ' / ' + visiblePhotos.length;
+    lightboxModal.classList.remove('hidden');
+    lightboxModal.classList.add('flex');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeLightbox() {
+    lightboxModal.classList.add('hidden');
+    lightboxModal.classList.remove('flex');
+    document.body.style.overflow = '';
+  }
+
+  lightboxItems.forEach(function(item, i) {
+    item.addEventListener('click', function() {
+      visiblePhotos = Array.from(document.querySelectorAll('#photo-grid .gallery-item:not([style*="display: none"])'));
+      var visIndex = visiblePhotos.indexOf(item);
+      openLightbox(visIndex >= 0 ? visIndex : 0);
+    });
+  });
+
+  document.getElementById('lightbox-close').addEventListener('click', closeLightbox);
+  document.getElementById('lightbox-prev').addEventListener('click', function() { lightboxCurrent = (lightboxCurrent - 1 + visiblePhotos.length) % visiblePhotos.length; openLightbox(lightboxCurrent); });
+  document.getElementById('lightbox-next').addEventListener('click', function() { lightboxCurrent = (lightboxCurrent + 1) % visiblePhotos.length; openLightbox(lightboxCurrent); });
+  lightboxModal.addEventListener('click', function(e) { if (e.target === lightboxModal) closeLightbox(); });
+  document.addEventListener('keydown', function(e) {
+    if (lightboxModal.classList.contains('hidden')) return;
+    if (e.key === 'Escape') closeLightbox();
+    if (e.key === 'ArrowLeft') { lightboxCurrent = (lightboxCurrent - 1 + visiblePhotos.length) % visiblePhotos.length; openLightbox(lightboxCurrent); }
+    if (e.key === 'ArrowRight') { lightboxCurrent = (lightboxCurrent + 1) % visiblePhotos.length; openLightbox(lightboxCurrent); }
+  });
+
+  // === VIDEO MODAL ===
+  var videoModal = document.getElementById('video-modal');
+  var videoIframe = document.getElementById('video-iframe');
+
+  document.querySelectorAll('.video-play-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      var card = this.closest('.video-card');
+      var url = card.getAttribute('data-video-url');
+      if (url) {
+        videoIframe.src = url;
+        videoModal.classList.remove('hidden');
+        videoModal.classList.add('flex');
+        document.body.style.overflow = 'hidden';
+      }
+    });
+  });
+
+  document.getElementById('video-modal-close').addEventListener('click', function() {
+    videoIframe.src = '';
+    videoModal.classList.add('hidden');
+    videoModal.classList.remove('flex');
+    document.body.style.overflow = '';
+  });
+
+  videoModal.addEventListener('click', function(e) {
+    if (e.target === videoModal) {
+      videoIframe.src = '';
+      videoModal.classList.add('hidden');
+      videoModal.classList.remove('flex');
+      document.body.style.overflow = '';
+    }
+  });
+
+  document.addEventListener('keydown', function(e) {
+    if (!videoModal.classList.contains('hidden') && e.key === 'Escape') {
+      videoIframe.src = '';
+      videoModal.classList.add('hidden');
+      videoModal.classList.remove('flex');
+      document.body.style.overflow = '';
+    }
+  });
+})();
+</script>

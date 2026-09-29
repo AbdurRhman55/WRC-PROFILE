@@ -48,9 +48,9 @@ include __DIR__ . '/../includes/header.php';
 ?>
 
 <!-- HERO -->
-<section class="relative bg-slate-900 py-20 overflow-hidden">
-  <div class="absolute inset-0 opacity-30 bg-cover bg-center" style="background-image: url('<?= $base ?><?= $heroData['background_image'] ?? 'assets/images/hero.jpg' ?>');"></div>
-  <div class="absolute inset-0 bg-gradient-to-r from-slate-950/90 to-slate-900/70"></div>
+<section class="relative bg-slate-900 py-16 md:py-20 overflow-hidden min-h-[480px] md:min-h-[540px] lg:min-h-[580px] flex items-center">
+  <div class="absolute inset-0 opacity-50 bg-cover bg-center" style="background-image: url('<?= $base ?><?= $heroData['hero_image'] ?? 'assets/images/contribute-hero.jpg' ?>');"></div>
+  <div class="absolute inset-0 bg-gradient-to-r from-slate-950/70 to-slate-900/50"></div>
   <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 text-center">
     <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider bg-brandRed/20 text-red-300 border border-brandRed/30 mb-4">
       <i class="fa-solid fa-handshake"></i> <?= sanitize($heroData['badge'] ?? 'Make a Difference') ?>
@@ -437,7 +437,7 @@ include __DIR__ . '/../includes/header.php';
 
 <!-- FINAL CTA -->
 <section class="py-20 bg-brandRed text-center relative overflow-hidden">
-  <div class="absolute inset-0 bg-cover bg-center mix-blend-multiply opacity-20" style="background-image: url('<?= $base ?>assets/images/hero.jpg');"></div>
+  <div class="absolute inset-0 bg-cover bg-center mix-blend-multiply opacity-20" style="background-image: url('<?= $base ?>assets/images/hero/contribute-hero.jpg');"></div>
   <div class="container relative z-10 mx-auto px-4">
     <h2 class="text-3xl md:text-4xl font-display font-bold text-white mb-5 max-w-3xl mx-auto leading-tight">
       Together, we can turn community needs into meaningful action.
