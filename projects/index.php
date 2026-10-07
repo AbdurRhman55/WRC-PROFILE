@@ -6,7 +6,7 @@
 require_once dirname(__DIR__) . '/includes/config.php';
 require_once dirname(__DIR__) . '/includes/functions.php';
 
-$base = '../';
+$base = siteBaseUrl();
 
 // Fetch projects sections from DB
 $allSections = getRows('homepage_sections', '', '');

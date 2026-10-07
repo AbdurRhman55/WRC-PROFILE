@@ -115,7 +115,7 @@ include __DIR__ . '/includes/header.php';
         <tr class="border-b border-slate-100 hover:bg-slate-50 transition-colors <?= $i % 2 !== 0 ? 'bg-slate-50/50' : '' ?> <?= !$s['is_active'] ? 'opacity-60' : '' ?>">
           <td class="px-5 py-3">
             <?php if (!empty($s['image_path'])): ?>
-            <img src="../<?= htmlspecialchars($s['image_path']) ?>" alt="" class="w-20 h-12 rounded-lg object-cover border border-slate-200">
+            <img src="<?= htmlspecialchars(getImageUrl($s['image_path']), ENT_QUOTES, 'UTF-8') ?>" alt="" class="w-20 h-12 rounded-lg object-cover border border-slate-200">
             <?php else: ?>
             <div class="w-20 h-12 rounded-lg bg-slate-100 border border-slate-200 flex items-center justify-center"><i class="fa-solid fa-image text-slate-300 text-xs"></i></div>
             <?php endif; ?>

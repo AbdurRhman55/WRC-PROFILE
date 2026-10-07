@@ -72,7 +72,7 @@ include __DIR__ . '/includes/header.php';
           <td class="px-5 py-3">
             <div class="flex items-center gap-3">
               <?php if (!empty($member['photo_path'])): ?>
-              <img src="../<?= htmlspecialchars($member['photo_path']) ?>" alt="" class="w-8 h-8 rounded-full object-cover border border-slate-200">
+              <img src="<?= htmlspecialchars(getImageUrl($member['photo_path']), ENT_QUOTES, 'UTF-8') ?>" alt="" class="w-8 h-8 rounded-full object-cover border border-slate-200">
               <?php else: ?>
               <div class="w-8 h-8 rounded-full bg-slate-200 flex items-center justify-center text-slate-500 text-xs font-bold"><?= strtoupper(substr($member['name'], 0, 1)) ?></div>
               <?php endif; ?>

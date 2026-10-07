@@ -5,7 +5,7 @@
 require_once __DIR__ . '/includes/config.php';
 require_once __DIR__ . '/includes/functions.php';
 
-$base = '';
+$base = siteBaseUrl();
 $pageTitle = 'World Relief Committee (WRC) - Official NGO Portal';
 $metaDescription = 'World Relief Committee (WRC) is a non-profit humanitarian organization delivering health, education, WASH, food security, and emergency disaster relief globally.';
 

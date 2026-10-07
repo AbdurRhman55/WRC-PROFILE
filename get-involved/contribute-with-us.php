@@ -5,7 +5,7 @@
 require_once dirname(__DIR__) . '/includes/config.php';
 require_once dirname(__DIR__) . '/includes/functions.php';
 
-$base = '../';
+$base = siteBaseUrl();
 $pageTitle = 'Contribute With Us | WRC';
 
 // Fetch homepage sections

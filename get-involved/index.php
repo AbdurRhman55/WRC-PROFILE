@@ -2,7 +2,7 @@
 require_once dirname(__DIR__) . '/includes/config.php';
 require_once dirname(__DIR__) . '/includes/functions.php';
 
-$base = '../';
+$base = siteBaseUrl();
 $pageTitle = 'Get Involved | WRC';
 $metaDescription = 'Join World Relief Committee as a volunteer, explore career opportunities, or become a partner or member.';
 

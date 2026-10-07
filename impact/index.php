@@ -2,7 +2,7 @@
 require_once dirname(__DIR__) . '/includes/config.php';
 require_once dirname(__DIR__) . '/includes/functions.php';
 
-$base = '../';
+$base = siteBaseUrl();
 $pageTitle = 'Impact & SDG Contributions | WRC';
 
 // Fetch homepage_sections for impact page

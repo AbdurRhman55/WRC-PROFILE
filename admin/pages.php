@@ -5,731 +5,841 @@ requireLogin();
 $pageTitle = 'Pages';
 
 // Handle save
-if (isPost() && isset($_POST['save_sections'])) {
-    if (!isset($_POST['csrf_token']) || !verifyCSRF($_POST['csrf_token'])) {
-        setFlash('error', 'Invalid security token.');
-        redirect('pages.php');
+if ( isPost() && isset( $_POST[ 'save_sections' ] ) ) {
+    if ( !isset( $_POST[ 'csrf_token' ] ) || !verifyCSRF( $_POST[ 'csrf_token' ] ) ) {
+        setFlash( 'error', 'Invalid security token.' );
+        redirect( 'pages.php' );
     }
 
-    $pageKey = $_POST['page_key'] ?? '';
-    $sectionsData = json_decode($_POST['sections_json'] ?? '{}', true);
+    $pageKey = $_POST[ 'page_key' ] ?? '';
+    $sectionsData = json_decode( $_POST[ 'sections_json' ] ?? '{}', true );
 
-    if (!$pageKey || !is_array($sectionsData)) {
-        setFlash('error', 'Invalid page or data.');
-        redirect('pages.php');
+    if ( !$pageKey || !is_array( $sectionsData ) ) {
+        setFlash( 'error', 'Invalid page or data.' );
+        redirect( 'pages.php' );
     }
 
     global $pdo;
 
     // Dedicated table save functions for migrated sections
-    function saveHeroSection($sectionKey, $data) {
+
+    function saveHeroSection( $sectionKey, $data ) {
         global $pdo;
-        $content = $data['content'] ?? [];
-        $exists = getRow($sectionKey);
+        $content = $data[ 'content' ] ?? [];
+        $exists = getRow( $sectionKey );
         $updateData = [
-            'hero_image' => $content['hero_image'] ?? '',
-            'subtitle' => $content['subtitle'] ?? ($data['section_subtitle'] ?? ''),
+            'hero_image' => $content[ 'hero_image' ] ?? '',
+            'subtitle' => $content[ 'subtitle' ] ?? ( $data[ 'section_subtitle' ] ?? '' ),
         ];
         // chairman_message has extra fields
-        if ($sectionKey === 'chairman_message') {
-            $updateData['image_path'] = $content['image_path'] ?? $content['hero_image'] ?? '';
-            $updateData['overlay_title'] = $content['overlay_title'] ?? '';
-            $updateData['note_label'] = $content['note_label'] ?? '';
-            $updateData['paragraph1'] = $content['paragraph1'] ?? '';
-            $updateData['paragraph2'] = $content['paragraph2'] ?? '';
-            $updateData['person_name'] = $content['person_name'] ?? '';
-            $updateData['person_title'] = $content['person_title'] ?? '';
-            $updateData['vision_label'] = $content['vision_label'] ?? '';
-            $updateData['vision_text'] = $content['vision_text'] ?? '';
+        if ( $sectionKey === 'chairman_message' ) {
+            $updateData[ 'image_path' ] = $content[ 'image_path' ] ?? $content[ 'hero_image' ] ?? '';
+            $updateData[ 'overlay_title' ] = $content[ 'overlay_title' ] ?? '';
+            $updateData[ 'note_label' ] = $content[ 'note_label' ] ?? '';
+            $updateData[ 'paragraph1' ] = $content[ 'paragraph1' ] ?? '';
+            $updateData[ 'paragraph2' ] = $content[ 'paragraph2' ] ?? '';
+            $updateData[ 'person_name' ] = $content[ 'person_name' ] ?? '';
+            $updateData[ 'person_title' ] = $content[ 'person_title' ] ?? '';
+            $updateData[ 'vision_label' ] = $content[ 'vision_label' ] ?? '';
+            $updateData[ 'vision_text' ] = $content[ 'vision_text' ] ?? '';
         } else {
             // about_hero
-            $updateData['button1_text'] = $content['button1_text'] ?? '';
-            $updateData['button1_link'] = $content['button1_link'] ?? '';
-            $updateData['button2_text'] = $content['button2_text'] ?? '';
-            $updateData['button2_link'] = $content['button2_link'] ?? '';
+            $updateData[ 'button1_text' ] = $content[ 'button1_text' ] ?? '';
+            $updateData[ 'button1_link' ] = $content[ 'button1_link' ] ?? '';
+            $updateData[ 'button2_text' ] = $content[ 'button2_text' ] ?? '';
+            $updateData[ 'button2_link' ] = $content[ 'button2_link' ] ?? '';
         }
-        if ($exists) {
-            updateRow($sectionKey, $updateData, ['id' => $exists['id']]);
+        if ( $exists ) {
+            updateRow( $sectionKey, $updateData, [ 'id' => $exists[ 'id' ] ] );
         } else {
-            insertRow($sectionKey, $updateData);
-        }
-    }
-
-    function saveCtaSection($sectionKey, $data) {
-        global $pdo;
-        $content = $data['content'] ?? [];
-        $table = $sectionKey; // about_cta, cta_banner, etc.
-        $exists = getRow($table);
-        $updateData = [
-            'section_title' => $data['section_title'] ?? '',
-            'description' => $content['description'] ?? '',
-            'button1_text' => $content['button1_text'] ?? '',
-            'button1_link' => $content['button1_link'] ?? '',
-            'button2_text' => $content['button2_text'] ?? '',
-            'button2_link' => $content['button2_link'] ?? '',
-        ];
-        if ($exists) {
-            updateRow($table, $updateData, ['id' => $exists['id']]);
-        } else {
-            insertRow($table, $updateData);
+            insertRow( $sectionKey, $updateData );
         }
     }
 
-    function saveMissionSection($sectionKey, $data) {
+    function saveCtaSection( $sectionKey, $data ) {
         global $pdo;
-        $content = $data['content'] ?? [];
-        $exists = getRow('about_mission');
+        $content = $data[ 'content' ] ?? [];
+        $table = $sectionKey;
+        // about_cta, cta_banner, etc.
+        $exists = getRow( $table );
         $updateData = [
-            'section_title' => $data['section_title'] ?? '',
-            'section_subtitle' => $data['section_subtitle'] ?? '',
+            'section_title' => $data[ 'section_title' ] ?? '',
+            'description' => $content[ 'description' ] ?? '',
+            'button1_text' => $content[ 'button1_text' ] ?? '',
+            'button1_link' => $content[ 'button1_link' ] ?? '',
+            'button2_text' => $content[ 'button2_text' ] ?? '',
+            'button2_link' => $content[ 'button2_link' ] ?? '',
         ];
-        if ($exists) {
-            updateRow('about_mission', $updateData, ['id' => $exists['id']]);
+        if ( $exists ) {
+            updateRow( $table, $updateData, [ 'id' => $exists[ 'id' ] ] );
         } else {
-            insertRow('about_mission', $updateData);
+            insertRow( $table, $updateData );
+        }
+    }
+
+    function saveMissionSection( $sectionKey, $data ) {
+        global $pdo;
+        $content = $data[ 'content' ] ?? [];
+        $exists = getRow( 'about_mission' );
+        $updateData = [
+            'section_title' => $data[ 'section_title' ] ?? '',
+            'section_subtitle' => $data[ 'section_subtitle' ] ?? '',
+        ];
+        if ( $exists ) {
+            updateRow( 'about_mission', $updateData, [ 'id' => $exists[ 'id' ] ] );
+        } else {
+            insertRow( 'about_mission', $updateData );
         }
         // Save items
-        $mission = getRow('about_mission');
-        if ($mission) {
-            $pdo->exec("DELETE FROM about_mission_items WHERE mission_id = {$mission['id']}");
-            $items = $content['items'] ?? [];
-            foreach ($items as $i => $item) {
-                insertRow('about_mission_items', [
-                    'mission_id' => $mission['id'],
-                    'icon' => $item['icon'] ?? 'fa-bullseye',
-                    'icon_bg' => $item['icon_bg'] ?? 'bg-brandRed/10',
-                    'icon_color' => $item['icon_color'] ?? 'text-brandRed',
-                    'title' => $item['title'] ?? '',
-                    'description' => $item['description'] ?? '',
+        $mission = getRow( 'about_mission' );
+        if ( $mission ) {
+            $pdo->exec( "DELETE FROM about_mission_items WHERE mission_id = {$mission['id']}" );
+            $items = $content[ 'items' ] ?? [];
+            foreach ( $items as $i => $item ) {
+                insertRow( 'about_mission_items', [
+                    'mission_id' => $mission[ 'id' ],
+                    'icon' => $item[ 'icon' ] ?? 'fa-bullseye',
+                    'icon_bg' => $item[ 'icon_bg' ] ?? 'bg-brandRed/10',
+                    'icon_color' => $item[ 'icon_color' ] ?? 'text-brandRed',
+                    'title' => $item[ 'title' ] ?? '',
+                    'description' => $item[ 'description' ] ?? '',
                     'sort_order' => $i,
-                ]);
+                ] );
             }
         }
     }
 
-    function saveGovernanceSection($sectionKey, $data) {
+    function saveGovernanceSection( $sectionKey, $data ) {
         global $pdo;
-        $content = $data['content'] ?? [];
-        $exists = getRow('about_governance');
+        $content = $data[ 'content' ] ?? [];
+        $exists = getRow( 'about_governance' );
         $updateData = [
-            'section_title' => $data['section_title'] ?? '',
-            'section_subtitle' => $data['section_subtitle'] ?? '',
+            'section_title' => $data[ 'section_title' ] ?? '',
+            'section_subtitle' => $data[ 'section_subtitle' ] ?? '',
         ];
-        if ($exists) {
-            updateRow('about_governance', $updateData, ['id' => $exists['id']]);
+        if ( $exists ) {
+            updateRow( 'about_governance', $updateData, [ 'id' => $exists[ 'id' ] ] );
         } else {
-            insertRow('about_governance', $updateData);
+            insertRow( 'about_governance', $updateData );
         }
         // Save items
-        $gov = getRow('about_governance');
-        if ($gov) {
-            $pdo->exec("DELETE FROM about_governance_items WHERE governance_id = {$gov['id']}");
-            $items = $content['items'] ?? [];
-            foreach ($items as $i => $item) {
-                insertRow('about_governance_items', [
-                    'governance_id' => $gov['id'],
-                    'icon' => $item['icon'] ?? 'fa-circle-info',
-                    'title' => $item['title'] ?? '',
-                    'description' => $item['description'] ?? '',
-                    'link' => $item['link'] ?? '#',
-                    'link_text' => $item['link_text'] ?? 'Learn More',
+        $gov = getRow( 'about_governance' );
+        if ( $gov ) {
+            $pdo->exec( "DELETE FROM about_governance_items WHERE governance_id = {$gov['id']}" );
+            $items = $content[ 'items' ] ?? [];
+            foreach ( $items as $i => $item ) {
+                insertRow( 'about_governance_items', [
+                    'governance_id' => $gov[ 'id' ],
+                    'icon' => $item[ 'icon' ] ?? 'fa-circle-info',
+                    'title' => $item[ 'title' ] ?? '',
+                    'description' => $item[ 'description' ] ?? '',
+                    'link' => $item[ 'link' ] ?? '#',
+                    'link_text' => $item[ 'link_text' ] ?? 'Learn More',
                     'sort_order' => $i,
-                ]);
+                ] );
             }
         }
     }
 
-    function saveTransparencySection($sectionKey, $data) {
+    function saveTransparencySection( $sectionKey, $data ) {
         global $pdo;
-        $content = $data['content'] ?? [];
-        $exists = getRow('about_transparency');
+        $content = $data[ 'content' ] ?? [];
+        $exists = getRow( 'about_transparency' );
         $updateData = [
-            'section_title' => $data['section_title'] ?? '',
-            'section_subtitle' => $data['section_subtitle'] ?? '',
-            'badge' => $content['badge'] ?? '',
-            'button1_text' => $content['button1_text'] ?? '',
-            'button1_link' => $content['button1_link'] ?? '',
-            'button2_text' => $content['button2_text'] ?? '',
-            'button2_link' => $content['button2_link'] ?? '',
+            'section_title' => $data[ 'section_title' ] ?? '',
+            'section_subtitle' => $data[ 'section_subtitle' ] ?? '',
+            'badge' => $content[ 'badge' ] ?? '',
+            'button1_text' => $content[ 'button1_text' ] ?? '',
+            'button1_link' => $content[ 'button1_link' ] ?? '',
+            'button2_text' => $content[ 'button2_text' ] ?? '',
+            'button2_link' => $content[ 'button2_link' ] ?? '',
         ];
-        if ($exists) {
-            updateRow('about_transparency', $updateData, ['id' => $exists['id']]);
+        if ( $exists ) {
+            updateRow( 'about_transparency', $updateData, [ 'id' => $exists[ 'id' ] ] );
         } else {
-            insertRow('about_transparency', $updateData);
+            insertRow( 'about_transparency', $updateData );
         }
         // Save stats
-        $trans = getRow('about_transparency');
-        if ($trans) {
-            $pdo->exec("DELETE FROM about_transparency_stats WHERE transparency_id = {$trans['id']}");
-            $stats = $content['stats'] ?? [];
-            foreach ($stats as $i => $stat) {
-                insertRow('about_transparency_stats', [
-                    'transparency_id' => $trans['id'],
-                    'stat_value' => $stat['value'] ?? '',
-                    'stat_label' => $stat['label'] ?? '',
+        $trans = getRow( 'about_transparency' );
+        if ( $trans ) {
+            $pdo->exec( "DELETE FROM about_transparency_stats WHERE transparency_id = {$trans['id']}" );
+            $stats = $content[ 'stats' ] ?? [];
+            foreach ( $stats as $i => $stat ) {
+                insertRow( 'about_transparency_stats', [
+                    'transparency_id' => $trans[ 'id' ],
+                    'stat_value' => $stat[ 'value' ] ?? '',
+                    'stat_label' => $stat[ 'label' ] ?? '',
                     'sort_order' => $i,
-                ]);
+                ] );
             }
         }
     }
 
-    function saveGeographicPresence($sectionKey, $data) {
+    function saveGeographicPresence( $sectionKey, $data ) {
         global $pdo;
-        $content = $data['content'] ?? [];
-        $exists = getRow('geographic_presence');
+        $content = $data[ 'content' ] ?? [];
+        $exists = getRow( 'geographic_presence' );
         $updateData = [
-            'section_title' => $data['section_title'] ?? '',
-            'section_subtitle' => $data['section_subtitle'] ?? '',
+            'section_title' => $data[ 'section_title' ] ?? '',
+            'section_subtitle' => $data[ 'section_subtitle' ] ?? '',
         ];
-        if ($exists) {
-            updateRow('geographic_presence', $updateData, ['id' => $exists['id']]);
+        if ( $exists ) {
+            updateRow( 'geographic_presence', $updateData, [ 'id' => $exists[ 'id' ] ] );
         } else {
-            insertRow('geographic_presence', $updateData);
+            insertRow( 'geographic_presence', $updateData );
         }
         // Save stats
-        $geo = getRow('geographic_presence');
-        if ($geo) {
-            $pdo->exec("DELETE FROM geographic_presence_stats WHERE geo_id = {$geo['id']}");
-            $stats = $content['stats'] ?? [];
-            foreach ($stats as $i => $stat) {
-                insertRow('geographic_presence_stats', [
-                    'geo_id' => $geo['id'],
-                    'stat_value' => $stat['value'] ?? '',
-                    'stat_label' => $stat['label'] ?? '',
-                    'stat_icon' => $stat['icon'] ?? '',
-                    'stat_color' => $stat['color'] ?? '',
+        $geo = getRow( 'geographic_presence' );
+        if ( $geo ) {
+            $pdo->exec( "DELETE FROM geographic_presence_stats WHERE geo_id = {$geo['id']}" );
+            $stats = $content[ 'stats' ] ?? [];
+            foreach ( $stats as $i => $stat ) {
+                insertRow( 'geographic_presence_stats', [
+                    'geo_id' => $geo[ 'id' ],
+                    'stat_value' => $stat[ 'value' ] ?? '',
+                    'stat_label' => $stat[ 'label' ] ?? '',
+                    'stat_icon' => $stat[ 'icon' ] ?? '',
+                    'stat_color' => $stat[ 'color' ] ?? '',
                     'sort_order' => $i,
-                ]);
+                ] );
             }
         }
     }
 
-    function saveOurWorkHero($sectionKey, $data) {
+    function saveOurWorkHero( $sectionKey, $data ) {
         global $pdo;
-        $content = $data['content'] ?? [];
-        $exists = getRow('our_work_hero');
+        $content = $data[ 'content' ] ?? [];
+        $exists = getRow( 'our_work_hero' );
         $updateData = [
-            'section_title' => $data['section_title'] ?? '',
-            'section_subtitle' => $data['section_subtitle'] ?? '',
-            'hero_image' => $content['hero_image'] ?? $content['image_path'] ?? '',
-            'subtitle' => $content['subtitle'] ?? '',
-            'button1_text' => $content['button1_text'] ?? '',
-            'button1_link' => $content['button1_link'] ?? '',
-            'button2_text' => $content['button2_text'] ?? '',
-            'button2_link' => $content['button2_link'] ?? '',
+            'section_title' => $data[ 'section_title' ] ?? '',
+            'section_subtitle' => $data[ 'section_subtitle' ] ?? '',
+            'hero_image' => $content[ 'hero_image' ] ?? $content[ 'image_path' ] ?? '',
+            'subtitle' => $content[ 'subtitle' ] ?? '',
+            'button1_text' => $content[ 'button1_text' ] ?? '',
+            'button1_link' => $content[ 'button1_link' ] ?? '',
+            'button2_text' => $content[ 'button2_text' ] ?? '',
+            'button2_link' => $content[ 'button2_link' ] ?? '',
         ];
-        if ($exists) {
-            updateRow('our_work_hero', $updateData, ['id' => $exists['id']]);
+        if ( $exists ) {
+            updateRow( 'our_work_hero', $updateData, [ 'id' => $exists[ 'id' ] ] );
         } else {
-            insertRow('our_work_hero', $updateData);
+            insertRow( 'our_work_hero', $updateData );
         }
     }
 
-    function saveOurWorkEditorial($sectionKey, $data) {
+    function saveOurWorkEditorial( $sectionKey, $data ) {
         global $pdo;
-        $content = $data['content'] ?? [];
-        $exists = getRow('our_work_editorial');
+        $content = $data[ 'content' ] ?? [];
+        $exists = getRow( 'our_work_editorial' );
         $updateData = [
-            'section_title' => $data['section_title'] ?? '',
-            'section_subtitle' => $data['section_subtitle'] ?? '',
-            'image' => $content['image'] ?? '',
-            'label' => $content['label'] ?? '',
-            'description' => $content['description'] ?? '',
+            'section_title' => $data[ 'section_title' ] ?? '',
+            'section_subtitle' => $data[ 'section_subtitle' ] ?? '',
+            'image' => $content[ 'image' ] ?? '',
+            'label' => $content[ 'label' ] ?? '',
+            'description' => $content[ 'description' ] ?? '',
         ];
-        if ($exists) {
-            updateRow('our_work_editorial', $updateData, ['id' => $exists['id']]);
+        if ( $exists ) {
+            updateRow( 'our_work_editorial', $updateData, [ 'id' => $exists[ 'id' ] ] );
         } else {
-            insertRow('our_work_editorial', $updateData);
+            insertRow( 'our_work_editorial', $updateData );
         }
-        $ed = getRow('our_work_editorial');
-        if ($ed) {
-            $pdo->exec("DELETE FROM our_work_editorial_features WHERE editorial_id = {$ed['id']}");
-            $features = $content['features'] ?? [];
-            foreach ($features as $i => $f) {
-                insertRow('our_work_editorial_features', [
-                    'editorial_id' => $ed['id'],
-                    'icon' => $f['icon'] ?? '',
-                    'title' => $f['title'] ?? '',
-                    'description' => $f['description'] ?? '',
+        $ed = getRow( 'our_work_editorial' );
+        if ( $ed ) {
+            $pdo->exec( "DELETE FROM our_work_editorial_features WHERE editorial_id = {$ed['id']}" );
+            $features = $content[ 'features' ] ?? [];
+            foreach ( $features as $i => $f ) {
+                insertRow( 'our_work_editorial_features', [
+                    'editorial_id' => $ed[ 'id' ],
+                    'icon' => $f[ 'icon' ] ?? '',
+                    'title' => $f[ 'title' ] ?? '',
+                    'description' => $f[ 'description' ] ?? '',
                     'sort_order' => $i,
-                ]);
+                ] );
             }
         }
     }
 
-    function saveOurWorkProcess($sectionKey, $data) {
+    function saveOurWorkProcess( $sectionKey, $data ) {
         global $pdo;
-        $content = $data['content'] ?? [];
-        $exists = getRow('our_work_process');
+        $content = $data[ 'content' ] ?? [];
+        $exists = getRow( 'our_work_process' );
         $updateData = [
-            'section_title' => $data['section_title'] ?? '',
-            'section_subtitle' => $data['section_subtitle'] ?? '',
-            'subtitle' => $content['subtitle'] ?? '',
+            'section_title' => $data[ 'section_title' ] ?? '',
+            'section_subtitle' => $data[ 'section_subtitle' ] ?? '',
+            'subtitle' => $content[ 'subtitle' ] ?? '',
         ];
-        if ($exists) {
-            updateRow('our_work_process', $updateData, ['id' => $exists['id']]);
+        if ( $exists ) {
+            updateRow( 'our_work_process', $updateData, [ 'id' => $exists[ 'id' ] ] );
         } else {
-            insertRow('our_work_process', $updateData);
+            insertRow( 'our_work_process', $updateData );
         }
-        $proc = getRow('our_work_process');
-        if ($proc) {
-            $pdo->exec("DELETE FROM our_work_process_steps WHERE process_id = {$proc['id']}");
-            $steps = $content['steps'] ?? [];
-            foreach ($steps as $i => $step) {
-                insertRow('our_work_process_steps', [
-                    'process_id' => $proc['id'],
-                    'step_num' => $step['num'] ?? '',
-                    'title' => $step['title'] ?? '',
-                    'description' => $step['description'] ?? '',
+        $proc = getRow( 'our_work_process' );
+        if ( $proc ) {
+            $pdo->exec( "DELETE FROM our_work_process_steps WHERE process_id = {$proc['id']}" );
+            $steps = $content[ 'steps' ] ?? [];
+            foreach ( $steps as $i => $step ) {
+                insertRow( 'our_work_process_steps', [
+                    'process_id' => $proc[ 'id' ],
+                    'step_num' => $step[ 'num' ] ?? '',
+                    'title' => $step[ 'title' ] ?? '',
+                    'description' => $step[ 'description' ] ?? '',
                     'sort_order' => $i,
-                ]);
+                ] );
             }
         }
     }
 
-    function saveOurWorkPillars($sectionKey, $data) {
+    function saveOurWorkPillars( $sectionKey, $data ) {
         global $pdo;
-        $content = $data['content'] ?? [];
-        $exists = getRow('our_work_pillars');
+        $content = $data[ 'content' ] ?? [];
+        $exists = getRow( 'our_work_pillars' );
         $updateData = [
-            'section_title' => $data['section_title'] ?? '',
-            'section_subtitle' => $data['section_subtitle'] ?? '',
-            'subtitle' => $content['subtitle'] ?? '',
+            'section_title' => $data[ 'section_title' ] ?? '',
+            'section_subtitle' => $data[ 'section_subtitle' ] ?? '',
+            'subtitle' => $content[ 'subtitle' ] ?? '',
         ];
-        if ($exists) {
-            updateRow('our_work_pillars', $updateData, ['id' => $exists['id']]);
+        if ( $exists ) {
+            updateRow( 'our_work_pillars', $updateData, [ 'id' => $exists[ 'id' ] ] );
         } else {
-            insertRow('our_work_pillars', $updateData);
+            insertRow( 'our_work_pillars', $updateData );
         }
-        $pill = getRow('our_work_pillars');
-        if ($pill) {
-            $pdo->exec("DELETE FROM our_work_pillars_items WHERE pillars_id = {$pill['id']}");
+        $pill = getRow( 'our_work_pillars' );
+        if ( $pill ) {
+            $pdo->exec( "DELETE FROM our_work_pillars_items WHERE pillars_id = {$pill['id']}" );
             // Admin form saves as 'items', frontend reads as 'pillars'
-            $items = $content['items'] ?? $content['pillars'] ?? [];
-            foreach ($items as $i => $item) {
-                insertRow('our_work_pillars_items', [
-                    'pillars_id' => $pill['id'],
-                    'pillar_num' => $item['num'] ?? '',
-                    'title' => $item['title'] ?? '',
-                    'description' => $item['description'] ?? '',
+            $items = $content[ 'items' ] ?? $content[ 'pillars' ] ?? [];
+            foreach ( $items as $i => $item ) {
+                insertRow( 'our_work_pillars_items', [
+                    'pillars_id' => $pill[ 'id' ],
+                    'pillar_num' => $item[ 'num' ] ?? '',
+                    'title' => $item[ 'title' ] ?? '',
+                    'description' => $item[ 'description' ] ?? '',
                     'sort_order' => $i,
-                ]);
+                ] );
             }
         }
     }
 
-    function saveOurWorkFeatured($sectionKey, $data) {
+    function saveOurWorkFeatured( $sectionKey, $data ) {
         global $pdo;
-        $content = $data['content'] ?? [];
-        $exists = getRow('our_work_featured_projects');
+        $content = $data[ 'content' ] ?? [];
+        $exists = getRow( 'our_work_featured_projects' );
         $updateData = [
-            'section_title' => $data['section_title'] ?? '',
-            'description' => $content['description'] ?? '',
+            'section_title' => $data[ 'section_title' ] ?? '',
+            'description' => $content[ 'description' ] ?? '',
         ];
-        if ($exists) {
-            updateRow('our_work_featured_projects', $updateData, ['id' => $exists['id']]);
+        if ( $exists ) {
+            updateRow( 'our_work_featured_projects', $updateData, [ 'id' => $exists[ 'id' ] ] );
         } else {
-            insertRow('our_work_featured_projects', $updateData);
+            insertRow( 'our_work_featured_projects', $updateData );
         }
     }
 
-    function saveOurWorkCta($sectionKey, $data) {
+    function saveOurWorkCta( $sectionKey, $data ) {
         global $pdo;
-        $content = $data['content'] ?? [];
-        $exists = getRow('our_work_cta');
+        $content = $data[ 'content' ] ?? [];
+        $exists = getRow( 'our_work_cta' );
         $updateData = [
-            'section_title' => $data['section_title'] ?? '',
-            'description' => $content['description'] ?? '',
-            'button1_text' => $content['button1_text'] ?? '',
-            'button1_link' => $content['button1_link'] ?? '',
-            'button2_text' => $content['button2_text'] ?? '',
-            'button2_link' => $content['button2_link'] ?? '',
+            'section_title' => $data[ 'section_title' ] ?? '',
+            'description' => $content[ 'description' ] ?? '',
+            'button1_text' => $content[ 'button1_text' ] ?? '',
+            'button1_link' => $content[ 'button1_link' ] ?? '',
+            'button2_text' => $content[ 'button2_text' ] ?? '',
+            'button2_link' => $content[ 'button2_link' ] ?? '',
         ];
-        if ($exists) {
-            updateRow('our_work_cta', $updateData, ['id' => $exists['id']]);
+        if ( $exists ) {
+            updateRow( 'our_work_cta', $updateData, [ 'id' => $exists[ 'id' ] ] );
         } else {
-            insertRow('our_work_cta', $updateData);
+            insertRow( 'our_work_cta', $updateData );
         }
     }
 
-    function saveProjectsHero($sectionKey, $data) {
+    function saveProjectsHero( $sectionKey, $data ) {
         global $pdo;
-        $content = $data['content'] ?? [];
-        $exists = getRow('projects_hero');
+        $content = $data[ 'content' ] ?? [];
+        $exists = getRow( 'projects_hero' );
         $updateData = [
-            'section_title' => $data['section_title'] ?? '',
-            'section_subtitle' => $data['section_subtitle'] ?? '',
-            'hero_image' => $content['hero_image'] ?? $content['image_path'] ?? '',
-            'subtitle' => $content['subtitle'] ?? '',
-            'button1_text' => $content['button1_text'] ?? '',
-            'button1_link' => $content['button1_link'] ?? '',
-            'button2_text' => $content['button2_text'] ?? '',
-            'button2_link' => $content['button2_link'] ?? '',
+            'section_title' => $data[ 'section_title' ] ?? '',
+            'section_subtitle' => $data[ 'section_subtitle' ] ?? '',
+            'hero_image' => $content[ 'hero_image' ] ?? $content[ 'image_path' ] ?? '',
+            'subtitle' => $content[ 'subtitle' ] ?? '',
+            'button1_text' => $content[ 'button1_text' ] ?? '',
+            'button1_link' => $content[ 'button1_link' ] ?? '',
+            'button2_text' => $content[ 'button2_text' ] ?? '',
+            'button2_link' => $content[ 'button2_link' ] ?? '',
         ];
-        if ($exists) { updateRow('projects_hero', $updateData, ['id' => $exists['id']]); } else { insertRow('projects_hero', $updateData); }
-    }
-
-    function saveProjectsDashboard($sectionKey, $data) {
-        global $pdo;
-        $content = $data['content'] ?? [];
-        $exists = getRow('projects_dashboard');
-        $updateData = ['section_title' => $data['section_title'] ?? '', 'subtitle' => $content['subtitle'] ?? ''];
-        if ($exists) { updateRow('projects_dashboard', $updateData, ['id' => $exists['id']]); } else { insertRow('projects_dashboard', $updateData); }
-        $dash = getRow('projects_dashboard');
-        if ($dash) {
-            $pdo->exec("DELETE FROM projects_dashboard_metrics WHERE dashboard_id = {$dash['id']}");
-            $metrics = $content['metrics'] ?? [];
-            foreach ($metrics as $i => $m) {
-                insertRow('projects_dashboard_metrics', [
-                    'dashboard_id' => $dash['id'], 'metric_icon' => $m['icon'] ?? '', 'metric_color' => $m['color'] ?? '',
-                    'metric_label' => $m['label'] ?? '', 'metric_value' => $m['value'] ?? '', 'sort_order' => $i,
-                ]);
-            }
-            $pdo->exec("DELETE FROM projects_dashboard_sectors WHERE dashboard_id = {$dash['id']}");
-            $sectors = $content['sectors'] ?? [];
-            foreach ($sectors as $i => $sec) {
-                insertRow('projects_dashboard_sectors', [
-                    'dashboard_id' => $dash['id'], 'sector_name' => $sec['name'] ?? '', 'sector_color' => $sec['color'] ?? '',
-                    'sector_count' => $sec['count'] ?? 0, 'sector_percent' => $sec['percent'] ?? 0,
-                    'sector_gradient' => $sec['gradient'] ?? '', 'sort_order' => $i,
-                ]);
-            }
+        if ( $exists ) {
+            updateRow( 'projects_hero', $updateData, [ 'id' => $exists[ 'id' ] ] );
+        } else {
+            insertRow( 'projects_hero', $updateData );
         }
     }
 
-    function saveProjectsCta($sectionKey, $data) {
+    function saveProjectsDashboard( $sectionKey, $data ) {
         global $pdo;
-        $content = $data['content'] ?? [];
-        $exists = getRow('projects_cta');
-        $updateData = [
-            'section_title' => $data['section_title'] ?? '', 'description' => $content['description'] ?? '',
-            'icon' => $content['icon'] ?? '', 'button1_text' => $content['button1_text'] ?? '',
-            'button1_link' => $content['button1_link'] ?? '', 'button2_text' => $content['button2_text'] ?? '',
-            'button2_link' => $content['button2_link'] ?? '',
-        ];
-        if ($exists) { updateRow('projects_cta', $updateData, ['id' => $exists['id']]); } else { insertRow('projects_cta', $updateData); }
-    }
-
-    function saveCausesHero($sectionKey, $data) {
-        global $pdo;
-        $content = $data['content'] ?? [];
-        $exists = getRow('causes_hero');
-        $updateData = [
-            'section_title' => $data['section_title'] ?? '',
-            'section_subtitle' => $data['section_subtitle'] ?? '',
-            'hero_image' => $content['hero_image'] ?? $content['image_path'] ?? '',
-            'subtitle' => $content['subtitle'] ?? '', 'badge' => $content['badge'] ?? '',
-            'button1_text' => $content['button1_text'] ?? '', 'button1_link' => $content['button1_link'] ?? '',
-            'button2_text' => $content['button2_text'] ?? '', 'button2_link' => $content['button2_link'] ?? '',
-        ];
-        if ($exists) { updateRow('causes_hero', $updateData, ['id' => $exists['id']]); } else { insertRow('causes_hero', $updateData); }
-    }
-
-    function saveCausesImpact($sectionKey, $data) {
-        global $pdo;
-        $content = $data['content'] ?? [];
-        $exists = getRow('causes_impact');
-        $updateData = ['section_title' => $data['section_title'] ?? ''];
-        if ($exists) { updateRow('causes_impact', $updateData, ['id' => $exists['id']]); } else { insertRow('causes_impact', $updateData); }
-        $imp = getRow('causes_impact');
-        if ($imp) {
-            $pdo->exec("DELETE FROM causes_impact_stats WHERE impact_id = {$imp['id']}");
-            $stats = $content['stats'] ?? [];
-            foreach ($stats as $i => $stat) {
-                insertRow('causes_impact_stats', [
-                    'impact_id' => $imp['id'], 'stat_icon' => $stat['icon'] ?? '',
-                    'stat_label' => $stat['label'] ?? '', 'stat_value' => $stat['value'] ?? '', 'sort_order' => $i,
-                ]);
+        $content = $data[ 'content' ] ?? [];
+        $exists = getRow( 'projects_dashboard' );
+        $updateData = [ 'section_title' => $data[ 'section_title' ] ?? '', 'subtitle' => $content[ 'subtitle' ] ?? '' ];
+        if ( $exists ) {
+            updateRow( 'projects_dashboard', $updateData, [ 'id' => $exists[ 'id' ] ] );
+        } else {
+            insertRow( 'projects_dashboard', $updateData );
+        }
+        $dash = getRow( 'projects_dashboard' );
+        if ( $dash ) {
+            $pdo->exec( "DELETE FROM projects_dashboard_metrics WHERE dashboard_id = {$dash['id']}" );
+            $metrics = $content[ 'metrics' ] ?? [];
+            foreach ( $metrics as $i => $m ) {
+                insertRow( 'projects_dashboard_metrics', [
+                    'dashboard_id' => $dash[ 'id' ], 'metric_icon' => $m[ 'icon' ] ?? '', 'metric_color' => $m[ 'color' ] ?? '',
+                    'metric_label' => $m[ 'label' ] ?? '', 'metric_value' => $m[ 'value' ] ?? '', 'sort_order' => $i,
+                ] );
+            }
+            $pdo->exec( "DELETE FROM projects_dashboard_sectors WHERE dashboard_id = {$dash['id']}" );
+            $sectors = $content[ 'sectors' ] ?? [];
+            foreach ( $sectors as $i => $sec ) {
+                insertRow( 'projects_dashboard_sectors', [
+                    'dashboard_id' => $dash[ 'id' ], 'sector_name' => $sec[ 'name' ] ?? '', 'sector_color' => $sec[ 'color' ] ?? '',
+                    'sector_count' => $sec[ 'count' ] ?? 0, 'sector_percent' => $sec[ 'percent' ] ?? 0,
+                    'sector_gradient' => $sec[ 'gradient' ] ?? '', 'sort_order' => $i,
+                ] );
             }
         }
     }
 
-    function saveWhoWeAreHero($sectionKey, $data) {
+    function saveProjectsCta( $sectionKey, $data ) {
         global $pdo;
-        $content = $data['content'] ?? [];
-        $exists = getRow('who_we_are_hero');
-        $updateData = ['section_title' => $data['section_title'] ?? '', 'section_subtitle' => $data['section_subtitle'] ?? '',
-            'hero_image' => $content['hero_image'] ?? '', 'subtitle' => $content['subtitle'] ?? '',
-            'button1_text' => $content['button1_text'] ?? '', 'button1_link' => $content['button1_link'] ?? '',
-            'button2_text' => $content['button2_text'] ?? '', 'button2_link' => $content['button2_link'] ?? ''];
-        if ($exists) { updateRow('who_we_are_hero', $updateData, ['id' => $exists['id']]); } else { insertRow('who_we_are_hero', $updateData); }
+        $content = $data[ 'content' ] ?? [];
+        $exists = getRow( 'projects_cta' );
+        $updateData = [
+            'section_title' => $data[ 'section_title' ] ?? '', 'description' => $content[ 'description' ] ?? '',
+            'icon' => $content[ 'icon' ] ?? '', 'button1_text' => $content[ 'button1_text' ] ?? '',
+            'button1_link' => $content[ 'button1_link' ] ?? '', 'button2_text' => $content[ 'button2_text' ] ?? '',
+            'button2_link' => $content[ 'button2_link' ] ?? '',
+        ];
+        if ( $exists ) {
+            updateRow( 'projects_cta', $updateData, [ 'id' => $exists[ 'id' ] ] );
+        } else {
+            insertRow( 'projects_cta', $updateData );
+        }
     }
 
-    function saveWhoWeAreImpact($sectionKey, $data) {
+    function saveCausesHero( $sectionKey, $data ) {
         global $pdo;
-        $content = $data['content'] ?? [];
-        $exists = getRow('who_we_are_impact');
-        $updateData = ['section_title' => $data['section_title'] ?? '', 'section_subtitle' => $data['section_subtitle'] ?? ''];
-        if ($exists) { updateRow('who_we_are_impact', $updateData, ['id' => $exists['id']]); } else { insertRow('who_we_are_impact', $updateData); }
-        $imp = getRow('who_we_are_impact');
-        if ($imp) {
-            $pdo->exec("DELETE FROM who_we_are_impact_items WHERE impact_id = {$imp['id']}");
-            $items = $content['items'] ?? [];
-            foreach ($items as $i => $item) {
-                insertRow('who_we_are_impact_items', ['impact_id' => $imp['id'], 'icon' => $item['icon'] ?? '', 'title' => $item['title'] ?? '', 'description' => $item['description'] ?? '', 'sort_order' => $i]);
+        $content = $data[ 'content' ] ?? [];
+        $exists = getRow( 'causes_hero' );
+        $updateData = [
+            'section_title' => $data[ 'section_title' ] ?? '',
+            'section_subtitle' => $data[ 'section_subtitle' ] ?? '',
+            'hero_image' => $content[ 'hero_image' ] ?? $content[ 'image_path' ] ?? '',
+            'subtitle' => $content[ 'subtitle' ] ?? '', 'badge' => $content[ 'badge' ] ?? '',
+            'button1_text' => $content[ 'button1_text' ] ?? '', 'button1_link' => $content[ 'button1_link' ] ?? '',
+            'button2_text' => $content[ 'button2_text' ] ?? '', 'button2_link' => $content[ 'button2_link' ] ?? '',
+        ];
+        if ( $exists ) {
+            updateRow( 'causes_hero', $updateData, [ 'id' => $exists[ 'id' ] ] );
+        } else {
+            insertRow( 'causes_hero', $updateData );
+        }
+    }
+
+    function saveCausesImpact( $sectionKey, $data ) {
+        global $pdo;
+        $content = $data[ 'content' ] ?? [];
+        $exists = getRow( 'causes_impact' );
+        $updateData = [ 'section_title' => $data[ 'section_title' ] ?? '' ];
+        if ( $exists ) {
+            updateRow( 'causes_impact', $updateData, [ 'id' => $exists[ 'id' ] ] );
+        } else {
+            insertRow( 'causes_impact', $updateData );
+        }
+        $imp = getRow( 'causes_impact' );
+        if ( $imp ) {
+            $pdo->exec( "DELETE FROM causes_impact_stats WHERE impact_id = {$imp['id']}" );
+            $stats = $content[ 'stats' ] ?? [];
+            foreach ( $stats as $i => $stat ) {
+                insertRow( 'causes_impact_stats', [
+                    'impact_id' => $imp[ 'id' ], 'stat_icon' => $stat[ 'icon' ] ?? '',
+                    'stat_label' => $stat[ 'label' ] ?? '', 'stat_value' => $stat[ 'value' ] ?? '', 'sort_order' => $i,
+                ] );
             }
         }
     }
 
-    function saveWhyWeExist($sectionKey, $data) {
+    function saveWhoWeAreHero( $sectionKey, $data ) {
         global $pdo;
-        $content = $data['content'] ?? [];
-        $exists = getRow('why_we_exist');
-        $updateData = ['section_title' => $data['section_title'] ?? '', 'section_subtitle' => $data['section_subtitle'] ?? ''];
-        if ($exists) { updateRow('why_we_exist', $updateData, ['id' => $exists['id']]); } else { insertRow('why_we_exist', $updateData); }
-        $why = getRow('why_we_exist');
-        if ($why) {
-            $pdo->exec("DELETE FROM why_we_exist_items WHERE why_id = {$why['id']}");
-            $items = $content['items'] ?? [];
-            foreach ($items as $i => $item) {
-                insertRow('why_we_exist_items', ['why_id' => $why['id'], 'icon' => $item['icon'] ?? '', 'title' => $item['title'] ?? '', 'description' => $item['description'] ?? '', 'sort_order' => $i]);
+        $content = $data[ 'content' ] ?? [];
+        $exists = getRow( 'who_we_are_hero' );
+        $updateData = [ 'section_title' => $data[ 'section_title' ] ?? '', 'section_subtitle' => $data[ 'section_subtitle' ] ?? '',
+        'hero_image' => $content[ 'hero_image' ] ?? '', 'subtitle' => $content[ 'subtitle' ] ?? '',
+        'button1_text' => $content[ 'button1_text' ] ?? '', 'button1_link' => $content[ 'button1_link' ] ?? '',
+        'button2_text' => $content[ 'button2_text' ] ?? '', 'button2_link' => $content[ 'button2_link' ] ?? '' ];
+        if ( $exists ) {
+            updateRow( 'who_we_are_hero', $updateData, [ 'id' => $exists[ 'id' ] ] );
+        } else {
+            insertRow( 'who_we_are_hero', $updateData );
+        }
+    }
+
+    function saveWhoWeAreImpact( $sectionKey, $data ) {
+        global $pdo;
+        $content = $data[ 'content' ] ?? [];
+        $exists = getRow( 'who_we_are_impact' );
+        $updateData = [ 'section_title' => $data[ 'section_title' ] ?? '', 'section_subtitle' => $data[ 'section_subtitle' ] ?? '' ];
+        if ( $exists ) {
+            updateRow( 'who_we_are_impact', $updateData, [ 'id' => $exists[ 'id' ] ] );
+        } else {
+            insertRow( 'who_we_are_impact', $updateData );
+        }
+        $imp = getRow( 'who_we_are_impact' );
+        if ( $imp ) {
+            $pdo->exec( "DELETE FROM who_we_are_impact_items WHERE impact_id = {$imp['id']}" );
+            $items = $content[ 'items' ] ?? [];
+            foreach ( $items as $i => $item ) {
+                insertRow( 'who_we_are_impact_items', [ 'impact_id' => $imp[ 'id' ], 'icon' => $item[ 'icon' ] ?? '', 'title' => $item[ 'title' ] ?? '', 'description' => $item[ 'description' ] ?? '', 'sort_order' => $i ] );
             }
         }
     }
 
-    function saveHistoryHero($sectionKey, $data) {
+    function saveWhyWeExist( $sectionKey, $data ) {
         global $pdo;
-        $content = $data['content'] ?? [];
-        $exists = getRow('history_hero');
-        $updateData = ['section_title' => $data['section_title'] ?? '', 'section_subtitle' => $data['section_subtitle'] ?? '',
-            'hero_image' => $content['hero_image'] ?? '', 'subtitle' => $content['subtitle'] ?? '',
-            'button1_text' => $content['button1_text'] ?? '', 'button1_link' => $content['button1_link'] ?? '',
-            'button2_text' => $content['button2_text'] ?? '', 'button2_link' => $content['button2_link'] ?? ''];
-        if ($exists) { updateRow('history_hero', $updateData, ['id' => $exists['id']]); } else { insertRow('history_hero', $updateData); }
-    }
-
-    function saveHistoryStats($sectionKey, $data) {
-        global $pdo;
-        $content = $data['content'] ?? [];
-        $exists = getRow('history_stats');
-        $updateData = ['section_title' => $data['section_title'] ?? '', 'section_subtitle' => $data['section_subtitle'] ?? ''];
-        if ($exists) { updateRow('history_stats', $updateData, ['id' => $exists['id']]); } else { insertRow('history_stats', $updateData); }
-        $stats = getRow('history_stats');
-        if ($stats) {
-            $pdo->exec("DELETE FROM history_stats_items WHERE stats_id = {$stats['id']}");
-            $items = $content['stats'] ?? [];
-            foreach ($items as $i => $stat) {
-                insertRow('history_stats_items', ['stats_id' => $stats['id'], 'stat_icon' => $stat['icon'] ?? '', 'stat_color' => $stat['color'] ?? '', 'stat_label' => $stat['label'] ?? '', 'stat_value' => $stat['value'] ?? '', 'sort_order' => $i]);
+        $content = $data[ 'content' ] ?? [];
+        $exists = getRow( 'why_we_exist' );
+        $updateData = [ 'section_title' => $data[ 'section_title' ] ?? '', 'section_subtitle' => $data[ 'section_subtitle' ] ?? '' ];
+        if ( $exists ) {
+            updateRow( 'why_we_exist', $updateData, [ 'id' => $exists[ 'id' ] ] );
+        } else {
+            insertRow( 'why_we_exist', $updateData );
+        }
+        $why = getRow( 'why_we_exist' );
+        if ( $why ) {
+            $pdo->exec( "DELETE FROM why_we_exist_items WHERE why_id = {$why['id']}" );
+            $items = $content[ 'items' ] ?? [];
+            foreach ( $items as $i => $item ) {
+                insertRow( 'why_we_exist_items', [ 'why_id' => $why[ 'id' ], 'icon' => $item[ 'icon' ] ?? '', 'title' => $item[ 'title' ] ?? '', 'description' => $item[ 'description' ] ?? '', 'sort_order' => $i ] );
             }
         }
     }
 
-    function saveHistoryCta($sectionKey, $data) {
+    function saveHistoryHero( $sectionKey, $data ) {
         global $pdo;
-        $content = $data['content'] ?? [];
-        $exists = getRow('history_cta');
-        $updateData = ['badge' => $content['badge'] ?? '', 'section_title' => $data['section_title'] ?? $content['section_title'] ?? '',
-            'section_subtitle' => $data['section_subtitle'] ?? $content['section_subtitle'] ?? '',
-            'button1_text' => $content['button1_text'] ?? '', 'button1_link' => $content['button1_link'] ?? ''];
-        if ($exists) { updateRow('history_cta', $updateData, ['id' => $exists['id']]); } else { insertRow('history_cta', $updateData); }
+        $content = $data[ 'content' ] ?? [];
+        $exists = getRow( 'history_hero' );
+        $updateData = [ 'section_title' => $data[ 'section_title' ] ?? '', 'section_subtitle' => $data[ 'section_subtitle' ] ?? '',
+        'hero_image' => $content[ 'hero_image' ] ?? '', 'subtitle' => $content[ 'subtitle' ] ?? '',
+        'button1_text' => $content[ 'button1_text' ] ?? '', 'button1_link' => $content[ 'button1_link' ] ?? '',
+        'button2_text' => $content[ 'button2_text' ] ?? '', 'button2_link' => $content[ 'button2_link' ] ?? '' ];
+        if ( $exists ) {
+            updateRow( 'history_hero', $updateData, [ 'id' => $exists[ 'id' ] ] );
+        } else {
+            insertRow( 'history_hero', $updateData );
+        }
     }
 
-    function saveGenericHero($sectionKey, $data) {
-        $content = $data['content'] ?? [];
-        $exists = getRow($sectionKey);
-        $updateData = ['section_title' => $data['section_title'] ?? '', 'section_subtitle' => $data['section_subtitle'] ?? '', 'hero_image' => $content['hero_image'] ?? ''];
-        if ($exists) { updateRow($sectionKey, $updateData, ['id' => $exists['id']]); } else { insertRow($sectionKey, $updateData); }
-    }
-
-    function saveGenericContent($sectionKey, $data) {
-        $content = $data['content'] ?? [];
-        $exists = getRow($sectionKey);
-        $jsonContent = json_encode($content, JSON_UNESCAPED_UNICODE);
-        $updateData = ['section_title' => $data['section_title'] ?? '', 'section_subtitle' => $data['section_subtitle'] ?? '', 'content' => $jsonContent];
-        if ($exists) { updateRow($sectionKey, $updateData, ['id' => $exists['id']]); } else { insertRow($sectionKey, $updateData); }
-    }
-
-    function saveNewsHero($sectionKey, $data) {
-        $content = $data['content'] ?? [];
-        $exists = getRow('news_hero');
-        $updateData = ['section_title' => $data['section_title'] ?? '', 'section_subtitle' => $data['section_subtitle'] ?? '', 'hero_image' => $content['hero_image'] ?? '', 'subtitle' => $content['subtitle'] ?? '', 'badge' => $content['badge'] ?? ''];
-        if ($exists) { updateRow('news_hero', $updateData, ['id' => $exists['id']]); } else { insertRow('news_hero', $updateData); }
-    }
-
-    function saveGetInvolvedHero($sectionKey, $data) {
-        $content = $data['content'] ?? [];
-        $exists = getRow('get_involved_hero');
-        $updateData = ['section_title' => $data['section_title'] ?? '', 'section_subtitle' => $data['section_subtitle'] ?? '', 'hero_image' => $content['hero_image'] ?? '', 'subtitle' => $content['subtitle'] ?? '',
-            'badge' => $content['badge'] ?? '', 'button1_text' => $content['button1_text'] ?? '', 'button2_text' => $content['button2_text'] ?? ''];
-        if ($exists) { updateRow('get_involved_hero', $updateData, ['id' => $exists['id']]); } else { insertRow('get_involved_hero', $updateData); }
-    }
-
-    function saveContributeHero($sectionKey, $data) {
-        $content = $data['content'] ?? [];
-        $exists = getRow('contribute_hero');
-        $updateData = ['section_title' => $data['section_title'] ?? '', 'section_subtitle' => $data['section_subtitle'] ?? '', 'hero_image' => $content['hero_image'] ?? '', 'subtitle' => $content['subtitle'] ?? '',
-            'badge' => $content['badge'] ?? '', 'title' => $content['title'] ?? ''];
-        if ($exists) { updateRow('contribute_hero', $updateData, ['id' => $exists['id']]); } else { insertRow('contribute_hero', $updateData); }
-    }
-
-    function saveImpactHero($sectionKey, $data) {
-        $content = $data['content'] ?? [];
-        $exists = getRow('impact_hero');
-        $updateData = [
-            'section_title' => $data['section_title'] ?? '',
-            'section_subtitle' => $data['section_subtitle'] ?? '',
-            'hero_image' => $content['hero_image'] ?? '',
-            'heading' => $content['heading'] ?? '',
-            'description' => $content['description'] ?? '',
-            'cta_primary' => $content['cta_primary'] ?? 'View Impact Dashboard',
-            'cta_secondary' => $content['cta_secondary'] ?? 'SDG Contributions',
-        ];
-        if ($exists) { updateRow('impact_hero', $updateData, ['id' => $exists['id']]); } else { insertRow('impact_hero', $updateData); }
-    }
-
-    function saveImpactContent($sectionKey, $data) {
-        $content = $data['content'] ?? [];
-        $exists = getRow('impact_content');
-        $jsonContent = json_encode($content, JSON_UNESCAPED_UNICODE);
-        $updateData = ['section_title' => $data['section_title'] ?? '', 'section_subtitle' => $data['section_subtitle'] ?? '', 'content' => $jsonContent];
-        if ($exists) { updateRow('impact_content', $updateData, ['id' => $exists['id']]); } else { insertRow('impact_content', $updateData); }
-    }
-
-    function saveImpactCta($sectionKey, $data) {
-        $content = $data['content'] ?? [];
-        $exists = getRow('homepage_sections', ['section_key' => 'impact_cta']);
-        $updateData = [
-            'section_title' => $data['section_title'] ?? '',
-            'section_subtitle' => $data['section_subtitle'] ?? '',
-            'content' => json_encode($content, JSON_UNESCAPED_UNICODE),
-        ];
-        if ($exists) { updateRow('homepage_sections', $updateData, ['id' => $exists['id']]); } else { insertRow('homepage_sections', array_merge(['section_key' => 'impact_cta', 'is_active' => 1, 'sort_order' => 50], $updateData)); }
-    }
-
-    function saveWhereWeWorkHero($sectionKey, $data) {
-        $content = $data['content'] ?? [];
-        $exists = getRow('where_we_work_hero');
-        $updateData = [
-            'section_title' => $data['section_title'] ?? '',
-            'section_subtitle' => $data['section_subtitle'] ?? '',
-            'hero_image' => $content['hero_image'] ?? '',
-            'subtitle' => $content['subtitle'] ?? '',
-            'cta_primary' => $content['cta_primary'] ?? 'Explore Our Map',
-            'cta_secondary' => $content['cta_secondary'] ?? 'District Coverage',
-        ];
-        if ($exists) { updateRow('where_we_work_hero', $updateData, ['id' => $exists['id']]); } else { insertRow('where_we_work_hero', $updateData); }
-    }
-
-    function saveWhereWeWorkContent($sectionKey, $data) {
-        $content = $data['content'] ?? [];
-        $exists = getRow('where_we_work_content');
-        $jsonContent = json_encode($content, JSON_UNESCAPED_UNICODE);
-        $updateData = ['section_title' => $data['section_title'] ?? '', 'section_subtitle' => $data['section_subtitle'] ?? '', 'content' => $jsonContent];
-        if ($exists) { updateRow('where_we_work_content', $updateData, ['id' => $exists['id']]); } else { insertRow('where_we_work_content', $updateData); }
-    }
-
-    function saveContributeImpact($sectionKey, $data) {
+    function saveHistoryStats( $sectionKey, $data ) {
         global $pdo;
-        $content = $data['content'] ?? [];
-        $exists = getRow('contribute_impact');
-        $updateData = ['section_title' => $data['section_title'] ?? '', 'section_subtitle' => $data['section_subtitle'] ?? ''];
-        if ($exists) { updateRow('contribute_impact', $updateData, ['id' => $exists['id']]); } else { insertRow('contribute_impact', $updateData); }
-        $imp = getRow('contribute_impact');
-        if ($imp) {
-            $pdo->exec("DELETE FROM contribute_impact_items WHERE impact_id = {$imp['id']}");
-            $items = $content['items'] ?? [];
-            foreach ($items as $i => $item) {
-                insertRow('contribute_impact_items', ['impact_id' => $imp['id'], 'icon' => $item['icon'] ?? '', 'amount' => $item['amount'] ?? '', 'description' => $item['description'] ?? '', 'sort_order' => $i]);
+        $content = $data[ 'content' ] ?? [];
+        $exists = getRow( 'history_stats' );
+        $updateData = [ 'section_title' => $data[ 'section_title' ] ?? '', 'section_subtitle' => $data[ 'section_subtitle' ] ?? '' ];
+        if ( $exists ) {
+            updateRow( 'history_stats', $updateData, [ 'id' => $exists[ 'id' ] ] );
+        } else {
+            insertRow( 'history_stats', $updateData );
+        }
+        $stats = getRow( 'history_stats' );
+        if ( $stats ) {
+            $pdo->exec( "DELETE FROM history_stats_items WHERE stats_id = {$stats['id']}" );
+            $items = $content[ 'stats' ] ?? [];
+            foreach ( $items as $i => $stat ) {
+                insertRow( 'history_stats_items', [ 'stats_id' => $stats[ 'id' ], 'stat_icon' => $stat[ 'icon' ] ?? '', 'stat_color' => $stat[ 'color' ] ?? '', 'stat_label' => $stat[ 'label' ] ?? '', 'stat_value' => $stat[ 'value' ] ?? '', 'sort_order' => $i ] );
             }
         }
     }
 
-    function saveContributeTransparency($sectionKey, $data) {
+    function saveHistoryCta( $sectionKey, $data ) {
         global $pdo;
-        $content = $data['content'] ?? [];
-        $exists = getRow('contribute_transparency');
-        $updateData = ['section_title' => $data['section_title'] ?? '', 'section_subtitle' => $data['section_subtitle'] ?? ''];
-        if ($exists) { updateRow('contribute_transparency', $updateData, ['id' => $exists['id']]); } else { insertRow('contribute_transparency', $updateData); }
-        $trans = getRow('contribute_transparency');
-        if ($trans) {
-            $pdo->exec("DELETE FROM contribute_transparency_items WHERE transparency_id = {$trans['id']}");
-            $items = $content['items'] ?? [];
-            foreach ($items as $i => $item) {
-                insertRow('contribute_transparency_items', ['transparency_id' => $trans['id'], 'icon' => $item['icon'] ?? '', 'title' => $item['title'] ?? '', 'description' => $item['description'] ?? '', 'sort_order' => $i]);
+        $content = $data[ 'content' ] ?? [];
+        $exists = getRow( 'history_cta' );
+        $updateData = [ 'badge' => $content[ 'badge' ] ?? '', 'section_title' => $data[ 'section_title' ] ?? $content[ 'section_title' ] ?? '',
+        'section_subtitle' => $data[ 'section_subtitle' ] ?? $content[ 'section_subtitle' ] ?? '',
+        'button1_text' => $content[ 'button1_text' ] ?? '', 'button1_link' => $content[ 'button1_link' ] ?? '' ];
+        if ( $exists ) {
+            updateRow( 'history_cta', $updateData, [ 'id' => $exists[ 'id' ] ] );
+        } else {
+            insertRow( 'history_cta', $updateData );
+        }
+    }
+
+    function saveGenericHero( $sectionKey, $data ) {
+        $content = $data[ 'content' ] ?? [];
+        $exists = getRow( $sectionKey );
+        $updateData = [ 'section_title' => $data[ 'section_title' ] ?? '', 'section_subtitle' => $data[ 'section_subtitle' ] ?? '', 'hero_image' => $content[ 'hero_image' ] ?? '' ];
+        if ( $exists ) {
+            updateRow( $sectionKey, $updateData, [ 'id' => $exists[ 'id' ] ] );
+        } else {
+            insertRow( $sectionKey, $updateData );
+        }
+    }
+
+    function saveGenericContent( $sectionKey, $data ) {
+        $content = $data[ 'content' ] ?? [];
+        $exists = getRow( $sectionKey );
+        $jsonContent = json_encode( $content, JSON_UNESCAPED_UNICODE );
+        $updateData = [ 'section_title' => $data[ 'section_title' ] ?? '', 'section_subtitle' => $data[ 'section_subtitle' ] ?? '', 'content' => $jsonContent ];
+        if ( $exists ) {
+            updateRow( $sectionKey, $updateData, [ 'id' => $exists[ 'id' ] ] );
+        } else {
+            insertRow( $sectionKey, $updateData );
+        }
+    }
+
+    function saveNewsHero( $sectionKey, $data ) {
+        $content = $data[ 'content' ] ?? [];
+        $exists = getRow( 'news_hero' );
+        $updateData = [ 'section_title' => $data[ 'section_title' ] ?? '', 'section_subtitle' => $data[ 'section_subtitle' ] ?? '', 'hero_image' => $content[ 'hero_image' ] ?? '', 'subtitle' => $content[ 'subtitle' ] ?? '', 'badge' => $content[ 'badge' ] ?? '' ];
+        if ( $exists ) {
+            updateRow( 'news_hero', $updateData, [ 'id' => $exists[ 'id' ] ] );
+        } else {
+            insertRow( 'news_hero', $updateData );
+        }
+    }
+
+    function saveGetInvolvedHero( $sectionKey, $data ) {
+        $content = $data[ 'content' ] ?? [];
+        $exists = getRow( 'get_involved_hero' );
+        $updateData = [ 'section_title' => $data[ 'section_title' ] ?? '', 'section_subtitle' => $data[ 'section_subtitle' ] ?? '', 'hero_image' => $content[ 'hero_image' ] ?? '', 'subtitle' => $content[ 'subtitle' ] ?? '',
+        'badge' => $content[ 'badge' ] ?? '', 'button1_text' => $content[ 'button1_text' ] ?? '', 'button2_text' => $content[ 'button2_text' ] ?? '' ];
+        if ( $exists ) {
+            updateRow( 'get_involved_hero', $updateData, [ 'id' => $exists[ 'id' ] ] );
+        } else {
+            insertRow( 'get_involved_hero', $updateData );
+        }
+    }
+
+    function saveContributeHero( $sectionKey, $data ) {
+        $content = $data[ 'content' ] ?? [];
+        $exists = getRow( 'contribute_hero' );
+        $updateData = [ 'section_title' => $data[ 'section_title' ] ?? '', 'section_subtitle' => $data[ 'section_subtitle' ] ?? '', 'hero_image' => $content[ 'hero_image' ] ?? '', 'subtitle' => $content[ 'subtitle' ] ?? '',
+        'badge' => $content[ 'badge' ] ?? '', 'title' => $content[ 'title' ] ?? '' ];
+        if ( $exists ) {
+            updateRow( 'contribute_hero', $updateData, [ 'id' => $exists[ 'id' ] ] );
+        } else {
+            insertRow( 'contribute_hero', $updateData );
+        }
+    }
+
+    function saveImpactHero( $sectionKey, $data ) {
+        $content = $data[ 'content' ] ?? [];
+        $exists = getRow( 'impact_hero' );
+        $updateData = [
+            'section_title' => $data[ 'section_title' ] ?? '',
+            'section_subtitle' => $data[ 'section_subtitle' ] ?? '',
+            'hero_image' => $content[ 'hero_image' ] ?? '',
+            'heading' => $content[ 'heading' ] ?? '',
+            'description' => $content[ 'description' ] ?? '',
+            'cta_primary' => $content[ 'cta_primary' ] ?? 'View Impact Dashboard',
+            'cta_secondary' => $content[ 'cta_secondary' ] ?? 'SDG Contributions',
+        ];
+        if ( $exists ) {
+            updateRow( 'impact_hero', $updateData, [ 'id' => $exists[ 'id' ] ] );
+        } else {
+            insertRow( 'impact_hero', $updateData );
+        }
+    }
+
+    function saveImpactContent( $sectionKey, $data ) {
+        $content = $data[ 'content' ] ?? [];
+        $exists = getRow( 'impact_content' );
+        $jsonContent = json_encode( $content, JSON_UNESCAPED_UNICODE );
+        $updateData = [ 'section_title' => $data[ 'section_title' ] ?? '', 'section_subtitle' => $data[ 'section_subtitle' ] ?? '', 'content' => $jsonContent ];
+        if ( $exists ) {
+            updateRow( 'impact_content', $updateData, [ 'id' => $exists[ 'id' ] ] );
+        } else {
+            insertRow( 'impact_content', $updateData );
+        }
+    }
+
+    function saveImpactCta( $sectionKey, $data ) {
+        $content = $data[ 'content' ] ?? [];
+        $exists = getRow( 'homepage_sections', [ 'section_key' => 'impact_cta' ] );
+        $updateData = [
+            'section_title' => $data[ 'section_title' ] ?? '',
+            'section_subtitle' => $data[ 'section_subtitle' ] ?? '',
+            'content' => json_encode( $content, JSON_UNESCAPED_UNICODE ),
+        ];
+        if ( $exists ) {
+            updateRow( 'homepage_sections', $updateData, [ 'id' => $exists[ 'id' ] ] );
+        } else {
+            insertRow( 'homepage_sections', array_merge( [ 'section_key' => 'impact_cta', 'is_active' => 1, 'sort_order' => 50 ], $updateData ) );
+        }
+    }
+
+    function saveWhereWeWorkHero( $sectionKey, $data ) {
+        $content = $data[ 'content' ] ?? [];
+        $exists = getRow( 'where_we_work_hero' );
+        $updateData = [
+            'section_title' => $data[ 'section_title' ] ?? '',
+            'section_subtitle' => $data[ 'section_subtitle' ] ?? '',
+            'hero_image' => $content[ 'hero_image' ] ?? '',
+            'subtitle' => $content[ 'subtitle' ] ?? '',
+            'cta_primary' => $content[ 'cta_primary' ] ?? 'Explore Our Map',
+            'cta_secondary' => $content[ 'cta_secondary' ] ?? 'District Coverage',
+        ];
+        if ( $exists ) {
+            updateRow( 'where_we_work_hero', $updateData, [ 'id' => $exists[ 'id' ] ] );
+        } else {
+            insertRow( 'where_we_work_hero', $updateData );
+        }
+    }
+
+    function saveWhereWeWorkContent( $sectionKey, $data ) {
+        $content = $data[ 'content' ] ?? [];
+        $exists = getRow( 'where_we_work_content' );
+        $jsonContent = json_encode( $content, JSON_UNESCAPED_UNICODE );
+        $updateData = [ 'section_title' => $data[ 'section_title' ] ?? '', 'section_subtitle' => $data[ 'section_subtitle' ] ?? '', 'content' => $jsonContent ];
+        if ( $exists ) {
+            updateRow( 'where_we_work_content', $updateData, [ 'id' => $exists[ 'id' ] ] );
+        } else {
+            insertRow( 'where_we_work_content', $updateData );
+        }
+    }
+
+    function saveContributeImpact( $sectionKey, $data ) {
+        global $pdo;
+        $content = $data[ 'content' ] ?? [];
+        $exists = getRow( 'contribute_impact' );
+        $updateData = [ 'section_title' => $data[ 'section_title' ] ?? '', 'section_subtitle' => $data[ 'section_subtitle' ] ?? '' ];
+        if ( $exists ) {
+            updateRow( 'contribute_impact', $updateData, [ 'id' => $exists[ 'id' ] ] );
+        } else {
+            insertRow( 'contribute_impact', $updateData );
+        }
+        $imp = getRow( 'contribute_impact' );
+        if ( $imp ) {
+            $pdo->exec( "DELETE FROM contribute_impact_items WHERE impact_id = {$imp['id']}" );
+            $items = $content[ 'items' ] ?? [];
+            foreach ( $items as $i => $item ) {
+                insertRow( 'contribute_impact_items', [ 'impact_id' => $imp[ 'id' ], 'icon' => $item[ 'icon' ] ?? '', 'amount' => $item[ 'amount' ] ?? '', 'description' => $item[ 'description' ] ?? '', 'sort_order' => $i ] );
             }
         }
     }
 
-    function saveContributeWhy($sectionKey, $data) {
+    function saveContributeTransparency( $sectionKey, $data ) {
         global $pdo;
-        $content = $data['content'] ?? [];
-        $exists = getRow('contribute_why');
-        $updateData = ['section_title' => $data['section_title'] ?? '', 'description' => $content['description'] ?? ''];
-        if ($exists) { updateRow('contribute_why', $updateData, ['id' => $exists['id']]); } else { insertRow('contribute_why', $updateData); }
-        $why = getRow('contribute_why');
-        if ($why) {
-            $pdo->exec("DELETE FROM contribute_why_stats WHERE why_id = {$why['id']}");
-            $stats = $content['stats'] ?? [];
-            foreach ($stats as $i => $stat) {
-                insertRow('contribute_why_stats', ['why_id' => $why['id'], 'stat_label' => $stat['label'] ?? '', 'stat_value' => $stat['value'] ?? '', 'sort_order' => $i]);
+        $content = $data[ 'content' ] ?? [];
+        $exists = getRow( 'contribute_transparency' );
+        $updateData = [ 'section_title' => $data[ 'section_title' ] ?? '', 'section_subtitle' => $data[ 'section_subtitle' ] ?? '' ];
+        if ( $exists ) {
+            updateRow( 'contribute_transparency', $updateData, [ 'id' => $exists[ 'id' ] ] );
+        } else {
+            insertRow( 'contribute_transparency', $updateData );
+        }
+        $trans = getRow( 'contribute_transparency' );
+        if ( $trans ) {
+            $pdo->exec( "DELETE FROM contribute_transparency_items WHERE transparency_id = {$trans['id']}" );
+            $items = $content[ 'items' ] ?? [];
+            foreach ( $items as $i => $item ) {
+                insertRow( 'contribute_transparency_items', [ 'transparency_id' => $trans[ 'id' ], 'icon' => $item[ 'icon' ] ?? '', 'title' => $item[ 'title' ] ?? '', 'description' => $item[ 'description' ] ?? '', 'sort_order' => $i ] );
             }
         }
     }
 
-    function saveGetInvolvedVolunteer($sectionKey, $data) {
+    function saveContributeWhy( $sectionKey, $data ) {
         global $pdo;
-        $content = $data['content'] ?? [];
-        $exists = getRow('get_involved_volunteer');
-        $updateData = [
-            'section_title' => $data['section_title'] ?? '',
-            'section_subtitle' => $data['section_subtitle'] ?? '',
-            'description' => $content['description'] ?? '',
-            'requirements' => json_encode($content['requirements'] ?? [], JSON_UNESCAPED_UNICODE),
-            'stat1_value' => $content['stat1_value'] ?? '',
-            'stat1_label' => $content['stat1_label'] ?? '',
-            'stat2_value' => $content['stat2_value'] ?? '',
-            'stat2_label' => $content['stat2_label'] ?? '',
-            'stat3_value' => $content['stat3_value'] ?? '',
-            'stat3_label' => $content['stat3_label'] ?? '',
-        ];
-        if ($exists) { updateRow('get_involved_volunteer', $updateData, ['id' => $exists['id']]); } else { insertRow('get_involved_volunteer', $updateData); }
+        $content = $data[ 'content' ] ?? [];
+        $exists = getRow( 'contribute_why' );
+        $updateData = [ 'section_title' => $data[ 'section_title' ] ?? '', 'description' => $content[ 'description' ] ?? '' ];
+        if ( $exists ) {
+            updateRow( 'contribute_why', $updateData, [ 'id' => $exists[ 'id' ] ] );
+        } else {
+            insertRow( 'contribute_why', $updateData );
+        }
+        $why = getRow( 'contribute_why' );
+        if ( $why ) {
+            $pdo->exec( "DELETE FROM contribute_why_stats WHERE why_id = {$why['id']}" );
+            $stats = $content[ 'stats' ] ?? [];
+            foreach ( $stats as $i => $stat ) {
+                insertRow( 'contribute_why_stats', [ 'why_id' => $why[ 'id' ], 'stat_label' => $stat[ 'label' ] ?? '', 'stat_value' => $stat[ 'value' ] ?? '', 'sort_order' => $i ] );
+            }
+        }
     }
 
-    function saveGetInvolvedPartner($sectionKey, $data) {
+    function saveGetInvolvedVolunteer( $sectionKey, $data ) {
         global $pdo;
-        $content = $data['content'] ?? [];
-        $exists = getRow('get_involved_partner');
+        $content = $data[ 'content' ] ?? [];
+        $exists = getRow( 'get_involved_volunteer' );
         $updateData = [
-            'section_title' => $data['section_title'] ?? '',
-            'section_subtitle' => $data['section_subtitle'] ?? '',
-            'description' => $content['description'] ?? '',
-            'partner_types' => json_encode($content['partner_types'] ?? [], JSON_UNESCAPED_UNICODE),
+            'section_title' => $data[ 'section_title' ] ?? '',
+            'section_subtitle' => $data[ 'section_subtitle' ] ?? '',
+            'description' => $content[ 'description' ] ?? '',
+            'requirements' => json_encode( $content[ 'requirements' ] ?? [], JSON_UNESCAPED_UNICODE ),
+            'stat1_value' => $content[ 'stat1_value' ] ?? '',
+            'stat1_label' => $content[ 'stat1_label' ] ?? '',
+            'stat2_value' => $content[ 'stat2_value' ] ?? '',
+            'stat2_label' => $content[ 'stat2_label' ] ?? '',
+            'stat3_value' => $content[ 'stat3_value' ] ?? '',
+            'stat3_label' => $content[ 'stat3_label' ] ?? '',
         ];
-        if ($exists) { updateRow('get_involved_partner', $updateData, ['id' => $exists['id']]); } else { insertRow('get_involved_partner', $updateData); }
+        if ( $exists ) {
+            updateRow( 'get_involved_volunteer', $updateData, [ 'id' => $exists[ 'id' ] ] );
+        } else {
+            insertRow( 'get_involved_volunteer', $updateData );
+        }
     }
 
-    function saveGetInvolvedMembership($sectionKey, $data) {
+    function saveGetInvolvedPartner( $sectionKey, $data ) {
         global $pdo;
-        $content = $data['content'] ?? [];
-        $exists = getRow('get_involved_membership');
+        $content = $data[ 'content' ] ?? [];
+        $exists = getRow( 'get_involved_partner' );
         $updateData = [
-            'section_title' => $data['section_title'] ?? '',
-            'section_subtitle' => $data['section_subtitle'] ?? '',
-            'description' => $content['description'] ?? '',
-            'benefits' => json_encode($content['benefits'] ?? [], JSON_UNESCAPED_UNICODE),
-            'membership_types' => json_encode($content['membership_types'] ?? [], JSON_UNESCAPED_UNICODE),
+            'section_title' => $data[ 'section_title' ] ?? '',
+            'section_subtitle' => $data[ 'section_subtitle' ] ?? '',
+            'description' => $content[ 'description' ] ?? '',
+            'partner_types' => json_encode( $content[ 'partner_types' ] ?? [], JSON_UNESCAPED_UNICODE ),
         ];
-        if ($exists) { updateRow('get_involved_membership', $updateData, ['id' => $exists['id']]); } else { insertRow('get_involved_membership', $updateData); }
+        if ( $exists ) {
+            updateRow( 'get_involved_partner', $updateData, [ 'id' => $exists[ 'id' ] ] );
+        } else {
+            insertRow( 'get_involved_partner', $updateData );
+        }
     }
 
-    function saveResourcesRegistration($sectionKey, $data) {
+    function saveGetInvolvedMembership( $sectionKey, $data ) {
         global $pdo;
-        $content = $data['content'] ?? [];
-        $items = $content['items'] ?? [];
-        $pdo->exec("DELETE FROM resources_registration");
-        foreach ($items as $i => $item) {
-            insertRow('resources_registration', [
-                'title' => $item['title'] ?? '',
-                'description' => $item['description'] ?? '',
-                'registration_number' => $item['registration_number'] ?? '',
-                'issuing_authority' => $item['issuing_authority'] ?? '',
-                'issue_date' => !empty($item['issue_date']) ? $item['issue_date'] : null,
-                'document_type' => $item['document_type'] ?? 'certificate',
-                'icon' => $item['icon'] ?? 'fa-stamp',
-                'badge' => $item['badge'] ?? '',
+        $content = $data[ 'content' ] ?? [];
+        $exists = getRow( 'get_involved_membership' );
+        $updateData = [
+            'section_title' => $data[ 'section_title' ] ?? '',
+            'section_subtitle' => $data[ 'section_subtitle' ] ?? '',
+            'description' => $content[ 'description' ] ?? '',
+            'benefits' => json_encode( $content[ 'benefits' ] ?? [], JSON_UNESCAPED_UNICODE ),
+            'membership_types' => json_encode( $content[ 'membership_types' ] ?? [], JSON_UNESCAPED_UNICODE ),
+        ];
+        if ( $exists ) {
+            updateRow( 'get_involved_membership', $updateData, [ 'id' => $exists[ 'id' ] ] );
+        } else {
+            insertRow( 'get_involved_membership', $updateData );
+        }
+    }
+
+    function saveResourcesRegistration( $sectionKey, $data ) {
+        global $pdo;
+        $content = $data[ 'content' ] ?? [];
+        $items = $content[ 'items' ] ?? [];
+        $pdo->exec( 'DELETE FROM resources_registration' );
+        foreach ( $items as $i => $item ) {
+            insertRow( 'resources_registration', [
+                'title' => $item[ 'title' ] ?? '',
+                'description' => $item[ 'description' ] ?? '',
+                'registration_number' => $item[ 'registration_number' ] ?? '',
+                'issuing_authority' => $item[ 'issuing_authority' ] ?? '',
+                'issue_date' => !empty( $item[ 'issue_date' ] ) ? $item[ 'issue_date' ] : null,
+                'document_type' => $item[ 'document_type' ] ?? 'certificate',
+                'icon' => $item[ 'icon' ] ?? 'fa-stamp',
+                'badge' => $item[ 'badge' ] ?? '',
                 'is_active' => 1,
                 'sort_order' => $i,
-            ]);
+            ] );
         }
     }
 
@@ -789,36 +899,36 @@ if (isPost() && isset($_POST['save_sections'])) {
         'contribute_why' => 'saveContributeWhy',
     ];
 
-    foreach ($sectionsData as $sectionKey => $data) {
-        if (isset($dedicatedSections[$sectionKey])) {
-            call_user_func($dedicatedSections[$sectionKey], $sectionKey, $data);
+    foreach ( $sectionsData as $sectionKey => $data ) {
+        if ( isset( $dedicatedSections[ $sectionKey ] ) ) {
+            call_user_func( $dedicatedSections[ $sectionKey ], $sectionKey, $data );
         } else {
             // Fallback: save to homepage_sections
-            $title = $data['section_title'] ?? null;
-            $subtitle = $data['section_subtitle'] ?? null;
-            $content = isset($data['content']) ? json_encode($data['content'], JSON_UNESCAPED_UNICODE) : null;
+            $title = $data[ 'section_title' ] ?? null;
+            $subtitle = $data[ 'section_subtitle' ] ?? null;
+            $content = isset( $data[ 'content' ] ) ? json_encode( $data[ 'content' ], JSON_UNESCAPED_UNICODE ) : null;
 
-            $exists = getRow('homepage_sections', ['section_key' => $sectionKey]);
-            if ($exists) {
+            $exists = getRow( 'homepage_sections', [ 'section_key' => $sectionKey ] );
+            if ( $exists ) {
                 $updateData = [];
-                if ($title !== null) $updateData['section_title'] = $title;
-                if ($subtitle !== null) $updateData['section_subtitle'] = $subtitle;
-                if ($content !== null) $updateData['content'] = $content;
-                if (!empty($updateData)) {
-                    updateRow('homepage_sections', $updateData, ['section_key' => $sectionKey]);
+                if ( $title !== null ) $updateData[ 'section_title' ] = $title;
+                if ( $subtitle !== null ) $updateData[ 'section_subtitle' ] = $subtitle;
+                if ( $content !== null ) $updateData[ 'content' ] = $content;
+                if ( !empty( $updateData ) ) {
+                    updateRow( 'homepage_sections', $updateData, [ 'section_key' => $sectionKey ] );
                 }
             } else {
-                $insertData = ['section_key' => $sectionKey, 'is_active' => 1, 'sort_order' => 0];
-                if ($title !== null) $insertData['section_title'] = $title;
-                if ($subtitle !== null) $insertData['section_subtitle'] = $subtitle;
-                if ($content !== null) $insertData['content'] = $content;
-                insertRow('homepage_sections', $insertData);
+                $insertData = [ 'section_key' => $sectionKey, 'is_active' => 1, 'sort_order' => 0 ];
+                if ( $title !== null ) $insertData[ 'section_title' ] = $title;
+                if ( $subtitle !== null ) $insertData[ 'section_subtitle' ] = $subtitle;
+                if ( $content !== null ) $insertData[ 'content' ] = $content;
+                insertRow( 'homepage_sections', $insertData );
             }
         }
     }
 
-    setFlash('success', 'Sections saved successfully!');
-    redirect('pages.php?page=' . urlencode($pageKey));
+    setFlash( 'success', 'Sections saved successfully!' );
+    redirect( 'pages.php?page=' . urlencode( $pageKey ) );
 }
 
 // Define pages and their sections
@@ -1063,407 +1173,429 @@ function loadDedicatedSection($sectionKey, $defaultTitle) {
             if ($row) return [
                 'section_key' => $sectionKey,
                 'section_title' => 'Chairman\'s Message',
-                'section_subtitle' => '',
-                'content' => $row,
-                'is_active' => 1,
-            ];
-            break;
+            'section_subtitle' => '',
+            'content' => $row,
+            'is_active' => 1,
+        ];
+        break;
         case 'geographic_presence':
-            $row = getRow('geographic_presence');
-            if ($row) {
-                $statsRows = getRows('geographic_presence_stats', ['geo_id' => $row['id']], 'sort_order ASC');
-                $stats = array_map(function($s) {
-                    return ['value' => $s['stat_value'], 'label' => $s['stat_label'], 'icon' => $s['stat_icon'], 'color' => $s['stat_color']];
-                }, $statsRows);
-                return [
-                    'section_key' => $sectionKey,
-                    'section_title' => $row['section_title'] ?? '',
-                    'section_subtitle' => $row['section_subtitle'] ?? '',
-                    'content' => ['stats' => $stats],
-                    'is_active' => 1,
-                ];
+        $row = getRow( 'geographic_presence' );
+        if ( $row ) {
+            $statsRows = getRows( 'geographic_presence_stats', [ 'geo_id' => $row[ 'id' ] ], 'sort_order ASC' );
+            $stats = array_map( function( $s ) {
+                return [ 'value' => $s[ 'stat_value' ], 'label' => $s[ 'stat_label' ], 'icon' => $s[ 'stat_icon' ], 'color' => $s[ 'stat_color' ] ];
             }
-            break;
-        case 'cta_banner':
-            $row = getRow('cta_banner');
-            if ($row) return [
-                'section_key' => $sectionKey,
-                'section_title' => $row['section_title'] ?? '',
-                'section_subtitle' => '',
-                'content' => $row,
-                'is_active' => 1,
-            ];
-            break;
-        case 'our_work_hero':
-            $row = getRow('our_work_hero');
-            if ($row) return [
-                'section_key' => $sectionKey,
-                'section_title' => $row['section_title'] ?? '',
-                'section_subtitle' => $row['section_subtitle'] ?? '',
-                'content' => $row,
-                'is_active' => 1,
-            ];
-            break;
-        case 'our_work_editorial':
-            $row = getRow('our_work_editorial');
-            if ($row) {
-                $features = getRows('our_work_editorial_features', ['editorial_id' => $row['id']], 'sort_order ASC');
-                return [
-                    'section_key' => $sectionKey,
-                    'section_title' => $row['section_title'] ?? '',
-                    'section_subtitle' => $row['section_subtitle'] ?? '',
-                    'content' => ['image' => $row['image'], 'label' => $row['label'], 'description' => $row['description'], 'features' => $features],
-                    'is_active' => 1,
-                ];
-            }
-            break;
-        case 'our_work_process':
-            $row = getRow('our_work_process');
-            if ($row) {
-                $steps = getRows('our_work_process_steps', ['process_id' => $row['id']], 'sort_order ASC');
-                $stepsMapped = array_map(function($s) { return ['num' => $s['step_num'], 'title' => $s['title'], 'description' => $s['description']]; }, $steps);
-                return [
-                    'section_key' => $sectionKey,
-                    'section_title' => $row['section_title'] ?? '',
-                    'section_subtitle' => $row['section_subtitle'] ?? '',
-                    'content' => ['subtitle' => $row['subtitle'], 'steps' => $stepsMapped],
-                    'is_active' => 1,
-                ];
-            }
-            break;
-        case 'our_work_pillars':
-            $row = getRow('our_work_pillars');
-            if ($row) {
-                $pillars = getRows('our_work_pillars_items', ['pillars_id' => $row['id']], 'sort_order ASC');
-                $pillarsMapped = array_map(function($p) { return ['num' => $p['pillar_num'], 'title' => $p['title'], 'description' => $p['description']]; }, $pillars);
-                return [
-                    'section_key' => $sectionKey,
-                    'section_title' => $row['section_title'] ?? '',
-                    'section_subtitle' => $row['section_subtitle'] ?? '',
-                    'content' => ['subtitle' => $row['subtitle'], 'pillars' => $pillarsMapped],
-                    'is_active' => 1,
-                ];
-            }
-            break;
-        case 'our_work_featured_projects':
-            $row = getRow('our_work_featured_projects');
-            if ($row) return [
-                'section_key' => $sectionKey,
-                'section_title' => $row['section_title'] ?? '',
-                'section_subtitle' => '',
-                'content' => ['description' => $row['description']],
-                'is_active' => 1,
-            ];
-            break;
-        case 'our_work_cta':
-            $row = getRow('our_work_cta');
-            if ($row) return [
-                'section_key' => $sectionKey,
-                'section_title' => $row['section_title'] ?? '',
-                'section_subtitle' => '',
-                'content' => $row,
-                'is_active' => 1,
-            ];
-            break;
-        case 'projects_hero':
-            $row = getRow('projects_hero');
-            if ($row) return [
-                'section_key' => $sectionKey,
-                'section_title' => $row['section_title'] ?? '',
-                'section_subtitle' => $row['section_subtitle'] ?? '',
-                'content' => $row,
-                'is_active' => 1,
-            ];
-            break;
-        case 'projects_dashboard':
-            $row = getRow('projects_dashboard');
-            if ($row) {
-                $metricsRows = getRows('projects_dashboard_metrics', ['dashboard_id' => $row['id']], 'sort_order ASC');
-                $metrics = array_map(function($m) { return ['icon' => $m['metric_icon'], 'color' => $m['metric_color'], 'label' => $m['metric_label'], 'value' => $m['metric_value']]; }, $metricsRows);
-                $sectorsRows = getRows('projects_dashboard_sectors', ['dashboard_id' => $row['id']], 'sort_order ASC');
-                $sectors = array_map(function($s) { return ['name' => $s['sector_name'], 'color' => $s['sector_color'], 'count' => $s['sector_count'], 'percent' => $s['sector_percent'], 'gradient' => $s['sector_gradient']]; }, $sectorsRows);
-                return [
-                    'section_key' => $sectionKey,
-                    'section_title' => $row['section_title'] ?? '',
-                    'section_subtitle' => $row['subtitle'] ?? '',
-                    'content' => ['subtitle' => $row['subtitle'], 'metrics' => $metrics, 'sectors' => $sectors],
-                    'is_active' => 1,
-                ];
-            }
-            break;
-        case 'projects_cta':
-            $row = getRow('projects_cta');
-            if ($row) return [
-                'section_key' => $sectionKey,
-                'section_title' => $row['section_title'] ?? '',
-                'section_subtitle' => '',
-                'content' => $row,
-                'is_active' => 1,
-            ];
-            break;
-        case 'causes_hero':
-            $row = getRow('causes_hero');
-            if ($row) return [
-                'section_key' => $sectionKey,
-                'section_title' => $row['section_title'] ?? '',
-                'section_subtitle' => $row['section_subtitle'] ?? '',
-                'content' => $row,
-                'is_active' => 1,
-            ];
-            break;
-        case 'causes_impact':
-            $row = getRow('causes_impact');
-            if ($row) {
-                $statsRows = getRows('causes_impact_stats', ['impact_id' => $row['id']], 'sort_order ASC');
-                $stats = array_map(function($s) { return ['icon' => $s['stat_icon'], 'label' => $s['stat_label'], 'value' => $s['stat_value']]; }, $statsRows);
-                return [
-                    'section_key' => $sectionKey,
-                    'section_title' => $row['section_title'] ?? '',
-                    'section_subtitle' => '',
-                    'content' => ['stats' => $stats],
-                    'is_active' => 1,
-                ];
-            }
-            break;
-        case 'who_we_are_hero':
-            $row = getRow('who_we_are_hero');
-            if ($row) return [
-                'section_key' => $sectionKey, 'section_title' => $row['section_title'] ?? '',
-                'section_subtitle' => $row['section_subtitle'] ?? '', 'content' => $row, 'is_active' => 1,
-            ];
-            break;
-        case 'who_we_are_impact':
-            $row = getRow('who_we_are_impact');
-            if ($row) {
-                $items = getRows('who_we_are_impact_items', ['impact_id' => $row['id']], 'sort_order ASC');
-                return [
-                    'section_key' => $sectionKey, 'section_title' => $row['section_title'] ?? '',
-                    'section_subtitle' => $row['section_subtitle'] ?? '',
-                    'content' => ['items' => $items], 'is_active' => 1,
-                ];
-            }
-            break;
-        case 'why_we_exist':
-            $row = getRow('why_we_exist');
-            if ($row) {
-                $items = getRows('why_we_exist_items', ['why_id' => $row['id']], 'sort_order ASC');
-                return [
-                    'section_key' => $sectionKey, 'section_title' => $row['section_title'] ?? '',
-                    'section_subtitle' => $row['section_subtitle'] ?? '',
-                    'content' => ['items' => $items], 'is_active' => 1,
-                ];
-            }
-            break;
-        case 'history_hero':
-            $row = getRow('history_hero');
-            if ($row) return [
-                'section_key' => $sectionKey, 'section_title' => $row['section_title'] ?? '',
-                'section_subtitle' => $row['section_subtitle'] ?? '', 'content' => $row, 'is_active' => 1,
-            ];
-            break;
-        case 'history_stats':
-            $row = getRow('history_stats');
-            if ($row) {
-                $statsRows = getRows('history_stats_items', ['stats_id' => $row['id']], 'sort_order ASC');
-                $stats = array_map(function($s) { return ['icon' => $s['stat_icon'], 'color' => $s['stat_color'], 'label' => $s['stat_label'], 'value' => $s['stat_value']]; }, $statsRows);
-                return [
-                    'section_key' => $sectionKey, 'section_title' => $row['section_title'] ?? '',
-                    'section_subtitle' => $row['section_subtitle'] ?? '', 'content' => ['stats' => $stats], 'is_active' => 1,
-                ];
-            }
-            break;
-        case 'history_cta':
-            $row = getRow('history_cta');
-            if ($row) return [
-                'section_key' => $sectionKey, 'section_title' => $row['section_title'] ?? '',
-                'section_subtitle' => $row['section_subtitle'] ?? '',
-                'content' => ['badge' => $row['badge'], 'section_title' => $row['section_title'], 'section_subtitle' => $row['section_subtitle'], 'button1_text' => $row['button1_text'], 'button1_link' => $row['button1_link']],
-                'is_active' => 1,
-            ];
-            break;
-        case 'vision_mission_hero': case 'org_structure_hero': case 'policies_hero': case 'annual_reports_hero':
-            $row = getRow($sectionKey);
-            if ($row) return [
-                'section_key' => $sectionKey, 'section_title' => $row['section_title'] ?? '',
-                'section_subtitle' => $row['section_subtitle'] ?? '', 'content' => $row, 'is_active' => 1,
-            ];
-            break;
-        case 'vision_mission_content': case 'org_structure_content': case 'policies_content': case 'annual_reports_content':
-            $row = getRow($sectionKey);
-            if ($row) {
-                $decoded = json_decode($row['content'] ?? '{}', true);
-                return [
-                    'section_key' => $sectionKey, 'section_title' => $row['section_title'] ?? '',
-                    'section_subtitle' => $row['section_subtitle'] ?? '',
-                    'content' => is_array($decoded) ? $decoded : [], 'is_active' => 1,
-                ];
-            }
-            break;
-        case 'contact_hero': case 'impact_hero': case 'where_we_work_hero':
-            $row = getRow($sectionKey);
-            if ($row) return [
-                'section_key' => $sectionKey, 'section_title' => $row['section_title'] ?? '',
-                'section_subtitle' => $row['section_subtitle'] ?? '', 'content' => $row, 'is_active' => 1,
-            ];
-            break;
-        case 'contact_content': case 'impact_content': case 'where_we_work_content':
-            $row = getRow($sectionKey);
-            if ($row) {
-                $decoded = json_decode($row['content'] ?? '{}', true);
-                return [
-                    'section_key' => $sectionKey, 'section_title' => $row['section_title'] ?? '',
-                    'section_subtitle' => $row['section_subtitle'] ?? '',
-                    'content' => is_array($decoded) ? $decoded : [], 'is_active' => 1,
-                ];
-            }
-            break;
-        case 'news_hero':
-            $row = getRow('news_hero');
-            if ($row) return [
-                'section_key' => $sectionKey, 'section_title' => $row['section_title'] ?? '',
-                'section_subtitle' => $row['section_subtitle'] ?? '', 'content' => $row, 'is_active' => 1,
-            ];
-            break;
-        case 'resources_hero':
-            $row = getRow('resources_hero');
-            if ($row) {
-                $decoded = json_decode($row['content'] ?? '{}', true);
-                return [
-                    'section_key' => $sectionKey, 'section_title' => $row['section_title'] ?? '',
-                    'section_subtitle' => $row['section_subtitle'] ?? '', 'content' => is_array($decoded) ? $decoded : [], 'is_active' => 1,
-                ];
-            }
-            break;
-        case 'resources_registration':
-            $items = getRows('resources_registration', [], 'sort_order ASC');
+            , $statsRows );
             return [
-                'section_key' => $sectionKey, 'section_title' => 'Registration & Certifications',
-                'section_subtitle' => '', 'content' => ['items' => $items], 'is_active' => 1,
+                'section_key' => $sectionKey,
+                'section_title' => $row[ 'section_title' ] ?? '',
+                'section_subtitle' => $row[ 'section_subtitle' ] ?? '',
+                'content' => [ 'stats' => $stats ],
+                'is_active' => 1,
             ];
-            break;
+        }
+        break;
+        case 'cta_banner':
+        $row = getRow( 'cta_banner' );
+        if ( $row ) return [
+            'section_key' => $sectionKey,
+            'section_title' => $row[ 'section_title' ] ?? '',
+            'section_subtitle' => '',
+            'content' => $row,
+            'is_active' => 1,
+        ];
+        break;
+        case 'our_work_hero':
+        $row = getRow( 'our_work_hero' );
+        if ( $row ) return [
+            'section_key' => $sectionKey,
+            'section_title' => $row[ 'section_title' ] ?? '',
+            'section_subtitle' => $row[ 'section_subtitle' ] ?? '',
+            'content' => $row,
+            'is_active' => 1,
+        ];
+        break;
+        case 'our_work_editorial':
+        $row = getRow( 'our_work_editorial' );
+        if ( $row ) {
+            $features = getRows( 'our_work_editorial_features', [ 'editorial_id' => $row[ 'id' ] ], 'sort_order ASC' );
+            return [
+                'section_key' => $sectionKey,
+                'section_title' => $row[ 'section_title' ] ?? '',
+                'section_subtitle' => $row[ 'section_subtitle' ] ?? '',
+                'content' => [ 'image' => $row[ 'image' ], 'label' => $row[ 'label' ], 'description' => $row[ 'description' ], 'features' => $features ],
+                'is_active' => 1,
+            ];
+        }
+        break;
+        case 'our_work_process':
+        $row = getRow( 'our_work_process' );
+        if ( $row ) {
+            $steps = getRows( 'our_work_process_steps', [ 'process_id' => $row[ 'id' ] ], 'sort_order ASC' );
+            $stepsMapped = array_map( function( $s ) {
+                return [ 'num' => $s[ 'step_num' ], 'title' => $s[ 'title' ], 'description' => $s[ 'description' ] ];
+            }
+            , $steps );
+            return [
+                'section_key' => $sectionKey,
+                'section_title' => $row[ 'section_title' ] ?? '',
+                'section_subtitle' => $row[ 'section_subtitle' ] ?? '',
+                'content' => [ 'subtitle' => $row[ 'subtitle' ], 'steps' => $stepsMapped ],
+                'is_active' => 1,
+            ];
+        }
+        break;
+        case 'our_work_pillars':
+        $row = getRow( 'our_work_pillars' );
+        if ( $row ) {
+            $pillars = getRows( 'our_work_pillars_items', [ 'pillars_id' => $row[ 'id' ] ], 'sort_order ASC' );
+            $pillarsMapped = array_map( function( $p ) {
+                return [ 'num' => $p[ 'pillar_num' ], 'title' => $p[ 'title' ], 'description' => $p[ 'description' ] ];
+            }
+            , $pillars );
+            return [
+                'section_key' => $sectionKey,
+                'section_title' => $row[ 'section_title' ] ?? '',
+                'section_subtitle' => $row[ 'section_subtitle' ] ?? '',
+                'content' => [ 'subtitle' => $row[ 'subtitle' ], 'pillars' => $pillarsMapped ],
+                'is_active' => 1,
+            ];
+        }
+        break;
+        case 'our_work_featured_projects':
+        $row = getRow( 'our_work_featured_projects' );
+        if ( $row ) return [
+            'section_key' => $sectionKey,
+            'section_title' => $row[ 'section_title' ] ?? '',
+            'section_subtitle' => '',
+            'content' => [ 'description' => $row[ 'description' ] ],
+            'is_active' => 1,
+        ];
+        break;
+        case 'our_work_cta':
+        $row = getRow( 'our_work_cta' );
+        if ( $row ) return [
+            'section_key' => $sectionKey,
+            'section_title' => $row[ 'section_title' ] ?? '',
+            'section_subtitle' => '',
+            'content' => $row,
+            'is_active' => 1,
+        ];
+        break;
+        case 'projects_hero':
+        $row = getRow( 'projects_hero' );
+        if ( $row ) return [
+            'section_key' => $sectionKey,
+            'section_title' => $row[ 'section_title' ] ?? '',
+            'section_subtitle' => $row[ 'section_subtitle' ] ?? '',
+            'content' => $row,
+            'is_active' => 1,
+        ];
+        break;
+        case 'projects_dashboard':
+        $row = getRow( 'projects_dashboard' );
+        if ( $row ) {
+            $metricsRows = getRows( 'projects_dashboard_metrics', [ 'dashboard_id' => $row[ 'id' ] ], 'sort_order ASC' );
+            $metrics = array_map( function( $m ) {
+                return [ 'icon' => $m[ 'metric_icon' ], 'color' => $m[ 'metric_color' ], 'label' => $m[ 'metric_label' ], 'value' => $m[ 'metric_value' ] ];
+            }
+            , $metricsRows );
+            $sectorsRows = getRows( 'projects_dashboard_sectors', [ 'dashboard_id' => $row[ 'id' ] ], 'sort_order ASC' );
+            $sectors = array_map( function( $s ) {
+                return [ 'name' => $s[ 'sector_name' ], 'color' => $s[ 'sector_color' ], 'count' => $s[ 'sector_count' ], 'percent' => $s[ 'sector_percent' ], 'gradient' => $s[ 'sector_gradient' ] ];
+            }
+            , $sectorsRows );
+            return [
+                'section_key' => $sectionKey,
+                'section_title' => $row[ 'section_title' ] ?? '',
+                'section_subtitle' => $row[ 'subtitle' ] ?? '',
+                'content' => [ 'subtitle' => $row[ 'subtitle' ], 'metrics' => $metrics, 'sectors' => $sectors ],
+                'is_active' => 1,
+            ];
+        }
+        break;
+        case 'projects_cta':
+        $row = getRow( 'projects_cta' );
+        if ( $row ) return [
+            'section_key' => $sectionKey,
+            'section_title' => $row[ 'section_title' ] ?? '',
+            'section_subtitle' => '',
+            'content' => $row,
+            'is_active' => 1,
+        ];
+        break;
+        case 'causes_hero':
+        $row = getRow( 'causes_hero' );
+        if ( $row ) return [
+            'section_key' => $sectionKey,
+            'section_title' => $row[ 'section_title' ] ?? '',
+            'section_subtitle' => $row[ 'section_subtitle' ] ?? '',
+            'content' => $row,
+            'is_active' => 1,
+        ];
+        break;
+        case 'causes_impact':
+        $row = getRow( 'causes_impact' );
+        if ( $row ) {
+            $statsRows = getRows( 'causes_impact_stats', [ 'impact_id' => $row[ 'id' ] ], 'sort_order ASC' );
+            $stats = array_map( function( $s ) {
+                return [ 'icon' => $s[ 'stat_icon' ], 'label' => $s[ 'stat_label' ], 'value' => $s[ 'stat_value' ] ];
+            }
+            , $statsRows );
+            return [
+                'section_key' => $sectionKey,
+                'section_title' => $row[ 'section_title' ] ?? '',
+                'section_subtitle' => '',
+                'content' => [ 'stats' => $stats ],
+                'is_active' => 1,
+            ];
+        }
+        break;
+        case 'who_we_are_hero':
+        $row = getRow( 'who_we_are_hero' );
+        if ( $row ) return [
+            'section_key' => $sectionKey, 'section_title' => $row[ 'section_title' ] ?? '',
+            'section_subtitle' => $row[ 'section_subtitle' ] ?? '', 'content' => $row, 'is_active' => 1,
+        ];
+        break;
+        case 'who_we_are_impact':
+        $row = getRow( 'who_we_are_impact' );
+        if ( $row ) {
+            $items = getRows( 'who_we_are_impact_items', [ 'impact_id' => $row[ 'id' ] ], 'sort_order ASC' );
+            return [
+                'section_key' => $sectionKey, 'section_title' => $row[ 'section_title' ] ?? '',
+                'section_subtitle' => $row[ 'section_subtitle' ] ?? '',
+                'content' => [ 'items' => $items ], 'is_active' => 1,
+            ];
+        }
+        break;
+        case 'why_we_exist':
+        $row = getRow( 'why_we_exist' );
+        if ( $row ) {
+            $items = getRows( 'why_we_exist_items', [ 'why_id' => $row[ 'id' ] ], 'sort_order ASC' );
+            return [
+                'section_key' => $sectionKey, 'section_title' => $row[ 'section_title' ] ?? '',
+                'section_subtitle' => $row[ 'section_subtitle' ] ?? '',
+                'content' => [ 'items' => $items ], 'is_active' => 1,
+            ];
+        }
+        break;
+        case 'history_hero':
+        $row = getRow( 'history_hero' );
+        if ( $row ) return [
+            'section_key' => $sectionKey, 'section_title' => $row[ 'section_title' ] ?? '',
+            'section_subtitle' => $row[ 'section_subtitle' ] ?? '', 'content' => $row, 'is_active' => 1,
+        ];
+        break;
+        case 'history_stats':
+        $row = getRow( 'history_stats' );
+        if ( $row ) {
+            $statsRows = getRows( 'history_stats_items', [ 'stats_id' => $row[ 'id' ] ], 'sort_order ASC' );
+            $stats = array_map( function( $s ) {
+                return [ 'icon' => $s[ 'stat_icon' ], 'color' => $s[ 'stat_color' ], 'label' => $s[ 'stat_label' ], 'value' => $s[ 'stat_value' ] ];
+            }
+            , $statsRows );
+            return [
+                'section_key' => $sectionKey, 'section_title' => $row[ 'section_title' ] ?? '',
+                'section_subtitle' => $row[ 'section_subtitle' ] ?? '', 'content' => [ 'stats' => $stats ], 'is_active' => 1,
+            ];
+        }
+        break;
+        case 'history_cta':
+        $row = getRow( 'history_cta' );
+        if ( $row ) return [
+            'section_key' => $sectionKey, 'section_title' => $row[ 'section_title' ] ?? '',
+            'section_subtitle' => $row[ 'section_subtitle' ] ?? '',
+            'content' => [ 'badge' => $row[ 'badge' ], 'section_title' => $row[ 'section_title' ], 'section_subtitle' => $row[ 'section_subtitle' ], 'button1_text' => $row[ 'button1_text' ], 'button1_link' => $row[ 'button1_link' ] ],
+            'is_active' => 1,
+        ];
+        break;
+        case 'vision_mission_hero': case 'org_structure_hero': case 'policies_hero': case 'annual_reports_hero':
+        $row = getRow( $sectionKey );
+        if ( $row ) return [
+            'section_key' => $sectionKey, 'section_title' => $row[ 'section_title' ] ?? '',
+            'section_subtitle' => $row[ 'section_subtitle' ] ?? '', 'content' => $row, 'is_active' => 1,
+        ];
+        break;
+        case 'vision_mission_content': case 'org_structure_content': case 'policies_content': case 'annual_reports_content':
+        $row = getRow( $sectionKey );
+        if ( $row ) {
+            $decoded = json_decode( $row[ 'content' ] ?? '{}', true );
+            return [
+                'section_key' => $sectionKey, 'section_title' => $row[ 'section_title' ] ?? '',
+                'section_subtitle' => $row[ 'section_subtitle' ] ?? '',
+                'content' => is_array( $decoded ) ? $decoded : [], 'is_active' => 1,
+            ];
+        }
+        break;
+        case 'contact_hero': case 'impact_hero': case 'where_we_work_hero':
+        $row = getRow( $sectionKey );
+        if ( $row ) return [
+            'section_key' => $sectionKey, 'section_title' => $row[ 'section_title' ] ?? '',
+            'section_subtitle' => $row[ 'section_subtitle' ] ?? '', 'content' => $row, 'is_active' => 1,
+        ];
+        break;
+        case 'contact_content': case 'impact_content': case 'where_we_work_content':
+        $row = getRow( $sectionKey );
+        if ( $row ) {
+            $decoded = json_decode( $row[ 'content' ] ?? '{}', true );
+            return [
+                'section_key' => $sectionKey, 'section_title' => $row[ 'section_title' ] ?? '',
+                'section_subtitle' => $row[ 'section_subtitle' ] ?? '',
+                'content' => is_array( $decoded ) ? $decoded : [], 'is_active' => 1,
+            ];
+        }
+        break;
+        case 'news_hero':
+        $row = getRow( 'news_hero' );
+        if ( $row ) return [
+            'section_key' => $sectionKey, 'section_title' => $row[ 'section_title' ] ?? '',
+            'section_subtitle' => $row[ 'section_subtitle' ] ?? '', 'content' => $row, 'is_active' => 1,
+        ];
+        break;
+        case 'resources_hero':
+        $row = getRow( 'resources_hero' );
+        if ( $row ) {
+            $decoded = json_decode( $row[ 'content' ] ?? '{}', true );
+            return [
+                'section_key' => $sectionKey, 'section_title' => $row[ 'section_title' ] ?? '',
+                'section_subtitle' => $row[ 'section_subtitle' ] ?? '', 'content' => is_array( $decoded ) ? $decoded : [], 'is_active' => 1,
+            ];
+        }
+        break;
+        case 'resources_registration':
+        $items = getRows( 'resources_registration', [], 'sort_order ASC' );
+        return [
+            'section_key' => $sectionKey, 'section_title' => 'Registration & Certifications',
+            'section_subtitle' => '', 'content' => [ 'items' => $items ], 'is_active' => 1,
+        ];
+        break;
         case 'get_involved_hero':
-            $row = getRow('get_involved_hero');
-            if ($row) return [
-                'section_key' => $sectionKey, 'section_title' => $row['section_title'] ?? '',
-                'section_subtitle' => $row['section_subtitle'] ?? '', 'content' => $row, 'is_active' => 1,
-            ];
-            break;
+        $row = getRow( 'get_involved_hero' );
+        if ( $row ) return [
+            'section_key' => $sectionKey, 'section_title' => $row[ 'section_title' ] ?? '',
+            'section_subtitle' => $row[ 'section_subtitle' ] ?? '', 'content' => $row, 'is_active' => 1,
+        ];
+        break;
         case 'get_involved_volunteer':
-            $row = getRow('get_involved_volunteer');
-            if ($row) {
-                $requirements = json_decode($row['requirements'] ?? '[]', true);
-                return [
-                    'section_key' => $sectionKey, 'section_title' => $row['section_title'] ?? '',
-                    'section_subtitle' => $row['section_subtitle'] ?? '',
-                    'content' => [
-                        'description' => $row['description'] ?? '',
-                        'requirements' => $requirements,
-                        'stat1_value' => $row['stat1_value'] ?? '', 'stat1_label' => $row['stat1_label'] ?? '',
-                        'stat2_value' => $row['stat2_value'] ?? '', 'stat2_label' => $row['stat2_label'] ?? '',
-                        'stat3_value' => $row['stat3_value'] ?? '', 'stat3_label' => $row['stat3_label'] ?? '',
-                    ], 'is_active' => 1,
-                ];
-            }
-            break;
+        $row = getRow( 'get_involved_volunteer' );
+        if ( $row ) {
+            $requirements = json_decode( $row[ 'requirements' ] ?? '[]', true );
+            return [
+                'section_key' => $sectionKey, 'section_title' => $row[ 'section_title' ] ?? '',
+                'section_subtitle' => $row[ 'section_subtitle' ] ?? '',
+                'content' => [
+                    'description' => $row[ 'description' ] ?? '',
+                    'requirements' => $requirements,
+                    'stat1_value' => $row[ 'stat1_value' ] ?? '', 'stat1_label' => $row[ 'stat1_label' ] ?? '',
+                    'stat2_value' => $row[ 'stat2_value' ] ?? '', 'stat2_label' => $row[ 'stat2_label' ] ?? '',
+                    'stat3_value' => $row[ 'stat3_value' ] ?? '', 'stat3_label' => $row[ 'stat3_label' ] ?? '',
+                ], 'is_active' => 1,
+            ];
+        }
+        break;
         case 'get_involved_partner':
-            $row = getRow('get_involved_partner');
-            if ($row) {
-                $partnerTypes = json_decode($row['partner_types'] ?? '[]', true);
-                return [
-                    'section_key' => $sectionKey, 'section_title' => $row['section_title'] ?? '',
-                    'section_subtitle' => $row['section_subtitle'] ?? '',
-                    'content' => [
-                        'description' => $row['description'] ?? '',
-                        'partner_types' => $partnerTypes,
-                    ], 'is_active' => 1,
-                ];
-            }
-            break;
+        $row = getRow( 'get_involved_partner' );
+        if ( $row ) {
+            $partnerTypes = json_decode( $row[ 'partner_types' ] ?? '[]', true );
+            return [
+                'section_key' => $sectionKey, 'section_title' => $row[ 'section_title' ] ?? '',
+                'section_subtitle' => $row[ 'section_subtitle' ] ?? '',
+                'content' => [
+                    'description' => $row[ 'description' ] ?? '',
+                    'partner_types' => $partnerTypes,
+                ], 'is_active' => 1,
+            ];
+        }
+        break;
         case 'get_involved_membership':
-            $row = getRow('get_involved_membership');
-            if ($row) {
-                $benefits = json_decode($row['benefits'] ?? '[]', true);
-                $membershipTypes = json_decode($row['membership_types'] ?? '[]', true);
-                return [
-                    'section_key' => $sectionKey, 'section_title' => $row['section_title'] ?? '',
-                    'section_subtitle' => $row['section_subtitle'] ?? '',
-                    'content' => [
-                        'description' => $row['description'] ?? '',
-                        'benefits' => $benefits,
-                        'membership_types' => $membershipTypes,
-                    ], 'is_active' => 1,
-                ];
-            }
-            break;
+        $row = getRow( 'get_involved_membership' );
+        if ( $row ) {
+            $benefits = json_decode( $row[ 'benefits' ] ?? '[]', true );
+            $membershipTypes = json_decode( $row[ 'membership_types' ] ?? '[]', true );
+            return [
+                'section_key' => $sectionKey, 'section_title' => $row[ 'section_title' ] ?? '',
+                'section_subtitle' => $row[ 'section_subtitle' ] ?? '',
+                'content' => [
+                    'description' => $row[ 'description' ] ?? '',
+                    'benefits' => $benefits,
+                    'membership_types' => $membershipTypes,
+                ], 'is_active' => 1,
+            ];
+        }
+        break;
         case 'get_involved_cta':
-            $row = getRow('get_involved_cta');
-            if ($row) return [
-                'section_key' => $sectionKey, 'section_title' => $row['section_title'] ?? '',
-                'section_subtitle' => $row['section_subtitle'] ?? '', 'content' => $row, 'is_active' => 1,
-            ];
-            break;
+        $row = getRow( 'get_involved_cta' );
+        if ( $row ) return [
+            'section_key' => $sectionKey, 'section_title' => $row[ 'section_title' ] ?? '',
+            'section_subtitle' => $row[ 'section_subtitle' ] ?? '', 'content' => $row, 'is_active' => 1,
+        ];
+        break;
         case 'contribute_hero':
-            $row = getRow('contribute_hero');
-            if ($row) return [
-                'section_key' => $sectionKey, 'section_title' => $row['section_title'] ?? '',
-                'section_subtitle' => $row['section_subtitle'] ?? '', 'content' => $row, 'is_active' => 1,
-            ];
-            break;
+        $row = getRow( 'contribute_hero' );
+        if ( $row ) return [
+            'section_key' => $sectionKey, 'section_title' => $row[ 'section_title' ] ?? '',
+            'section_subtitle' => $row[ 'section_subtitle' ] ?? '', 'content' => $row, 'is_active' => 1,
+        ];
+        break;
         case 'contribute_impact':
-            $row = getRow('contribute_impact');
-            if ($row) {
-                $items = getRows('contribute_impact_items', ['impact_id' => $row['id']], 'sort_order ASC');
-                return [
-                    'section_key' => $sectionKey, 'section_title' => $row['section_title'] ?? '',
-                    'section_subtitle' => $row['section_subtitle'] ?? '',
-                    'content' => ['items' => $items], 'is_active' => 1,
-                ];
-            }
-            break;
+        $row = getRow( 'contribute_impact' );
+        if ( $row ) {
+            $items = getRows( 'contribute_impact_items', [ 'impact_id' => $row[ 'id' ] ], 'sort_order ASC' );
+            return [
+                'section_key' => $sectionKey, 'section_title' => $row[ 'section_title' ] ?? '',
+                'section_subtitle' => $row[ 'section_subtitle' ] ?? '',
+                'content' => [ 'items' => $items ], 'is_active' => 1,
+            ];
+        }
+        break;
         case 'contribute_transparency':
-            $row = getRow('contribute_transparency');
-            if ($row) {
-                $items = getRows('contribute_transparency_items', ['transparency_id' => $row['id']], 'sort_order ASC');
-                return [
-                    'section_key' => $sectionKey, 'section_title' => $row['section_title'] ?? '',
-                    'section_subtitle' => $row['section_subtitle'] ?? '',
-                    'content' => ['items' => $items], 'is_active' => 1,
-                ];
-            }
-            break;
+        $row = getRow( 'contribute_transparency' );
+        if ( $row ) {
+            $items = getRows( 'contribute_transparency_items', [ 'transparency_id' => $row[ 'id' ] ], 'sort_order ASC' );
+            return [
+                'section_key' => $sectionKey, 'section_title' => $row[ 'section_title' ] ?? '',
+                'section_subtitle' => $row[ 'section_subtitle' ] ?? '',
+                'content' => [ 'items' => $items ], 'is_active' => 1,
+            ];
+        }
+        break;
         case 'contribute_why':
-            $row = getRow('contribute_why');
-            if ($row) {
-                $statsRows = getRows('contribute_why_stats', ['why_id' => $row['id']], 'sort_order ASC');
-                $stats = array_map(function($s) { return ['label' => $s['stat_label'], 'value' => $s['stat_value']]; }, $statsRows);
-                return [
-                    'section_key' => $sectionKey, 'section_title' => $row['section_title'] ?? '',
-                    'section_subtitle' => '',
-                    'content' => ['stats' => $stats, 'description' => $row['description']], 'is_active' => 1,
-                ];
+        $row = getRow( 'contribute_why' );
+        if ( $row ) {
+            $statsRows = getRows( 'contribute_why_stats', [ 'why_id' => $row[ 'id' ] ], 'sort_order ASC' );
+            $stats = array_map( function( $s ) {
+                return [ 'label' => $s[ 'stat_label' ], 'value' => $s[ 'stat_value' ] ];
             }
-            break;
+            , $statsRows );
+            return [
+                'section_key' => $sectionKey, 'section_title' => $row[ 'section_title' ] ?? '',
+                'section_subtitle' => '',
+                'content' => [ 'stats' => $stats, 'description' => $row[ 'description' ] ], 'is_active' => 1,
+            ];
+        }
+        break;
     }
     return null;
 }
 
-foreach ($sectionKeys as $key) {
-    $dedicated = loadDedicatedSection($key, $pages[$pageKey]['sections'][$key]);
-    if ($dedicated) {
-        $sections[$key] = $dedicated;
+foreach ( $sectionKeys as $key ) {
+    $dedicated = loadDedicatedSection( $key, $pages[ $pageKey ][ 'sections' ][ $key ] );
+    if ( $dedicated ) {
+        $sections[ $key ] = $dedicated;
     } else {
-        $row = getRow('homepage_sections', ['section_key' => $key]);
+        $row = getRow( 'homepage_sections', [ 'section_key' => $key ] );
         $content = [];
-        if ($row && $row['content']) {
-            $decoded = json_decode($row['content'], true);
-            if (is_array($decoded)) $content = $decoded;
+        if ( $row && $row[ 'content' ] ) {
+            $decoded = json_decode( $row[ 'content' ], true );
+            if ( is_array( $decoded ) ) $content = $decoded;
         }
-        $sections[$key] = [
+        $sections[ $key ] = [
             'section_key' => $key,
-            'section_title' => $row['section_title'] ?? $pages[$pageKey]['sections'][$key],
-            'section_subtitle' => $row['section_subtitle'] ?? '',
+            'section_title' => $row[ 'section_title' ] ?? $pages[ $pageKey ][ 'sections' ][ $key ],
+            'section_subtitle' => $row[ 'section_subtitle' ] ?? '',
             'content' => $content,
-            'is_active' => $row['is_active'] ?? 1,
+            'is_active' => $row[ 'is_active' ] ?? 1,
         ];
     }
 }
@@ -1472,794 +1604,897 @@ include __DIR__ . '/includes/header.php';
 ?>
 
 <style>
-.section-card{background:#fff;border:1px solid #e2e8f0;border-radius:16px;padding:24px;margin-bottom:20px}
-.section-card h3{font-size:14px;font-weight:700;color:#0e1f27;margin-bottom:16px;display:flex;align-items:center;gap:8px}
-.section-card h3 .dot{width:8px;height:8px;border-radius:50%;background:#ca0000;flex-shrink:0}
-.field-group{margin-bottom:14px}
-.field-group label{display:block;font-size:12px;font-weight:600;color:#64748b;margin-bottom:4px;text-transform:uppercase;letter-spacing:.5px}
-.field-group input,.field-group textarea,.field-group select{width:100%;padding:9px 14px;border:1px solid #e2e8f0;border-radius:10px;font-size:13px;outline:none;transition:all .15s}
-.field-group input:focus,.field-group textarea:focus{border-color:#ca0000;box-shadow:0 0 0 3px rgba(202,0,0,.08)}
-.field-group textarea{resize:vertical;min-height:60px}
-.field-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.field-row-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
-.field-row-4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:12px}
-.dynamic-item{background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:12px;margin-bottom:8px;position:relative}
-.dynamic-item .remove-btn{position:absolute;top:8px;right:8px;width:24px;height:24px;border-radius:50%;background:#fee2e2;color:#991b1b;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:11px}
-.dynamic-item .remove-btn:hover{background:#fecaca}
-.add-btn{display:inline-flex;align-items:center;gap:4px;padding:6px 14px;border-radius:8px;background:#f1f5f9;color:#475569;font-size:12px;font-weight:600;border:1px dashed #cbd5e1;cursor:pointer;transition:all .15s}
-.add-btn:hover{background:#e2e8f0;border-color:#94a3b8}
-.img-preview{width:80px;height:60px;object-fit:cover;border-radius:8px;border:1px solid #e2e8f0;margin-top:6px}
-</style>
+.section-card {
+    background:#fff;
+    border:1px solid #e2e8f0;
+    border-radius:16px;
+    padding:24px;
+    margin-bottom:20px}
+    .section-card h3 {
+        font-size:14px;
+        font-weight:700;
+        color:#0e1f27;
+        margin-bottom:16px;
+        display:flex;
+        align-items:center;
+        gap:8px}
+        .section-card h3 .dot {
+            width:8px;
+            height:8px;
+            border-radius:50%;
+            background:#ca0000;
+            flex-shrink:0}
+            .field-group {
+                margin-bottom:14px}
+                .field-group label {
+                    display:block;
+                    font-size:12px;
+                    font-weight:600;
+                    color:#64748b;
+                    margin-bottom:4px;
+                    text-transform:uppercase;
+                    letter-spacing:.5px}
+                    .field-group input, .field-group textarea, .field-group select {
+                        width:100%;
+                        padding:9px 14px;
+                        border:1px solid #e2e8f0;
+                        border-radius:10px;
+                        font-size:13px;
+                        outline:none;
+                        transition:all .15s}
+                        .field-group input:focus, .field-group textarea:focus {
+                            border-color:#ca0000;
+                            box-shadow:0 0 0 3px rgba( 202, 0, 0, .08 )}
+                            .field-group textarea {
+                                resize:vertical;
+                                min-height:60px}
+                                .field-row {
+                                    display:grid;
+                                    grid-template-columns:1fr 1fr;
+                                    gap:12px}
+                                    .field-row-3 {
+                                        display:grid;
+                                        grid-template-columns:1fr 1fr 1fr;
+                                        gap:12px}
+                                        .field-row-4 {
+                                            display:grid;
+                                            grid-template-columns:1fr 1fr 1fr 1fr;
+                                            gap:12px}
+                                            .dynamic-item {
+                                                background:#f8fafc;
+                                                border:1px solid #e2e8f0;
+                                                border-radius:12px;
+                                                padding:12px;
+                                                margin-bottom:8px;
+                                                position:relative}
+                                                .dynamic-item .remove-btn {
+                                                    position:absolute;
+                                                    top:8px;
+                                                    right:8px;
+                                                    width:24px;
+                                                    height:24px;
+                                                    border-radius:50%;
+                                                    background:#fee2e2;
+                                                    color:#991b1b;
+                                                    border:none;
+                                                    cursor:pointer;
+                                                    display:flex;
+                                                    align-items:center;
+                                                    justify-content:center;
+                                                    font-size:11px}
+                                                    .dynamic-item .remove-btn:hover {
+                                                        background:#fecaca}
+                                                        .add-btn {
+                                                            display:inline-flex;
+                                                            align-items:center;
+                                                            gap:4px;
+                                                            padding:6px 14px;
+                                                            border-radius:8px;
+                                                            background:#f1f5f9;
+                                                            color:#475569;
+                                                            font-size:12px;
+                                                            font-weight:600;
+                                                            border:1px dashed #cbd5e1;
+                                                            cursor:pointer;
+                                                            transition:all .15s}
+                                                            .add-btn:hover {
+                                                                background:#e2e8f0;
+                                                                border-color:#94a3b8}
+                                                                .img-preview {
+                                                                    width:80px;
+                                                                    height:60px;
+                                                                    object-fit:cover;
+                                                                    border-radius:8px;
+                                                                    border:1px solid #e2e8f0;
+                                                                    margin-top:6px}
+                                                                    </style>
 
-<div class="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-  <div>
-    <div class="flex items-center gap-2 text-xs text-slate-400 mb-1">
-      <a href="pages.php" class="hover:text-brandRed transition-colors">Pages</a>
-      <i class="fa-solid fa-chevron-right text-[8px]"></i>
-      <span class="text-slate-700 font-medium"><?= $pages[$pageKey]['label'] ?></span>
-    </div>
-    <h1 class="text-2xl font-bold text-slate-900 font-heading"><?= $pages[$pageKey]['label'] ?></h1>
-    <p class="text-slate-500 text-sm mt-1"><?= count($pages[$pageKey]['sections']) ?> sections on this page</p>
-  </div>
-  <div class="flex items-center gap-2">
-    <a href="../index.php" target="_blank" class="inline-flex items-center gap-2 bg-slate-100 text-slate-600 px-4 py-2 rounded-xl text-xs font-semibold hover:bg-slate-200 transition-colors">
-      <i class="fa-solid fa-external-link text-[10px]"></i> View Live
-    </a>
-  </div>
-</div>
+                                                                    <div class = 'mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4'>
+                                                                    <div>
+                                                                    <div class = 'flex items-center gap-2 text-xs text-slate-400 mb-1'>
+                                                                    <a href = 'pages.php' class = 'hover:text-brandRed transition-colors'>Pages</a>
+                                                                    <i class = 'fa-solid fa-chevron-right text-[8px]'></i>
+                                                                    <span class = 'text-slate-700 font-medium'><?= $pages[ $pageKey ][ 'label' ] ?></span>
+                                                                    </div>
+                                                                    <h1 class = 'text-2xl font-bold text-slate-900 font-heading'><?= $pages[ $pageKey ][ 'label' ] ?></h1>
+                                                                    <p class = 'text-slate-500 text-sm mt-1'><?= count( $pages[ $pageKey ][ 'sections' ] ) ?> sections on this page</p>
+                                                                    </div>
+                                                                    <div class = 'flex items-center gap-2'>
+                                                                    <a href = '../index.php' target = '_blank' class = 'inline-flex items-center gap-2 bg-slate-100 text-slate-600 px-4 py-2 rounded-xl text-xs font-semibold hover:bg-slate-200 transition-colors'>
+                                                                    <i class = 'fa-solid fa-external-link text-[10px]'></i> View Live
+                                                                    </a>
+                                                                    </div>
+                                                                    </div>
 
-<?php if ($flash = getFlash()): ?>
-<div class="mb-4 px-4 py-3 rounded-xl text-sm font-medium bg-<?= $flash['type'] === 'success' ? 'green-50 text-green-700 border border-green-200' : 'red-50 text-red-700 border border-red-200' ?>"><?= $flash['message'] ?></div>
-<?php endif; ?>
+                                                                    <?php if ( $flash = getFlash() ): ?>
+                                                                    <div class = "mb-4 px-4 py-3 rounded-xl text-sm font-medium bg-<?= $flash['type'] === 'success' ? 'green-50 text-green-700 border border-green-200' : 'red-50 text-red-700 border border-red-200' ?>"><?= $flash[ 'message' ] ?></div>
+                                                                    <?php endif;
+                                                                    ?>
 
-<!-- Section Forms -->
-<div id="sectionsContainer">
-  <form id="sectionsForm" method="POST">
-    <input type="hidden" name="csrf_token" value="<?= generateCSRF() ?>">
-    <input type="hidden" name="save_sections" value="1">
-    <input type="hidden" name="page_key" value="<?= htmlspecialchars($pageKey) ?>">
-    <input type="hidden" name="sections_json" id="sectionsJson">
+                                                                    <!-- Section Forms -->
+                                                                    <div id = 'sectionsContainer'>
+                                                                    <form id = 'sectionsForm' method = 'POST'>
+                                                                    <input type = 'hidden' name = 'csrf_token' value = '<?= generateCSRF() ?>'>
+                                                                    <input type = 'hidden' name = 'save_sections' value = '1'>
+                                                                    <input type = 'hidden' name = 'page_key' value = "<?= htmlspecialchars($pageKey) ?>">
+                                                                    <input type = 'hidden' name = 'sections_json' id = 'sectionsJson'>
 
-    <?php foreach ($sections as $sKey => $sData): ?>
-    <div class="section-card" data-section="<?= $sKey ?>">
-      <h3><span class="dot"></span> <?= htmlspecialchars($pages[$pageKey]['sections'][$sKey]) ?></h3>
+                                                                    <?php foreach ( $sections as $sKey => $sData ): ?>
+                                                                    <div class = 'section-card' data-section = "<?= $sKey ?>">
+                                                                    <h3><span class = 'dot'></span> <?= htmlspecialchars( $pages[ $pageKey ][ 'sections' ][ $sKey ] ) ?></h3>
 
-      <?php
-      // Render form based on section type
-      $content = $sData['content'];
+                                                                    <?php
+                                                                    // Render form based on section type
+                                                                    $content = $sData[ 'content' ];
 
-      // ===== HERO SECTIONS =====
-      if (preg_match('/_hero$/', $sKey) || $sKey === 'chairman_message'):
-      ?>
-      <div class="field-group">
-        <label>Section Title (page heading)</label>
-        <input type="text" data-field="section_title" value="<?= htmlspecialchars($sData['section_title'] ?? '') ?>" placeholder="About World Relief Committee">
-      </div>
-      <div class="field-group">
-        <label>Section Subtitle</label>
-        <input type="text" data-field="section_subtitle" value="<?= htmlspecialchars($sData['section_subtitle'] ?? '') ?>" placeholder="Section subtitle text">
-      </div>
-      <div class="field-row">
-        <div class="field-group">
-          <label>Hero Image</label>
-          <?php
-            $heroImgId = 'hero_img_' . preg_replace('/[^a-z0-9]/', '_', $sKey);
-          ?>
-          <input type="text" data-field="content.hero_image" id="<?= $heroImgId ?>"
-            value="<?= htmlspecialchars($content['hero_image'] ?? $content['image_path'] ?? '') ?>"
-            placeholder="assets/images/hero/about-hero.jpg"
-            class="upload-path-input">
-          <div class="upload-widget" data-type="image" data-target="<?= $heroImgId ?>" style="margin-top:8px">
-            <div class="upload-zone">
-              <input type="file" accept="image/*">
-              <div class="upload-placeholder">
-                <i class="fa-solid fa-cloud-arrow-up"></i>
-                <p>Click or drag to upload hero image</p>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="field-group">
-          <label>Subtitle</label>
-          <input type="text" data-field="content.subtitle" value="<?= htmlspecialchars($content['subtitle'] ?? $content['hero_alt'] ?? '') ?>" placeholder="Section subtitle">
-        </div>
-      </div>
-      <?php if ($sKey === 'impact_hero'): ?>
-      <!-- Impact Hero: Heading (H1) -->
-      <div class="field-group">
-        <label>Heading (H1) — use &lt;br&gt; for line break</label>
-        <input type="text" data-field="content.heading" value="<?= htmlspecialchars($content['heading'] ?? '') ?>" placeholder="Measuring What Matters,<br>Changing What Counts.">
-      </div>
-      <!-- Impact Hero: Description -->
-      <div class="field-group">
-        <label>Description</label>
-        <textarea data-field="content.description" rows="3"><?= htmlspecialchars($content['description'] ?? '') ?></textarea>
-      </div>
-      <!-- Impact Hero: CTA Buttons -->
-      <div class="field-row">
-        <div class="field-group">
-          <label>CTA Primary (button text)</label>
-          <input type="text" data-field="content.cta_primary" value="<?= htmlspecialchars($content['cta_primary'] ?? '') ?>" placeholder="View Impact Dashboard">
-        </div>
-        <div class="field-group">
-          <label>CTA Secondary (button text)</label>
-          <input type="text" data-field="content.cta_secondary" value="<?= htmlspecialchars($content['cta_secondary'] ?? '') ?>" placeholder="SDG Contributions">
-        </div>
-      </div>
-      <?php elseif ($sKey === 'where_we_work_hero'): ?>
-      <!-- Where We Work Hero: Subtitle (description paragraph) -->
-      <div class="field-group">
-        <label>Subtitle (hero description paragraph)</label>
-        <textarea data-field="content.subtitle" rows="3"><?= htmlspecialchars($content['subtitle'] ?? '') ?></textarea>
-      </div>
-      <!-- Where We Work Hero: CTA Buttons -->
-      <div class="field-row">
-        <div class="field-group">
-          <label>CTA Primary (button text)</label>
-          <input type="text" data-field="content.cta_primary" value="<?= htmlspecialchars($content['cta_primary'] ?? '') ?>" placeholder="Explore Our Map">
-        </div>
-        <div class="field-group">
-          <label>CTA Secondary (button text)</label>
-          <input type="text" data-field="content.cta_secondary" value="<?= htmlspecialchars($content['cta_secondary'] ?? '') ?>" placeholder="District Coverage">
-        </div>
-      </div>
-      <?php elseif ($sKey === 'chairman_message'): ?>
-      <!-- Hero Image with Upload -->
-      <div class="form-group">
-        <label style="display:block;font-weight:600;color:#334155;font-size:0.875rem;margin-bottom:0.375rem">Hero Image</label>
-        <input type="text" data-field="content.image_path" id="chairman_image_path"
-          value="<?= htmlspecialchars($content['image_path'] ?? $content['hero_image'] ?? '') ?>"
-          class="w-full px-4 py-2.5 rounded-xl border border-slate-300 bg-slate-50 text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-brandRed/30 focus:border-brandRed transition-all upload-path-input"
-          placeholder="Path or upload an image">
-        <div class="upload-widget" data-type="image" data-target="chairman_image_path">
-          <div class="upload-zone">
-            <input type="file" accept="image/*">
-            <div class="upload-placeholder">
-              <i class="fa-solid fa-cloud-arrow-up"></i>
-              <p>Click or drag to upload image</p>
-            </div>
-          </div>
-        </div>
-      </div>
-      <!-- Overlay Title -->
-      <div class="field-group">
-        <label>Overlay Title (on image)</label>
-        <input type="text" data-field="content.overlay_title" value="<?= htmlspecialchars($content['overlay_title'] ?? '') ?>" placeholder="Leading with compassion, transparency, and bold action.">
-      </div>
-      <!-- Note Label -->
-      <div class="field-group">
-        <label>Note Label (eyebrow text)</label>
-        <input type="text" data-field="content.note_label" value="<?= htmlspecialchars($content['note_label'] ?? '') ?>" placeholder="Chairman's Note">
-      </div>
-      <!-- Paragraph 1 -->
-      <div class="field-group">
-        <label>Paragraph 1</label>
-        <textarea data-field="content.paragraph1" rows="3" placeholder="First paragraph of the chairman's message..."><?= htmlspecialchars($content['paragraph1'] ?? '') ?></textarea>
-      </div>
-      <!-- Paragraph 2 -->
-      <div class="field-group">
-        <label>Paragraph 2</label>
-        <textarea data-field="content.paragraph2" rows="3" placeholder="Second paragraph of the chairman's message..."><?= htmlspecialchars($content['paragraph2'] ?? '') ?></textarea>
-      </div>
-      <!-- Person Name + Title -->
-      <div class="field-row">
-        <div class="field-group">
-          <label>Person Name</label>
-          <input type="text" data-field="content.person_name" value="<?= htmlspecialchars($content['person_name'] ?? '') ?>" placeholder="Chairman name">
-        </div>
-        <div class="field-group">
-          <label>Person Title</label>
-          <input type="text" data-field="content.person_title" value="<?= htmlspecialchars($content['person_title'] ?? '') ?>" placeholder="Chairman title / position">
-        </div>
-      </div>
-      <!-- Vision Label + Text -->
-      <div class="field-row">
-        <div class="field-group">
-          <label>Vision Label</label>
-          <input type="text" data-field="content.vision_label" value="<?= htmlspecialchars($content['vision_label'] ?? '') ?>" placeholder="Vision">
-        </div>
-        <div class="field-group">
-          <label>Vision Text</label>
-          <input type="text" data-field="content.vision_text" value="<?= htmlspecialchars($content['vision_text'] ?? '') ?>" placeholder="Short vision statement">
-        </div>
-      </div>
-      <?php else: ?>
-      <div class="field-row-4">
-        <div class="field-group">
-          <label>Button 1 Text</label>
-          <input type="text" data-field="content.button1_text" value="<?= htmlspecialchars($content['button1_text'] ?? '') ?>">
-        </div>
-        <div class="field-group">
-          <label>Button 1 Link</label>
-          <input type="text" data-field="content.button1_link" value="<?= htmlspecialchars($content['button1_link'] ?? '') ?>">
-        </div>
-        <div class="field-group">
-          <label>Button 2 Text</label>
-          <input type="text" data-field="content.button2_text" value="<?= htmlspecialchars($content['button2_text'] ?? '') ?>">
-        </div>
-        <div class="field-group">
-          <label>Button 2 Link</label>
-          <input type="text" data-field="content.button2_link" value="<?= htmlspecialchars($content['button2_link'] ?? '') ?>">
-        </div>
-      </div>
-      <?php endif; ?>
+                                                                    // ===  == HERO SECTIONS ===  ==
+                                                                    if ( preg_match( '/_hero$/', $sKey ) || $sKey === 'chairman_message' ):
+                                                                    ?>
+                                                                    <div class = 'field-group'>
+                                                                    <label>Section Title ( page heading )</label>
+                                                                    <input type = 'text' data-field = 'section_title' value = "<?= htmlspecialchars($sData['section_title'] ?? '') ?>" placeholder = 'About World Relief Committee'>
+                                                                    </div>
+                                                                    <div class = 'field-group'>
+                                                                    <label>Section Subtitle</label>
+                                                                    <input type = 'text' data-field = 'section_subtitle' value = "<?= htmlspecialchars($sData['section_subtitle'] ?? '') ?>" placeholder = 'Section subtitle text'>
+                                                                    </div>
+                                                                    <div class = 'field-row'>
+                                                                    <div class = 'field-group'>
+                                                                    <label>Hero Image</label>
+                                                                    <?php
+                                                                    $heroImgId = 'hero_img_' . preg_replace( '/[^a-z0-9]/', '_', $sKey );
+                                                                    ?>
+                                                                    <input type = 'text' data-field = 'content.hero_image' id = "<?= $heroImgId ?>"
+                                                                    value = "<?= htmlspecialchars($content['hero_image'] ?? $content['image_path'] ?? '') ?>"
+                                                                    placeholder = 'assets/images/hero/about-hero.jpg'
 
-      <?php
-      // ===== CTA SECTIONS =====
-      elseif (preg_match('/_cta$/', $sKey) || $sKey === 'cta_banner'):
-      ?>
-      <div class="field-group">
-        <label>Section Title</label>
-        <input type="text" data-field="section_title" value="<?= htmlspecialchars($sData['section_title'] ?? '') ?>" placeholder="CTA heading text">
-      </div>
-      <div class="field-group">
-        <label>Description</label>
-        <textarea data-field="content.description" rows="2"><?= htmlspecialchars($content['description'] ?? '') ?></textarea>
-      </div>
-      <div class="field-row">
-        <div class="field-group">
-          <label>Button 1 Text</label>
-          <input type="text" data-field="content.button1_text" value="<?= htmlspecialchars($content['button1_text'] ?? '') ?>">
-        </div>
-        <div class="field-group">
-          <label>Button 1 Link</label>
-          <input type="text" data-field="content.button1_link" value="<?= htmlspecialchars($content['button1_link'] ?? '') ?>">
-        </div>
-      </div>
-      <div class="field-row">
-        <div class="field-group">
-          <label>Button 2 Text</label>
-          <input type="text" data-field="content.button2_text" value="<?= htmlspecialchars($content['button2_text'] ?? '') ?>">
-        </div>
-        <div class="field-group">
-          <label>Button 2 Link</label>
-          <input type="text" data-field="content.button2_link" value="<?= htmlspecialchars($content['button2_link'] ?? '') ?>">
-        </div>
-      </div>
+                                                                    class = 'upload-path-input'>
+                                                                    <div class = 'upload-widget' data-type = 'image' data-target = "<?= $heroImgId ?>" data-base-url = "<?= htmlspecialchars(siteBaseUrl(), ENT_QUOTES, 'UTF-8') ?>" style = 'margin-top:8px'>
+                                                                    <div class = 'upload-zone'>
+                                                                    <input type = 'file' accept = 'image/*'>
+                                                                    <div class = 'upload-placeholder'>
+                                                                    <i class = 'fa-solid fa-cloud-arrow-up'></i>
+                                                                    <p>Click or drag to upload hero image</p>
+                                                                    </div>
+                                                                    </div>
+                                                                    </div>
+                                                                    </div>
+                                                                    <div class = 'field-group'>
+                                                                    <label>Subtitle</label>
+                                                                    <input type = 'text' data-field = 'content.subtitle' value = "<?= htmlspecialchars($content['subtitle'] ?? $content['hero_alt'] ?? '') ?>" placeholder = 'Section subtitle'>
+                                                                    </div>
+                                                                    </div>
+                                                                    <?php if ( $sKey === 'impact_hero' ): ?>
+                                                                    <!-- Impact Hero: Heading ( H1 ) -->
+                                                                    <div class = 'field-group'>
+                                                                    <label>Heading ( H1 ) — use &lt;
+                                                                    br&gt;
+                                                                    for line break</label>
+                                                                    <input type = 'text' data-field = 'content.heading' value = "<?= htmlspecialchars($content['heading'] ?? '') ?>" placeholder = 'Measuring What Matters,<br>Changing What Counts.'>
+                                                                    </div>
+                                                                    <!-- Impact Hero: Description -->
+                                                                    <div class = 'field-group'>
+                                                                    <label>Description</label>
+                                                                    <textarea data-field = 'content.description' rows = '3'><?= htmlspecialchars( $content[ 'description' ] ?? '' ) ?></textarea>
+                                                                    </div>
+                                                                    <!-- Impact Hero: CTA Buttons -->
+                                                                    <div class = 'field-row'>
+                                                                    <div class = 'field-group'>
+                                                                    <label>CTA Primary ( button text )</label>
+                                                                    <input type = 'text' data-field = 'content.cta_primary' value = "<?= htmlspecialchars($content['cta_primary'] ?? '') ?>" placeholder = 'View Impact Dashboard'>
+                                                                    </div>
+                                                                    <div class = 'field-group'>
+                                                                    <label>CTA Secondary ( button text )</label>
+                                                                    <input type = 'text' data-field = 'content.cta_secondary' value = "<?= htmlspecialchars($content['cta_secondary'] ?? '') ?>" placeholder = 'SDG Contributions'>
+                                                                    </div>
+                                                                    </div>
+                                                                    <?php elseif ( $sKey === 'where_we_work_hero' ): ?>
+                                                                    <!-- Where We Work Hero: Subtitle ( description paragraph ) -->
+                                                                    <div class = 'field-group'>
+                                                                    <label>Subtitle ( hero description paragraph )</label>
+                                                                    <textarea data-field = 'content.subtitle' rows = '3'><?= htmlspecialchars( $content[ 'subtitle' ] ?? '' ) ?></textarea>
+                                                                    </div>
+                                                                    <!-- Where We Work Hero: CTA Buttons -->
+                                                                    <div class = 'field-row'>
+                                                                    <div class = 'field-group'>
+                                                                    <label>CTA Primary ( button text )</label>
+                                                                    <input type = 'text' data-field = 'content.cta_primary' value = "<?= htmlspecialchars($content['cta_primary'] ?? '') ?>" placeholder = 'Explore Our Map'>
+                                                                    </div>
+                                                                    <div class = 'field-group'>
+                                                                    <label>CTA Secondary ( button text )</label>
+                                                                    <input type = 'text' data-field = 'content.cta_secondary' value = "<?= htmlspecialchars($content['cta_secondary'] ?? '') ?>" placeholder = 'District Coverage'>
+                                                                    </div>
+                                                                    </div>
+                                                                    <?php elseif ( $sKey === 'chairman_message' ): ?>
+                                                                    <!-- Hero Image with Upload -->
+                                                                    <div class = 'form-group'>
+                                                                    <label style = 'display:block;font-weight:600;color:#334155;font-size:0.875rem;margin-bottom:0.375rem'>Hero Image</label>
+                                                                    <input type = 'text' data-field = 'content.image_path' id = 'chairman_image_path'
+                                                                    value = "<?= htmlspecialchars($content['image_path'] ?? $content['hero_image'] ?? '') ?>"
 
-      <?php
-      // ===== EDITORIAL SECTION =====
-      elseif ($sKey === 'our_work_editorial'):
-      ?>
-      <div class="field-row">
-        <div class="field-group">
-          <label>Image</label>
-          <input type="text" data-field="content.image" value="<?= htmlspecialchars($content['image'] ?? '') ?>" placeholder="assets/images/...">
-        </div>
-        <div class="field-group">
-          <label>Label</label>
-          <input type="text" data-field="content.label" value="<?= htmlspecialchars($content['label'] ?? '') ?>">
-        </div>
-      </div>
-      <div class="field-group">
-        <label>Description</label>
-        <textarea data-field="content.description" rows="3"><?= htmlspecialchars($content['description'] ?? '') ?></textarea>
-      </div>
-      <div class="field-group">
-        <label>Features</label>
-        <div id="featuresList_<?= $sKey ?>" class="space-y-2"></div>
-        <button type="button" class="add-btn" onclick="addFeature_<?= $sKey ?>()"><i class="fa-solid fa-plus text-xs"></i> Add Feature</button>
-      </div>
+                                                                    class = 'w-full px-4 py-2.5 rounded-xl border border-slate-300 bg-slate-50 text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-brandRed/30 focus:border-brandRed transition-all upload-path-input'
+                                                                    placeholder = 'Path or upload an image'>
+                                                                    <div class = 'upload-widget' data-type = 'image' data-target = 'chairman_image_path' data-base-url = "<?= htmlspecialchars(siteBaseUrl(), ENT_QUOTES, 'UTF-8') ?>">
+                                                                    <div class = 'upload-zone'>
+                                                                    <input type = 'file' accept = 'image/*'>
+                                                                    <div class = 'upload-placeholder'>
+                                                                    <i class = 'fa-solid fa-cloud-arrow-up'></i>
+                                                                    <p>Click or drag to upload image</p>
+                                                                    </div>
+                                                                    </div>
+                                                                    </div>
+                                                                    </div>
+                                                                    <!-- Overlay Title -->
+                                                                    <div class = 'field-group'>
+                                                                    <label>Overlay Title ( on image )</label>
+                                                                    <input type = 'text' data-field = 'content.overlay_title' value = "<?= htmlspecialchars($content['overlay_title'] ?? '') ?>" placeholder = 'Leading with compassion, transparency, and bold action.'>
+                                                                    </div>
+                                                                    <!-- Note Label -->
+                                                                    <div class = 'field-group'>
+                                                                    <label>Note Label ( eyebrow text )</label>
+                                                                    <input type = 'text' data-field = 'content.note_label' value = "<?= htmlspecialchars($content['note_label'] ?? '') ?>" placeholder = "Chairman's Note">
+                                                                    </div>
+                                                                    <!-- Paragraph 1 -->
+                                                                    <div class = 'field-group'>
+                                                                    <label>Paragraph 1</label>
+                                                                    <textarea data-field = 'content.paragraph1' rows = '3' placeholder = "First paragraph of the chairman's message..."><?= htmlspecialchars( $content[ 'paragraph1' ] ?? '' ) ?></textarea>
+                                                                    </div>
+                                                                    <!-- Paragraph 2 -->
+                                                                    <div class = 'field-group'>
+                                                                    <label>Paragraph 2</label>
+                                                                    <textarea data-field = 'content.paragraph2' rows = '3' placeholder = "Second paragraph of the chairman's message..."><?= htmlspecialchars( $content[ 'paragraph2' ] ?? '' ) ?></textarea>
+                                                                    </div>
+                                                                    <!-- Person Name + Title -->
+                                                                    <div class = 'field-row'>
+                                                                    <div class = 'field-group'>
+                                                                    <label>Person Name</label>
+                                                                    <input type = 'text' data-field = 'content.person_name' value = "<?= htmlspecialchars($content['person_name'] ?? '') ?>" placeholder = 'Chairman name'>
+                                                                    </div>
+                                                                    <div class = 'field-group'>
+                                                                    <label>Person Title</label>
+                                                                    <input type = 'text' data-field = 'content.person_title' value = "<?= htmlspecialchars($content['person_title'] ?? '') ?>" placeholder = 'Chairman title / position'>
+                                                                    </div>
+                                                                    </div>
+                                                                    <!-- Vision Label + Text -->
+                                                                    <div class = 'field-row'>
+                                                                    <div class = 'field-group'>
+                                                                    <label>Vision Label</label>
+                                                                    <input type = 'text' data-field = 'content.vision_label' value = "<?= htmlspecialchars($content['vision_label'] ?? '') ?>" placeholder = 'Vision'>
+                                                                    </div>
+                                                                    <div class = 'field-group'>
+                                                                    <label>Vision Text</label>
+                                                                    <input type = 'text' data-field = 'content.vision_text' value = "<?= htmlspecialchars($content['vision_text'] ?? '') ?>" placeholder = 'Short vision statement'>
+                                                                    </div>
+                                                                    </div>
+                                                                    <?php else: ?>
+                                                                    <div class = 'field-row-4'>
+                                                                    <div class = 'field-group'>
+                                                                    <label>Button 1 Text</label>
+                                                                    <input type = 'text' data-field = 'content.button1_text' value = "<?= htmlspecialchars($content['button1_text'] ?? '') ?>">
+                                                                    </div>
+                                                                    <div class = 'field-group'>
+                                                                    <label>Button 1 Link</label>
+                                                                    <input type = 'text' data-field = 'content.button1_link' value = "<?= htmlspecialchars($content['button1_link'] ?? '') ?>">
+                                                                    </div>
+                                                                    <div class = 'field-group'>
+                                                                    <label>Button 2 Text</label>
+                                                                    <input type = 'text' data-field = 'content.button2_text' value = "<?= htmlspecialchars($content['button2_text'] ?? '') ?>">
+                                                                    </div>
+                                                                    <div class = 'field-group'>
+                                                                    <label>Button 2 Link</label>
+                                                                    <input type = 'text' data-field = 'content.button2_link' value = "<?= htmlspecialchars($content['button2_link'] ?? '') ?>">
+                                                                    </div>
+                                                                    </div>
+                                                                    <?php endif;
+                                                                    ?>
 
-      <?php
-      // ===== PROCESS / STEPS SECTIONS =====
-      elseif ($sKey === 'our_work_process' || $sKey === 'program_implementation'):
-      ?>
-      <div class="field-group">
-        <label>Subtitle</label>
-        <input type="text" data-field="content.subtitle" value="<?= htmlspecialchars($content['subtitle'] ?? '') ?>">
-      </div>
-      <div class="field-group">
-        <label>Steps</label>
-        <div id="stepsList_<?= $sKey ?>" class="space-y-2"></div>
-        <button type="button" class="add-btn" onclick="addStep_<?= $sKey ?>()"><i class="fa-solid fa-plus text-xs"></i> Add Step</button>
-      </div>
+                                                                    <?php
+                                                                    // ===  == CTA SECTIONS ===  ==
+                                                                    elseif ( preg_match( '/_cta$/', $sKey ) || $sKey === 'cta_banner' ):
+                                                                    ?>
+                                                                    <div class = 'field-group'>
+                                                                    <label>Section Title</label>
+                                                                    <input type = 'text' data-field = 'section_title' value = "<?= htmlspecialchars($sData['section_title'] ?? '') ?>" placeholder = 'CTA heading text'>
+                                                                    </div>
+                                                                    <div class = 'field-group'>
+                                                                    <label>Description</label>
+                                                                    <textarea data-field = 'content.description' rows = '2'><?= htmlspecialchars( $content[ 'description' ] ?? '' ) ?></textarea>
+                                                                    </div>
+                                                                    <div class = 'field-row'>
+                                                                    <div class = 'field-group'>
+                                                                    <label>Button 1 Text</label>
+                                                                    <input type = 'text' data-field = 'content.button1_text' value = "<?= htmlspecialchars($content['button1_text'] ?? '') ?>">
+                                                                    </div>
+                                                                    <div class = 'field-group'>
+                                                                    <label>Button 1 Link</label>
+                                                                    <input type = 'text' data-field = 'content.button1_link' value = "<?= htmlspecialchars($content['button1_link'] ?? '') ?>">
+                                                                    </div>
+                                                                    </div>
+                                                                    <div class = 'field-row'>
+                                                                    <div class = 'field-group'>
+                                                                    <label>Button 2 Text</label>
+                                                                    <input type = 'text' data-field = 'content.button2_text' value = "<?= htmlspecialchars($content['button2_text'] ?? '') ?>">
+                                                                    </div>
+                                                                    <div class = 'field-group'>
+                                                                    <label>Button 2 Link</label>
+                                                                    <input type = 'text' data-field = 'content.button2_link' value = "<?= htmlspecialchars($content['button2_link'] ?? '') ?>">
+                                                                    </div>
+                                                                    </div>
 
-      <?php
-      // ===== PILLARS / ITEMS GRID SECTIONS =====
-      elseif (in_array($sKey, ['our_work_pillars','about_mission','about_governance','who_we_are_impact','why_we_exist','contribute_impact','contribute_transparency'])):
-      ?>
-      <div class="field-group">
-        <label>Section Title</label>
-        <input type="text" data-field="section_title" value="<?= htmlspecialchars($sData['section_title'] ?? '') ?>" placeholder="Section heading">
-      </div>
-      <div class="field-group">
-        <label>Section Subtitle</label>
-        <input type="text" data-field="section_subtitle" value="<?= htmlspecialchars($sData['section_subtitle'] ?? '') ?>" placeholder="Section subtitle">
-      </div>
-      <?php if ($sKey === 'our_work_pillars'): ?>
-      <div class="field-group">
-        <label>Subtitle (below heading)</label>
-        <input type="text" data-field="content.subtitle" value="<?= htmlspecialchars($content['subtitle'] ?? '') ?>">
-      </div>
-      <?php endif; ?>
-      <div class="field-group">
-        <label>Items</label>
-        <div id="itemsList_<?= $sKey ?>" class="space-y-2"></div>
-        <button type="button" class="add-btn" onclick="addItem_<?= $sKey ?>()"><i class="fa-solid fa-plus text-xs"></i> Add Item</button>
-      </div>
+                                                                    <?php
+                                                                    // ===  == EDITORIAL SECTION ===  ==
+                                                                    elseif ( $sKey === 'our_work_editorial' ):
+                                                                    ?>
+                                                                    <div class = 'field-row'>
+                                                                    <div class = 'field-group'>
+                                                                    <label>Image</label>
+                                                                    <input type = 'text' data-field = 'content.image' value = "<?= htmlspecialchars($content['image'] ?? '') ?>" placeholder = 'assets/images/...'>
+                                                                    </div>
+                                                                    <div class = 'field-group'>
+                                                                    <label>Label</label>
+                                                                    <input type = 'text' data-field = 'content.label' value = "<?= htmlspecialchars($content['label'] ?? '') ?>">
+                                                                    </div>
+                                                                    </div>
+                                                                    <div class = 'field-group'>
+                                                                    <label>Description</label>
+                                                                    <textarea data-field = 'content.description' rows = '3'><?= htmlspecialchars( $content[ 'description' ] ?? '' ) ?></textarea>
+                                                                    </div>
+                                                                    <div class = 'field-group'>
+                                                                    <label>Features</label>
+                                                                    <div id = "featuresList_<?= $sKey ?>" class = 'space-y-2'></div>
+                                                                    <button type = 'button' class = 'add-btn' onclick = "addFeature_<?= $sKey ?>()"><i class = 'fa-solid fa-plus text-xs'></i> Add Feature</button>
+                                                                    </div>
 
-      <?php
-      // ===== IMPACT CONTENT (complex: stats + M&E steps + SDGs + case studies) =====
-      elseif ($sKey === 'impact_content'):
-      ?>
-      <div class="field-group">
-        <label>Section Title</label>
-        <input type="text" data-field="section_title" value="<?= htmlspecialchars($sData['section_title'] ?? '') ?>" placeholder="Impact Dashboard">
-      </div>
+                                                                    <?php
+                                                                    // ===  == PROCESS / STEPS SECTIONS ===  ==
+                                                                    elseif ( $sKey === 'our_work_process' || $sKey === 'program_implementation' ):
+                                                                    ?>
+                                                                    <div class = 'field-group'>
+                                                                    <label>Subtitle</label>
+                                                                    <input type = 'text' data-field = 'content.subtitle' value = "<?= htmlspecialchars($content['subtitle'] ?? '') ?>">
+                                                                    </div>
+                                                                    <div class = 'field-group'>
+                                                                    <label>Steps</label>
+                                                                    <div id = "stepsList_<?= $sKey ?>" class = 'space-y-2'></div>
+                                                                    <button type = 'button' class = 'add-btn' onclick = "addStep_<?= $sKey ?>()"><i class = 'fa-solid fa-plus text-xs'></i> Add Step</button>
+                                                                    </div>
 
-      <!-- Impact Stats -->
-      <div style="margin-top:1rem;padding:1rem;background:#f8fafc;border-radius:0.75rem;border:1px solid #e2e8f0;">
-        <p style="font-size:0.75rem;font-weight:700;color:#ca0000;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.75rem;">Impact Metrics (Counter Dashboard)</p>
-        <div id="statsList_impact_content" class="space-y-2"></div>
-        <button type="button" class="add-btn" onclick="addStat_impact_content()"><i class="fa-solid fa-plus text-xs"></i> Add Stat</button>
-      </div>
+                                                                    <?php
+                                                                    // ===  == PILLARS / ITEMS GRID SECTIONS ===  ==
+                                                                    elseif ( in_array( $sKey, [ 'our_work_pillars', 'about_mission', 'about_governance', 'who_we_are_impact', 'why_we_exist', 'contribute_impact', 'contribute_transparency' ] ) ):
+                                                                    ?>
+                                                                    <div class = 'field-group'>
+                                                                    <label>Section Title</label>
+                                                                    <input type = 'text' data-field = 'section_title' value = "<?= htmlspecialchars($sData['section_title'] ?? '') ?>" placeholder = 'Section heading'>
+                                                                    </div>
+                                                                    <div class = 'field-group'>
+                                                                    <label>Section Subtitle</label>
+                                                                    <input type = 'text' data-field = 'section_subtitle' value = "<?= htmlspecialchars($sData['section_subtitle'] ?? '') ?>" placeholder = 'Section subtitle'>
+                                                                    </div>
+                                                                    <?php if ( $sKey === 'our_work_pillars' ): ?>
+                                                                    <div class = 'field-group'>
+                                                                    <label>Subtitle ( below heading )</label>
+                                                                    <input type = 'text' data-field = 'content.subtitle' value = "<?= htmlspecialchars($content['subtitle'] ?? '') ?>">
+                                                                    </div>
+                                                                    <?php endif;
+                                                                    ?>
+                                                                    <div class = 'field-group'>
+                                                                    <label>Items</label>
+                                                                    <div id = "itemsList_<?= $sKey ?>" class = 'space-y-2'></div>
+                                                                    <button type = 'button' class = 'add-btn' onclick = "addItem_<?= $sKey ?>()"><i class = 'fa-solid fa-plus text-xs'></i> Add Item</button>
+                                                                    </div>
 
-      <!-- M&E Steps -->
-      <div style="margin-top:1rem;padding:1rem;background:#f8fafc;border-radius:0.75rem;border:1px solid #e2e8f0;">
-        <p style="font-size:0.75rem;font-weight:700;color:#ca0000;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.75rem;">Monitoring &amp; Evaluation Framework Steps</p>
-        <div id="mneStepsList_impact_content" class="space-y-2"></div>
-        <button type="button" class="add-btn" onclick="addMneStep_impact_content()"><i class="fa-solid fa-plus text-xs"></i> Add M&E Step</button>
-      </div>
+                                                                    <?php
+                                                                    // ===  == IMPACT CONTENT ( complex: stats + M&E steps + SDGs + case studies ) ===  ==
+                                                                    elseif ( $sKey === 'impact_content' ):
+                                                                    ?>
+                                                                    <div class = 'field-group'>
+                                                                    <label>Section Title</label>
+                                                                    <input type = 'text' data-field = 'section_title' value = "<?= htmlspecialchars($sData['section_title'] ?? '') ?>" placeholder = 'Impact Dashboard'>
+                                                                    </div>
 
-      <!-- SDGs -->
-      <div style="margin-top:1rem;padding:1rem;background:#f8fafc;border-radius:0.75rem;border:1px solid #e2e8f0;">
-        <p style="font-size:0.75rem;font-weight:700;color:#ca0000;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.75rem;">SDG Contributions</p>
-        <div id="sdgsList_impact_content" class="space-y-2"></div>
-        <button type="button" class="add-btn" onclick="addSdg_impact_content()"><i class="fa-solid fa-plus text-xs"></i> Add SDG</button>
-      </div>
+                                                                    <!-- Impact Stats -->
+                                                                    <div style = 'margin-top:1rem;padding:1rem;background:#f8fafc;border-radius:0.75rem;border:1px solid #e2e8f0;'>
+                                                                    <p style = 'font-size:0.75rem;font-weight:700;color:#ca0000;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.75rem;'>Impact Metrics ( Counter Dashboard )</p>
+                                                                    <div id = 'statsList_impact_content' class = 'space-y-2'></div>
+                                                                    <button type = 'button' class = 'add-btn' onclick = 'addStat_impact_content()'><i class = 'fa-solid fa-plus text-xs'></i> Add Stat</button>
+                                                                    </div>
 
-      <!-- Case Studies -->
-      <div style="margin-top:1rem;padding:1rem;background:#f8fafc;border-radius:0.75rem;border:1px solid #e2e8f0;">
-        <p style="font-size:0.75rem;font-weight:700;color:#ca0000;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.75rem;">Case Studies</p>
-        <div id="caseStudiesList_impact_content" class="space-y-2"></div>
-        <button type="button" class="add-btn" onclick="addCaseStudy_impact_content()"><i class="fa-solid fa-plus text-xs"></i> Add Case Study</button>
-      </div>
+                                                                    <!-- M&E Steps -->
+                                                                    <div style = 'margin-top:1rem;padding:1rem;background:#f8fafc;border-radius:0.75rem;border:1px solid #e2e8f0;'>
+                                                                    <p style = 'font-size:0.75rem;font-weight:700;color:#ca0000;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.75rem;'>Monitoring &amp;
+                                                                    Evaluation Framework Steps</p>
+                                                                    <div id = 'mneStepsList_impact_content' class = 'space-y-2'></div>
+                                                                    <button type = 'button' class = 'add-btn' onclick = 'addMneStep_impact_content()'><i class = 'fa-solid fa-plus text-xs'></i> Add M&E Step</button>
+                                                                    </div>
 
-      <?php
-      // ===== WHERE WE WORK CONTENT (complex: stats + provinces + quick links) =====
-      elseif ($sKey === 'where_we_work_content'):
-      ?>
-      <div class="field-group">
-        <label>Section Title (map heading)</label>
-        <input type="text" data-field="section_title" value="<?= htmlspecialchars($sData['section_title'] ?? '') ?>" placeholder="Pakistan Operations Map">
-      </div>
-      <div class="field-group">
-        <label>Section Subtitle (map description)</label>
-        <textarea data-field="section_subtitle" rows="2"><?= htmlspecialchars($sData['section_subtitle'] ?? '') ?></textarea>
-      </div>
+                                                                    <!-- SDGs -->
+                                                                    <div style = 'margin-top:1rem;padding:1rem;background:#f8fafc;border-radius:0.75rem;border:1px solid #e2e8f0;'>
+                                                                    <p style = 'font-size:0.75rem;font-weight:700;color:#ca0000;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.75rem;'>SDG Contributions</p>
+                                                                    <div id = 'sdgsList_impact_content' class = 'space-y-2'></div>
+                                                                    <button type = 'button' class = 'add-btn' onclick = 'addSdg_impact_content()'><i class = 'fa-solid fa-plus text-xs'></i> Add SDG</button>
+                                                                    </div>
 
-      <!-- Stats Bar -->
-      <div style="margin-top:1rem;padding:1rem;background:#f8fafc;border-radius:0.75rem;border:1px solid #e2e8f0;">
-        <p style="font-size:0.75rem;font-weight:700;color:#ca0000;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.75rem;">Stats Overview Bar</p>
-        <div id="statsList_where_we_work_content" class="space-y-2"></div>
-        <button type="button" class="add-btn" onclick="addStat_where_we_work_content()"><i class="fa-solid fa-plus text-xs"></i> Add Stat</button>
-      </div>
+                                                                    <!-- Case Studies -->
+                                                                    <div style = 'margin-top:1rem;padding:1rem;background:#f8fafc;border-radius:0.75rem;border:1px solid #e2e8f0;'>
+                                                                    <p style = 'font-size:0.75rem;font-weight:700;color:#ca0000;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.75rem;'>Case Studies</p>
+                                                                    <div id = 'caseStudiesList_impact_content' class = 'space-y-2'></div>
+                                                                    <button type = 'button' class = 'add-btn' onclick = 'addCaseStudy_impact_content()'><i class = 'fa-solid fa-plus text-xs'></i> Add Case Study</button>
+                                                                    </div>
 
-      <!-- Provinces (with nested focus_areas + districts) -->
-      <div style="margin-top:1rem;padding:1rem;background:#f8fafc;border-radius:0.75rem;border:1px solid #e2e8f0;">
-        <p style="font-size:0.75rem;font-weight:700;color:#ca0000;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.75rem;">Province Sections</p>
-        <div id="provincesList_where_we_work_content" class="space-y-3"></div>
-        <button type="button" class="add-btn" onclick="addProvince_where_we_work_content()"><i class="fa-solid fa-plus text-xs"></i> Add Province</button>
-      </div>
+                                                                    <?php
+                                                                    // ===  == WHERE WE WORK CONTENT ( complex: stats + provinces + quick links ) ===  ==
+                                                                    elseif ( $sKey === 'where_we_work_content' ):
+                                                                    ?>
+                                                                    <div class = 'field-group'>
+                                                                    <label>Section Title ( map heading )</label>
+                                                                    <input type = 'text' data-field = 'section_title' value = "<?= htmlspecialchars($sData['section_title'] ?? '') ?>" placeholder = 'Pakistan Operations Map'>
+                                                                    </div>
+                                                                    <div class = 'field-group'>
+                                                                    <label>Section Subtitle ( map description )</label>
+                                                                    <textarea data-field = 'section_subtitle' rows = '2'><?= htmlspecialchars( $sData[ 'section_subtitle' ] ?? '' ) ?></textarea>
+                                                                    </div>
 
-      <!-- Quick Navigation Links -->
-      <div style="margin-top:1rem;padding:1rem;background:#f8fafc;border-radius:0.75rem;border:1px solid #e2e8f0;">
-        <p style="font-size:0.75rem;font-weight:700;color:#ca0000;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.75rem;">Quick Navigation Links (sidebar)</p>
-        <div id="quickLinksList_where_we_work_content" class="space-y-2"></div>
-        <button type="button" class="add-btn" onclick="addQuickLink_where_we_work_content()"><i class="fa-solid fa-plus text-xs"></i> Add Quick Link</button>
-      </div>
+                                                                    <!-- Stats Bar -->
+                                                                    <div style = 'margin-top:1rem;padding:1rem;background:#f8fafc;border-radius:0.75rem;border:1px solid #e2e8f0;'>
+                                                                    <p style = 'font-size:0.75rem;font-weight:700;color:#ca0000;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.75rem;'>Stats Overview Bar</p>
+                                                                    <div id = 'statsList_where_we_work_content' class = 'space-y-2'></div>
+                                                                    <button type = 'button' class = 'add-btn' onclick = 'addStat_where_we_work_content()'><i class = 'fa-solid fa-plus text-xs'></i> Add Stat</button>
+                                                                    </div>
 
-      <?php
-      // ===== STATS / DASHBOARD SECTIONS =====
-      elseif (in_array($sKey, ['projects_dashboard','causes_impact','history_stats','resources_hero','contribute_why'])):
-      ?>
-      <?php if ($sKey === 'projects_dashboard'): ?>
-      <div class="field-group">
-        <label>Sectors (Progress Bars)</label>
-        <div id="sectorsList_<?= $sKey ?>" class="space-y-2"></div>
-        <button type="button" class="add-btn" onclick="addSector_<?= $sKey ?>()"><i class="fa-solid fa-plus text-xs"></i> Add Sector</button>
-      </div>
-      <div class="field-group">
-        <label>Metrics</label>
-        <div id="metricsList_<?= $sKey ?>" class="space-y-2"></div>
-        <button type="button" class="add-btn" onclick="addMetric_<?= $sKey ?>()"><i class="fa-solid fa-plus text-xs"></i> Add Metric</button>
-      </div>
-      <?php else: ?>
-      <div class="field-group">
-        <label><?= $sKey === 'contribute_why' ? 'Values / Propositions' : 'Stats' ?></label>
-        <div id="statsList_<?= $sKey ?>" class="space-y-2"></div>
-        <button type="button" class="add-btn" onclick="addStat_<?= $sKey ?>()"><i class="fa-solid fa-plus text-xs"></i> Add Stat</button>
-      </div>
-      <?php endif; ?>
-      <?php if ($sKey === 'contribute_why'): ?>
-      <div class="field-group">
-        <label>Description</label>
-        <textarea data-field="content.description" rows="3"><?= htmlspecialchars($content['description'] ?? '') ?></textarea>
-      </div>
-      <?php endif; ?>
+                                                                    <!-- Provinces ( with nested focus_areas + districts ) -->
+                                                                    <div style = 'margin-top:1rem;padding:1rem;background:#f8fafc;border-radius:0.75rem;border:1px solid #e2e8f0;'>
+                                                                    <p style = 'font-size:0.75rem;font-weight:700;color:#ca0000;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.75rem;'>Province Sections</p>
+                                                                    <div id = 'provincesList_where_we_work_content' class = 'space-y-3'></div>
+                                                                    <button type = 'button' class = 'add-btn' onclick = 'addProvince_where_we_work_content()'><i class = 'fa-solid fa-plus text-xs'></i> Add Province</button>
+                                                                    </div>
 
-      <?php
-      // ===== SIMPLE TEXT SECTIONS =====
-      elseif ($sKey === 'our_work_featured_projects'):
-      ?>
-      <div class="field-group">
-        <label>Description</label>
-        <textarea data-field="content.description" rows="3"><?= htmlspecialchars($content['description'] ?? '') ?></textarea>
-      </div>
+                                                                    <!-- Quick Navigation Links -->
+                                                                    <div style = 'margin-top:1rem;padding:1rem;background:#f8fafc;border-radius:0.75rem;border:1px solid #e2e8f0;'>
+                                                                    <p style = 'font-size:0.75rem;font-weight:700;color:#ca0000;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.75rem;'>Quick Navigation Links ( sidebar )</p>
+                                                                    <div id = 'quickLinksList_where_we_work_content' class = 'space-y-2'></div>
+                                                                    <button type = 'button' class = 'add-btn' onclick = 'addQuickLink_where_we_work_content()'><i class = 'fa-solid fa-plus text-xs'></i> Add Quick Link</button>
+                                                                    </div>
 
-      <?php
-      // ===== ABOUT TRANSPARENCY (MIXED) =====
-      elseif ($sKey === 'about_transparency'):
-      ?>
-      <div class="field-group">
-        <label>Section Title</label>
-        <input type="text" data-field="section_title" value="<?= htmlspecialchars($sData['section_title'] ?? '') ?>" placeholder="Transparency & Trust">
-      </div>
-      <div class="field-group">
-        <label>Section Subtitle</label>
-        <textarea data-field="section_subtitle" rows="2"><?= htmlspecialchars($sData['section_subtitle'] ?? '') ?></textarea>
-      </div>
-      <div class="field-row">
-        <div class="field-group">
-          <label>Badge</label>
-          <input type="text" data-field="content.badge" value="<?= htmlspecialchars($content['badge'] ?? '') ?>">
-        </div>
-        <div class="field-group">
-          <label>Description</label>
-          <textarea data-field="content.description" rows="2"><?= htmlspecialchars($content['description'] ?? '') ?></textarea>
-        </div>
-      </div>
-      <div class="field-group">
-        <label>Stats</label>
-        <div id="statsList_<?= $sKey ?>" class="space-y-2"></div>
-        <button type="button" class="add-btn" onclick="addStat_<?= $sKey ?>()"><i class="fa-solid fa-plus text-xs"></i> Add Stat</button>
-      </div>
-      <div class="field-row">
-        <div class="field-group">
-          <label>Button 1 Text</label>
-          <input type="text" data-field="content.button1_text" value="<?= htmlspecialchars($content['button1_text'] ?? '') ?>">
-        </div>
-        <div class="field-group">
-          <label>Button 1 Link</label>
-          <input type="text" data-field="content.button1_link" value="<?= htmlspecialchars($content['button1_link'] ?? '') ?>">
-        </div>
-      </div>
-      <div class="field-row">
-        <div class="field-group">
-          <label>Button 2 Text</label>
-          <input type="text" data-field="content.button2_text" value="<?= htmlspecialchars($content['button2_text'] ?? '') ?>">
-        </div>
-        <div class="field-group">
-          <label>Button 2 Link</label>
-          <input type="text" data-field="content.button2_link" value="<?= htmlspecialchars($content['button2_link'] ?? '') ?>">
-        </div>
-      </div>
+                                                                    <?php
+                                                                    // ===  == STATS / DASHBOARD SECTIONS ===  ==
+                                                                    elseif ( in_array( $sKey, [ 'projects_dashboard', 'causes_impact', 'history_stats', 'resources_hero', 'contribute_why' ] ) ):
+                                                                    ?>
+                                                                    <?php if ( $sKey === 'projects_dashboard' ): ?>
+                                                                    <div class = 'field-group'>
+                                                                    <label>Sectors ( Progress Bars )</label>
+                                                                    <div id = "sectorsList_<?= $sKey ?>" class = 'space-y-2'></div>
+                                                                    <button type = 'button' class = 'add-btn' onclick = "addSector_<?= $sKey ?>()"><i class = 'fa-solid fa-plus text-xs'></i> Add Sector</button>
+                                                                    </div>
+                                                                    <div class = 'field-group'>
+                                                                    <label>Metrics</label>
+                                                                    <div id = "metricsList_<?= $sKey ?>" class = 'space-y-2'></div>
+                                                                    <button type = 'button' class = 'add-btn' onclick = "addMetric_<?= $sKey ?>()"><i class = 'fa-solid fa-plus text-xs'></i> Add Metric</button>
+                                                                    </div>
+                                                                    <?php else: ?>
+                                                                    <div class = 'field-group'>
+                                                                    <label><?= $sKey === 'contribute_why' ? 'Values / Propositions' : 'Stats' ?></label>
+                                                                    <div id = "statsList_<?= $sKey ?>" class = 'space-y-2'></div>
+                                                                    <button type = 'button' class = 'add-btn' onclick = "addStat_<?= $sKey ?>()"><i class = 'fa-solid fa-plus text-xs'></i> Add Stat</button>
+                                                                    </div>
+                                                                    <?php endif;
+                                                                    ?>
+                                                                    <?php if ( $sKey === 'contribute_why' ): ?>
+                                                                    <div class = 'field-group'>
+                                                                    <label>Description</label>
+                                                                    <textarea data-field = 'content.description' rows = '3'><?= htmlspecialchars( $content[ 'description' ] ?? '' ) ?></textarea>
+                                                                    </div>
+                                                                    <?php endif;
+                                                                    ?>
 
-      <?php
-      // ===== GEOGRAPHIC PRESENCE =====
-      elseif ($sKey === 'geographic_presence'):
-      ?>
-      <div class="field-group">
-        <label>Stats</label>
-        <div id="statsList_<?= $sKey ?>" class="space-y-2"></div>
-        <button type="button" class="add-btn" onclick="addStat_<?= $sKey ?>()"><i class="fa-solid fa-plus text-xs"></i> Add Stat</button>
-      </div>
+                                                                    <?php
+                                                                    // ===  == SIMPLE TEXT SECTIONS ===  ==
+                                                                    elseif ( $sKey === 'our_work_featured_projects' ):
+                                                                    ?>
+                                                                    <div class = 'field-group'>
+                                                                    <label>Description</label>
+                                                                    <textarea data-field = 'content.description' rows = '3'><?= htmlspecialchars( $content[ 'description' ] ?? '' ) ?></textarea>
+                                                                    </div>
 
-      <?php
-      // ===== HISTORY CTA =====
-      elseif ($sKey === 'history_cta'):
-      ?>
-      <div class="field-row">
-        <div class="field-group">
-          <label>Badge</label>
-          <input type="text" data-field="content.badge" value="<?= htmlspecialchars($content['badge'] ?? '') ?>">
-        </div>
-        <div class="field-group">
-          <label>Section Title</label>
-          <input type="text" data-field="content.section_title" value="<?= htmlspecialchars($content['section_title'] ?? '') ?>">
-        </div>
-      </div>
-      <div class="field-group">
-        <label>Subtitle</label>
-        <textarea data-field="content.section_subtitle" rows="2"><?= htmlspecialchars($content['section_subtitle'] ?? '') ?></textarea>
-      </div>
-      <div class="field-row">
-        <div class="field-group">
-          <label>Button 1 Text</label>
-          <input type="text" data-field="content.button1_text" value="<?= htmlspecialchars($content['button1_text'] ?? '') ?>">
-        </div>
-        <div class="field-group">
-          <label>Button 1 Link</label>
-          <input type="text" data-field="content.button1_link" value="<?= htmlspecialchars($content['button1_link'] ?? '') ?>">
-        </div>
-      </div>
+                                                                    <?php
+                                                                    // ===  == ABOUT TRANSPARENCY ( MIXED ) ===  ==
+                                                                    elseif ( $sKey === 'about_transparency' ):
+                                                                    ?>
+                                                                    <div class = 'field-group'>
+                                                                    <label>Section Title</label>
+                                                                    <input type = 'text' data-field = 'section_title' value = "<?= htmlspecialchars($sData['section_title'] ?? '') ?>" placeholder = 'Transparency & Trust'>
+                                                                    </div>
+                                                                    <div class = 'field-group'>
+                                                                    <label>Section Subtitle</label>
+                                                                    <textarea data-field = 'section_subtitle' rows = '2'><?= htmlspecialchars( $sData[ 'section_subtitle' ] ?? '' ) ?></textarea>
+                                                                    </div>
+                                                                    <div class = 'field-row'>
+                                                                    <div class = 'field-group'>
+                                                                    <label>Badge</label>
+                                                                    <input type = 'text' data-field = 'content.badge' value = "<?= htmlspecialchars($content['badge'] ?? '') ?>">
+                                                                    </div>
+                                                                    <div class = 'field-group'>
+                                                                    <label>Description</label>
+                                                                    <textarea data-field = 'content.description' rows = '2'><?= htmlspecialchars( $content[ 'description' ] ?? '' ) ?></textarea>
+                                                                    </div>
+                                                                    </div>
+                                                                    <div class = 'field-group'>
+                                                                    <label>Stats</label>
+                                                                    <div id = "statsList_<?= $sKey ?>" class = 'space-y-2'></div>
+                                                                    <button type = 'button' class = 'add-btn' onclick = "addStat_<?= $sKey ?>()"><i class = 'fa-solid fa-plus text-xs'></i> Add Stat</button>
+                                                                    </div>
+                                                                    <div class = 'field-row'>
+                                                                    <div class = 'field-group'>
+                                                                    <label>Button 1 Text</label>
+                                                                    <input type = 'text' data-field = 'content.button1_text' value = "<?= htmlspecialchars($content['button1_text'] ?? '') ?>">
+                                                                    </div>
+                                                                    <div class = 'field-group'>
+                                                                    <label>Button 1 Link</label>
+                                                                    <input type = 'text' data-field = 'content.button1_link' value = "<?= htmlspecialchars($content['button1_link'] ?? '') ?>">
+                                                                    </div>
+                                                                    </div>
+                                                                    <div class = 'field-row'>
+                                                                    <div class = 'field-group'>
+                                                                    <label>Button 2 Text</label>
+                                                                    <input type = 'text' data-field = 'content.button2_text' value = "<?= htmlspecialchars($content['button2_text'] ?? '') ?>">
+                                                                    </div>
+                                                                    <div class = 'field-group'>
+                                                                    <label>Button 2 Link</label>
+                                                                    <input type = 'text' data-field = 'content.button2_link' value = "<?= htmlspecialchars($content['button2_link'] ?? '') ?>">
+                                                                    </div>
+                                                                    </div>
 
-      <?php
-      // ===== GET INVOLVED HERO =====
-      elseif ($sKey === 'get_involved_hero'):
-      ?>
-      <div class="field-row">
-        <div class="field-group">
-          <label>Hero Image</label>
-          <?php $heroImgId = 'hero_img_' . preg_replace('/[^a-z0-9]/', '_', $sKey); ?>
-          <input type="text" data-field="content.hero_image" id="<?= $heroImgId ?>" value="<?= htmlspecialchars($content['hero_image'] ?? '') ?>" class="upload-path-input">
-          <div class="upload-widget" data-type="image" data-target="<?= $heroImgId ?>" style="margin-top:8px">
-            <div class="upload-zone">
-              <input type="file" accept="image/*">
-              <div class="upload-placeholder">
-                <i class="fa-solid fa-cloud-arrow-up"></i>
-                <p>Click or drag to upload hero image</p>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="field-group">
-          <label>Badge</label>
-          <input type="text" data-field="content.badge" value="<?= htmlspecialchars($content['badge'] ?? '') ?>">
-        </div>
-      </div>
-      <div class="field-group">
-        <label>Subtitle</label>
-        <textarea data-field="content.subtitle" rows="2"><?= htmlspecialchars($content['subtitle'] ?? '') ?></textarea>
-      </div>
-      <div class="field-row">
-        <div class="field-group">
-          <label>Button 1 Text</label>
-          <input type="text" data-field="content.button1_text" value="<?= htmlspecialchars($content['button1_text'] ?? '') ?>">
-        </div>
-        <div class="field-group">
-          <label>Button 2 Text</label>
-          <input type="text" data-field="content.button2_text" value="<?= htmlspecialchars($content['button2_text'] ?? '') ?>">
-        </div>
-      </div>
+                                                                    <?php
+                                                                    // ===  == GEOGRAPHIC PRESENCE ===  ==
+                                                                    elseif ( $sKey === 'geographic_presence' ):
+                                                                    ?>
+                                                                    <div class = 'field-group'>
+                                                                    <label>Stats</label>
+                                                                    <div id = "statsList_<?= $sKey ?>" class = 'space-y-2'></div>
+                                                                    <button type = 'button' class = 'add-btn' onclick = "addStat_<?= $sKey ?>()"><i class = 'fa-solid fa-plus text-xs'></i> Add Stat</button>
+                                                                    </div>
 
-      <?php
-      // ===== GET INVOLVED VOLUNTEER =====
-      elseif ($sKey === 'get_involved_volunteer'):
-      ?>
-      <div class="field-row">
-        <div class="field-group">
-          <label>Section Title</label>
-          <input type="text" data-field="section_title" value="<?= htmlspecialchars($sData['section_title'] ?? '') ?>">
-        </div>
-        <div class="field-group">
-          <label>Section Subtitle</label>
-          <input type="text" data-field="section_subtitle" value="<?= htmlspecialchars($sData['section_subtitle'] ?? '') ?>">
-        </div>
-      </div>
-      <div class="field-group">
-        <label>Description</label>
-        <textarea data-field="content.description" rows="3"><?= htmlspecialchars($content['description'] ?? '') ?></textarea>
-      </div>
-      <div class="field-group">
-        <label>Requirements</label>
-        <div id="requirementsList_get_involved_volunteer" class="space-y-2"></div>
-        <button type="button" class="add-btn" onclick="addRequirement_get_involved_volunteer()"><i class="fa-solid fa-plus text-xs"></i> Add Requirement</button>
-      </div>
-      <div class="field-row-3">
-        <div class="field-group">
-          <label>Stat 1 Value</label>
-          <input type="text" data-field="content.stat1_value" value="<?= htmlspecialchars($content['stat1_value'] ?? '') ?>" placeholder="500+">
-        </div>
-        <div class="field-group">
-          <label>Stat 1 Label</label>
-          <input type="text" data-field="content.stat1_label" value="<?= htmlspecialchars($content['stat1_label'] ?? '') ?>" placeholder="Active Volunteers">
-        </div>
-      </div>
-      <div class="field-row-3">
-        <div class="field-group">
-          <label>Stat 2 Value</label>
-          <input type="text" data-field="content.stat2_value" value="<?= htmlspecialchars($content['stat2_value'] ?? '') ?>" placeholder="30+">
-        </div>
-        <div class="field-group">
-          <label>Stat 2 Label</label>
-          <input type="text" data-field="content.stat2_label" value="<?= htmlspecialchars($content['stat2_label'] ?? '') ?>" placeholder="Districts Covered">
-        </div>
-      </div>
-      <div class="field-row-3">
-        <div class="field-group">
-          <label>Stat 3 Value</label>
-          <input type="text" data-field="content.stat3_value" value="<?= htmlspecialchars($content['stat3_value'] ?? '') ?>" placeholder="12k+">
-        </div>
-        <div class="field-group">
-          <label>Stat 3 Label</label>
-          <input type="text" data-field="content.stat3_label" value="<?= htmlspecialchars($content['stat3_label'] ?? '') ?>" placeholder="Hours Contributed">
-        </div>
-      </div>
+                                                                    <?php
+                                                                    // ===  == HISTORY CTA ===  ==
+                                                                    elseif ( $sKey === 'history_cta' ):
+                                                                    ?>
+                                                                    <div class = 'field-row'>
+                                                                    <div class = 'field-group'>
+                                                                    <label>Badge</label>
+                                                                    <input type = 'text' data-field = 'content.badge' value = "<?= htmlspecialchars($content['badge'] ?? '') ?>">
+                                                                    </div>
+                                                                    <div class = 'field-group'>
+                                                                    <label>Section Title</label>
+                                                                    <input type = 'text' data-field = 'content.section_title' value = "<?= htmlspecialchars($content['section_title'] ?? '') ?>">
+                                                                    </div>
+                                                                    </div>
+                                                                    <div class = 'field-group'>
+                                                                    <label>Subtitle</label>
+                                                                    <textarea data-field = 'content.section_subtitle' rows = '2'><?= htmlspecialchars( $content[ 'section_subtitle' ] ?? '' ) ?></textarea>
+                                                                    </div>
+                                                                    <div class = 'field-row'>
+                                                                    <div class = 'field-group'>
+                                                                    <label>Button 1 Text</label>
+                                                                    <input type = 'text' data-field = 'content.button1_text' value = "<?= htmlspecialchars($content['button1_text'] ?? '') ?>">
+                                                                    </div>
+                                                                    <div class = 'field-group'>
+                                                                    <label>Button 1 Link</label>
+                                                                    <input type = 'text' data-field = 'content.button1_link' value = "<?= htmlspecialchars($content['button1_link'] ?? '') ?>">
+                                                                    </div>
+                                                                    </div>
 
-      <?php
-      // ===== GET INVOLVED PARTNER =====
-      elseif ($sKey === 'get_involved_partner'):
-      ?>
-      <div class="field-row">
-        <div class="field-group">
-          <label>Section Title</label>
-          <input type="text" data-field="section_title" value="<?= htmlspecialchars($sData['section_title'] ?? '') ?>">
-        </div>
-        <div class="field-group">
-          <label>Section Subtitle</label>
-          <input type="text" data-field="section_subtitle" value="<?= htmlspecialchars($sData['section_subtitle'] ?? '') ?>">
-        </div>
-      </div>
-      <div class="field-group">
-        <label>Description</label>
-        <textarea data-field="content.description" rows="3"><?= htmlspecialchars($content['description'] ?? '') ?></textarea>
-      </div>
-      <div class="field-group">
-        <label>Partner Types</label>
-        <div id="partnerTypesList_get_involved_partner" class="space-y-2"></div>
-        <button type="button" class="add-btn" onclick="addPartnerType_get_involved_partner()"><i class="fa-solid fa-plus text-xs"></i> Add Partner Type</button>
-      </div>
+                                                                    <?php
+                                                                    // ===  == GET INVOLVED HERO ===  ==
+                                                                    elseif ( $sKey === 'get_involved_hero' ):
+                                                                    ?>
+                                                                    <div class = 'field-row'>
+                                                                    <div class = 'field-group'>
+                                                                    <label>Hero Image</label>
+                                                                    <?php $heroImgId = 'hero_img_' . preg_replace( '/[^a-z0-9]/', '_', $sKey );
+                                                                    ?>
+                                                                    <input type = 'text' data-field = 'content.hero_image' id = "<?= $heroImgId ?>" value = "<?= htmlspecialchars($content['hero_image'] ?? '') ?>" class = 'upload-path-input'>
+                                                                    <div class = 'upload-widget' data-type = 'image' data-target = "<?= $heroImgId ?>" data-base-url = "<?= htmlspecialchars(siteBaseUrl(), ENT_QUOTES, 'UTF-8') ?>" style = 'margin-top:8px'>
+                                                                    <div class = 'upload-zone'>
+                                                                    <input type = 'file' accept = 'image/*'>
+                                                                    <div class = 'upload-placeholder'>
+                                                                    <i class = 'fa-solid fa-cloud-arrow-up'></i>
+                                                                    <p>Click or drag to upload hero image</p>
+                                                                    </div>
+                                                                    </div>
+                                                                    </div>
+                                                                    </div>
+                                                                    <div class = 'field-group'>
+                                                                    <label>Badge</label>
+                                                                    <input type = 'text' data-field = 'content.badge' value = "<?= htmlspecialchars($content['badge'] ?? '') ?>">
+                                                                    </div>
+                                                                    </div>
+                                                                    <div class = 'field-group'>
+                                                                    <label>Subtitle</label>
+                                                                    <textarea data-field = 'content.subtitle' rows = '2'><?= htmlspecialchars( $content[ 'subtitle' ] ?? '' ) ?></textarea>
+                                                                    </div>
+                                                                    <div class = 'field-row'>
+                                                                    <div class = 'field-group'>
+                                                                    <label>Button 1 Text</label>
+                                                                    <input type = 'text' data-field = 'content.button1_text' value = "<?= htmlspecialchars($content['button1_text'] ?? '') ?>">
+                                                                    </div>
+                                                                    <div class = 'field-group'>
+                                                                    <label>Button 2 Text</label>
+                                                                    <input type = 'text' data-field = 'content.button2_text' value = "<?= htmlspecialchars($content['button2_text'] ?? '') ?>">
+                                                                    </div>
+                                                                    </div>
 
-      <?php
-      // ===== GET INVOLVED MEMBERSHIP =====
-      elseif ($sKey === 'get_involved_membership'):
-      ?>
-      <div class="field-row">
-        <div class="field-group">
-          <label>Section Title</label>
-          <input type="text" data-field="section_title" value="<?= htmlspecialchars($sData['section_title'] ?? '') ?>">
-        </div>
-        <div class="field-group">
-          <label>Section Subtitle</label>
-          <input type="text" data-field="section_subtitle" value="<?= htmlspecialchars($sData['section_subtitle'] ?? '') ?>">
-        </div>
-      </div>
-      <div class="field-group">
-        <label>Description</label>
-        <textarea data-field="content.description" rows="3"><?= htmlspecialchars($content['description'] ?? '') ?></textarea>
-      </div>
-      <div class="field-group">
-        <label>Member Benefits</label>
-        <div id="benefitsList_get_involved_membership" class="space-y-2"></div>
-        <button type="button" class="add-btn" onclick="addBenefit_get_involved_membership()"><i class="fa-solid fa-plus text-xs"></i> Add Benefit</button>
-      </div>
-      <div class="field-group">
-        <label>Membership Types</label>
-        <div id="membershipTypesList_get_involved_membership" class="space-y-2"></div>
-        <button type="button" class="add-btn" onclick="addMembershipType_get_involved_membership()"><i class="fa-solid fa-plus text-xs"></i> Add Membership Type</button>
-      </div>
+                                                                    <?php
+                                                                    // ===  == GET INVOLVED VOLUNTEER ===  ==
+                                                                    elseif ( $sKey === 'get_involved_volunteer' ):
+                                                                    ?>
+                                                                    <div class = 'field-row'>
+                                                                    <div class = 'field-group'>
+                                                                    <label>Section Title</label>
+                                                                    <input type = 'text' data-field = 'section_title' value = "<?= htmlspecialchars($sData['section_title'] ?? '') ?>">
+                                                                    </div>
+                                                                    <div class = 'field-group'>
+                                                                    <label>Section Subtitle</label>
+                                                                    <input type = 'text' data-field = 'section_subtitle' value = "<?= htmlspecialchars($sData['section_subtitle'] ?? '') ?>">
+                                                                    </div>
+                                                                    </div>
+                                                                    <div class = 'field-group'>
+                                                                    <label>Description</label>
+                                                                    <textarea data-field = 'content.description' rows = '3'><?= htmlspecialchars( $content[ 'description' ] ?? '' ) ?></textarea>
+                                                                    </div>
+                                                                    <div class = 'field-group'>
+                                                                    <label>Requirements</label>
+                                                                    <div id = 'requirementsList_get_involved_volunteer' class = 'space-y-2'></div>
+                                                                    <button type = 'button' class = 'add-btn' onclick = 'addRequirement_get_involved_volunteer()'><i class = 'fa-solid fa-plus text-xs'></i> Add Requirement</button>
+                                                                    </div>
+                                                                    <div class = 'field-row-3'>
+                                                                    <div class = 'field-group'>
+                                                                    <label>Stat 1 Value</label>
+                                                                    <input type = 'text' data-field = 'content.stat1_value' value = "<?= htmlspecialchars($content['stat1_value'] ?? '') ?>" placeholder = '500+'>
+                                                                    </div>
+                                                                    <div class = 'field-group'>
+                                                                    <label>Stat 1 Label</label>
+                                                                    <input type = 'text' data-field = 'content.stat1_label' value = "<?= htmlspecialchars($content['stat1_label'] ?? '') ?>" placeholder = 'Active Volunteers'>
+                                                                    </div>
+                                                                    </div>
+                                                                    <div class = 'field-row-3'>
+                                                                    <div class = 'field-group'>
+                                                                    <label>Stat 2 Value</label>
+                                                                    <input type = 'text' data-field = 'content.stat2_value' value = "<?= htmlspecialchars($content['stat2_value'] ?? '') ?>" placeholder = '30+'>
+                                                                    </div>
+                                                                    <div class = 'field-group'>
+                                                                    <label>Stat 2 Label</label>
+                                                                    <input type = 'text' data-field = 'content.stat2_label' value = "<?= htmlspecialchars($content['stat2_label'] ?? '') ?>" placeholder = 'Districts Covered'>
+                                                                    </div>
+                                                                    </div>
+                                                                    <div class = 'field-row-3'>
+                                                                    <div class = 'field-group'>
+                                                                    <label>Stat 3 Value</label>
+                                                                    <input type = 'text' data-field = 'content.stat3_value' value = "<?= htmlspecialchars($content['stat3_value'] ?? '') ?>" placeholder = '12k+'>
+                                                                    </div>
+                                                                    <div class = 'field-group'>
+                                                                    <label>Stat 3 Label</label>
+                                                                    <input type = 'text' data-field = 'content.stat3_label' value = "<?= htmlspecialchars($content['stat3_label'] ?? '') ?>" placeholder = 'Hours Contributed'>
+                                                                    </div>
+                                                                    </div>
 
-      <?php
-      // ===== CONTRIBUTE HERO =====
-      elseif ($sKey === 'contribute_hero'):
-      ?>
-      <div class="field-row">
-        <div class="field-group">
-          <label>Hero Image</label>
-          <?php $heroImgId = 'hero_img_' . preg_replace('/[^a-z0-9]/', '_', $sKey); ?>
-          <input type="text" data-field="content.hero_image" id="<?= $heroImgId ?>" value="<?= htmlspecialchars($content['hero_image'] ?? '') ?>" class="upload-path-input">
-          <div class="upload-widget" data-type="image" data-target="<?= $heroImgId ?>" style="margin-top:8px">
-            <div class="upload-zone">
-              <input type="file" accept="image/*">
-              <div class="upload-placeholder">
-                <i class="fa-solid fa-cloud-arrow-up"></i>
-                <p>Click or drag to upload hero image</p>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="field-group">
-          <label>Badge</label>
-          <input type="text" data-field="content.badge" value="<?= htmlspecialchars($content['badge'] ?? '') ?>">
-        </div>
-      </div>
-      <div class="field-row">
-        <div class="field-group">
-          <label>Title</label>
-          <input type="text" data-field="content.title" value="<?= htmlspecialchars($content['title'] ?? '') ?>">
-        </div>
-        <div class="field-group">
-          <label>Subtitle</label>
-          <input type="text" data-field="content.subtitle" value="<?= htmlspecialchars($content['subtitle'] ?? '') ?>">
-        </div>
-      </div>
+                                                                    <?php
+                                                                    // ===  == GET INVOLVED PARTNER ===  ==
+                                                                    elseif ( $sKey === 'get_involved_partner' ):
+                                                                    ?>
+                                                                    <div class = 'field-row'>
+                                                                    <div class = 'field-group'>
+                                                                    <label>Section Title</label>
+                                                                    <input type = 'text' data-field = 'section_title' value = "<?= htmlspecialchars($sData['section_title'] ?? '') ?>">
+                                                                    </div>
+                                                                    <div class = 'field-group'>
+                                                                    <label>Section Subtitle</label>
+                                                                    <input type = 'text' data-field = 'section_subtitle' value = "<?= htmlspecialchars($sData['section_subtitle'] ?? '') ?>">
+                                                                    </div>
+                                                                    </div>
+                                                                    <div class = 'field-group'>
+                                                                    <label>Description</label>
+                                                                    <textarea data-field = 'content.description' rows = '3'><?= htmlspecialchars( $content[ 'description' ] ?? '' ) ?></textarea>
+                                                                    </div>
+                                                                    <div class = 'field-group'>
+                                                                    <label>Partner Types</label>
+                                                                    <div id = 'partnerTypesList_get_involved_partner' class = 'space-y-2'></div>
+                                                                    <button type = 'button' class = 'add-btn' onclick = 'addPartnerType_get_involved_partner()'><i class = 'fa-solid fa-plus text-xs'></i> Add Partner Type</button>
+                                                                    </div>
 
-      <?php
-      // ===== RESOURCES HERO (SPECIAL) =====
-      elseif ($sKey === 'resources_hero'):
-      ?>
-      <div class="field-row">
-        <div class="field-group">
-          <label>Hero Image</label>
-          <?php $heroImgId = 'hero_img_' . preg_replace('/[^a-z0-9]/', '_', $sKey); ?>
-          <input type="text" data-field="content.hero_image" id="<?= $heroImgId ?>" value="<?= htmlspecialchars($content['hero_image'] ?? '') ?>" class="upload-path-input">
-          <div class="upload-widget" data-type="image" data-target="<?= $heroImgId ?>" style="margin-top:8px">
-            <div class="upload-zone">
-              <input type="file" accept="image/*">
-              <div class="upload-placeholder">
-                <i class="fa-solid fa-cloud-arrow-up"></i>
-                <p>Click or drag to upload hero image</p>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="field-group">
-          <label>Tagline</label>
-          <input type="text" data-field="content.tagline" value="<?= htmlspecialchars($content['tagline'] ?? '') ?>">
-        </div>
-      </div>
-      <div class="field-group">
-        <label>Title (HTML)</label>
-        <input type="text" data-field="content.title" value="<?= htmlspecialchars($content['title'] ?? '') ?>">
-      </div>
-      <div class="field-group">
-        <label>Subtitle</label>
-        <textarea data-field="content.subtitle" rows="2"><?= htmlspecialchars($content['subtitle'] ?? '') ?></textarea>
-      </div>
-      <div class="field-row">
-        <div class="field-group">
-          <label>Button 1 Text</label>
-          <input type="text" data-field="content.button1_text" value="<?= htmlspecialchars($content['button1_text'] ?? '') ?>">
-        </div>
-        <div class="field-group">
-          <label>Button 1 Link</label>
-          <input type="text" data-field="content.button1_link" value="<?= htmlspecialchars($content['button1_link'] ?? '') ?>">
-        </div>
-      </div>
-      <div class="field-group">
-        <label>Stats</label>
-        <div id="statsList_<?= $sKey ?>" class="space-y-2"></div>
-        <button type="button" class="add-btn" onclick="addStat_<?= $sKey ?>()"><i class="fa-solid fa-plus text-xs"></i> Add Stat</button>
-      </div>
+                                                                    <?php
+                                                                    // ===  == GET INVOLVED MEMBERSHIP ===  ==
+                                                                    elseif ( $sKey === 'get_involved_membership' ):
+                                                                    ?>
+                                                                    <div class = 'field-row'>
+                                                                    <div class = 'field-group'>
+                                                                    <label>Section Title</label>
+                                                                    <input type = 'text' data-field = 'section_title' value = "<?= htmlspecialchars($sData['section_title'] ?? '') ?>">
+                                                                    </div>
+                                                                    <div class = 'field-group'>
+                                                                    <label>Section Subtitle</label>
+                                                                    <input type = 'text' data-field = 'section_subtitle' value = "<?= htmlspecialchars($sData['section_subtitle'] ?? '') ?>">
+                                                                    </div>
+                                                                    </div>
+                                                                    <div class = 'field-group'>
+                                                                    <label>Description</label>
+                                                                    <textarea data-field = 'content.description' rows = '3'><?= htmlspecialchars( $content[ 'description' ] ?? '' ) ?></textarea>
+                                                                    </div>
+                                                                    <div class = 'field-group'>
+                                                                    <label>Member Benefits</label>
+                                                                    <div id = 'benefitsList_get_involved_membership' class = 'space-y-2'></div>
+                                                                    <button type = 'button' class = 'add-btn' onclick = 'addBenefit_get_involved_membership()'><i class = 'fa-solid fa-plus text-xs'></i> Add Benefit</button>
+                                                                    </div>
+                                                                    <div class = 'field-group'>
+                                                                    <label>Membership Types</label>
+                                                                    <div id = 'membershipTypesList_get_involved_membership' class = 'space-y-2'></div>
+                                                                    <button type = 'button' class = 'add-btn' onclick = 'addMembershipType_get_involved_membership()'><i class = 'fa-solid fa-plus text-xs'></i> Add Membership Type</button>
+                                                                    </div>
 
-      <?php
-      // ===== RESOURCES REGISTRATION =====
-      elseif ($sKey === 'resources_registration'):
-      ?>
-      <div class="field-group">
-        <label>Registration Documents</label>
-        <div id="itemsList_resources_registration" class="space-y-2"></div>
-        <button type="button" class="add-btn" onclick="addItem_resources_registration()"><i class="fa-solid fa-plus text-xs"></i> Add Registration</button>
-      </div>
+                                                                    <?php
+                                                                    // ===  == CONTRIBUTE HERO ===  ==
+                                                                    elseif ( $sKey === 'contribute_hero' ):
+                                                                    ?>
+                                                                    <div class = 'field-row'>
+                                                                    <div class = 'field-group'>
+                                                                    <label>Hero Image</label>
+                                                                    <?php $heroImgId = 'hero_img_' . preg_replace( '/[^a-z0-9]/', '_', $sKey );
+                                                                    ?>
+                                                                    <input type = 'text' data-field = 'content.hero_image' id = "<?= $heroImgId ?>" value = "<?= htmlspecialchars($content['hero_image'] ?? '') ?>" class = 'upload-path-input'>
+                                                                    <div class = 'upload-widget' data-type = 'image' data-target = "<?= $heroImgId ?>" data-base-url = "<?= htmlspecialchars(siteBaseUrl(), ENT_QUOTES, 'UTF-8') ?>" style = 'margin-top:8px'>
+                                                                    <div class = 'upload-zone'>
+                                                                    <input type = 'file' accept = 'image/*'>
+                                                                    <div class = 'upload-placeholder'>
+                                                                    <i class = 'fa-solid fa-cloud-arrow-up'></i>
+                                                                    <p>Click or drag to upload hero image</p>
+                                                                    </div>
+                                                                    </div>
+                                                                    </div>
+                                                                    </div>
+                                                                    <div class = 'field-group'>
+                                                                    <label>Badge</label>
+                                                                    <input type = 'text' data-field = 'content.badge' value = "<?= htmlspecialchars($content['badge'] ?? '') ?>">
+                                                                    </div>
+                                                                    </div>
+                                                                    <div class = 'field-row'>
+                                                                    <div class = 'field-group'>
+                                                                    <label>Title</label>
+                                                                    <input type = 'text' data-field = 'content.title' value = "<?= htmlspecialchars($content['title'] ?? '') ?>">
+                                                                    </div>
+                                                                    <div class = 'field-group'>
+                                                                    <label>Subtitle</label>
+                                                                    <input type = 'text' data-field = 'content.subtitle' value = "<?= htmlspecialchars($content['subtitle'] ?? '') ?>">
+                                                                    </div>
+                                                                    </div>
 
-      <?php
-      // ===== DEFAULT (simple text fields) =====
-      else:
-      ?>
-      <div class="field-group">
-        <label>Section Title</label>
-        <input type="text" data-field="section_title" value="<?= htmlspecialchars($sData['section_title'] ?? '') ?>" placeholder="Section heading">
-      </div>
-      <div class="field-group">
-        <label>Section Subtitle</label>
-        <textarea data-field="section_subtitle" rows="2"><?= htmlspecialchars($sData['section_subtitle'] ?? '') ?></textarea>
-      </div>
-      <div class="field-group">
-        <label>Content Subtitle</label>
-        <textarea data-field="content.subtitle" rows="2"><?= htmlspecialchars($content['subtitle'] ?? '') ?></textarea>
-      </div>
+                                                                    <?php
+                                                                    // ===  == RESOURCES HERO ( SPECIAL ) ===  ==
+                                                                    elseif ( $sKey === 'resources_hero' ):
+                                                                    ?>
+                                                                    <div class = 'field-row'>
+                                                                    <div class = 'field-group'>
+                                                                    <label>Hero Image</label>
+                                                                    <?php $heroImgId = 'hero_img_' . preg_replace( '/[^a-z0-9]/', '_', $sKey );
+                                                                    ?>
+                                                                    <input type = 'text' data-field = 'content.hero_image' id = "<?= $heroImgId ?>" value = "<?= htmlspecialchars($content['hero_image'] ?? '') ?>" class = 'upload-path-input'>
+                                                                    <div class = 'upload-widget' data-type = 'image' data-target = "<?= $heroImgId ?>" data-base-url = "<?= htmlspecialchars(siteBaseUrl(), ENT_QUOTES, 'UTF-8') ?>" style = 'margin-top:8px'>
+                                                                    <div class = 'upload-zone'>
+                                                                    <input type = 'file' accept = 'image/*'>
+                                                                    <div class = 'upload-placeholder'>
+                                                                    <i class = 'fa-solid fa-cloud-arrow-up'></i>
+                                                                    <p>Click or drag to upload hero image</p>
+                                                                    </div>
+                                                                    </div>
+                                                                    </div>
+                                                                    </div>
+                                                                    <div class = 'field-group'>
+                                                                    <label>Tagline</label>
+                                                                    <input type = 'text' data-field = 'content.tagline' value = "<?= htmlspecialchars($content['tagline'] ?? '') ?>">
+                                                                    </div>
+                                                                    </div>
+                                                                    <div class = 'field-group'>
+                                                                    <label>Title ( HTML )</label>
+                                                                    <input type = 'text' data-field = 'content.title' value = "<?= htmlspecialchars($content['title'] ?? '') ?>">
+                                                                    </div>
+                                                                    <div class = 'field-group'>
+                                                                    <label>Subtitle</label>
+                                                                    <textarea data-field = 'content.subtitle' rows = '2'><?= htmlspecialchars( $content[ 'subtitle' ] ?? '' ) ?></textarea>
+                                                                    </div>
+                                                                    <div class = 'field-row'>
+                                                                    <div class = 'field-group'>
+                                                                    <label>Button 1 Text</label>
+                                                                    <input type = 'text' data-field = 'content.button1_text' value = "<?= htmlspecialchars($content['button1_text'] ?? '') ?>">
+                                                                    </div>
+                                                                    <div class = 'field-group'>
+                                                                    <label>Button 1 Link</label>
+                                                                    <input type = 'text' data-field = 'content.button1_link' value = "<?= htmlspecialchars($content['button1_link'] ?? '') ?>">
+                                                                    </div>
+                                                                    </div>
+                                                                    <div class = 'field-group'>
+                                                                    <label>Stats</label>
+                                                                    <div id = "statsList_<?= $sKey ?>" class = 'space-y-2'></div>
+                                                                    <button type = 'button' class = 'add-btn' onclick = "addStat_<?= $sKey ?>()"><i class = 'fa-solid fa-plus text-xs'></i> Add Stat</button>
+                                                                    </div>
 
-      <?php endif; ?>
+                                                                    <?php
+                                                                    // ===  == RESOURCES REGISTRATION ===  ==
+                                                                    elseif ( $sKey === 'resources_registration' ):
+                                                                    ?>
+                                                                    <div class = 'field-group'>
+                                                                    <label>Registration Documents</label>
+                                                                    <div id = 'itemsList_resources_registration' class = 'space-y-2'></div>
+                                                                    <button type = 'button' class = 'add-btn' onclick = 'addItem_resources_registration()'><i class = 'fa-solid fa-plus text-xs'></i> Add Registration</button>
+                                                                    </div>
 
-    </div>
-    <?php endforeach; ?>
+                                                                    <?php
+                                                                    // ===  == DEFAULT ( simple text fields ) ===  ==
+                                                                    else:
+                                                                    ?>
+                                                                    <div class = 'field-group'>
+                                                                    <label>Section Title</label>
+                                                                    <input type = 'text' data-field = 'section_title' value = "<?= htmlspecialchars($sData['section_title'] ?? '') ?>" placeholder = 'Section heading'>
+                                                                    </div>
+                                                                    <div class = 'field-group'>
+                                                                    <label>Section Subtitle</label>
+                                                                    <textarea data-field = 'section_subtitle' rows = '2'><?= htmlspecialchars( $sData[ 'section_subtitle' ] ?? '' ) ?></textarea>
+                                                                    </div>
+                                                                    <div class = 'field-group'>
+                                                                    <label>Content Subtitle</label>
+                                                                    <textarea data-field = 'content.subtitle' rows = '2'><?= htmlspecialchars( $content[ 'subtitle' ] ?? '' ) ?></textarea>
+                                                                    </div>
 
-    <!-- Page Navigation -->
-    <div class="bg-white rounded-2xl border border-slate-200 p-4 mb-6">
-      <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">Switch to another page</p>
-      <div class="flex flex-wrap gap-2">
-        <?php foreach ($pages as $pKey => $pDef): ?>
-        <?php if ($pKey !== $pageKey): ?>
-        <a href="?page=<?= $pKey ?>" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 text-xs font-medium text-slate-600 hover:bg-slate-50 hover:border-slate-300 transition-all">
-          <?= $pDef['label'] ?>
-          <span class="text-[10px] text-slate-400">(<?= count($pDef['sections']) ?>)</span>
-        </a>
-        <?php endif; ?>
-        <?php endforeach; ?>
-      </div>
-    </div>
+                                                                    <?php endif;
+                                                                    ?>
 
-    <div class="flex items-center justify-end gap-3 mb-8">
-      <button type="submit" class="px-8 py-3 rounded-xl bg-brandRed text-white text-sm font-semibold hover:bg-red-700 transition-colors shadow-lg shadow-brandRed/20">
-        <i class="fa-solid fa-check text-xs mr-1"></i> Save All Sections
-      </button>
-    </div>
-  </form>
-</div>
+                                                                    </div>
+                                                                    <?php endforeach;
+                                                                    ?>
 
-<script>
+                                                                    <!-- Page Navigation -->
+                                                                    <div class = 'bg-white rounded-2xl border border-slate-200 p-4 mb-6'>
+                                                                    <p class = 'text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3'>Switch to another page</p>
+                                                                    <div class = 'flex flex-wrap gap-2'>
+                                                                    <?php foreach ( $pages as $pKey => $pDef ): ?>
+                                                                    <?php if ( $pKey !== $pageKey ): ?>
+                                                                    <a href = "?page=<?= $pKey ?>" class = 'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 text-xs font-medium text-slate-600 hover:bg-slate-50 hover:border-slate-300 transition-all'>
+                                                                    <?= $pDef[ 'label' ] ?>
+                                                                    <span class = 'text-[10px] text-slate-400'>( <?= count( $pDef[ 'sections' ] ) ?> )</span>
+                                                                    </a>
+                                                                    <?php endif;
+                                                                    ?>
+                                                                    <?php endforeach;
+                                                                    ?>
+                                                                    </div>
+                                                                    </div>
+
+                                                                    <div class = 'flex items-center justify-end gap-3 mb-8'>
+                                                                    <button type = 'submit' class = 'px-8 py-3 rounded-xl bg-brandRed text-white text-sm font-semibold hover:bg-red-700 transition-colors shadow-lg shadow-brandRed/20'>
+                                                                    <i class = 'fa-solid fa-check text-xs mr-1'></i> Save All Sections
+                                                                    </button>
+                                                                    </div>
+                                                                    </form>
+                                                                    </div>
+
+                                                                    <script>
 // ===== DATA STORE =====
 var pageData = <?= json_encode(array_map(function($s) { return $s['content']; }, $sections), JSON_HEX_TAG) ?>;
 
@@ -2642,4 +2877,5 @@ renderMembershipTypes_get_involved_membership();
 
 </script>
 
-<?php include __DIR__ . '/includes/footer.php'; ?>
+<?php include __DIR__ . '/includes/footer.php';
+            ?>

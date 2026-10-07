@@ -71,7 +71,7 @@ include __DIR__ . '/includes/header.php';
         <tr class="border-b border-slate-100 hover:bg-slate-50 transition-colors <?= $i % 2 === 0 ? '' : 'bg-slate-50/50' ?>">
           <td class="px-5 py-3">
             <?php if (!empty($campaign['image_path'])): ?>
-            <img src="<?= htmlspecialchars($campaign['image_path']) ?>" alt="" class="w-10 h-10 rounded-lg object-cover border border-slate-200">
+            <img src="<?= htmlspecialchars(getImageUrl($campaign['image_path']), ENT_QUOTES, 'UTF-8') ?>" alt="" class="w-10 h-10 rounded-lg object-cover border border-slate-200">
             <?php else: ?>
             <div class="w-10 h-10 rounded-lg bg-slate-100 flex items-center justify-center text-slate-400"><i class="fa-solid fa-image text-sm"></i></div>
             <?php endif; ?>

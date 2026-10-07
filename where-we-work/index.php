@@ -2,7 +2,7 @@
 require_once dirname(__DIR__) . '/includes/config.php';
 require_once dirname(__DIR__) . '/includes/functions.php';
 
-$base = '../';
+$base = siteBaseUrl();
 $pageTitle = 'Where We Work - Geographic Coverage | WRC';
 
 // Fetch hero + content from dedicated tables

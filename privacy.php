@@ -2,7 +2,7 @@
 require_once __DIR__ . '/includes/config.php';
 require_once __DIR__ . '/includes/functions.php';
 
-$base = './';
+$base = siteBaseUrl();
 $pageTitle = 'Privacy Policy | World Relief Committee (WRC)';
 $metaDescription = 'Read the privacy policy of World Relief Committee (WRC) to understand how we collect, use, and protect your personal information.';
 
@@ -10,49 +10,50 @@ include __DIR__ . '/includes/header.php';
 ?>
 
 <!-- HERO -->
-<section class="relative w-full bg-slate-900 text-white overflow-hidden" style="min-height:340px">
-  <div class="absolute inset-0 opacity-30 bg-cover bg-center" style="background-image:url('<?= $base ?>assets/images/hero.jpg')"></div>
-  <div class="absolute inset-0 bg-gradient-to-b from-slate-900/80 via-slate-900/70 to-slate-900"></div>
-  <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 flex flex-col items-center text-center">
-    <nav class="text-xs text-slate-400 mb-6 flex items-center gap-2">
-      <a href="<?= $base ?>index.php" class="hover:text-white transition">Home</a>
-      <i class="fa-solid fa-chevron-right text-[8px]"></i>
-      <span class="text-white">Privacy Policy</span>
-    </nav>
-    <div class="inline-flex items-center gap-2 bg-white/10 backdrop-blur-md border border-white/20 rounded-full px-4 py-1.5 text-xs font-medium text-white/90 mb-6">
-      <i class="fa-solid fa-shield-halved text-brandRed"></i> Legal &amp; Policy
-    </div>
-    <h1 class="font-display text-3xl sm:text-4xl lg:text-5xl font-semibold text-white leading-tight mb-4">Privacy Policy</h1>
-    <p class="max-w-2xl text-slate-300 text-sm sm:text-base leading-relaxed">Your privacy matters to us. This policy explains how World Relief Committee collects, uses, and safeguards your personal information.</p>
-    <p class="mt-3 text-slate-400 text-xs">Last updated: August 2026</p>
-  </div>
+<section class = 'relative w-full bg-slate-900 text-white overflow-hidden' style = 'min-height:340px'>
+<div class = 'absolute inset-0 opacity-30 bg-cover bg-center' style = "background-image:url('<?= $base ?>assets/images/hero.jpg')"></div>
+<div class = 'absolute inset-0 bg-gradient-to-b from-slate-900/80 via-slate-900/70 to-slate-900'></div>
+<div class = 'relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 flex flex-col items-center text-center'>
+<nav class = 'text-xs text-slate-400 mb-6 flex items-center gap-2'>
+<a href = "<?= $base ?>index.php" class = 'hover:text-white transition'>Home</a>
+<i class = 'fa-solid fa-chevron-right text-[8px]'></i>
+<span class = 'text-white'>Privacy Policy</span>
+</nav>
+<div class = 'inline-flex items-center gap-2 bg-white/10 backdrop-blur-md border border-white/20 rounded-full px-4 py-1.5 text-xs font-medium text-white/90 mb-6'>
+<i class = 'fa-solid fa-shield-halved text-brandRed'></i> Legal &amp;
+Policy
+</div>
+<h1 class = 'font-display text-3xl sm:text-4xl lg:text-5xl font-semibold text-white leading-tight mb-4'>Privacy Policy</h1>
+<p class = 'max-w-2xl text-slate-300 text-sm sm:text-base leading-relaxed'>Your privacy matters to us. This policy explains how World Relief Committee collects, uses, and safeguards your personal information.</p>
+<p class = 'mt-3 text-slate-400 text-xs'>Last updated: August 2026</p>
+</div>
 </section>
 
 <!-- TABLE OF CONTENTS -->
-<section class="bg-white border-b border-slate-200">
-  <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-    <h2 class="text-xs font-bold uppercase tracking-widest text-slate-400 mb-4">On This Page</h2>
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
-      <a href="#information-collection" class="flex items-center gap-2 text-sm text-slate-600 hover:text-brandRed transition-colors py-1.5">
-        <i class="fa-solid fa-chevron-right text-[9px] text-slate-300"></i> Information Collection
-      </a>
-      <a href="#how-we-use-information" class="flex items-center gap-2 text-sm text-slate-600 hover:text-brandRed transition-colors py-1.5">
-        <i class="fa-solid fa-chevron-right text-[9px] text-slate-300"></i> How We Use Information
-      </a>
-      <a href="#data-sharing" class="flex items-center gap-2 text-sm text-slate-600 hover:text-brandRed transition-colors py-1.5">
-        <i class="fa-solid fa-chevron-right text-[9px] text-slate-300"></i> Data Sharing
-      </a>
-      <a href="#data-security" class="flex items-center gap-2 text-sm text-slate-600 hover:text-brandRed transition-colors py-1.5">
-        <i class="fa-solid fa-chevron-right text-[9px] text-slate-300"></i> Data Security
-      </a>
-      <a href="#cookies" class="flex items-center gap-2 text-sm text-slate-600 hover:text-brandRed transition-colors py-1.5">
-        <i class="fa-solid fa-chevron-right text-[9px] text-slate-300"></i> Cookies
-      </a>
-      <a href="#third-party-links" class="flex items-center gap-2 text-sm text-slate-600 hover:text-brandRed transition-colors py-1.5">
-        <i class="fa-solid fa-chevron-right text-[9px] text-slate-300"></i> Third-Party Links
-      </a>
-      <a href="#childrens-privacy" class="flex items-center gap-2 text-sm text-slate-600 hover:text-brandRed transition-colors py-1.5">
-        <i class="fa-solid fa-chevron-right text-[9px] text-slate-300"></i> Children's Privacy
+<section class = 'bg-white border-b border-slate-200'>
+<div class = 'max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8'>
+<h2 class = 'text-xs font-bold uppercase tracking-widest text-slate-400 mb-4'>On This Page</h2>
+<div class = 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2'>
+<a href = '#information-collection' class = 'flex items-center gap-2 text-sm text-slate-600 hover:text-brandRed transition-colors py-1.5'>
+<i class = 'fa-solid fa-chevron-right text-[9px] text-slate-300'></i> Information Collection
+</a>
+<a href = '#how-we-use-information' class = 'flex items-center gap-2 text-sm text-slate-600 hover:text-brandRed transition-colors py-1.5'>
+<i class = 'fa-solid fa-chevron-right text-[9px] text-slate-300'></i> How We Use Information
+</a>
+<a href = '#data-sharing' class = 'flex items-center gap-2 text-sm text-slate-600 hover:text-brandRed transition-colors py-1.5'>
+<i class = 'fa-solid fa-chevron-right text-[9px] text-slate-300'></i> Data Sharing
+</a>
+<a href = '#data-security' class = 'flex items-center gap-2 text-sm text-slate-600 hover:text-brandRed transition-colors py-1.5'>
+<i class = 'fa-solid fa-chevron-right text-[9px] text-slate-300'></i> Data Security
+</a>
+<a href = '#cookies' class = 'flex items-center gap-2 text-sm text-slate-600 hover:text-brandRed transition-colors py-1.5'>
+<i class = 'fa-solid fa-chevron-right text-[9px] text-slate-300'></i> Cookies
+</a>
+<a href = '#third-party-links' class = 'flex items-center gap-2 text-sm text-slate-600 hover:text-brandRed transition-colors py-1.5'>
+<i class = 'fa-solid fa-chevron-right text-[9px] text-slate-300'></i> Third-Party Links
+</a>
+<a href = '#childrens-privacy' class = 'flex items-center gap-2 text-sm text-slate-600 hover:text-brandRed transition-colors py-1.5'>
+<i class = 'fa-solid fa-chevron-right text-[9px] text-slate-300'></i> Children's Privacy
       </a>
       <a href="#changes-to-policy" class="flex items-center gap-2 text-sm text-slate-600 hover:text-brandRed transition-colors py-1.5">
         <i class="fa-solid fa-chevron-right text-[9px] text-slate-300"></i> Changes to Policy
@@ -122,63 +123,66 @@ include __DIR__ . '/includes/header.php';
         <li><strong>For safety reasons</strong> &mdash; when disclosure is necessary to protect the rights, property, or safety of WRC, our beneficiaries, or the public.</li>
       </ul>
       <p>All third-party processors are required to handle personal data in accordance with applicable data-protection laws and WRC's internal data-protection policies.</p>
-    </div>
-  </section>
+</div>
+</section>
 
-  <!-- Data Security -->
-  <section id="data-security">
-    <h2 class="font-display text-2xl font-semibold text-slate-900 mb-4 flex items-center gap-3">
-      <span class="w-8 h-8 rounded-full bg-brandRed/10 flex items-center justify-center shrink-0"><i class="fa-solid fa-lock text-brandRed text-xs"></i></span>
-      Data Security
-    </h2>
-    <div class="prose-custom space-y-4 text-slate-600 text-sm leading-relaxed">
-      <p>We implement robust technical and organisational measures to protect personal data against unauthorised access, alteration, disclosure, or destruction. These measures include:</p>
-      <ul class="list-disc pl-6 space-y-2">
-        <li>SSL/TLS encryption for all data transmitted through our website.</li>
-        <li>Role-based access controls restricting who can view or modify personal information.</li>
-        <li>Regular security audits, vulnerability assessments, and penetration testing.</li>
-        <li>Secure backup and disaster-recovery procedures.</li>
-        <li>Staff training on data protection, confidentiality, and incident-response protocols.</li>
-      </ul>
-      <p>While we take every reasonable precaution, no method of electronic transmission or storage is completely secure. If you become aware of a security vulnerability, please report it immediately through our <a href="<?= $base ?>contact/index.php#whistleblower" class="text-brandRed font-medium hover:underline">Report a Concern</a> channel.</p>
-    </div>
-  </section>
+<!-- Data Security -->
+<section id = 'data-security'>
+<h2 class = 'font-display text-2xl font-semibold text-slate-900 mb-4 flex items-center gap-3'>
+<span class = 'w-8 h-8 rounded-full bg-brandRed/10 flex items-center justify-center shrink-0'><i class = 'fa-solid fa-lock text-brandRed text-xs'></i></span>
+Data Security
+</h2>
+<div class = 'prose-custom space-y-4 text-slate-600 text-sm leading-relaxed'>
+<p>We implement robust technical and organisational measures to protect personal data against unauthorised access, alteration, disclosure, or destruction. These measures include:</p>
+<ul class = 'list-disc pl-6 space-y-2'>
+<li>SSL/TLS encryption for all data transmitted through our website.</li>
+<li>Role-based access controls restricting who can view or modify personal information.</li>
+<li>Regular security audits, vulnerability assessments, and penetration testing.</li>
+<li>Secure backup and disaster-recovery procedures.</li>
+<li>Staff training on data protection, confidentiality, and incident-response protocols.</li>
+</ul>
+<p>While we take every reasonable precaution, no method of electronic transmission or storage is completely secure. If you become aware of a security vulnerability, please report it immediately through our <a href = "<?= $base ?>contact/index.php#whistleblower" class = 'text-brandRed font-medium hover:underline'>Report a Concern</a> channel.</p>
+</div>
+</section>
 
-  <!-- Cookies -->
-  <section id="cookies">
-    <h2 class="font-display text-2xl font-semibold text-slate-900 mb-4 flex items-center gap-3">
-      <span class="w-8 h-8 rounded-full bg-brandRed/10 flex items-center justify-center shrink-0"><i class="fa-solid fa-cookie-bite text-brandRed text-xs"></i></span>
-      Cookies
-    </h2>
-    <div class="prose-custom space-y-4 text-slate-600 text-sm leading-relaxed">
-      <p>Our website uses cookies and similar tracking technologies to enhance your browsing experience and gather analytical data. Cookies are small text files stored on your device by your web browser.</p>
-      <h3 class="text-base font-semibold text-slate-800 mt-6 mb-2">Types of Cookies We Use</h3>
-      <ul class="list-disc pl-6 space-y-2">
-        <li><strong>Essential cookies</strong> &mdash; required for core website functionality such as navigation, session management, and security features.</li>
-        <li><strong>Analytics cookies</strong> &mdash; help us understand how visitors interact with our website, enabling us to improve content and performance.</li>
-        <li><strong>Preference cookies</strong> &mdash; remember your settings and choices to provide a personalised experience on future visits.</li>
-      </ul>
-      <p>You can control or disable cookies through your browser settings. Please note that disabling essential cookies may affect website functionality.</p>
-    </div>
-  </section>
+<!-- Cookies -->
+<section id = 'cookies'>
+<h2 class = 'font-display text-2xl font-semibold text-slate-900 mb-4 flex items-center gap-3'>
+<span class = 'w-8 h-8 rounded-full bg-brandRed/10 flex items-center justify-center shrink-0'><i class = 'fa-solid fa-cookie-bite text-brandRed text-xs'></i></span>
+Cookies
+</h2>
+<div class = 'prose-custom space-y-4 text-slate-600 text-sm leading-relaxed'>
+<p>Our website uses cookies and similar tracking technologies to enhance your browsing experience and gather analytical data. Cookies are small text files stored on your device by your web browser.</p>
+<h3 class = 'text-base font-semibold text-slate-800 mt-6 mb-2'>Types of Cookies We Use</h3>
+<ul class = 'list-disc pl-6 space-y-2'>
+<li><strong>Essential cookies</strong> &mdash;
+required for core website functionality such as navigation, session management, and security features.</li>
+<li><strong>Analytics cookies</strong> &mdash;
+help us understand how visitors interact with our website, enabling us to improve content and performance.</li>
+<li><strong>Preference cookies</strong> &mdash;
+remember your settings and choices to provide a personalised experience on future visits.</li>
+</ul>
+<p>You can control or disable cookies through your browser settings. Please note that disabling essential cookies may affect website functionality.</p>
+</div>
+</section>
 
-  <!-- Third-Party Links -->
-  <section id="third-party-links">
-    <h2 class="font-display text-2xl font-semibold text-slate-900 mb-4 flex items-center gap-3">
-      <span class="w-8 h-8 rounded-full bg-brandRed/10 flex items-center justify-center shrink-0"><i class="fa-solid fa-up-right-from-square text-brandRed text-xs"></i></span>
-      Third-Party Links
-    </h2>
-    <div class="prose-custom space-y-4 text-slate-600 text-sm leading-relaxed">
-      <p>Our website may contain links to external websites operated by partner organisations, government agencies, and other third parties. WRC is not responsible for the privacy practices or content of these external sites. We encourage you to review the privacy policies of any third-party website you visit through links on our site.</p>
-      <p>The presence of a link does not imply endorsement by WRC of the linked website's operators or their practices.</p>
+<!-- Third-Party Links -->
+<section id = 'third-party-links'>
+<h2 class = 'font-display text-2xl font-semibold text-slate-900 mb-4 flex items-center gap-3'>
+<span class = 'w-8 h-8 rounded-full bg-brandRed/10 flex items-center justify-center shrink-0'><i class = 'fa-solid fa-up-right-from-square text-brandRed text-xs'></i></span>
+Third-Party Links
+</h2>
+<div class = 'prose-custom space-y-4 text-slate-600 text-sm leading-relaxed'>
+<p>Our website may contain links to external websites operated by partner organisations, government agencies, and other third parties. WRC is not responsible for the privacy practices or content of these external sites. We encourage you to review the privacy policies of any third-party website you visit through links on our site.</p>
+<p>The presence of a link does not imply endorsement by WRC of the linked website's operators or their practices.</p>
     </div>
   </section>
 
   <!-- Children's Privacy -->
-  <section id="childrens-privacy">
-    <h2 class="font-display text-2xl font-semibold text-slate-900 mb-4 flex items-center gap-3">
-      <span class="w-8 h-8 rounded-full bg-brandRed/10 flex items-center justify-center shrink-0"><i class="fa-solid fa-child text-brandRed text-xs"></i></span>
-      Children's Privacy
+<section id = 'childrens-privacy'>
+<h2 class = 'font-display text-2xl font-semibold text-slate-900 mb-4 flex items-center gap-3'>
+<span class = 'w-8 h-8 rounded-full bg-brandRed/10 flex items-center justify-center shrink-0'><i class = 'fa-solid fa-child text-brandRed text-xs'></i></span>
+Children's Privacy
     </h2>
     <div class="prose-custom space-y-4 text-slate-600 text-sm leading-relaxed">
       <p>WRC is committed to protecting the privacy of children. We do not knowingly collect personal information directly from children under the age of 13 without the explicit consent of a parent or legal guardian. In the case of child-protection and education programmes, data is collected through authorised caregivers, social workers, or institutional representatives in accordance with safeguarding policies.</p>
@@ -228,4 +232,5 @@ include __DIR__ . '/includes/header.php';
 
 </main>
 
-<?php include __DIR__ . '/includes/footer.php'; ?>
+<?php include __DIR__ . '/includes/footer.php';
+?>
