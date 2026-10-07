@@ -1,0 +1,25 @@
+name: Deploy WRC to Hostinger
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Deploy to Hostinger
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.HOSTINGER_HOST }}
+          username: ${{ secrets.HOSTINGER_USERNAME }}
+          password: ${{ secrets.HOSTINGER_PASSWORD }}
+          port: ${{ secrets.HOSTINGER_PORT }}
+          source: "about,admin,assets,contact,database,get-involved,impact,news,our-work,projects,resources,where-we-work,index.php,privacy.html,privacy.php,includes/footer.php,includes/form-submit.php,includes/functions.php,includes/header.php,includes/newsletter-subscribe.php,terms.html,terms.php"
+          target: "/home/u817261572/domains/limegreen-anteater-521120.hostingersite.com/public_html"
+          overwrite: true
