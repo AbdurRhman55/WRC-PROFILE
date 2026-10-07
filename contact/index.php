@@ -22,6 +22,7 @@ $mapEmbed     = $contentData['map_embed'] ?? '';
 $contactSuccess = false;
 $feedbackSuccess = false;
 $whistleSuccess = false;
+$formError = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $formType = $_POST['form_type'] ?? '';
@@ -32,11 +33,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $subject = trim($_POST['subject'] ?? '');
         $message = trim($_POST['message'] ?? '');
         if ($name && $email && $subject && $message) {
-            insertRow('contact_submissions', [
-                'full_name' => $name, 'email' => $email, 'subject' => $subject,
-                'message' => $message, 'inquiry_type' => 'general', 'submitted_at' => date('Y-m-d H:i:s'),
-            ]);
-            $contactSuccess = true;
+            try {
+                insertRow('contact_submissions', [
+                    'full_name' => $name, 'email' => $email, 'subject' => $subject,
+                    'message' => $message, 'inquiry_type' => 'general', 'status' => 'new',
+                    'submitted_at' => date('Y-m-d H:i:s'),
+                ]);
+                $contactSuccess = true;
+            } catch (Throwable $e) {
+                error_log('contact form failed: ' . $e->getMessage());
+                $formError = 'We could not save your message right now. Please try again in a moment.';
+            }
+        } else {
+            $formError = 'Please fill in all required fields.';
         }
     } elseif ($formType === 'feedback') {
         $name = trim($_POST['feedback_name'] ?? '');
@@ -45,12 +54,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $rating = (int) ($_POST['rating'] ?? 0);
         $feedbackMsg = trim($_POST['feedback_message'] ?? '');
         if ($category && $feedbackMsg) {
-            insertRow('contact_submissions', [
-                'full_name' => $name, 'email' => $email, 'subject' => 'Feedback: ' . $category,
-                'message' => $feedbackMsg, 'inquiry_type' => 'general', 'rating' => $rating,
-                'submitted_at' => date('Y-m-d H:i:s'),
-            ]);
-            $feedbackSuccess = true;
+            try {
+                insertRow('contact_submissions', [
+                    'full_name' => $name ?: 'Anonymous', 'email' => $email,
+                    'subject' => 'Feedback: ' . $category,
+                    'message' => $feedbackMsg, 'inquiry_type' => 'general',
+                    'rating' => $rating, 'status' => 'new',
+                    'submitted_at' => date('Y-m-d H:i:s'),
+                ]);
+                $feedbackSuccess = true;
+            } catch (Throwable $e) {
+                error_log('feedback form failed: ' . $e->getMessage());
+                $formError = 'We could not save your feedback right now. Please try again in a moment.';
+            }
+        } else {
+            $formError = 'Please choose a category and describe your feedback.';
         }
     } elseif ($formType === 'whistleblower') {
         $anonymous = isset($_POST['anonymous']) ? 1 : 0;
@@ -59,15 +77,39 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $reportType = trim($_POST['report_type'] ?? '');
         $description = trim($_POST['wb_description'] ?? '');
         if ($reportType && $description) {
-            insertRow('contact_submissions', [
-                'full_name' => $name, 'email' => $email, 'subject' => 'Whistleblower: ' . $reportType,
-                'message' => $description, 'inquiry_type' => 'general', 'is_anonymous' => $anonymous,
-                'submitted_at' => date('Y-m-d H:i:s'),
-            ]);
-            $whistleSuccess = true;
+            $attachment = null;
+            if (!empty($_FILES['evidence']['error']) && $_FILES['evidence']['error'] !== UPLOAD_ERR_NO_FILE) {
+                $attachment = uploadPublicAttachment($_FILES['evidence']);
+                if ($attachment === null) {
+                    $formError = 'The supporting evidence file could not be uploaded. Please use a PDF, DOC, DOCX, JPG or PNG under 20MB.';
+                }
+            }
+            if ($formError === '') {
+                try {
+                    insertRow('contact_submissions', [
+                        'full_name' => $name, 'email' => $email,
+                        'subject' => 'Whistleblower: ' . $reportType,
+                        'message' => $description . ($attachment ? "\nEvidence: " . $attachment : ''),
+                        'inquiry_type' => 'general', 'is_anonymous' => $anonymous,
+                        'status' => 'new',
+                        'submitted_at' => date('Y-m-d H:i:s'),
+                    ]);
+                    $whistleSuccess = true;
+                } catch (Throwable $e) {
+                    error_log('whistleblower form failed: ' . $e->getMessage());
+                    $formError = 'We could not save your report right now. Please try again in a moment.';
+                }
+            }
+        } else {
+            $formError = 'Please choose a report type and provide a description.';
         }
     }
-    redirect($_SERVER['PHP_SELF'] . '?submitted=' . $formType);
+
+    if ($contactSuccess || $feedbackSuccess || $whistleSuccess) {
+        redirect($_SERVER['PHP_SELF'] . '?submitted=' . urlencode($formType));
+    }
+    // Never claim success when nothing was stored.
+    redirect($_SERVER['PHP_SELF'] . '?error=' . urlencode($formType));
 }
 
 include dirname(__DIR__) . '/includes/header.php';
@@ -178,6 +220,8 @@ include dirname(__DIR__) . '/includes/header.php';
         <div class="bg-white p-8 md:p-10 rounded-2xl shadow-lg border border-slate-100">
           <?php if ($contactSuccess || ($_GET['submitted'] ?? '') === 'contact'): ?>
           <div class="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-xl text-sm font-medium mb-6 flex items-center gap-2"><i class="fa-solid fa-circle-check"></i> Message sent successfully! We'll get back to you soon.</div>
+          <?php elseif (($_GET['error'] ?? '') === 'contact'): ?>
+          <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl text-sm font-medium mb-6 flex items-center gap-2"><i class="fa-solid fa-circle-exclamation"></i> Your message could not be sent. Please check the fields and try again.</div>
           <?php endif; ?>
           <form id="contact-form" class="space-y-5" method="POST" action="">
             <input type="hidden" name="form_type" value="contact">
@@ -216,6 +260,8 @@ include dirname(__DIR__) . '/includes/header.php';
     <div class="bg-slate-50 p-8 md:p-10 rounded-2xl border border-slate-200">
       <?php if ($feedbackSuccess || ($_GET['submitted'] ?? '') === 'feedback'): ?>
       <div class="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-xl text-sm font-medium mb-6 flex items-center gap-2"><i class="fa-solid fa-circle-check"></i> Thank you for your feedback! It helps us serve communities better.</div>
+      <?php elseif (($_GET['error'] ?? '') === 'feedback'): ?>
+      <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl text-sm font-medium mb-6 flex items-center gap-2"><i class="fa-solid fa-circle-exclamation"></i> Your feedback could not be saved. Please check the fields and try again.</div>
       <?php endif; ?>
       <form id="feedback-form" class="space-y-5" method="POST" action="">
         <input type="hidden" name="form_type" value="feedback">
@@ -262,6 +308,8 @@ include dirname(__DIR__) . '/includes/header.php';
     <div class="bg-slate-800/50 p-8 md:p-10 rounded-2xl border border-slate-700 backdrop-blur">
       <?php if ($whistleSuccess || ($_GET['submitted'] ?? '') === 'whistleblower'): ?>
       <div class="bg-green-500/10 border border-green-500/30 text-green-400 px-4 py-3 rounded-xl text-sm font-medium mb-6 flex items-center gap-2"><i class="fa-solid fa-circle-check"></i> Your report has been submitted securely. Thank you for helping us maintain integrity.</div>
+      <?php elseif (($_GET['error'] ?? '') === 'whistleblower'): ?>
+      <div class="bg-red-500/10 border border-red-500/30 text-red-400 px-4 py-3 rounded-xl text-sm font-medium mb-6 flex items-center gap-2"><i class="fa-solid fa-circle-exclamation"></i> Your report could not be submitted. Please check the fields and try again.</div>
       <?php endif; ?>
       <form id="whistleblower-form" class="space-y-5" method="POST" action="">
         <input type="hidden" name="form_type" value="whistleblower">
@@ -280,7 +328,7 @@ include dirname(__DIR__) . '/includes/header.php';
           </select>
         </div>
         <div><label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1.5">Description <span class="text-brandRed">*</span></label><textarea name="wb_description" required rows="5" class="w-full bg-slate-700/50 border border-slate-600 px-4 py-3 rounded-xl text-sm text-white focus:ring-2 focus:ring-brandRed focus:border-brandRed outline-none transition-all resize-none placeholder:text-slate-500" placeholder="Provide as much detail as possible..."></textarea></div>
-        <div><label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1.5">Supporting Evidence</label><input type="file" class="w-full bg-slate-700/50 border border-slate-600 px-4 py-3 rounded-xl text-sm text-slate-400 focus:ring-2 focus:ring-brandRed focus:border-brandRed outline-none transition-all file:mr-3 file:py-1 file:px-3 file:rounded-lg file:border-0 file:bg-brandRed file:text-white file:text-xs file:font-bold" accept=".pdf,.doc,.docx,.jpg,.png"></div>
+        <div><label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1.5">Supporting Evidence</label><input type="file" name="evidence" class="w-full bg-slate-700/50 border border-slate-600 px-4 py-3 rounded-xl text-sm text-slate-400 focus:ring-2 focus:ring-brandRed focus:border-brandRed outline-none transition-all file:mr-3 file:py-1 file:px-3 file:rounded-lg file:border-0 file:bg-brandRed file:text-white file:text-xs file:font-bold" accept=".pdf,.doc,.docx,.jpg,.png"></div>
         <button type="submit" class="w-full bg-yellow-500 hover:bg-yellow-600 text-slate-900 font-bold py-3.5 rounded-xl transition-all text-sm uppercase tracking-wider flex items-center justify-center gap-2 transform hover:-translate-y-0.5"><i class="fa-solid fa-paper-plane text-xs"></i> Submit Confidential Report</button>
       </form>
     </div>
@@ -305,4 +353,35 @@ function setRating(val) {
 }
 </script>
 
-<?php include dirname(__DIR__) . '/includes/footer.php'; ?>
+<?php
+// Professional confirmation popup shown after the POST + redirect cycle.
+$wrcSubmitted = $_GET['submitted'] ?? '';
+$wrcFailed    = $_GET['error'] ?? '';
+$wrcPopups    = [
+    'contact' => [
+        'ok'   => ['Message Sent', 'Thank you for reaching out! Our team will review your message and get back to you within 48 hours.', 'contact-form'],
+        'fail' => ['Message Not Sent', 'Please check the form fields and try submitting again.', 'contact-form'],
+    ],
+    'feedback' => [
+        'ok'   => ['Thank You for Your Feedback', 'Your feedback has been recorded. It genuinely helps us serve communities better.', 'feedback-form'],
+        'fail' => ['Feedback Not Saved', 'Please check the form fields and try submitting again.', 'feedback-form'],
+    ],
+    'whistleblower' => [
+        'ok'   => ['Report Submitted Securely', 'Thank you for helping us maintain integrity. Your report has been logged confidentially.', 'whistleblower-form'],
+        'fail' => ['Report Not Submitted', 'Please check the form fields and try submitting again.', 'whistleblower-form'],
+    ],
+];
+if ($wrcSubmitted !== '' || $wrcFailed !== '') {
+    $wrcType = $wrcSubmitted !== '' ? $wrcSubmitted : $wrcFailed;
+    $wrcFail = $wrcSubmitted === '';
+    if (isset($wrcPopups[$wrcType])) {
+        $wrcP = $wrcPopups[$wrcType][$wrcFail ? 'fail' : 'ok'];
+        $extraScripts = '<script>window.addEventListener("load",function(){'
+            . 'WRCModal.' . ($wrcFail ? 'error' : 'success') . '('
+            . json_encode($wrcP[0]) . ',' . json_encode($wrcP[1]) . ',function(){'
+            . 'var el=document.getElementById(' . json_encode($wrcP[2]) . ');'
+            . 'if(el&&el.scrollIntoView)el.scrollIntoView({behavior:"smooth",block:"center"});'
+            . '});});</script>';
+    }
+}
+include dirname(__DIR__) . '/includes/footer.php'; ?>

@@ -576,20 +576,23 @@ $extraScripts = <<<SCRIPT
       var formData = new FormData(form);
       formData.append('form_type', formType);
 
-      fetch('includes/form-submit.php', {
+      fetch(wrcSiteBase() + 'includes/form-submit.php', {
         method: 'POST',
         body: formData
       }).then(function(r) { return r.json(); }).then(function(data) {
+        if (btn) btn.innerHTML = originalText;
         if (data.success) {
           form.classList.add('hidden');
-          document.getElementById(successId).classList.remove('hidden');
+          WRCModal.success(data.title, data.message, function() {
+            var ok = document.getElementById(successId);
+            if (ok) ok.classList.remove('hidden');
+          });
         } else {
-          if (btn) btn.innerHTML = originalText;
-          alert(data.message || 'Something went wrong. Please try again.');
+          WRCModal.error('Submission Failed', data.message || 'Something went wrong. Please try again.');
         }
       }).catch(function() {
         if (btn) btn.innerHTML = originalText;
-        alert('Network error. Please try again.');
+        WRCModal.error('Network Error', 'We could not reach the server. Please check your connection and try again.');
       });
     });
   }
@@ -612,20 +615,22 @@ $extraScripts = <<<SCRIPT
       formData.append('form_type', 'job_apply');
       formData.append('position', document.getElementById('job-apply-title').textContent);
 
-      fetch('includes/form-submit.php', {
+      fetch(wrcSiteBase() + 'includes/form-submit.php', {
         method: 'POST',
         body: formData
       }).then(function(r) { return r.json(); }).then(function(data) {
+        if (btn) btn.innerHTML = originalText;
         if (data.success) {
           document.getElementById('job-apply-section').classList.add('hidden');
-          document.getElementById('job-success').classList.remove('hidden');
+          WRCModal.success(data.title, data.message, function() {
+            document.getElementById('job-success').classList.remove('hidden');
+          });
         } else {
-          if (btn) btn.innerHTML = originalText;
-          alert(data.message || 'Something went wrong.');
+          WRCModal.error('Application Failed', data.message || 'Something went wrong.');
         }
       }).catch(function() {
         if (btn) btn.innerHTML = originalText;
-        alert('Network error.');
+        WRCModal.error('Network Error', 'We could not reach the server. Please check your connection and try again.');
       });
     });
   }

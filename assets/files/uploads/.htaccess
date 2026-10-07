@@ -1,0 +1,21 @@
+# WRC - public form attachments (CVs, evidence files)
+#
+# Files in this folder are uploaded by visitors through the site forms.
+# Nothing here may ever be executed by the web server.
+#
+# NOTE: this file only takes effect when the vhost sets AllowOverride to
+# All / AuthConfig / Limit. The authoritative protection is the server-side
+# validation in includes/functions.php -> uploadPublicAttachment().
+
+<IfModule mod_authz_core.c>
+    <FilesMatch "(?i)\.(php|phtml|php\d|phar|pl|py|cgi|rb|sh|asp|aspx|jsp|exe|dll|htaccess)$">
+        Require all denied
+    </FilesMatch>
+</IfModule>
+
+<IfModule !mod_authz_core.c>
+    <FilesMatch "(?i)\.(php|phtml|php\d|phar|pl|py|cgi|rb|sh|asp|aspx|jsp|exe|dll|htaccess)$">
+        Order allow,deny
+        Deny from all
+    </FilesMatch>
+</IfModule>

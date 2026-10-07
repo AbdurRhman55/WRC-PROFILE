@@ -406,6 +406,62 @@ function handleUpload(array $file, string $type = 'images'): ?string {
     return null;
 }
 
+/**
+ * Safely store an attachment uploaded through a PUBLIC form (CV, evidence).
+ *
+ * Unlike handleUpload() this never trusts the browser-supplied content type:
+ * it enforces an extension allow-list, sniffs the real MIME type server side
+ * and rejects anything that could be executed by the web server.
+ *
+ * @return string|null Relative path such as "assets/files/uploads/file_ab12.pdf"
+ */
+function uploadPublicAttachment(array $file): ?string {
+    if (($file['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_OK) return null;
+
+    $size = (int) ($file['size'] ?? 0);
+    if ($size <= 0 || $size > 20 * 1024 * 1024) return null;
+
+    $tmp = $file['tmp_name'] ?? '';
+    if ($tmp === '' || !is_uploaded_file($tmp)) return null;
+
+    $allowedExt = ['pdf', 'doc', 'docx', 'jpg', 'jpeg', 'png', 'txt', 'csv', 'zip'];
+    $ext = strtolower(pathinfo((string) ($file['name'] ?? ''), PATHINFO_EXTENSION));
+    if (!in_array($ext, $allowedExt, true)) return null;
+
+    $allowedMimes = [
+        'application/pdf',
+        'application/msword',
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        'application/zip',
+        'image/jpeg',
+        'image/png',
+        'text/plain',
+        'text/csv',
+    ];
+
+    $mime = '';
+    if (function_exists('finfo_open')) {
+        $finfo = finfo_open(FILEINFO_MIME_TYPE);
+        if ($finfo) {
+            $mime = (string) finfo_file($finfo, $tmp);
+            finfo_close($finfo);
+        }
+    }
+    if ($mime === '') {
+        $mime = (string) ($file['type'] ?? '');
+    }
+    if (!in_array($mime, $allowedMimes, true)) return null;
+
+    $dir = 'assets/files/uploads/';
+    $fullPath = __DIR__ . '/../' . $dir;
+    if (!is_dir($fullPath) && !@mkdir($fullPath, 0755, true)) return null;
+
+    $filename = 'file_' . bin2hex(random_bytes(8)) . '.' . $ext;
+    if (!move_uploaded_file($tmp, $fullPath . $filename)) return null;
+
+    return $dir . $filename;
+}
+
 // =============================================
 // RESPONSE HELPERS
 // =============================================

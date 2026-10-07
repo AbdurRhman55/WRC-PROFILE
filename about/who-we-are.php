@@ -129,7 +129,7 @@ include dirname(__DIR__) . '/includes/header.php';
         <a href="<?= $base ?>get-involved/contribute-with-us.php" class="px-8 py-4 rounded-xl bg-brandRed hover:bg-brandRed-hover text-white font-bold text-sm shadow-lg shadow-brandRed/30 transition-all uppercase tracking-wider">
           Contribute Now
         </a>
-        <a href="<?= $base ?>contact/index.html" class="px-8 py-4 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 text-white font-bold text-sm transition-all uppercase tracking-wider">
+        <a href="<?= $base ?>contact/index.php" class="px-8 py-4 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 text-white font-bold text-sm transition-all uppercase tracking-wider">
           Contact Us
         </a>
       </div>

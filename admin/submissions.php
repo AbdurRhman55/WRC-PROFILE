@@ -38,7 +38,7 @@ if ($filterStatus !== '' && in_array($filterStatus, ['new', 'read', 'replied', '
     $where[] = "`status` = ?";
     $params[] = $filterStatus;
 }
-if ($filterType !== '' && in_array($filterType, ['general', 'program', 'donation', 'partnership', 'media'])) {
+if ($filterType !== '' && in_array($filterType, ['general', 'program', 'donation', 'partnership', 'media', 'career', 'volunteer', 'membership'])) {
     $where[] = "`inquiry_type` = ?";
     $params[] = $filterType;
 }
@@ -66,6 +66,9 @@ $typeColors = [
     'donation'    => 'bg-green-50 text-green-600 border border-green-200',
     'partnership' => 'bg-amber-50 text-amber-600 border border-amber-200',
     'media'       => 'bg-purple-50 text-purple-600 border border-purple-200',
+    'career'      => 'bg-red-50 text-red-600 border border-red-200',
+    'volunteer'   => 'bg-teal-50 text-teal-600 border border-teal-200',
+    'membership'  => 'bg-indigo-50 text-indigo-600 border border-indigo-200',
 ];
 
 include __DIR__ . '/includes/header.php';
@@ -106,6 +109,9 @@ include __DIR__ . '/includes/header.php';
         <option value="donation" <?= $filterType === 'donation' ? 'selected' : '' ?>>Donation</option>
         <option value="partnership" <?= $filterType === 'partnership' ? 'selected' : '' ?>>Partnership</option>
         <option value="media" <?= $filterType === 'media' ? 'selected' : '' ?>>Media</option>
+        <option value="career" <?= $filterType === 'career' ? 'selected' : '' ?>>Career / Jobs</option>
+        <option value="volunteer" <?= $filterType === 'volunteer' ? 'selected' : '' ?>>Volunteer</option>
+        <option value="membership" <?= $filterType === 'membership' ? 'selected' : '' ?>>Membership</option>
       </select>
     </div>
     <div class="flex items-end gap-2">
@@ -207,13 +213,24 @@ include __DIR__ . '/includes/header.php';
               </div>
               <div>
                 <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Volunteer Interest</span>
-                <p class="text-slate-700 mt-1"><?= $sub['volunteer_interest'] ? '<span class="text-green-600 font-semibold">Yes</span>' : 'No' ?></p>
+                <p class="text-slate-700 mt-1"><?= !empty($sub['volunteer_interest']) ? '<span class="text-green-600 font-semibold">Yes</span>' : 'No' ?></p>
               </div>
               <div>
                 <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Submitted At</span>
                 <p class="text-slate-700 mt-1"><?= date('F d, Y \a\t g:i:s A', strtotime($sub['submitted_at'])) ?></p>
               </div>
             </div>
+            <?php if (!empty($sub['attachment'])): ?>
+            <div class="mt-4">
+              <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Attachment</span>
+              <p class="mt-1.5">
+                <a href="../<?= htmlspecialchars($sub['attachment']) ?>" target="_blank" rel="noopener"
+                   class="inline-flex items-center gap-2 bg-white border border-slate-200 rounded-xl px-4 py-2 text-sm font-semibold text-brandRed hover:bg-brandRed hover:text-white transition-colors">
+                  <i class="fa-solid fa-paperclip text-xs"></i> <?= htmlspecialchars(basename($sub['attachment'])) ?>
+                </a>
+              </p>
+            </div>
+            <?php endif; ?>
             <div class="mt-4">
               <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Message</span>
               <div class="mt-1.5 p-4 bg-white rounded-xl border border-slate-200 text-slate-700 text-sm leading-relaxed whitespace-pre-wrap"><?= nl2br(htmlspecialchars($sub['message'])) ?></div>

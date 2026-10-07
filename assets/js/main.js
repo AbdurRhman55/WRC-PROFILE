@@ -545,17 +545,162 @@ document.addEventListener('DOMContentLoaded', () => {
       const originalText = btn?.textContent;
       if (btn) btn.textContent = 'Subscribing...';
 
-      fetch('includes/newsletter-subscribe.php', {
+      fetch(wrcSiteBase() + 'includes/newsletter-subscribe.php', {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: 'email=' + encodeURIComponent(email)
       }).then(r => r.json()).then(data => {
         if (btn) btn.textContent = data.success ? 'Subscribed!' : 'Try Again';
-        if (data.success) this.reset();
+        if (data.success) {
+          this.reset();
+          WRCModal.success('Subscribed!', data.message || 'Thank you for subscribing. You will now receive our newsletter and impact updates.');
+        } else {
+          WRCModal.error('Subscription Failed', data.message || 'Please enter a valid email address and try again.');
+        }
         setTimeout(() => { if (btn) btn.textContent = originalText; }, 3000);
       }).catch(() => {
         if (btn) btn.textContent = originalText;
+        WRCModal.error('Network Error', 'We could not reach the server. Please check your connection and try again.');
       });
     });
   });
 });
+
+
+/* =============================================================
+   WRC SHARED FEEDBACK MODAL
+   Used by every public form (Get Involved, Contribute, Contact,
+   Newsletter) so submissions always end with one consistent,
+   professional confirmation popup.
+   ============================================================= */
+(function () {
+  'use strict';
+
+  // Absolute path to the site root, e.g. "http://localhost/WRC-WEBSITE/"
+  function wrcSiteBase() {
+    if (typeof window.SITE_BASE === 'string') return window.SITE_BASE;
+    var tags = document.getElementsByTagName('script');
+    for (var i = 0; i < tags.length; i++) {
+      var src = tags[i].src || '';
+      var match = src.match(/^(.*\/)assets\/js\/main\.js(?:\?.*)?$/);
+      if (match) return match[1];
+    }
+    return '';
+  }
+  window.wrcSiteBase = wrcSiteBase;
+
+  var STYLE = [
+    '#wrc-modal-root{position:fixed;inset:0;z-index:99999;display:none;align-items:center;justify-content:center;padding:20px;font-family:Inter,sans-serif;}',
+    '#wrc-modal-root.wrc-open{display:flex;}',
+    '#wrc-modal-backdrop{position:absolute;inset:0;background:rgba(2,6,23,.72);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);opacity:0;transition:opacity .28s ease;}',
+    '#wrc-modal-root.wrc-in #wrc-modal-backdrop{opacity:1;}',
+    '#wrc-modal-card{position:relative;width:100%;max-width:430px;background:#fff;border-radius:28px;padding:38px 32px 32px;text-align:center;box-shadow:0 32px 64px -16px rgba(2,6,23,.5);opacity:0;transform:translateY(18px) scale(.93);transition:transform .34s cubic-bezier(.2,.9,.3,1.35),opacity .26s ease;overflow:hidden;}',
+    '#wrc-modal-root.wrc-in #wrc-modal-card{opacity:1;transform:translateY(0) scale(1);}',
+    '#wrc-modal-accent{position:absolute;top:0;left:0;right:0;height:5px;background:linear-gradient(90deg,#16a34a,#4ade80);}',
+    '#wrc-modal-root[data-type="error"] #wrc-modal-accent{background:linear-gradient(90deg,#ca0000,#ff5252);}',
+    '#wrc-modal-icon{position:relative;width:84px;height:84px;margin:0 auto 22px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:linear-gradient(145deg,#22c55e,#15803d);color:#fff;box-shadow:0 12px 26px -8px rgba(22,163,74,.65);animation:wrcPop .45s cubic-bezier(.2,.9,.3,1.4) both;}',
+    '#wrc-modal-root[data-type="error"] #wrc-modal-icon{background:linear-gradient(145deg,#e11d48,#a30000);box-shadow:0 12px 26px -8px rgba(202,0,0,.6);}',
+    '#wrc-modal-icon:after{content:"";position:absolute;inset:-10px;border-radius:50%;border:2px solid rgba(22,163,74,.35);animation:wrcRing 1.8s ease-out infinite;}',
+    '#wrc-modal-root[data-type="error"] #wrc-modal-icon:after{border-color:rgba(202,0,0,.32);}',
+    '#wrc-modal-icon i{font-size:38px;line-height:1;}',
+    '#wrc-modal-title{font-family:Fraunces,serif;font-size:24px;font-weight:700;color:#0f172a;margin:0 0 10px;letter-spacing:-.01em;}',
+    '#wrc-modal-msg{font-size:14.5px;line-height:1.65;color:#475569;margin:0 0 26px;}',
+    '#wrc-modal-btn{width:100%;background:#ca0000;color:#fff;font-size:13px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:15px 24px;border:0;border-radius:16px;cursor:pointer;box-shadow:0 10px 22px -8px rgba(202,0,0,.6);transition:background .2s ease,transform .2s ease;}',
+    '#wrc-modal-btn:hover{background:#a30000;transform:translateY(-2px);}',
+    '#wrc-modal-btn:focus-visible{outline:3px solid rgba(202,0,0,.35);outline-offset:3px;}',
+    '#wrc-modal-note{display:block;font-size:11.5px;color:#94a3b8;margin-top:16px;letter-spacing:.02em;}',
+    '@keyframes wrcPop{0%{opacity:0;transform:scale(.4)}60%{transform:scale(1.12)}100%{opacity:1;transform:scale(1)}}',
+    '@keyframes wrcRing{0%{transform:scale(.9);opacity:.9}100%{transform:scale(1.35);opacity:0}}',
+    '@media (max-width:480px){#wrc-modal-card{padding:32px 22px 26px;border-radius:24px}#wrc-modal-icon{width:72px;height:72px}#wrc-modal-icon i{font-size:32px}#wrc-modal-title{font-size:21px}}',
+    '@media (prefers-reduced-motion:reduce){#wrc-modal-card,#wrc-modal-backdrop,#wrc-modal-icon,#wrc-modal-icon:after{animation:none;transition:none}}'
+  ].join('');
+
+  var root = null;
+  var closeCallback = null;
+
+  function build() {
+    if (root && document.body.contains(root)) return root;
+
+    if (!document.getElementById('wrc-modal-style')) {
+      var style = document.createElement('style');
+      style.id = 'wrc-modal-style';
+      style.textContent = STYLE;
+      document.head.appendChild(style);
+    }
+
+    root = document.createElement('div');
+    root.id = 'wrc-modal-root';
+    root.setAttribute('role', 'dialog');
+    root.setAttribute('aria-modal', 'true');
+    root.setAttribute('aria-labelledby', 'wrc-modal-title');
+    root.innerHTML =
+      '<div id="wrc-modal-backdrop"></div>' +
+      '<div id="wrc-modal-card">' +
+        '<div id="wrc-modal-accent"></div>' +
+        '<div id="wrc-modal-icon"><i class="fa-solid fa-check"></i></div>' +
+        '<h3 id="wrc-modal-title"></h3>' +
+        '<p id="wrc-modal-msg"></p>' +
+        '<button type="button" id="wrc-modal-btn">Done</button>' +
+        '<span id="wrc-modal-note"></span>' +
+      '</div>';
+    document.body.appendChild(root);
+
+    root.querySelector('#wrc-modal-backdrop').addEventListener('click', close);
+    root.querySelector('#wrc-modal-btn').addEventListener('click', close);
+    document.addEventListener('keydown', function (e) {
+      if ((e.key === 'Escape' || e.key === 'Esc') && root && root.classList.contains('wrc-in')) close();
+    });
+
+    return root;
+  }
+
+  function close() {
+    if (!root) return;
+    root.classList.remove('wrc-in');
+    var cb = closeCallback;
+    closeCallback = null;
+    setTimeout(function () {
+      root.classList.remove('wrc-open');
+      if (typeof cb === 'function') cb();
+    }, 280);
+  }
+
+  /**
+   * WRCModal.show({ type, title, message, button, note, onClose })
+   * type: 'success' | 'error'
+   */
+  function show(options) {
+    var opts = options || {};
+    var isError = opts.type === 'error';
+    var el = build();
+
+    el.setAttribute('data-type', isError ? 'error' : 'success');
+    el.querySelector('#wrc-modal-icon i').className =
+      'fa-solid ' + (isError ? 'fa-triangle-exclamation' : 'fa-check');
+    el.querySelector('#wrc-modal-title').textContent = opts.title ||
+      (isError ? 'Something Went Wrong' : 'Submitted Successfully');
+    el.querySelector('#wrc-modal-msg').textContent = opts.message ||
+      (isError ? 'Please try again.' : 'Thank you! Your submission has been received.');
+    el.querySelector('#wrc-modal-btn').textContent = opts.button || (isError ? 'Try Again' : 'Done');
+    el.querySelector('#wrc-modal-note').textContent = opts.note || '';
+
+    closeCallback = opts.onClose || null;
+
+    el.classList.remove('wrc-in');
+    el.classList.add('wrc-open');
+    void el.offsetWidth;           // force reflow so the animation runs
+    el.classList.add('wrc-in');
+    el.querySelector('#wrc-modal-btn').focus();
+  }
+
+  window.WRCModal = {
+    show: show,
+    success: function (title, message, onClose) {
+      show({ type: 'success', title: title, message: message, onClose: onClose });
+    },
+    error: function (title, message, onClose) {
+      show({ type: 'error', title: title, message: message, onClose: onClose });
+    },
+    close: close
+  };
+})();

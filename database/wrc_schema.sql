@@ -290,9 +290,12 @@ CREATE TABLE contact_submissions (
     email VARCHAR(255) NOT NULL,
     phone VARCHAR(50),
     subject VARCHAR(255) NOT NULL,
-    inquiry_type ENUM('general','program','donation','partnership','media') NOT NULL DEFAULT 'general',
+    inquiry_type ENUM('general','program','donation','partnership','media','career','volunteer','membership') NOT NULL DEFAULT 'general',
     message TEXT NOT NULL,
+    rating TINYINT DEFAULT NULL,
+    is_anonymous TINYINT(1) DEFAULT 0,
     volunteer_interest BOOLEAN DEFAULT FALSE,
+    attachment VARCHAR(255) NULL DEFAULT NULL,
     status ENUM('new','read','replied','archived') DEFAULT 'new',
     submitted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB;

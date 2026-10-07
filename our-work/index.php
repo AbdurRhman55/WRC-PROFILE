@@ -295,7 +295,7 @@ include dirname(__DIR__) . '/includes/header.php';
         <a href="<?= $base ?><?= $ctaData['button1_link'] ?? 'get-involved/contribute-with-us.php' ?>" class="bg-brandRed hover:bg-brandRed-hover text-white font-bold text-xs px-6 py-3.5 rounded-xl shadow-lg transition-all flex items-center gap-2 uppercase tracking-wider">
           <i class="<?= $ctaData['button1_icon'] ?? 'fa-solid fa-handshake' ?>"></i> <?= sanitize($ctaData['button1_text'] ?? 'Contribute With Us') ?>
         </a>
-        <a href="<?= $base ?><?= $ctaData['button2_link'] ?? 'contact/index.html' ?>" class="bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs px-6 py-3.5 rounded-xl border border-slate-700 transition-all flex items-center gap-2 uppercase tracking-wider">
+        <a href="<?= $base ?><?= $ctaData['button2_link'] ?? 'contact/index.php' ?>" class="bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs px-6 py-3.5 rounded-xl border border-slate-700 transition-all flex items-center gap-2 uppercase tracking-wider">
           <i class="<?= $ctaData['button2_icon'] ?? 'fa-solid fa-envelope' ?>"></i> <?= sanitize($ctaData['button2_text'] ?? 'Contact Our Team') ?>
         </a>
       </div>

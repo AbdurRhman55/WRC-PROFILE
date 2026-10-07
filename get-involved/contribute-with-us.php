@@ -447,7 +447,7 @@ include __DIR__ . '/../includes/header.php';
       <a href="<?= $base ?>projects/index.php" class="px-8 py-4 rounded-xl bg-white text-brandRed font-bold text-sm shadow-lg hover:bg-sand-50 transition-colors uppercase tracking-wider">
         Explore Our Projects
       </a>
-      <a href="<?= $base ?>contact/index.html" class="px-8 py-4 rounded-xl bg-transparent border-2 border-white text-white font-bold text-sm hover:bg-white/10 transition-colors uppercase tracking-wider">
+      <a href="<?= $base ?>contact/index.php" class="px-8 py-4 rounded-xl bg-transparent border-2 border-white text-white font-bold text-sm hover:bg-white/10 transition-colors uppercase tracking-wider">
         Contact Us
       </a>
     </div>
@@ -495,35 +495,60 @@ function copyToClipboard(text) {
 
 function handleDonationSubmit(form) {
   var amount = document.getElementById('donation-amount').value;
-  if (!amount) { alert('Please select or enter a donation amount.'); return; }
+  if (!amount) {
+    WRCModal.error('Amount Required', 'Please select or enter a donation amount before you continue.');
+    return;
+  }
+  var btn = form.querySelector('button[type="submit"]');
+  var originalText = btn ? btn.innerHTML : '';
+  if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i> Processing...'; }
+
   var formData = new FormData(form);
   formData.append('form_type', 'donation');
-  fetch('../includes/form-submit.php', { method: 'POST', body: formData })
+  fetch(wrcSiteBase() + 'includes/form-submit.php', { method: 'POST', body: formData })
     .then(function(r) { return r.json(); })
     .then(function(data) {
-      document.getElementById('donate-success').classList.remove('hidden');
-      window.scrollTo({top: document.getElementById('donate-success').offsetTop - 100, behavior: 'smooth'});
+      if (btn) { btn.disabled = false; btn.innerHTML = originalText; }
+      if (data.success) {
+        document.getElementById('donate-success').classList.remove('hidden');
+        WRCModal.success(data.title, data.message, function() {
+          window.scrollTo({top: document.getElementById('donate-success').offsetTop - 100, behavior: 'smooth'});
+        });
+      } else {
+        WRCModal.error('Donation Failed', data.message || 'Something went wrong. Please try again.');
+      }
     }).catch(function() {
-      document.getElementById('donate-success').classList.remove('hidden');
-      window.scrollTo({top: document.getElementById('donate-success').offsetTop - 100, behavior: 'smooth'});
+      if (btn) { btn.disabled = false; btn.innerHTML = originalText; }
+      WRCModal.error('Network Error', 'We could not reach the server. Please check your connection and try again.');
     });
 }
 
 function handlePartnerSubmit(form) {
+  var btn = form.querySelector('button[type="submit"]');
+  var originalText = btn ? btn.innerHTML : '';
+  if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i> Sending...'; }
+
   var formData = new FormData(form);
   formData.append('form_type', 'partner');
   formData.append('name', form.querySelector('[name="collab_name"]').value);
   formData.append('email', form.querySelector('[name="collab_email"]').value);
   formData.append('organization', form.querySelector('[name="collab_org"]').value);
   formData.append('role', form.querySelector('[name="collab_designation"]')?.value || '');
+  formData.append('interest', form.querySelector('[name="collab_interest"]')?.value || '');
   formData.append('message', form.querySelector('[name="collab_message"]')?.value || '');
-  fetch('../includes/form-submit.php', { method: 'POST', body: formData })
+  fetch(wrcSiteBase() + 'includes/form-submit.php', { method: 'POST', body: formData })
     .then(function(r) { return r.json(); })
     .then(function(data) {
-      alert('Thank you for your inquiry. Our partnerships team will contact you shortly.');
-      form.reset();
+      if (btn) { btn.disabled = false; btn.innerHTML = originalText; }
+      if (data.success) {
+        form.reset();
+        WRCModal.success(data.title, data.message);
+      } else {
+        WRCModal.error('Inquiry Failed', data.message || 'Something went wrong. Please try again.');
+      }
     }).catch(function() {
-      alert('Thank you for your inquiry. Our partnerships team will contact you shortly.');
+      if (btn) { btn.disabled = false; btn.innerHTML = originalText; }
+      WRCModal.error('Network Error', 'We could not reach the server. Please check your connection and try again.');
     });
 }
 </script>
