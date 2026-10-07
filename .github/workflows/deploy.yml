@@ -18,7 +18,7 @@ jobs:
         with:
           host: ${{ secrets.HOSTINGER_HOST }}
           username: ${{ secrets.HOSTINGER_USERNAME }}
-          password: ${{ secrets.HOSTINGER_PASSWORD }}
+          key: ${{ secrets.HOSTINGER_SSH_KEY }}
           port: ${{ secrets.HOSTINGER_PORT }}
           source: "about,admin,assets,contact,database,get-involved,impact,news,our-work,projects,resources,where-we-work,index.php,privacy.html,privacy.php,includes/footer.php,includes/form-submit.php,includes/functions.php,includes/header.php,includes/newsletter-subscribe.php,terms.html,terms.php"
           target: "/home/u817261572/domains/limegreen-anteater-521120.hostingersite.com/public_html"
