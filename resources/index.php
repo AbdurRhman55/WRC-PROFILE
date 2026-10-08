@@ -106,9 +106,11 @@ style = "font-family:'Fraunces',serif;">
 class = 'bg-white/10 backdrop-blur-sm border border-white/20 rounded-2xl px-4 py-3 text-center hover:bg-white/15 transition-all'>
 <i class = "fa-solid <?= $stat['icon'] ?> text-white/80 text-sm mb-1"></i>
 <div class = 'text-xl font-extrabold text-white' style = "font-family:'Fraunces',serif;">
-< ?= sanitize( ( string ) $stat[ 'value' ] ) ?></div>
+< ?= sanitize( ( string ) $stat[ 'value' ] ) ?>
+</div>
 <div class = 'text-[10px] text-white/60 font-medium uppercase tracking-wider'>
-< ?= sanitize( $stat[ 'label' ] ) ?></div>
+< ?= sanitize( $stat[ 'label' ] ) ?>
+</div>
 </div>
 <?php endforeach;
 ?>
@@ -176,7 +178,9 @@ certified auditing firms for transparency and compliance.</p>
 </div>
 <?php if ( !empty( $auditReports ) ): ?>
 <div class = 'text-sm text-slate-500 font-medium shrink-0'>
-<span class = 'text-amber-600 font-bold'>< ?= count( $auditReports ) ?></span> reports available
+<span class = 'text-amber-600 font-bold'>
+< ?= count( $auditReports ) ?>
+</span> reports available
 </div>
 <?php endif;
 ?>
@@ -200,19 +204,23 @@ class = 'absolute inset-0 bg-gradient-to-br from-amber-0 to-amber-50 group-hover
 <div class = 'relative text-center'>
 <i class = 'fa-solid fa-magnifying-glass-chart text-amber-600 text-4xl mb-2 opacity-80'></i>
 <div class = 'text-3xl font-extrabold text-amber-700' style = "font-family:'Fraunces',serif;">
-< ?= sanitize( ( string ) ( $report[ 'year' ] ?? '' ) ) ?></div>
+< ?= sanitize( ( string ) ( $report[ 'year' ] ?? '' ) ) ?>
+</div>
 </div>
 </div>
 <div class = 'p-5'>
 <h3 class = 'font-bold text-slate-900 text-sm mb-2 group-hover:text-amber-600 transition-colors'>
-< ?= sanitize( $report[ 'title' ] ?? '' ) ?></h3>
+< ?= sanitize( $report[ 'title' ] ?? '' ) ?>
+</h3>
 <p class = 'text-slate-500 text-xs leading-relaxed mb-4 line-clamp-2'>
-< ?= sanitize( $report[ 'description' ] ?? '' ) ?></p>
+< ?= sanitize( $report[ 'description' ] ?? '' ) ?>
+</p>
 <div class = 'flex items-center justify-between pt-3 border-t border-slate-100'>
 <span class = 'text-[11px] text-slate-400 font-medium'><i
 
 class = 'fa-solid fa-file-pdf mr-1 text-amber-600'></i>
-< ?= sanitize( $reportType ) ?></span>
+< ?= sanitize( $reportType ) ?>
+</span>
 <?php if ( !empty( $report[ 'file_path' ] ) ): ?>
 <a href = "<?= sanitize( siteUrl( $report['file_path'] ) ) ?>" target = '_blank'
 rel = 'noopener noreferrer'
@@ -260,7 +268,9 @@ governance, transparency, accountability, and ethical practices across all opera
 </div>
 <?php if ( !empty( $policies ) ): ?>
 <div class = 'text-sm text-slate-500 font-medium shrink-0'>
-<span class = 'text-blue-600 font-bold'>< ?= count( $policies ) ?></span> policies available
+<span class = 'text-blue-600 font-bold'>
+< ?= count( $policies ) ?>
+</span> policies available
 </div>
 <?php endif;
 ?>
@@ -287,19 +297,23 @@ class = 'absolute inset-0 bg-gradient-to-br from-blue-0 to-blue-50 group-hover:t
 <div class = 'relative text-center'>
 <i class = 'fa-solid fa-shield-halved text-blue-600 text-4xl mb-2 opacity-80'></i>
 <div class = 'text-sm font-bold text-blue-700 uppercase tracking-wider'>
-< ?= sanitize( $policyTypeLabel ) ?></div>
+< ?= sanitize( $policyTypeLabel ) ?>
+</div>
 </div>
 </div>
 <div class = 'p-5'>
 <h3 class = 'font-bold text-slate-900 text-sm mb-2 group-hover:text-blue-600 transition-colors'>
-< ?= sanitize( $policy[ 'title' ] ?? '' ) ?></h3>
+< ?= sanitize( $policy[ 'title' ] ?? '' ) ?>
+</h3>
 <p class = 'text-slate-500 text-xs leading-relaxed mb-4 line-clamp-2'>
-< ?= sanitize( $policy[ 'description' ] ?? '' ) ?></p>
+< ?= sanitize( $policy[ 'description' ] ?? '' ) ?>
+</p>
 <div class = 'flex items-center justify-between pt-3 border-t border-slate-100'>
 <span class = 'text-[11px] text-slate-400 font-medium'><i
 
 class = "fa-solid fa-file-<?= $policyFileIcon ?> mr-1"></i>
-< ?= sanitize( $policyTypeLabel ) ?></span>
+< ?= sanitize( $policyTypeLabel ) ?>
+</span>
 <?php if ( !empty( $policy[ 'file_path' ] ) ): ?>
 <a href = "<?= sanitize( siteUrl( $policy['file_path'] ) ) ?>" target = '_blank'
 rel = 'noopener noreferrer'
