@@ -89,14 +89,14 @@ class = 'absolute inset-0 w-full h-full object-cover'>
 
 class = 'inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-white/20 text-white/90 text-[11px] font-semibold uppercase tracking-widest px-4 py-2 rounded-full mb-6'>
 <i class = 'fa-solid fa-folder-open text-white text-xs'></i>
-< ?= sanitize( $heroTagline ) ?>
+<?= sanitize( $heroTagline ) ?>
 </div>
 <h1 class = 'text-4xl md:text-5xl lg:text-6xl font-extrabold leading-tight mb-6'
 style = "font-family:'Fraunces',serif;">
-< ?= sanitize( $heroTitle ) ?>
+<?= sanitize( $heroTitle ) ?>
 </h1>
 <p class = 'text-lg md:text-xl text-white/70 leading-relaxed mb-10 max-w-2xl mx-auto'>
-< ?= sanitize( $heroSubtitle ) ?>
+<?= sanitize( $heroSubtitle ) ?>
 </p>
 <!-- Dynamic Stats Row -->
 <div class = 'grid grid-cols-1 min-[480px]:grid-cols-3 gap-3 sm:gap-4 mb-10 max-w-2xl mx-auto'>
@@ -106,10 +106,10 @@ style = "font-family:'Fraunces',serif;">
 class = 'bg-white/10 backdrop-blur-sm border border-white/20 rounded-2xl px-4 py-3 text-center hover:bg-white/15 transition-all'>
 <i class = "fa-solid <?= $stat['icon'] ?> text-white/80 text-sm mb-1"></i>
 <div class = 'text-xl font-extrabold text-white' style = "font-family:'Fraunces',serif;">
-< ?= sanitize( ( string ) $stat[ 'value' ] ) ?>
+<?= sanitize( ( string ) $stat[ 'value' ] ) ?>
 </div>
 <div class = 'text-[10px] text-white/60 font-medium uppercase tracking-wider'>
-< ?= sanitize( $stat[ 'label' ] ) ?>
+<?= sanitize( $stat[ 'label' ] ) ?>
 </div>
 </div>
 <?php endforeach;
@@ -179,7 +179,7 @@ certified auditing firms for transparency and compliance.</p>
 <?php if ( !empty( $auditReports ) ): ?>
 <div class = 'text-sm text-slate-500 font-medium shrink-0'>
 <span class = 'text-amber-600 font-bold'>
-< ?= count( $auditReports ) ?>
+<?= count( $auditReports ) ?>
 </span> reports available
 </div>
 <?php endif;
@@ -204,22 +204,22 @@ class = 'absolute inset-0 bg-gradient-to-br from-amber-0 to-amber-50 group-hover
 <div class = 'relative text-center'>
 <i class = 'fa-solid fa-magnifying-glass-chart text-amber-600 text-4xl mb-2 opacity-80'></i>
 <div class = 'text-3xl font-extrabold text-amber-700' style = "font-family:'Fraunces',serif;">
-< ?= sanitize( ( string ) ( $report[ 'year' ] ?? '' ) ) ?>
+<?= sanitize( ( string ) ( $report[ 'year' ] ?? '' ) ) ?>
 </div>
 </div>
 </div>
 <div class = 'p-5'>
 <h3 class = 'font-bold text-slate-900 text-sm mb-2 group-hover:text-amber-600 transition-colors'>
-< ?= sanitize( $report[ 'title' ] ?? '' ) ?>
+<?= sanitize( $report[ 'title' ] ?? '' ) ?>
 </h3>
 <p class = 'text-slate-500 text-xs leading-relaxed mb-4 line-clamp-2'>
-< ?= sanitize( $report[ 'description' ] ?? '' ) ?>
+<?= sanitize( $report[ 'description' ] ?? '' ) ?>
 </p>
 <div class = 'flex items-center justify-between pt-3 border-t border-slate-100'>
 <span class = 'text-[11px] text-slate-400 font-medium'><i
 
 class = 'fa-solid fa-file-pdf mr-1 text-amber-600'></i>
-< ?= sanitize( $reportType ) ?>
+<?= sanitize( $reportType ) ?>
 </span>
 <?php if ( !empty( $report[ 'file_path' ] ) ): ?>
 <a href = "<?= sanitize( siteUrl( $report['file_path'] ) ) ?>" target = '_blank'
@@ -269,7 +269,7 @@ governance, transparency, accountability, and ethical practices across all opera
 <?php if ( !empty( $policies ) ): ?>
 <div class = 'text-sm text-slate-500 font-medium shrink-0'>
 <span class = 'text-blue-600 font-bold'>
-< ?= count( $policies ) ?>
+<?= count( $policies ) ?>
 </span> policies available
 </div>
 <?php endif;
@@ -297,22 +297,22 @@ class = 'absolute inset-0 bg-gradient-to-br from-blue-0 to-blue-50 group-hover:t
 <div class = 'relative text-center'>
 <i class = 'fa-solid fa-shield-halved text-blue-600 text-4xl mb-2 opacity-80'></i>
 <div class = 'text-sm font-bold text-blue-700 uppercase tracking-wider'>
-< ?= sanitize( $policyTypeLabel ) ?>
+<?= sanitize( $policyTypeLabel ) ?>
 </div>
 </div>
 </div>
 <div class = 'p-5'>
 <h3 class = 'font-bold text-slate-900 text-sm mb-2 group-hover:text-blue-600 transition-colors'>
-< ?= sanitize( $policy[ 'title' ] ?? '' ) ?>
+<?= sanitize( $policy[ 'title' ] ?? '' ) ?>
 </h3>
 <p class = 'text-slate-500 text-xs leading-relaxed mb-4 line-clamp-2'>
-< ?= sanitize( $policy[ 'description' ] ?? '' ) ?>
+<?= sanitize( $policy[ 'description' ] ?? '' ) ?>
 </p>
 <div class = 'flex items-center justify-between pt-3 border-t border-slate-100'>
 <span class = 'text-[11px] text-slate-400 font-medium'><i
 
 class = "fa-solid fa-file-<?= $policyFileIcon ?> mr-1"></i>
-< ?= sanitize( $policyTypeLabel ) ?>
+<?= sanitize( $policyTypeLabel ) ?>
 </span>
 <?php if ( !empty( $policy[ 'file_path' ] ) ): ?>
 <a href = "<?= sanitize( siteUrl( $policy['file_path'] ) ) ?>" target = '_blank'
