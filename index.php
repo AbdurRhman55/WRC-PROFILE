@@ -27,8 +27,8 @@ $chairmanRow = getRow('chairman_message');
 if ($chairmanRow) {
     $homepageMap['chairman_message'] = [
         'section_key' => 'chairman_message',
-        'section_title' => $chairmanRow['section_title'] ?? "Chairman's Message",
-        'section_subtitle' => $chairmanRow['section_subtitle'] ?? '',
+        'section_title' => $homepageMap['chairman_message']['section_title'] ?? "Chairman's Message",
+        'section_subtitle' => $homepageMap['chairman_message']['section_subtitle'] ?? '',
         'content' => json_encode($chairmanRow)
     ];
 }
@@ -70,12 +70,15 @@ include __DIR__ . '/includes/header.php';
             }
         ?>
         <div class="w-full h-full flex-shrink-0 relative">
-            <img src="<?= $base ?><?= $slideImage ?>" alt="<?= sanitize($slide['title'] ?? 'Slide') ?>" class="absolute inset-0 w-full h-full object-cover" loading="<?= $i === 0 ? 'eager' : 'lazy' ?>">
+            <img src="<?= $base ?><?= $slideImage ?>" alt="<?= sanitize($slide['title'] ?? 'Slide') ?>"
+                class="absolute inset-0 w-full h-full object-cover" loading="<?= $i === 0 ? 'eager' : 'lazy' ?>">
         </div>
         <?php endforeach; ?>
     </div>
 
-    <div class="absolute inset-0 bg-gradient-to-br from-slate-950/70 via-slate-900/50 to-brandRed/20 z-[1] pointer-events-none"></div>
+    <div
+        class="absolute inset-0 bg-gradient-to-br from-slate-950/70 via-slate-900/50 to-brandRed/20 z-[1] pointer-events-none">
+    </div>
 
     <!-- Slider Navigation (Arrows) -->
     <button id="slider-prev"
@@ -102,15 +105,18 @@ include __DIR__ . '/includes/header.php';
             <div id="hero-content" class="max-w-3xl pointer-events-auto animate-fade-in-up">
                 <?php $firstSlide = $heroSlides[0] ?? []; ?>
                 <?php if (!empty($firstSlide['badge'])): ?>
-                <span class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest bg-brandRed/90 text-white mb-4 backdrop-blur-sm">
+                <span
+                    class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest bg-brandRed/90 text-white mb-4 backdrop-blur-sm">
                     <i class="fa-solid fa-globe"></i> <?= sanitize($firstSlide['badge']) ?>
                 </span>
                 <?php else: ?>
-                <span class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest bg-slate-900/60 backdrop-blur-sm text-slate-100 border border-white/20 mb-6">
+                <span
+                    class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest bg-slate-900/60 backdrop-blur-sm text-slate-100 border border-white/20 mb-6">
                     <i class="fa-solid fa-globe text-brandRed"></i> World Relief Committee NGO
                 </span>
                 <?php endif; ?>
-                <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-white leading-tight mb-6 font-heading drop-shadow-md">
+                <h1
+                    class="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-white leading-tight mb-6 font-heading drop-shadow-md">
                     <?= sanitize($firstSlide['title'] ?? 'Empowering Hope, Rebuilding Lives Worldwide.') ?>
                 </h1>
                 <p class="text-base sm:text-lg text-slate-200 mb-8 leading-relaxed drop-shadow-sm max-w-2xl">
@@ -119,7 +125,8 @@ include __DIR__ . '/includes/header.php';
                 <div class="flex flex-wrap gap-4 items-center">
                     <a href="<?= $base ?><?= $firstSlide['cta_link'] ?? 'our-work/index.php' ?>"
                         class="bg-brandRed hover:bg-brandRed-hover text-white font-bold text-sm sm:text-base px-7 py-3.5 rounded-xl shadow-lg shadow-brandRed/30 transition-all flex items-center gap-2 transform hover:-translate-y-1">
-                        <?= sanitize($firstSlide['cta_text'] ?? 'Explore Our Work') ?> <i class="fa-solid fa-arrow-right text-xs"></i>
+                        <?= sanitize($firstSlide['cta_text'] ?? 'Explore Our Work') ?> <i
+                            class="fa-solid fa-arrow-right text-xs"></i>
                     </a>
                     <a href="<?= $base ?>get-involved/contribute-with-us.php"
                         class="bg-white/10 hover:bg-white/25 backdrop-blur-md text-white border border-white/30 font-semibold text-sm sm:text-base px-6 py-3.5 rounded-xl transition-all flex items-center gap-2 transform hover:-translate-y-1">
@@ -155,14 +162,16 @@ include __DIR__ . '/includes/header.php';
         <div class="mb-8 text-center ">
             <p class="text-brandRed text-xs uppercase tracking-[0.35em] font-semibold mb-2">Leadership Message</p>
             <h2 class="text-3xl sm:text-4xl font-extrabold text-slate-900">
-                <?= (!empty($chairman['section_title'])) ? sanitize($chairman['section_title']) : (!empty($chairmanData['section_title']) ? sanitize($chairmanData['section_title']) : "Chairman's Message") ?></h2>
+                <?= (!empty($chairman['section_title'])) ? sanitize($chairman['section_title']) : (!empty($chairmanData['section_title']) ? sanitize($chairmanData['section_title']) : "Chairman's Message") ?>
+            </h2>
             <p class="mt-3 mx-auto text-slate-500 text-sm  sm:text-base">
-                <?= (!empty($chairman['section_subtitle'])) ? sanitize($chairman['section_subtitle']) : (!empty($chairmanData['section_subtitle']) ? sanitize($chairmanData['section_subtitle']) : "A thoughtful message from our chairman highlighting WRC's mission, values, and commitment to community resilience.") ?></p>
+                <?= (!empty($chairman['section_subtitle'])) ? sanitize($chairman['section_subtitle']) : (!empty($chairmanData['section_subtitle']) ? sanitize($chairmanData['section_subtitle']) : "A thoughtful message from our chairman highlighting WRC's mission, values, and commitment to community resilience.") ?>
+            </p>
         </div>
         <div
             class="grid gap-5 lg:grid-cols-[0.95fr_0.9fr] items-stretch bg-white border border-slate-200 rounded-[2rem] shadow-xl overflow-hidden">
             <div class="relative overflow-hidden">
-                <img src="<?= $base ?><?= $chairmanData['image_path'] ?? $chairmanData['hero_image'] ?? 'assets/images/hero.jpg' ?>"
+                <img src="<?= sanitize(siteUrl($chairmanData['image_path'] ?? $chairmanData['hero_image'] ?? 'assets/images/hero.jpg')) ?>"
                     alt="Chairman of WRC" class="w-full h-full object-cover min-h-[280px]" />
                 <div class="absolute inset-0  mix-blend-multiply"></div>
                 <div class="absolute bottom-4 left-4 right-4 text-white">
@@ -192,7 +201,8 @@ include __DIR__ . '/includes/header.php';
                 <p class="text-slate-700 text-base sm:text-lg leading-relaxed mb-8">
                     <?= sanitize($p2) ?>
                 </p>
-                <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-6 border-t border-slate-200 pt-6 mt-4">
+                <div
+                    class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-6 border-t border-slate-200 pt-6 mt-4">
                     <div>
                         <p class="text-red-500 font-bold text-lg leading-tight whitespace-nowrap">
                             <?= $chairmanData['person_name'] ?? '' ?></p>
@@ -216,7 +226,8 @@ include __DIR__ . '/includes/header.php';
         <div class="text-center mb-6 lg:mb-10">
             <p class="text-brandRed text-xs uppercase tracking-[0.35em] font-semibold mb-3">What We Do</p>
             <h2 class="text-3xl sm:text-4xl font-extrabold text-slate-900">Our Projects</h2>
-            <p class="mt-4 mx-auto max-w-2xl text-slate-600 text-sm sm:text-base leading-7">Delivering real results through
+            <p class="mt-4 mx-auto max-w-2xl text-slate-600 text-sm sm:text-base leading-7">Delivering real results
+                through
                 humanitarian projects across health, education, WASH, food security, and emergency response.</p>
         </div>
         <div class="text-center"><a href="<?= $base ?>projects/index.php"
@@ -398,10 +409,10 @@ include __DIR__ . '/includes/header.php';
                     </div>
                 </div>
                 <div class="p-5">
-                    <div class="flex items-center gap-2 mb-2"><span
-                            class="text-[10px] text-slate-400">Since
+                    <div class="flex items-center gap-2 mb-2"><span class="text-[10px] text-slate-400">Since
                             <?= date('M Y', strtotime($project['start_date'])) ?></span></div>
-                    <h3 class="font-bold text-slate-900 mb-2 group-hover:text-brandRed transition-colors"><?= sanitize($project['title']) ?></h3>
+                    <h3 class="font-bold text-slate-900 mb-2 group-hover:text-brandRed transition-colors">
+                        <?= sanitize($project['title']) ?></h3>
                     <p class="text-slate-500 text-xs leading-relaxed mb-4"><?= sanitize($project['description']) ?></p>
                     <div class="mb-3">
                         <div class="flex justify-between text-xs mb-1"><span class="text-slate-500">Progress</span><span
@@ -413,8 +424,8 @@ include __DIR__ . '/includes/header.php';
                     </div>
                     <div class="flex items-center justify-between text-xs text-slate-400"><span><i
                                 class="fa-solid fa-users mr-1"></i><?= number_format($project['beneficiaries_count']) ?>
-                            beneficiaries</span><span
-                            class="text-brandRed font-semibold group-hover:underline">View Details <i class="fa-solid fa-arrow-right text-[10px]"></i></span></div>
+                            beneficiaries</span><span class="text-brandRed font-semibold group-hover:underline">View
+                            Details <i class="fa-solid fa-arrow-right text-[10px]"></i></span></div>
                 </div>
             </a>
             <?php endforeach; ?>
@@ -530,8 +541,10 @@ include __DIR__ . '/includes/header.php';
                     foreach ($geoStats as $gs):
                     ?>
                     <div class="mb-4">
-                        <div class="w-20 h-20 rounded-full bg-brandRed/10 flex items-center justify-center mx-auto mb-4"><i
-                                class="fa-solid <?= $gs['icon'] ?? 'fa-map-location-dot' ?> text-brandRed text-3xl"></i></div>
+                        <div
+                            class="w-20 h-20 rounded-full bg-brandRed/10 flex items-center justify-center mx-auto mb-4">
+                            <i class="fa-solid <?= $gs['icon'] ?? 'fa-map-location-dot' ?> text-brandRed text-3xl"></i>
+                        </div>
                         <h3 class="text-lg font-bold text-slate-900 mb-2"><?= sanitize($gs['value'] ?? '') ?></h3>
                         <p class="text-slate-500 text-sm mb-1"><?= sanitize($gs['label'] ?? '') ?></p>
                     </div>
@@ -557,7 +570,8 @@ include __DIR__ . '/includes/header.php';
 <section class="py-16 bg-brandRed">
     <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         <h2 class="text-3xl sm:text-4xl font-extrabold text-white mb-4 font-heading">
-            <?= (!empty($cta['section_title'])) ? sanitize($cta['section_title']) : (!empty($ctaData['section_title']) ? sanitize($ctaData['section_title']) : 'Ready to Make a Difference?') ?></h2>
+            <?= (!empty($cta['section_title'])) ? sanitize($cta['section_title']) : (!empty($ctaData['section_title']) ? sanitize($ctaData['section_title']) : 'Ready to Make a Difference?') ?>
+        </h2>
         <p class="text-white/80 text-sm sm:text-base max-w-2xl mx-auto mb-8"><?= $ctaData['description'] ?? '' ?></p>
         <div class="flex flex-wrap justify-center gap-4">
             <a href="<?= $base ?><?= $ctaData['button1_link'] ?? 'get-involved/contribute-with-us.php' ?>"
@@ -606,14 +620,19 @@ function renderContent(index) {
     contentEl.style.opacity = '0';
     contentEl.style.transform = 'translateY(15px)';
     setTimeout(function() {
-        var badgeHtml = s.badge
-            ? '<span class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest bg-brandRed/90 text-white mb-4 backdrop-blur-sm"><i class="fa-solid fa-globe"></i> ' + s.badge + '</span>'
-            : '<span class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest bg-slate-900/60 backdrop-blur-sm text-slate-100 border border-white/20 mb-6"><i class="fa-solid fa-globe text-brandRed"></i> World Relief Committee NGO</span>';
+        var badgeHtml = s.badge ?
+            '<span class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest bg-brandRed/90 text-white mb-4 backdrop-blur-sm"><i class="fa-solid fa-globe"></i> ' +
+            s.badge + '</span>' :
+            '<span class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest bg-slate-900/60 backdrop-blur-sm text-slate-100 border border-white/20 mb-6"><i class="fa-solid fa-globe text-brandRed"></i> World Relief Committee NGO</span>';
         contentEl.innerHTML = badgeHtml +
-            '<h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-white leading-tail mb-6 font-heading drop-shadow-md">' + s.title + '</h1>' +
-            '<p class="text-base sm:text-lg text-slate-200 mb-8 leading-relaxed drop-shadow-sm max-w-2xl">' + s.subtitle + '</p>' +
+            '<h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-white leading-tail mb-6 font-heading drop-shadow-md">' +
+            s.title + '</h1>' +
+            '<p class="text-base sm:text-lg text-slate-200 mb-8 leading-relaxed drop-shadow-sm max-w-2xl">' + s
+            .subtitle + '</p>' +
             '<div class="flex flex-wrap gap-4 items-center">' +
-            '<a href="<?= $base ?>' + s.cta_link + '" class="bg-brandRed hover:bg-brandRed-hover text-white font-bold text-sm sm:text-base px-7 py-3.5 rounded-xl shadow-lg shadow-brandRed/30 transition-all flex items-center gap-2 transform hover:-translate-y-1">' + s.cta_text + ' <i class="fa-solid fa-arrow-right text-xs"></i></a>' +
+            '<a href="<?= $base ?>' + s.cta_link +
+            '" class="bg-brandRed hover:bg-brandRed-hover text-white font-bold text-sm sm:text-base px-7 py-3.5 rounded-xl shadow-lg shadow-brandRed/30 transition-all flex items-center gap-2 transform hover:-translate-y-1">' +
+            s.cta_text + ' <i class="fa-solid fa-arrow-right text-xs"></i></a>' +
             '<a href="<?= $base ?>get-involved/contribute-with-us.php" class="bg-white/10 hover:bg-white/25 backdrop-blur-md text-white border border-white/30 font-semibold text-sm sm:text-base px-6 py-3.5 rounded-xl transition-all flex items-center gap-2 transform hover:-translate-y-1">Contribute With Us <i class="fa-solid fa-handshake text-xs"></i></a>' +
             '</div>';
         contentEl.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
@@ -626,9 +645,9 @@ function updateSlider() {
     if (slider) {
         slider.style.transform = 'translateX(-' + currentSlide * 100 + '%)';
         dots.forEach(function(dot, index) {
-            dot.className = index === currentSlide
-                ? 'w-4 h-3 rounded-full bg-brandRed shadow-md transition-all duration-300'
-                : 'w-3 h-3 rounded-full bg-white/50 hover:bg-white transition-all duration-300';
+            dot.className = index === currentSlide ?
+                'w-4 h-3 rounded-full bg-brandRed shadow-md transition-all duration-300' :
+                'w-3 h-3 rounded-full bg-white/50 hover:bg-white transition-all duration-300';
         });
         renderContent(currentSlide);
     }
@@ -654,8 +673,14 @@ function resetSlider() {
 }
 
 if (nextBtn && prevBtn && dots.length > 0) {
-    nextBtn.addEventListener('click', function() { nextSlide(); resetSlider(); });
-    prevBtn.addEventListener('click', function() { prevSlide(); resetSlider(); });
+    nextBtn.addEventListener('click', function() {
+        nextSlide();
+        resetSlider();
+    });
+    prevBtn.addEventListener('click', function() {
+        prevSlide();
+        resetSlider();
+    });
     dots.forEach(function(dot) {
         dot.addEventListener('click', function(e) {
             currentSlide = parseInt(e.target.getAttribute('data-index'));
@@ -671,12 +696,23 @@ var touchStartX = 0;
 var touchEndX = 0;
 var heroSection = document.getElementById('hero-slider');
 if (heroSection) {
-    heroSection.addEventListener('touchstart', function(e) { touchStartX = e.changedTouches[0].screenX; }, {passive: true});
+    heroSection.addEventListener('touchstart', function(e) {
+        touchStartX = e.changedTouches[0].screenX;
+    }, {
+        passive: true
+    });
     heroSection.addEventListener('touchend', function(e) {
         touchEndX = e.changedTouches[0].screenX;
-        if (touchStartX - touchEndX > 50) { nextSlide(); resetSlider(); }
-        else if (touchEndX - touchStartX > 50) { prevSlide(); resetSlider(); }
-    }, {passive: true});
+        if (touchStartX - touchEndX > 50) {
+            nextSlide();
+            resetSlider();
+        } else if (touchEndX - touchStartX > 50) {
+            prevSlide();
+            resetSlider();
+        }
+    }, {
+        passive: true
+    });
 }
 </script>
 </script>

@@ -54,6 +54,25 @@ if ( isPost() && isset( $_POST[ 'save_sections' ] ) ) {
         } else {
             insertRow( $sectionKey, $updateData );
         }
+
+        // The dedicated chairman table stores message fields, while the
+        // section heading and subtitle belong to homepage_sections.
+        if ( $sectionKey === 'chairman_message' ) {
+            $sectionMeta = getRow( 'homepage_sections', [ 'section_key' => $sectionKey ] );
+            $sectionMetaData = [
+                'section_title' => $data[ 'section_title' ] ?? "Chairman's Message",
+                'section_subtitle' => $data[ 'section_subtitle' ] ?? '',
+            ];
+            if ( $sectionMeta ) {
+                updateRow( 'homepage_sections', $sectionMetaData, [ 'id' => $sectionMeta[ 'id' ] ] );
+            } else {
+                insertRow( 'homepage_sections', array_merge( [
+                    'section_key' => $sectionKey,
+                    'is_active' => 1,
+                    'sort_order' => 1,
+                ], $sectionMetaData ) );
+            }
+        }
     }
 
     function saveCtaSection( $sectionKey, $data ) {
@@ -1170,13 +1189,16 @@ function loadDedicatedSection($sectionKey, $defaultTitle) {
             break;
         case 'chairman_message':
             $row = getRow('chairman_message');
-            if ($row) return [
-                'section_key' => $sectionKey,
-                'section_title' => 'Chairman\'s Message',
-            'section_subtitle' => '',
-            'content' => $row,
-            'is_active' => 1,
-        ];
+            if ($row) {
+                $sectionMeta = getRow( 'homepage_sections', [ 'section_key' => $sectionKey ] );
+                return [
+                    'section_key' => $sectionKey,
+                    'section_title' => $sectionMeta[ 'section_title' ] ?? 'Chairman\'s Message',
+                    'section_subtitle' => $sectionMeta[ 'section_subtitle' ] ?? '',
+                    'content' => $row,
+                    'is_active' => 1,
+                ];
+            }
         break;
         case 'geographic_presence':
         $row = getRow( 'geographic_presence' );
