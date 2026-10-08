@@ -230,21 +230,21 @@ if ( $flash ): ?>
                                                     }
 
                                                     function showPreview( zone, path, type ) {
-                                                        var imageUrl = /^( https?: )?\/\//i.test( path )?path:baseUrl+path.replace( /^\/+/, '' );
+                                                        var imageUrl = /^(https?:)?\/\//i.test( path ) ? path : baseUrl + path.replace( /^\/+/, '' );
                                                         var html = '<div class="upload-preview">';
                                                         if ( type === 'image' ) {
-                                                            html += '<img src="'+imageUrl.replace( /&/g, '&amp;' ).replace( /"/g,'&quot;')+'" alt = 'Preview'>';}
-        else{html+='<div class = 'bg-white border border-slate-200 rounded-lg p-3 text-xs text-slate-600'><i class = 'fa-solid fa-file-pdf text-red-400 mr-1'></i>'+path.split('/').pop()+'</div>';}
-        html+='<button type = 'button' class = 'upload-remove' title = 'Remove'>&times;
-                                                            </button></div>';
-        zone.innerHTML=html;
-        zone.querySelector('.upload-remove').addEventListener('click',function(e){
-          e.stopPropagation();
-          if(pathInput){pathInput.value=''}
-          zone.innerHTML='<div class = 'upload-placeholder'><i class = 'fa-solid fa-cloud-arrow-up'></i><p>Click or drag to upload</p></div>';
+                                                            html += '<img src="' + imageUrl.replace( /&/g, '&amp;' ).replace( /"/g, '&quot;' ) + '" alt="Preview">';
+                                                        } else {
+                                                            html += '<div class="bg-white border border-slate-200 rounded-lg p-3 text-xs text-slate-600"><i class="fa-solid fa-file-pdf text-red-400 mr-1"></i>' + path.split( '/' ).pop() + '</div>';
                                                         }
-                                                    );
-                                                }
+                                                        html += '<button type="button" class="upload-remove" title="Remove">&times;</button></div>';
+                                                        zone.innerHTML = html;
+                                                        zone.querySelector( '.upload-remove' ).addEventListener( 'click', function( e ) {
+                                                            e.stopPropagation();
+                                                            if ( pathInput ) { pathInput.value = ''; }
+                                                            zone.innerHTML = '<div class="upload-placeholder"><i class="fa-solid fa-cloud-arrow-up"></i><p>Click or drag to upload</p></div>';
+                                                        } );
+                                                    }
 
                                                 // Show existing image on load
                                                 if ( pathInput && pathInput.value ) {
