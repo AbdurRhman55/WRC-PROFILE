@@ -21,13 +21,22 @@ $heroData = $hero[ 'parsed_content' ] ?? [];
 $chairman = $leaderSections[ 'chairman_message' ] ?? null;
 $chairmanData = $chairman[ 'parsed_content' ] ?? [];
 
-// The admin saves chairman details in the dedicated table. Use it here too
-// so the leadership page does not display stale homepage_sections JSON.
+// Read the complete chairman section managed under Pages > Homepage.
+// The dedicated table remains a fallback for existing/migrated installations.
 $chairmanRow = getRow( 'chairman_message' );
 if ( $chairmanRow ) {
-    $chairman = $chairman ?? [];
-    $chairman[ 'parsed_content' ] = $chairmanRow;
-    $chairmanData = $chairmanRow;
+  $chairmanData = array_merge(
+    is_array( $chairmanData ) ? $chairmanData : [],
+    array_filter( $chairmanRow, static function ( $value ) {
+      return $value !== null && $value !== '';
+    } )
+  );
+}
+if ( empty( $chairmanData[ 'person_name' ] ) ) {
+  $chairmanData[ 'person_name' ] = $chairmanData[ 'name' ] ?? '';
+}
+if ( empty( $chairmanData[ 'person_title' ] ) ) {
+  $chairmanData[ 'person_title' ] = $chairmanData[ 'title' ] ?? '';
 }
 
 // Fetch leadership team
@@ -61,10 +70,10 @@ include dirname( __DIR__ ) . '/includes/header.php';
 </nav>
 
 <h1 class = 'text-4xl md:text-5xl lg:text-6xl font-display font-bold text-white leading-tight mb-6 max-w-3xl'>
-< ?= ( !empty( $hero[ 'section_title' ] ) ) ? sanitize( $hero[ 'section_title' ] ) : ( !empty( $heroData[ 'section_title' ] ) ? sanitize( $heroData[ 'section_title' ] ) : 'Our Leadership' ) ?>
+<?= ( !empty( $hero[ 'section_title' ] ) ) ? sanitize( $hero[ 'section_title' ] ) : ( !empty( $heroData[ 'section_title' ] ) ? sanitize( $heroData[ 'section_title' ] ) : 'Our Leadership' ) ?>
 </h1>
 <p class = 'text-lg md:text-xl text-sand-50/80 max-w-2xl mb-10 leading-relaxed'>
-< ?= ( !empty( $hero[ 'section_subtitle' ] ) ) ? sanitize( $hero[ 'section_subtitle' ] ) : ( !empty( $heroData[ 'subtitle' ] ) ? sanitize( $heroData[ 'subtitle' ] ) : ( !empty( $heroData[ 'section_subtitle' ] ) ? sanitize( $heroData[ 'section_subtitle' ] ) : 'Meet the dedicated leaders guiding WRC\'s mission to deliver impactful humanitarian aid worldwide.')) ?>
+<?= ( !empty( $hero[ 'section_subtitle' ] ) ) ? sanitize( $hero[ 'section_subtitle' ] ) : ( !empty( $heroData[ 'subtitle' ] ) ? sanitize( $heroData[ 'subtitle' ] ) : ( !empty( $heroData[ 'section_subtitle' ] ) ? sanitize( $heroData[ 'section_subtitle' ] ) : 'Meet the dedicated leaders guiding WRC\'s mission to deliver impactful humanitarian aid worldwide.')) ?>
           </p>
         </div>
       </div>
@@ -72,7 +81,9 @@ include dirname( __DIR__ ) . '/includes/header.php';
 
     <!-- Chairman's Message -->
 <?php
-$message = $chairmanData[ 'paragraph1' ] ?? $chairmanData[ 'message' ] ?? '';
+$message = !empty( $chairmanData[ 'paragraph1' ] )
+  ? $chairmanData[ 'paragraph1' ]
+  : ( $chairmanData[ 'message' ] ?? '' );
 $message2 = $chairmanData[ 'paragraph2' ] ?? '';
 ?>
 <section class = 'py-20 bg-white relative overflow-hidden'>
@@ -93,7 +104,7 @@ Leadership Spotlight
 <div class = 'flex flex-col lg:flex-row items-start lg:items-center justify-between gap-8 mb-10 pb-8 border-b border-white/10'>
 <div>
 <h2 class = 'text-3xl md:text-4xl font-display font-bold text-white leading-tight'>
-< ?= ( !empty( $chairman[ 'section_title' ] ) ) ? sanitize( $chairman[ 'section_title' ] ) : 'Message from the Chairman' ?>
+<?= ( !empty( $chairman[ 'section_title' ] ) ) ? sanitize( $chairman[ 'section_title' ] ) : 'Message from the Chairman' ?>
 </h2>
 <p class = 'text-slate-400 text-sm md:text-base mt-2'>
 Guiding principles and vision from WRC leadership
@@ -106,11 +117,11 @@ Guiding principles and vision from WRC leadership
 
 <div class = 'space-y-6 mb-12 text-slate-300 leading-relaxed text-base md:text-lg font-normal'>
 <?php if ( !empty( $message ) ): ?>
-<p>< ?= sanitize( $message ) ?></p>
+<p><?= sanitize( $message ) ?></p>
 <?php endif;
 ?>
 <?php if ( !empty( $message2 ) ): ?>
-<p>< ?= sanitize( $message2 ) ?></p>
+<p><?= sanitize( $message2 ) ?></p>
 <?php endif;
 ?>
 <?php if ( empty( $message ) && empty( $message2 ) ): ?>
@@ -123,12 +134,15 @@ WRC is committed to serving vulnerable communities with compassion, integrity, a
 
 <div class = 'pt-6 flex items-center gap-5'>
 <?php
-$chairPhoto = $chairmanData[ 'image_path' ] ?? $chairmanData[ 'hero_image' ] ?? '';
+$chairPhoto = !empty( $chairmanData[ 'image_path' ] )
+  ? $chairmanData[ 'image_path' ]
+  : ( $chairmanData[ 'hero_image' ] ?? '' );
+$chairPhoto = trim( (string) $chairPhoto );
 $chairName = $chairmanData[ 'person_name' ] ?? '';
 $chairTitle = $chairmanData[ 'person_title' ] ?? '';
 ?>
 <?php if ( !empty( $chairPhoto ) ): ?>
-<img src = "<?= sanitize(siteUrl($chairPhoto)) ?>" alt = "<?= sanitize($chairName ?: 'Chairman') ?>" class = 'w-16 h-16 rounded-full object-cover border-2 border-brandRed shadow-xl'>
+<img src = "<?= sanitize( siteUrl( $chairPhoto ) ) ?>" alt = "<?= sanitize($chairName ?: 'Chairman') ?>" class = 'w-16 h-16 rounded-full object-cover border-2 border-brandRed shadow-xl'>
 <?php else: ?>
 <div class = 'w-16 h-16 rounded-full bg-brandRed/20 border-2 border-brandRed flex items-center justify-center shrink-0 shadow-xl'>
 <i class = 'fa-solid fa-user-tie text-2xl text-white'></i>
@@ -137,10 +151,10 @@ $chairTitle = $chairmanData[ 'person_title' ] ?? '';
 ?>
 <div>
 <p class = 'font-bold text-white text-lg tracking-wide'>
-< ?= sanitize( $chairName ?: 'Mr. Asad Shah' ) ?>
+<?= sanitize( $chairName ?: 'Mr. Asad Shah' ) ?>
 </p>
 <p class = 'text-brandRed text-sm font-semibold tracking-wider uppercase'>
-< ?= sanitize( $chairTitle ?: 'Chairman of the Board' ) ?>
+<?= sanitize( $chairTitle ?: 'Chairman of the Board' ) ?>
 </p>
 </div>
 </div>

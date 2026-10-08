@@ -62,6 +62,7 @@ if ( isPost() && isset( $_POST[ 'save_sections' ] ) ) {
             $sectionMetaData = [
                 'section_title' => $data[ 'section_title' ] ?? "Chairman's Message",
                 'section_subtitle' => $data[ 'section_subtitle' ] ?? '',
+                'content' => json_encode( $content, JSON_UNESCAPED_UNICODE ),
             ];
             if ( $sectionMeta ) {
                 updateRow( 'homepage_sections', $sectionMetaData, [ 'id' => $sectionMeta[ 'id' ] ] );

@@ -157,6 +157,7 @@ include __DIR__ . '/includes/header.php';
 
 <!-- CHAIRMAN'S MESSAGE -->
 <?php $chairman = $homepageMap['chairman_message'] ?? null; $chairmanData = $chairman ? json_decode($chairman['content'], true) : []; ?>
+<?php $chairmanImagePath = !empty($chairmanData['image_path']) ? $chairmanData['image_path'] : ($chairmanData['hero_image'] ?? 'assets/images/hero.jpg'); ?>
 <section class="bg-slate-50 py-10 lg:py-12">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="mb-8 text-center ">
@@ -171,7 +172,7 @@ include __DIR__ . '/includes/header.php';
         <div
             class="grid gap-5 lg:grid-cols-[0.95fr_0.9fr] items-stretch bg-white border border-slate-200 rounded-[2rem] shadow-xl overflow-hidden">
             <div class="relative overflow-hidden">
-                <img src="<?= sanitize(siteUrl($chairmanData['image_path'] ?? $chairmanData['hero_image'] ?? 'assets/images/hero.jpg')) ?>"
+                <img src="<?= sanitize(siteUrl($chairmanImagePath)) ?>"
                     alt="Chairman of WRC" class="w-full h-full object-cover min-h-[280px]" />
                 <div class="absolute inset-0  mix-blend-multiply"></div>
                 <div class="absolute bottom-4 left-4 right-4 text-white">
