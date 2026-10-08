@@ -13,6 +13,11 @@ if ( $heroRow ) {
     $decoded = json_decode( $heroRow[ 'content' ] ?? '{}', true );
     $heroData = is_array( $decoded ) ? $decoded : [];
 }
+$heroTitle = $heroRow[ 'section_title' ] ?? '';
+$heroTitle = $heroTitle ?: ( $heroData[ 'title' ] ?? 'Resources & Documents' );
+$heroSubtitle = $heroRow[ 'section_subtitle' ] ?? '';
+$heroSubtitle = $heroSubtitle ?: ( $heroData[ 'subtitle' ] ?? 'Access our audit reports and policies, and learn about WRC as a registered organization.' );
+$heroTagline = $heroData[ 'tagline' ] ?? 'Transparency & Accountability';
 
 // Fetch resources by type
 $auditReports = getRows( 'resources', [ 'resource_type' => 'audit_report', 'is_active' => 1 ], 'year DESC' );
@@ -30,7 +35,30 @@ $stats = [
 include dirname( __DIR__ ) . '/includes/header.php';
 ?>
 
-<main class = 'flex-grow'>
+<style>
+.resources-page [ id ] {
+    scroll-margin-top: 6.5rem;
+}
+
+.resources-page a:focus-visible {
+    outline: 3px solid #ca0000;
+    outline-offset: 3px;
+}
+
+@media ( prefers-reduced-motion: reduce ) {
+
+    .resources-page *,
+    .resources-page *::before,
+    .resources-page *::after {
+        animation-duration: .01ms !important;
+        animation-iteration-count: 1 !important;
+        scroll-behavior: auto !important;
+        transition-duration: .01ms !important;
+    }
+}
+</style>
+
+<main class = 'resources-page flex-grow'>
 
 <!-- HERO SECTION -->
 <section
@@ -43,11 +71,12 @@ if ( strpos( $heroImg, 'assets/' ) !== 0 && strpos( $heroImg, 'http' ) !== 0 && 
     $heroImg = 'assets/images/' . $heroImg;
 }
 ?>
-<img src = "<?= $base ?><?= $heroImg ?>" alt = 'Resources' class = 'absolute inset-0 w-full h-full object-cover'>
-<div class = 'absolute inset-0 bg-gradient-to-br from-slate-950/70 via-slate-900/50 to-brandRed/20'></div>
-<div class = 'absolute top-20 left-10 w-72 h-72 bg-brandRed/5 rounded-full blur-3xl animate-pulse'></div>
-<div class = 'absolute bottom-10 right-10 w-96 h-96 bg-violet-500/5 rounded-full blur-3xl animate-pulse'
-style = 'animation-delay:1s'></div>
+<img src = "<?= sanitize( siteUrl( $heroImg ) ) ?>" alt = 'Resources page banner' fetchpriority = 'high'
+
+class = 'absolute inset-0 w-full h-full object-cover'>
+<div class = 'absolute inset-0 bg-gradient-to-br from-slate-950/85 via-slate-900/70 to-brandRed/35'></div>
+<div class = 'absolute top-20 left-10 w-72 h-72 bg-brandRed/10 rounded-full blur-3xl'></div>
+<div class = 'absolute bottom-10 right-10 w-96 h-96 bg-white/5 rounded-full blur-3xl'></div>
 </div>
 <div class = 'relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-20 lg:py-24'>
 <div class = 'max-w-3xl mx-auto text-center'>
@@ -60,26 +89,26 @@ style = 'animation-delay:1s'></div>
 
 class = 'inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-white/20 text-white/90 text-[11px] font-semibold uppercase tracking-widest px-4 py-2 rounded-full mb-6'>
 <i class = 'fa-solid fa-folder-open text-white text-xs'></i>
-< ?= $heroData[ 'tagline' ] ?? 'Transparency & Accountability' ?>
+< ?= sanitize( $heroTagline ) ?>
 </div>
 <h1 class = 'text-4xl md:text-5xl lg:text-6xl font-extrabold leading-tight mb-6'
 style = "font-family:'Fraunces',serif;">
-< ?= $heroRow[ 'section_title' ] ?: ( $heroData[ 'title' ] ?? 'Resources & Documents' ) ?>
+< ?= sanitize( $heroTitle ) ?>
 </h1>
 <p class = 'text-lg md:text-xl text-white/70 leading-relaxed mb-10 max-w-2xl mx-auto'>
-< ?= $heroRow[ 'section_subtitle' ] ?: ( $heroData[ 'subtitle' ] ?? 'Access our audit reports and policies, and learn about WRC as a registered organization.' ) ?>
+< ?= sanitize( $heroSubtitle ) ?>
 </p>
 <!-- Dynamic Stats Row -->
-<div class = 'grid grid-cols-3 gap-4 mb-10 max-w-xl mx-auto'>
+<div class = 'grid grid-cols-1 min-[480px]:grid-cols-3 gap-3 sm:gap-4 mb-10 max-w-2xl mx-auto'>
 <?php foreach ( $stats as $stat ): ?>
 <div
 
-class = 'bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl p-3 text-center hover:bg-white/15 transition-all'>
+class = 'bg-white/10 backdrop-blur-sm border border-white/20 rounded-2xl px-4 py-3 text-center hover:bg-white/15 transition-all'>
 <i class = "fa-solid <?= $stat['icon'] ?> text-white/80 text-sm mb-1"></i>
 <div class = 'text-xl font-extrabold text-white' style = "font-family:'Fraunces',serif;">
-< ?= $stat[ 'value' ] ?></div>
+< ?= sanitize( ( string ) $stat[ 'value' ] ) ?></div>
 <div class = 'text-[10px] text-white/60 font-medium uppercase tracking-wider'>
-< ?= $stat[ 'label' ] ?></div>
+< ?= sanitize( $stat[ 'label' ] ) ?></div>
 </div>
 <?php endforeach;
 ?>
@@ -106,20 +135,22 @@ class = 'bg-white/10 hover:bg-white/20 border border-white/30 text-white font-bo
 </section>
 
 <!-- QUICK NAV -->
-<section class = 'bg-white border-b border-slate-200 sticky top-20 z-40'>
+<section aria-label = 'Resources sections'
+
+class = 'bg-white/95 backdrop-blur-md border-b border-slate-200 sticky top-20 z-40 shadow-sm'>
 <div class = 'max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'>
 <div class = 'flex overflow-x-auto gap-1 py-2 scrollbar-hide' style = 'scrollbar-width:none;'>
-<a href = '#audit-reports'
+<a href = '#audit-reports' aria-label = 'Jump to audit reports'
 
 class = 'shrink-0 text-xs font-semibold px-4 py-2 rounded-lg hover:bg-brandRed hover:text-white text-slate-600 transition-all whitespace-nowrap'><i
 
 class = 'fa-solid fa-magnifying-glass-chart mr-1.5 text-amber-500'></i> Audit Reports</a>
-<a href = '#policies'
+<a href = '#policies' aria-label = 'Jump to organizational policies'
 
 class = 'shrink-0 text-xs font-semibold px-4 py-2 rounded-lg hover:bg-brandRed hover:text-white text-slate-600 transition-all whitespace-nowrap'><i
 
 class = 'fa-solid fa-shield-halved mr-1.5 text-blue-500'></i> Policies</a>
-<a href = '#registration'
+<a href = '#registration' aria-label = 'Jump to registration status'
 
 class = 'shrink-0 text-xs font-semibold px-4 py-2 rounded-lg hover:bg-brandRed hover:text-white text-slate-600 transition-all whitespace-nowrap'><i
 
@@ -154,9 +185,11 @@ certified auditing firms for transparency and compliance.</p>
 <?php if ( !empty( $auditReports ) ): ?>
 <div class = 'grid md:grid-cols-2 lg:grid-cols-4 gap-6'>
 <?php foreach ( $auditReports as $report ): ?>
+<?php $reportType = strtoupper( ( string ) ( $report[ 'file_type' ] ?? 'PDF' ) );
+?>
 <div
 
-class = 'group bg-white rounded-2xl border border-slate-200 overflow-hidden hover:shadow-xl hover:border-amber-300 transition-all duration-300'>
+class = 'group bg-white rounded-3xl border border-slate-200 overflow-hidden hover:-translate-y-1 hover:shadow-xl hover:border-amber-300 transition-all duration-300'>
 <div
 
 class = 'h-44 bg-gradient-to-br from-amber-50 via-amber-100/50 to-amber-50 flex items-center justify-center relative overflow-hidden'>
@@ -167,7 +200,7 @@ class = 'absolute inset-0 bg-gradient-to-br from-amber-0 to-amber-50 group-hover
 <div class = 'relative text-center'>
 <i class = 'fa-solid fa-magnifying-glass-chart text-amber-600 text-4xl mb-2 opacity-80'></i>
 <div class = 'text-3xl font-extrabold text-amber-700' style = "font-family:'Fraunces',serif;">
-< ?= sanitize( $report[ 'year' ] ?? '' ) ?></div>
+< ?= sanitize( ( string ) ( $report[ 'year' ] ?? '' ) ) ?></div>
 </div>
 </div>
 <div class = 'p-5'>
@@ -179,9 +212,10 @@ class = 'absolute inset-0 bg-gradient-to-br from-amber-0 to-amber-50 group-hover
 <span class = 'text-[11px] text-slate-400 font-medium'><i
 
 class = 'fa-solid fa-file-pdf mr-1 text-amber-600'></i>
-< ?= strtoupper( $report[ 'file_type' ] ?? 'PDF' ) ?></span>
+< ?= sanitize( $reportType ) ?></span>
 <?php if ( !empty( $report[ 'file_path' ] ) ): ?>
-<a href = "<?= $base ?><?= $report['file_path'] ?>" target = '_blank'
+<a href = "<?= sanitize( siteUrl( $report['file_path'] ) ) ?>" target = '_blank'
+rel = 'noopener noreferrer'
 
 class = 'inline-flex items-center gap-1.5 bg-amber-600 hover:bg-amber-700 text-white text-[11px] font-bold px-3 py-1.5 rounded-lg transition-all'>
 <i class = 'fa-solid fa-download text-[10px]'></i> Download
@@ -235,9 +269,14 @@ governance, transparency, accountability, and ethical practices across all opera
 <?php if ( !empty( $policies ) ): ?>
 <div class = 'grid md:grid-cols-2 lg:grid-cols-3 gap-6'>
 <?php foreach ( $policies as $policy ): ?>
+<?php
+$policyType = strtolower( ( string ) ( $policy[ 'file_type' ] ?? 'pdf' ) );
+$policyTypeLabel = strtoupper( $policyType );
+$policyFileIcon = $policyType === 'pdf' ? 'pdf text-red-500' : 'word text-blue-500';
+?>
 <div
 
-class = 'group bg-white rounded-2xl border border-slate-200 overflow-hidden hover:shadow-xl hover:border-blue-300 transition-all duration-300'>
+class = 'group bg-white rounded-3xl border border-slate-200 overflow-hidden hover:-translate-y-1 hover:shadow-xl hover:border-blue-300 transition-all duration-300'>
 <div
 
 class = 'h-32 bg-gradient-to-br from-blue-50 via-blue-100/50 to-blue-50 flex items-center justify-center relative overflow-hidden'>
@@ -248,7 +287,7 @@ class = 'absolute inset-0 bg-gradient-to-br from-blue-0 to-blue-50 group-hover:t
 <div class = 'relative text-center'>
 <i class = 'fa-solid fa-shield-halved text-blue-600 text-4xl mb-2 opacity-80'></i>
 <div class = 'text-sm font-bold text-blue-700 uppercase tracking-wider'>
-< ?= strtoupper( $policy[ 'file_type' ] ?? 'PDF' ) ?></div>
+< ?= sanitize( $policyTypeLabel ) ?></div>
 </div>
 </div>
 <div class = 'p-5'>
@@ -259,10 +298,11 @@ class = 'absolute inset-0 bg-gradient-to-br from-blue-0 to-blue-50 group-hover:t
 <div class = 'flex items-center justify-between pt-3 border-t border-slate-100'>
 <span class = 'text-[11px] text-slate-400 font-medium'><i
 
-class = "fa-solid fa-file-<?= $policy['file_type'] === 'pdf' ? 'pdf text-red-500' : 'word text-blue-500' ?> mr-1"></i>
-< ?= strtoupper( $policy[ 'file_type' ] ?? 'PDF' ) ?></span>
+class = "fa-solid fa-file-<?= $policyFileIcon ?> mr-1"></i>
+< ?= sanitize( $policyTypeLabel ) ?></span>
 <?php if ( !empty( $policy[ 'file_path' ] ) ): ?>
-<a href = "<?= $base ?><?= $policy['file_path'] ?>" target = '_blank'
+<a href = "<?= sanitize( siteUrl( $policy['file_path'] ) ) ?>" target = '_blank'
+rel = 'noopener noreferrer'
 
 class = 'inline-flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white text-[11px] font-bold px-3 py-1.5 rounded-lg transition-all'>
 <i class = 'fa-solid fa-download text-[10px]'></i> Download
