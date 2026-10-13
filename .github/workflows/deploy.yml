@@ -1,9 +1,11 @@
+
 name: Deploy WRC to Hostinger
 
 on:
   push:
     branches:
       - main
+  workflow_dispatch:
 
 jobs:
   deploy:
@@ -13,31 +15,88 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Deploy to Hostinger
+      - name: Verify deployment files
+        shell: bash
+        run: |
+          set -e
+
+          for item in \
+            database/run_project_import.php \
+            includes/footer.php \
+            includes/form-submit.php \
+            index.php
+          do
+            if [ ! -f "$item" ]; then
+              echo "ERROR: Missing file: $item"
+              exit 1
+            fi
+          done
+
+          echo "All required deployment files are present."
+
+      - name: Deploy WRC files to Hostinger
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.HOSTINGER_HOST }}
           username: ${{ secrets.HOSTINGER_USERNAME }}
           key: ${{ secrets.HOSTINGER_SSH_KEY }}
-          port: ${{ secrets.HOSTINGER_PORT }}
+          port: ${{ secrets.HOSTINGER_PORT || 22 }}
+          timeout: 60s
+          command_timeout: 10m
+          debug: true
           source: "about,admin,assets,contact,database,get-involved,impact,news,our-work,projects,resources,where-we-work,index.php,privacy.html,privacy.php,includes/footer.php,includes/form-submit.php,includes/functions.php,includes/header.php,includes/newsletter-subscribe.php,terms.html,terms.php"
           target: "/home/u817261572/domains/limegreen-anteater-521120.hostingersite.com/public_html"
           overwrite: true
 
-      - name: Import WRC project portfolio into live database
+      - name: Import and verify WRC project portfolio
         uses: appleboy/ssh-action@v1.2.2
         with:
           host: ${{ secrets.HOSTINGER_HOST }}
           username: ${{ secrets.HOSTINGER_USERNAME }}
           key: ${{ secrets.HOSTINGER_SSH_KEY }}
-          port: ${{ secrets.HOSTINGER_PORT }}
+          port: ${{ secrets.HOSTINGER_PORT || 22 }}
+          timeout: 60s
+          command_timeout: 10m
+          debug: true
           script: |
-            set -e
-            cd /home/u817261572/domains/limegreen-anteater-521120.hostingersite.com/public_html
+            set -eu
+
+            DEPLOY_DIR="/home/u817261572/domains/limegreen-anteater-521120.hostingersite.com/public_html"
+
+            echo "SSH connection successful."
+            whoami
+
+            cd "$DEPLOY_DIR"
+
+            if [ ! -f database/run_project_import.php ]; then
+              echo "ERROR: Project import script not found."
+              exit 1
+            fi
+
+            if ! command -v php >/dev/null 2>&1; then
+              echo "ERROR: PHP CLI is not available."
+              exit 1
+            fi
+
+            php -v
+
             printf 'Require all denied\n' > database/.htaccess
-            result="$(php database/run_project_import.php)"
-            printf '%s\n' "$result"
+
+            if result="$(php database/run_project_import.php 2>&1)"; then
+              printf '%s\n' "$result"
+            else
+              printf '%s\n' "$result"
+              echo "ERROR: Project database import failed."
+              exit 1
+            fi
+
             case "$result" in
-              "Imported and verified all 20 WRC Excel projects."*|"Project portfolio already matches the 20 approved Excel entries; no changes made.") ;;
-              *) echo 'Project database import did not confirm success.' >&2; exit 1 ;;
+              "Imported and verified all 20 WRC Excel projects."* | \
+              "Project portfolio already matches the 20 approved Excel entries; no changes made.")
+                echo "SUCCESS: WRC project portfolio verified."
+                ;;
+              *)
+                echo "ERROR: Expected project import confirmation was not returned."
+                exit 1
+                ;;
             esac
