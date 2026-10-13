@@ -80,6 +80,17 @@ jobs:
 
             php -l database/run_project_import.php
 
+            php -r 'echo "PHP ", PHP_VERSION, " (", PHP_SAPI, ")", PHP_EOL;'
+
+            if [ ! -r includes/config.php ]; then
+              echo "ERROR: includes/config.php is missing or unreadable on the server."
+              echo "It is gitignored on purpose, so it must already exist in public_html/includes/."
+              exit 1
+            fi
+
+            php -l includes/config.php
+            php -l includes/functions.php
+
             printf 'Require all denied\n' > database/.htaccess
 
             echo "=== RUNNING PROJECT IMPORT ==="

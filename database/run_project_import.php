@@ -16,14 +16,38 @@
  * Run by the deployment SSH step: php database/run_project_import.php
  */
 
+// The deployment host may run with display_errors disabled, which hides fatal
+// errors completely. Force them into the CI log so a broken environment is
+// diagnosable from the workflow output alone.
+ini_set( 'display_errors', '1' );
+error_reporting( E_ALL );
+
 if ( PHP_SAPI !== 'cli' ) {
     http_response_code( 404 );
     exit;
 }
 
-require_once dirname( __DIR__ ) . '/includes/config.php';
+$configFile = dirname( __DIR__ ) . '/includes/config.php';
+if ( !is_file( $configFile ) ) {
+    fwrite( STDERR, "Project import failed: the site database configuration is missing (includes/config.php).\n" );
+    fwrite( STDERR, "That file is intentionally not tracked by git, so it must already exist in public_html/includes/.\n" );
+    exit( 1 );
+}
+
+try {
+    require_once $configFile;
+} catch ( Throwable $error ) {
+    fwrite( STDERR, 'Project import failed: could not load includes/config.php: ' . $error->getMessage() . "\n" );
+    fwrite( STDERR, "Check that the file, and anything it requires, parses under the server's PHP version.\n" );
+    exit( 1 );
+}
 
 global $pdo;
+
+if ( !isset( $pdo ) || ! ( $pdo instanceof PDO ) ) {
+    fwrite( STDERR, "Project import failed: includes/config.php did not establish a database connection.\n" );
+    exit( 1 );
+}
 
 /** Number of projects the approved portfolio must contain. */
 const PORTFOLIO_SIZE = 20;
