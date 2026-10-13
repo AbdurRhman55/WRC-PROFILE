@@ -23,8 +23,15 @@ if ($heroRow) $projSections['projects_hero'] = ['section_key' => 'projects_hero'
 
 $dashRow = getRow('projects_dashboard');
 if ($dashRow) {
-    $metricsRows = getRows('projects_dashboard_metrics', ['dashboard_id' => $dashRow['id']], 'sort_order ASC');
-    $metrics = array_map(function($m) { return ['icon' => $m['metric_icon'], 'color' => $m['metric_color'], 'label' => $m['metric_label'], 'value' => $m['metric_value']]; }, $metricsRows);
+    global $pdo;
+    $projectSummary = $pdo->query("SELECT COUNT(*) AS project_count, COALESCE(SUM(beneficiaries_count), 0) AS beneficiary_count, COUNT(DISTINCT NULLIF(location_details, '')) AS location_count FROM projects WHERE is_active = 1")->fetch(PDO::FETCH_ASSOC);
+    $partnerCount = (int) $pdo->query("SELECT COUNT(DISTINCT d.donor_name) FROM project_donors d INNER JOIN projects p ON p.id = d.project_id WHERE p.is_active = 1")->fetchColumn();
+    $metrics = [
+      ['icon' => 'fa-solid fa-folder-open', 'color' => 'brandRed', 'label' => 'Portfolio Projects', 'value' => number_format((int) ($projectSummary['project_count'] ?? 0))],
+      ['icon' => 'fa-solid fa-users', 'color' => 'teal-500', 'label' => 'Beneficiaries Reached', 'value' => number_format((int) ($projectSummary['beneficiary_count'] ?? 0))],
+      ['icon' => 'fa-solid fa-handshake', 'color' => 'blue-400', 'label' => 'Project Partners', 'value' => number_format($partnerCount)],
+      ['icon' => 'fa-solid fa-location-dot', 'color' => 'gold-400', 'label' => 'Project Locations', 'value' => number_format((int) ($projectSummary['location_count'] ?? 0))],
+    ];
 
     // Dynamic category data from projects table
     global $pdo;
@@ -61,8 +68,8 @@ $dashData = isset($projSections['projects_dashboard']) ? json_decode($projSectio
 $ctaData = isset($projSections['projects_cta']) ? json_decode($projSections['projects_cta']['content'], true) : [];
 
 // Fetch projects from DB
-$activeProjects = getRows('projects', "status = 'active' ORDER BY sort_order ASC");
-$completedProjects = getRows('projects', "status = 'completed' ORDER BY sort_order ASC");
+$activeProjects = getRows('projects', ['status' => 'active', 'is_active' => 1], 'sort_order ASC');
+$completedProjects = getRows('projects', ['status' => 'completed', 'is_active' => 1], 'sort_order ASC');
 
 // Fetch unique categories from DB
 global $pdo;
@@ -135,7 +142,7 @@ include dirname(__DIR__) . '/includes/header.php';
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="grid grid-cols-2 md:grid-cols-4 divide-x divide-gray-100">
         <div class="py-6 px-4 text-center">
-          <div class="text-3xl font-display font-bold text-brandRed"><?= $totalProjects ?>+</div>
+          <div class="text-3xl font-display font-bold text-brandRed"><?= $totalProjects ?></div>
           <div class="text-xs text-slate-500 font-medium mt-1 uppercase tracking-wider">Total Projects</div>
         </div>
         <div class="py-6 px-4 text-center">
@@ -207,7 +214,7 @@ include dirname(__DIR__) . '/includes/header.php';
           </div>
           <div class="p-5 flex flex-col flex-1">
             <div class="flex items-center gap-2 text-xs text-slate-400 mb-2">
-              <span>Since <?= date('M Y', strtotime($project['start_date'])) ?></span>
+              <span>Since <?= date('Y', strtotime($project['start_date'])) ?></span>
             </div>
             <h3 class="text-lg font-display font-bold text-ink-900 mb-2 group-hover:text-brandRed transition-colors line-clamp-2">
               <?= sanitize($project['title']) ?>
@@ -215,15 +222,6 @@ include dirname(__DIR__) . '/includes/header.php';
             <p class="text-sm text-slate-500 leading-relaxed mb-4 line-clamp-2 flex-1">
               <?= sanitize($project['description']) ?>
             </p>
-            <div class="mb-3 mt-auto">
-              <div class="flex justify-between text-xs mb-1.5">
-                <span class="font-semibold text-slate-600">Progress</span>
-                <span class="font-bold text-brandRed"><?= $project['progress_percent'] ?>%</span>
-              </div>
-              <div class="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
-                <div class="progress-bar-fill h-full bg-gradient-to-r from-brandRed to-red-400 rounded-full" style="width: <?= $project['progress_percent'] ?>%"></div>
-              </div>
-            </div>
             <div class="flex items-center justify-between pt-2 border-t border-gray-50">
               <span class="text-xs text-slate-500"><i class="fa-solid fa-users mr-1"></i><?= number_format($project['beneficiaries_count']) ?> beneficiaries</span>
               <span class="text-brandRed text-xs font-semibold group-hover:underline">View Details <i class="fa-solid fa-arrow-right text-[10px]"></i></span>
@@ -264,7 +262,7 @@ include dirname(__DIR__) . '/includes/header.php';
           </div>
           <div class="p-5 flex flex-col flex-1">
             <div class="flex items-center gap-2 text-xs text-slate-400 mb-2">
-              <span>Since <?= date('M Y', strtotime($project['start_date'])) ?></span>
+              <span>Since <?= date('Y', strtotime($project['start_date'])) ?></span>
             </div>
             <h3 class="text-lg font-display font-bold text-ink-900 mb-2 group-hover:text-brandRed transition-colors line-clamp-2">
               <?= sanitize($project['title']) ?>
@@ -272,15 +270,6 @@ include dirname(__DIR__) . '/includes/header.php';
             <p class="text-sm text-slate-500 leading-relaxed mb-4 line-clamp-2 flex-1">
               <?= sanitize($project['description']) ?>
             </p>
-            <div class="mb-3 mt-auto">
-              <div class="flex justify-between text-xs mb-1.5">
-                <span class="font-semibold text-slate-600">Progress</span>
-                <span class="font-bold text-teal-500">100%</span>
-              </div>
-              <div class="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
-                <div class="progress-bar-fill h-full bg-gradient-to-r from-teal-500 to-teal-400 rounded-full" style="width: 100%"></div>
-              </div>
-            </div>
             <div class="flex items-center justify-between pt-2 border-t border-gray-50">
               <span class="text-xs text-slate-500"><i class="fa-solid fa-users mr-1"></i><?= number_format($project['beneficiaries_count']) ?> beneficiaries</span>
               <span class="text-brandRed text-xs font-semibold group-hover:underline">View Details <i class="fa-solid fa-arrow-right text-[10px]"></i></span>

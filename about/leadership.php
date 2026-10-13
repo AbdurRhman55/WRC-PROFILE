@@ -142,7 +142,7 @@ $chairName = $chairmanData[ 'person_name' ] ?? '';
 $chairTitle = $chairmanData[ 'person_title' ] ?? '';
 ?>
 <?php if ( !empty( $chairPhoto ) ): ?>
-<img src = "<?= sanitize( siteUrl( $chairPhoto ) ) ?>" alt = "<?= sanitize($chairName ?: 'Chairman') ?>" class = 'w-16 h-16 rounded-full object-cover border-2 border-brandRed shadow-xl'>
+<img src = "<?= sanitize( getImageUrl( $chairPhoto ) ) ?>" alt = "<?= sanitize($chairName ?: 'Chairman') ?>" class = 'w-16 h-16 rounded-full object-cover border-2 border-brandRed shadow-xl'>
 <?php else: ?>
 <div class = 'w-16 h-16 rounded-full bg-brandRed/20 border-2 border-brandRed flex items-center justify-center shrink-0 shadow-xl'>
 <i class = 'fa-solid fa-user-tie text-2xl text-white'></i>

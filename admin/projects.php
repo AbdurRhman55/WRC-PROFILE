@@ -13,9 +13,9 @@ if (isPost()) {
     if (isset($_POST['delete_id'])) {
         global $pdo;
         $id = (int) $_POST['delete_id'];
-        $stmt = $pdo->prepare("UPDATE projects SET is_active = 0 WHERE id = ?");
+        $stmt = $pdo->prepare("DELETE FROM projects WHERE id = ?");
         $stmt->execute([$id]);
-        setFlash('success', 'Project deactivated successfully.');
+        setFlash('success', 'Project deleted successfully.');
         redirect('projects.php');
     }
 }
@@ -132,10 +132,10 @@ include __DIR__ . '/includes/header.php';
               <a href="project-edit.php?id=<?= $project['id'] ?>" class="text-slate-400 hover:text-blue-500 transition-colors p-1.5 rounded-lg hover:bg-blue-50" title="Edit">
                 <i class="fa-solid fa-pen-to-square text-xs"></i>
               </a>
-              <form method="POST" class="inline" onsubmit="return confirm('Are you sure you want to deactivate this project?')">
+              <form method="POST" class="inline" onsubmit="return confirm('Are you sure you want to permanently delete this project?')">
                 <input type="hidden" name="csrf_token" value="<?= generateCSRF() ?>">
                 <input type="hidden" name="delete_id" value="<?= $project['id'] ?>">
-                <button type="submit" class="text-slate-400 hover:text-red-500 transition-colors p-1.5 rounded-lg hover:bg-red-50" title="Deactivate">
+                <button type="submit" class="text-slate-400 hover:text-red-500 transition-colors p-1.5 rounded-lg hover:bg-red-50" title="Delete">
                   <i class="fa-solid fa-trash text-xs"></i>
                 </button>
               </form>

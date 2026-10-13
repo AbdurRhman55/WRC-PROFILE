@@ -172,7 +172,7 @@ include __DIR__ . '/includes/header.php';
         <div
             class="grid gap-5 lg:grid-cols-[0.95fr_0.9fr] items-stretch bg-white border border-slate-200 rounded-[2rem] shadow-xl overflow-hidden">
             <div class="relative overflow-hidden">
-                <img src="<?= sanitize(siteUrl($chairmanImagePath)) ?>"
+                <img src="<?= sanitize(getImageUrl($chairmanImagePath)) ?>"
                     alt="Chairman of WRC" class="w-full h-full object-cover min-h-[280px]" />
                 <div class="absolute inset-0  mix-blend-multiply"></div>
                 <div class="absolute bottom-4 left-4 right-4 text-white">

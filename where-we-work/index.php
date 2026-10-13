@@ -15,7 +15,7 @@ $contentData = $contentRow ? (json_decode($contentRow['content'] ?? '{}', true) 
 global $pdo;
 
 // Load all projects
-$projectsAll = getRows('projects', [], 'is_active DESC, sort_order ASC');
+$projectsAll = getRows('projects', ['is_active' => 1], 'sort_order ASC');
 
 // Load province models
 $provinceModels = getRows('provinces', ['is_active' => 1], 'sort_order ASC');

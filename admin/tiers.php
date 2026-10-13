@@ -13,9 +13,9 @@ if (isPost()) {
     if (isset($_POST['delete_id'])) {
         global $pdo;
         $id = (int) $_POST['delete_id'];
-        $stmt = $pdo->prepare("UPDATE donation_tiers SET is_active = 0 WHERE id = ?");
+        $stmt = $pdo->prepare("DELETE FROM donation_tiers WHERE id = ?");
         $stmt->execute([$id]);
-        setFlash('success', 'Donation tier deactivated successfully.');
+        setFlash('success', 'Donation tier deleted successfully.');
         redirect('tiers.php');
     }
 }
@@ -93,10 +93,10 @@ include __DIR__ . '/includes/header.php';
                 <i class="fa-solid fa-pen-to-square text-xs"></i>
               </a>
               <?php if ($tier['is_active']): ?>
-              <form method="POST" class="inline" onsubmit="return confirm('Are you sure you want to deactivate this tier?')">
+              <form method="POST" class="inline" onsubmit="return confirm('Are you sure you want to permanently delete this tier?')">
                 <input type="hidden" name="csrf_token" value="<?= generateCSRF() ?>">
                 <input type="hidden" name="delete_id" value="<?= $tier['id'] ?>">
-                <button type="submit" class="text-slate-400 hover:text-red-500 transition-colors p-1.5 rounded-lg hover:bg-red-50" title="Deactivate">
+                <button type="submit" class="text-slate-400 hover:text-red-500 transition-colors p-1.5 rounded-lg hover:bg-red-50" title="Delete">
                   <i class="fa-solid fa-trash text-xs"></i>
                 </button>
               </form>

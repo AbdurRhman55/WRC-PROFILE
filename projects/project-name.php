@@ -28,7 +28,7 @@ $gallery = json_decode($project['gallery_images'] ?? '', true) ?? [];
 $relatedProjects = json_decode($project['related_projects'] ?? '', true) ?? [];
 
 // Fetch related data from dedicated tables
-$donors = getRows('project_donors', ['project_id' => $project['id']], 'sort_order ASC');
+$donors = getRows('project_donors', ['project_id' => $project['id']], 'id ASC');
 
 // Fetch related projects
 $relProjects = [];
@@ -45,12 +45,10 @@ if (empty($relProjects)) {
 // Fetch project resources
 $resources = getRows('resources', ['project_id' => $project['id']], 'sort_order ASC');
 
-// Calculate progress
-$progress = $project['progress_percent'] ?? 0;
-
 // Format dates
-$startDate = !empty($project['start_date']) ? date('M Y', strtotime($project['start_date'])) : 'N/A';
-$endDate = !empty($project['end_date']) ? date('M Y', strtotime($project['end_date'])) : 'Ongoing';
+$startDate = !empty($project['start_date']) ? date('Y', strtotime($project['start_date'])) : 'N/A';
+$endDate = !empty($project['end_date']) ? date('Y', strtotime($project['end_date'])) : 'Ongoing';
+$projectPartner = !empty($donors) ? implode(', ', array_column($donors, 'donor_name')) : 'Welfare & Relief Committee';
 
 // Status colors
 $statusConfig = [
@@ -117,14 +115,6 @@ include dirname(__DIR__) . '/includes/header.php';
                         <i class="fa-solid fa-location-dot text-[10px]"></i>
                         <?= sanitize($project['location_details']) ?>
                     </span>
-                    <?php if (!empty($project['budget_amount'])): ?>
-                    <span
-                        class="text-white/90 bg-white/10 backdrop-blur-md border border-white/20 font-medium text-[11px] uppercase tracking-wider px-4 py-1.5 rounded-full flex items-center gap-2">
-                        <i class="fa-solid fa-coins text-[10px]"></i>
-                        <?= sanitize($project['budget_currency'] ?? 'PKR') ?>
-                        <?= number_format($project['budget_amount'] ?? 0) ?>
-                    </span>
-                    <?php endif; ?>
                 </div>
 
                 <!-- Title -->
@@ -138,19 +128,6 @@ include dirname(__DIR__) . '/includes/header.php';
                     <?= sanitize($project['description']) ?>
                 </p>
 
-                <!-- Progress Bar (if active) -->
-                <?php if ($project['status'] === 'active' && $progress > 0): ?>
-                <div class="max-w-md animate-fade-in-delay">
-                    <div class="flex items-center justify-between mb-2">
-                        <span class="text-white/70 text-xs font-medium">Project Progress</span>
-                        <span class="text-white font-bold text-sm"><?= $progress ?>%</span>
-                    </div>
-                    <div class="h-2 bg-white/10 rounded-full overflow-hidden">
-                        <div class="h-full bg-gradient-to-r from-brandRed to-red-400 rounded-full progress-bar-fill"
-                            style="--progress-width: <?= $progress ?>%"></div>
-                    </div>
-                </div>
-                <?php endif; ?>
             </div>
         </div>
     </section>
@@ -158,7 +135,7 @@ include dirname(__DIR__) . '/includes/header.php';
     <!-- QUICK FACTS BAR - Sticky -->
     <section class="bg-white border-b border-slate-200/80 sticky top-20 z-40 quick-facts-bar">
         <div class="container mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="grid grid-cols-2 lg:grid-cols-4 divide-x divide-slate-100">
+            <div class="grid grid-cols-2 lg:grid-cols-3 divide-x divide-slate-100">
                 <div class="px-4 lg:px-6 py-5 text-center group hover:bg-slate-50/80 transition-colors cursor-default">
                     <div
                         class="w-11 h-11 rounded-xl bg-gradient-to-br from-red-50 to-red-100 text-brandRed flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform shadow-sm">
@@ -181,20 +158,11 @@ include dirname(__DIR__) . '/includes/header.php';
                 <div class="px-4 lg:px-6 py-5 text-center group hover:bg-slate-50/80 transition-colors cursor-default">
                     <div
                         class="w-11 h-11 rounded-xl bg-gradient-to-br from-red-50 to-red-100 text-brandRed flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform shadow-sm">
-                        <i class="fa-solid fa-coins text-lg"></i>
-                    </div>
-                    <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-1">Budget</span>
-                    <span class="text-sm font-bold text-slate-900"><?= sanitize($project['budget_currency'] ?? 'PKR') ?>
-                        <?= number_format($project['budget_amount'] ?? 0) ?></span>
-                </div>
-                <div class="px-4 lg:px-6 py-5 text-center group hover:bg-slate-50/80 transition-colors cursor-default">
-                    <div
-                        class="w-11 h-11 rounded-xl bg-gradient-to-br from-red-50 to-red-100 text-brandRed flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform shadow-sm">
                         <i class="fa-solid fa-handshake text-lg"></i>
                     </div>
-                    <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-1">Donors</span>
-                    <span
-                        class="text-sm font-bold text-slate-900"><?= !empty($donors) ? count($donors) : sanitize($project['donors_count'] ?? 'N/A') ?></span>
+                    <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-1">Project
+                        Partner</span>
+                    <span class="text-sm font-bold text-slate-900"><?= sanitize($projectPartner) ?></span>
                 </div>
             </div>
         </div>
@@ -256,30 +224,7 @@ include dirname(__DIR__) . '/includes/header.php';
                                 Impact</span>
                         </div>
 
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
-                            <!-- Progress Ring -->
-                            <div class="flex justify-center">
-                                <div class="relative w-48 h-48">
-                                    <svg class="w-full h-full transform -rotate-90" viewBox="0 0 120 120">
-                                        <circle cx="60" cy="60" r="54" fill="none" stroke="rgba(255,255,255,0.1)"
-                                            stroke-width="8" />
-                                        <circle cx="60" cy="60" r="54" fill="none" stroke="url(#progressGradient)"
-                                            stroke-width="8" stroke-linecap="round" class="progress-ring-circle"
-                                            style="stroke-dasharray: 339.292; stroke-dashoffset: <?= 339.292 - (339.292 * $progress / 100) ?>;" />
-                                        <defs>
-                                            <linearGradient id="progressGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                                                <stop offset="0%" stop-color="#ca0000" />
-                                                <stop offset="100%" stop-color="#ef4444" />
-                                            </linearGradient>
-                                        </defs>
-                                    </svg>
-                                    <div class="absolute inset-0 flex flex-col items-center justify-center">
-                                        <span class="text-4xl font-extrabold text-white"><?= $progress ?>%</span>
-                                        <span class="text-white/60 text-xs uppercase tracking-wider">Complete</span>
-                                    </div>
-                                </div>
-                            </div>
-
+                        <div class="grid grid-cols-1 gap-8 items-center">
                             <!-- Impact Numbers -->
                             <div class="grid grid-cols-2 gap-6">
                                 <div class="bg-white/5 backdrop-blur-sm border border-white/10 p-5 rounded-2xl">
@@ -494,14 +439,14 @@ include dirname(__DIR__) . '/includes/header.php';
                         </div>
                         <?php endif; ?>
 
-                        <!-- Project Donors -->
+                        <!-- Project Partners -->
                         <?php if (!empty($donors)): ?>
                         <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm reveal-section">
                             <div class="flex items-center gap-3 mb-5">
                                 <div class="w-10 h-10 rounded-xl bg-red-50 flex items-center justify-center">
                                     <i class="fa-solid fa-handshake text-brandRed"></i>
                                 </div>
-                                <h4 class="font-bold text-slate-900 text-sm">Project Donors</h4>
+                                <h4 class="font-bold text-slate-900 text-sm">Project Partners</h4>
                             </div>
                             <div class="space-y-3">
                                 <?php foreach ($donors as $donor): ?>
@@ -519,10 +464,6 @@ include dirname(__DIR__) . '/includes/header.php';
                                             class="text-[11px] text-slate-500"><?= sanitize($donor['donor_type']) ?></span>
                                         <?php endif; ?>
                                     </div>
-                                    <?php if (!empty($donor['amount'])): ?>
-                                    <span
-                                        class="text-sm font-bold text-emerald-600 whitespace-nowrap">$<?= number_format($donor['amount'], 0) ?></span>
-                                    <?php endif; ?>
                                 </div>
                                 <?php endforeach; ?>
                             </div>

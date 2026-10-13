@@ -9,7 +9,7 @@ require_once dirname( __DIR__ ) . '/includes/functions.php';
 $base = siteBaseUrl();
 
 // Fetch all projects
-$projects = getRows( 'projects', 'is_active = 1 ORDER BY start_date DESC LIMIT 9' );
+$projects = getRows( 'projects', [ 'is_active' => 1 ], 'sort_order ASC' );
 
 // Fetch all Our Work homepage sections
 $allSections = getRows( 'homepage_sections', '', '' );
@@ -65,7 +65,7 @@ $featuredProjData = isset( $owSections[ 'our_work_featured_projects' ] ) ? json_
 $ctaData = isset( $owSections[ 'our_work_cta' ] ) ? json_decode( $owSections[ 'our_work_cta' ][ 'content' ], true ) : [];
 
 // Fetch featured projects ( latest active )
-$featuredProjects = getRows( 'projects', "status = 'active' ORDER BY start_date DESC LIMIT 3" );
+$featuredProjects = getRows( 'projects', "is_active = 1 AND status = 'active' ORDER BY start_date DESC LIMIT 3" );
 
 $pageTitle = 'Our Work & Core Programs | World Relief Committee (WRC)';
 $metaDescription = "Explore WRC's 9 core humanitarian sectors across Health, Education, WASH, Food Security, Nutrition, Livelihood, Emergency Response, DRR, and Climate Resilience.";
@@ -147,16 +147,9 @@ include dirname( __DIR__ ) . '/includes/header.php';
 </div>
 <?php endif;
 ?>
-<?php if ( $project[ 'progress_percent' ] > 0 ): ?>
-<div class = 'w-full bg-slate-100 rounded-full h-1.5 mb-2'>
-<div class = 'bg-brandRed rounded-full h-1.5' style = "width:<?= $project['progress_percent'] ?>%"></div>
-</div>
-<div class = 'text-[10px] font-bold text-brandRed mb-2'><?= $project[ 'progress_percent' ] ?>% Complete</div>
-<?php endif;
-?>
 </div>
 <div class = 'pt-4 border-t border-slate-100 flex items-center justify-between'>
-<span class = 'text-[10px] text-slate-400'>Since <?= date( 'M Y', strtotime( $project[ 'start_date' ] ) ) ?></span>
+<span class = 'text-[10px] text-slate-400'>Since <?= date( 'Y', strtotime( $project[ 'start_date' ] ) ) ?></span>
 <span class = 'text-brandRed hover:text-brandRed-hover text-xs font-semibold hover:underline flex items-center gap-1 group-hover:translate-x-1 transition-transform'>
 View Details <i class = 'fa-solid fa-arrow-right text-[10px]'></i>
 </span>
@@ -287,7 +280,7 @@ All Projects <i class = 'fa-solid fa-arrow-right text-xs'></i></a></div>
 <p class = 'text-xs text-slate-600 leading-relaxed mb-6 line-clamp-2'><?= sanitize( $project[ 'description' ] ?? '' ) ?></p>
 </div>
 <div class = 'pt-4 border-t border-slate-100 flex items-center justify-between'>
-<span class = 'text-[10px] text-slate-400'>Since <?= date( 'M Y', strtotime( $project[ 'start_date' ] ) ) ?></span>
+<span class = 'text-[10px] text-slate-400'>Since <?= date( 'Y', strtotime( $project[ 'start_date' ] ) ) ?></span>
 <span class = 'text-brandRed hover:text-brandRed-hover text-xs font-semibold hover:underline flex items-center gap-1 group-hover:translate-x-1 transition-transform'>
 View Details <i class = 'fa-solid fa-arrow-right text-[10px]'></i>
 </span>

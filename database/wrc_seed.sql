@@ -280,16 +280,10 @@ INSERT INTO resources (title, description, resource_type, category, file_path, y
 ('Workplace Policy', 'Workplace standards, safety, and employee wellbeing guidelines.', 'policy', 'Human Resources', NULL, NULL, 15);
 
 -- =============================================
--- 14. PROJECTS (sample data)
+-- 14. PROJECTS
+-- The authoritative 20-row portfolio is imported from
+-- replace_projects_from_wrc_excel.sql; do not seed illustrative projects here.
 -- =============================================
-
-INSERT INTO projects (slug, title, status, start_date, end_date, budget_amount, beneficiaries_count, progress_percent, description, location_details, hero_image, program_id, sort_order) VALUES
-('flood-relief-2026', 'Flood Relief Emergency Response 2026', 'active', '2026-06-01', NULL, 45000000.00, 50000, 75, 'Emergency shelter, clean water, and medical aid for flood-affected families across KPK and Sindh provinces.', 'KPK & Sindh, Pakistan', 'assets/images/our-work/emergency-response-hero.jpg', 7, 1),
-('clean-water-wells-phase3', 'Clean Water Wells Installation Phase III', 'active', '2026-03-01', '2027-02-28', 25000000.00, 30000, 60, 'Installing sustainable water wells and purification systems in underserved rural communities of Balochistan.', 'Balochistan, Pakistan', 'assets/images/our-work/wash-hero.jpg', 3, 2),
-('community-health-workers', 'Community Health Workers Training', 'active', '2026-01-15', '2026-12-31', 15000000.00, 20000, 45, 'Training 200+ community health workers to deliver primary healthcare in remote rural areas of Punjab.', 'Punjab, Pakistan', 'assets/images/our-work/health-hero.jpg', 1, 3),
-('education-enrollment-drive', 'Education Enrollment Drive 2025', 'completed', '2025-01-01', '2025-12-31', 12000000.00, 35000, 100, 'Mass enrollment campaign for out-of-school children across KPK and Balochistan.', 'KPK & Balochistan, Pakistan', 'assets/images/our-work/education-hero.jpg', 2, 4),
-('flood-response-2022', 'Flood Emergency Response 2022', 'completed', '2022-08-01', '2023-03-31', 60000000.00, 50000, 100, 'Major flood response reaching 50,000+ families with shelter, food, and clean water.', 'Sindh & Balochistan, Pakistan', 'assets/images/our-work/emergency-response-hero.jpg', 7, 5),
-('wells-installation-phase2', 'Clean Water Wells Phase II', 'completed', '2024-01-01', '2024-12-31', 18000000.00, 25000, 100, 'Second phase of water well installation across rural Balochistan.', 'Balochistan, Pakistan', 'assets/images/our-work/wash-hero.jpg', 3, 6);
 
 -- =============================================
 -- 15. CAMPAIGNS

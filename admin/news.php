@@ -13,9 +13,9 @@ if (isPost()) {
     if (isset($_POST['delete_id'])) {
         global $pdo;
         $id = (int) $_POST['delete_id'];
-        $stmt = $pdo->prepare("UPDATE news_articles SET is_published = 0 WHERE id = ?");
+        $stmt = $pdo->prepare("DELETE FROM news_articles WHERE id = ?");
         $stmt->execute([$id]);
-        setFlash('success', 'Article unpublished successfully.');
+        setFlash('success', 'Article deleted successfully.');
         redirect('news.php');
     }
 }
@@ -93,10 +93,10 @@ include __DIR__ . '/includes/header.php';
               <a href="news-edit.php?id=<?= $article['id'] ?>" class="text-slate-400 hover:text-blue-500 transition-colors p-1.5 rounded-lg hover:bg-blue-50" title="Edit">
                 <i class="fa-solid fa-pen-to-square text-xs"></i>
               </a>
-              <form method="POST" class="inline" onsubmit="return confirm('Are you sure you want to unpublish this article?')">
+              <form method="POST" class="inline" onsubmit="return confirm('Are you sure you want to permanently delete this article?')">
                 <input type="hidden" name="csrf_token" value="<?= generateCSRF() ?>">
                 <input type="hidden" name="delete_id" value="<?= $article['id'] ?>">
-                <button type="submit" class="text-slate-400 hover:text-red-500 transition-colors p-1.5 rounded-lg hover:bg-red-50" title="Unpublish">
+                <button type="submit" class="text-slate-400 hover:text-red-500 transition-colors p-1.5 rounded-lg hover:bg-red-50" title="Delete">
                   <i class="fa-solid fa-trash text-xs"></i>
                 </button>
               </form>
