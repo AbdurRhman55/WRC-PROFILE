@@ -18,7 +18,7 @@ jobs:
       - name: Verify deployment files
         shell: bash
         run: |
-          set -e
+          set -eu
 
           for item in \
             database/run_project_import.php \
@@ -34,9 +34,9 @@ jobs:
             fi
           done
 
-          echo "SUCCESS: Required deployment files are present."
+          echo "Deployment files verified."
 
-      - name: Deploy WRC files to Hostinger
+      - name: Upload WRC files to Hostinger
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.HOSTINGER_HOST }}
@@ -45,12 +45,11 @@ jobs:
           port: ${{ secrets.HOSTINGER_PORT || 22 }}
           timeout: 60s
           command_timeout: 10m
-          debug: true
           source: "about,admin,assets,contact,database,get-involved,impact,news,our-work,projects,resources,where-we-work,index.php,privacy.html,privacy.php,includes/footer.php,includes/form-submit.php,includes/functions.php,includes/header.php,includes/newsletter-subscribe.php,terms.html,terms.php"
           target: "/home/u817261572/domains/limegreen-anteater-521120.hostingersite.com/public_html"
           overwrite: true
 
-      - name: Diagnose Hostinger SSH and PHP
+      - name: Import WRC project portfolio
         uses: appleboy/ssh-action@v1.2.2
         with:
           host: ${{ secrets.HOSTINGER_HOST }}
@@ -59,50 +58,47 @@ jobs:
           port: ${{ secrets.HOSTINGER_PORT || 22 }}
           timeout: 60s
           command_timeout: 10m
-          debug: true
           script: |
             set -eu
 
-            echo "=== SSH CONNECTION SUCCESSFUL ==="
-            whoami
-
             DEPLOY_DIR="/home/u817261572/domains/limegreen-anteater-521120.hostingersite.com/public_html"
 
-            echo "=== CHECK DEPLOYMENT DIRECTORY ==="
-            echo "Expected path: $DEPLOY_DIR"
-
-            if [ ! -d "$DEPLOY_DIR" ]; then
-              echo "ERROR: Deployment directory does not exist."
-              exit 1
-            fi
+            echo "=== CONNECTED TO HOSTINGER ==="
+            whoami
 
             cd "$DEPLOY_DIR"
 
-            echo "=== CURRENT DIRECTORY ==="
-            pwd
-
-            echo "=== CHECK IMPORT SCRIPT ==="
             if [ ! -f database/run_project_import.php ]; then
-              echo "ERROR: Import script is missing."
+              echo "ERROR: Import script not found."
               exit 1
             fi
 
-            ls -l database/run_project_import.php
-
-            echo "=== CHECK PHP CLI ==="
             if ! command -v php >/dev/null 2>&1; then
-              echo "ERROR: PHP CLI is unavailable."
+              echo "ERROR: PHP CLI not found."
               exit 1
             fi
 
-            php -v
+            php -l database/run_project_import.php
 
-            echo "=== CHECK PHP SYNTAX ==="
-            if ! php -l database/run_project_import.php; then
-              echo "ERROR: PHP syntax check failed."
+            printf 'Require all denied\n' > database/.htaccess
+
+            echo "=== RUNNING PROJECT IMPORT ==="
+
+            if result="$(php database/run_project_import.php 2>&1)"; then
+              printf '%s\n' "$result"
+            else
+              printf '%s\n' "$result"
+              echo "ERROR: Project import failed."
               exit 1
             fi
 
-            echo "=== DIAGNOSTIC CHECKS COMPLETED ==="
-            echo "Database import was not executed."
-
+            case "$result" in
+              "Imported and verified all 20 WRC Excel projects."* | \
+              "Project portfolio already matches the 20 approved Excel entries; no changes made.")
+                echo "SUCCESS: Project import verified."
+                ;;
+              *)
+                echo "ERROR: Expected import confirmation was not returned."
+                exit 1
+                ;;
+            esac
