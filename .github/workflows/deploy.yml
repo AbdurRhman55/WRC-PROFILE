@@ -35,4 +35,9 @@ jobs:
             set -e
             cd /home/u817261572/domains/limegreen-anteater-521120.hostingersite.com/public_html
             printf 'Require all denied\n' > database/.htaccess
-            php database/run_project_import.php
+            result="$(php database/run_project_import.php)"
+            printf '%s\n' "$result"
+            case "$result" in
+              "Imported and verified all 20 WRC Excel projects."*|"Project portfolio already matches the 20 approved Excel entries; no changes made.") ;;
+              *) echo 'Project database import did not confirm success.' >&2; exit 1 ;;
+            esac
