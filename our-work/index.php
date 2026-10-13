@@ -84,19 +84,19 @@ include dirname( __DIR__ ) . '/includes/header.php';
 
 <div class = 'container mx-auto px-4 sm:px-6 lg:px-8 relative z-10'>
 <div class = 'max-w-3xl'>
-<span class = 'text-brandRed font-bold text-xs uppercase tracking-widest mb-3 block'>< ?= $owSections[ 'our_work_hero' ][ 'section_title' ] ?? 'Our Work' ?></span>
+<span class = 'text-brandRed font-bold text-xs uppercase tracking-widest mb-3 block'><?= $owSections[ 'our_work_hero' ][ 'section_title' ] ?? 'Our Work' ?></span>
 <h1 class = 'text-4xl md:text-5xl lg:text-6xl font-extrabold font-heading text-white mb-6 leading-tight'>
-< ?= $owSections[ 'our_work_hero' ][ 'section_subtitle' ] ?? '' ?>
+<?= $owSections[ 'our_work_hero' ][ 'section_subtitle' ] ?? '' ?>
 </h1>
 <p class = 'text-slate-300 text-base md:text-lg mb-8 leading-relaxed'>
-< ?= sanitize( $heroData[ 'subtitle' ] ?? '' ) ?>
+<?= sanitize( $heroData[ 'subtitle' ] ?? '' ) ?>
 </p>
 <div class = 'flex flex-wrap gap-4'>
 <a href = "<?= $base ?><?= $heroData['button1_link'] ?? '#sectors' ?>" class = 'bg-brandRed hover:bg-brandRed-hover text-white font-bold text-xs px-6 py-4 rounded-xl shadow-lg shadow-brandRed/20 transition-all uppercase tracking-wider'>
-< ?= sanitize( $heroData[ 'button1_text' ] ?? 'Explore Our Programs' ) ?>
+<?= sanitize( $heroData[ 'button1_text' ] ?? 'Explore Our Programs' ) ?>
 </a>
 <a href = "<?= $base ?><?= $heroData['button2_link'] ?? 'get-involved/contribute-with-us.php' ?>" class = 'bg-white/10 hover:bg-white/20 text-white border border-white/25 font-bold text-xs px-6 py-4 rounded-xl transition-all uppercase tracking-wider'>
-< ?= sanitize( $heroData[ 'button2_text' ] ?? 'Contribute With Us' ) ?>
+<?= sanitize( $heroData[ 'button2_text' ] ?? 'Contribute With Us' ) ?>
 </a>
 </div>
 </div>
@@ -134,22 +134,22 @@ include dirname( __DIR__ ) . '/includes/header.php';
 <div class = 'relative h-48 overflow-hidden'>
 <img src = "<?= $base ?><?= $project['hero_image'] ?? 'assets/images/water.jpg' ?>" alt = "<?= sanitize($project['title']) ?>" class = 'w-full h-full object-cover transition-transform duration-500 group-hover:scale-105'>
 <div class = 'absolute inset-0 bg-gradient-to-t from-slate-900/60 via-transparent to-transparent'></div>
-<span class = "absolute top-4 left-4 text-[10px] font-bold uppercase tracking-wider px-3 py-1.5 <?= $project['status'] === 'active' ? 'bg-emerald-500' : 'bg-slate-600' ?> text-white rounded-full shadow-md">< ?= ucfirst( $project[ 'status' ] ) ?></span>
-<span class = 'absolute top-4 right-4 text-[10px] font-medium px-2.5 py-1 bg-slate-900/70 backdrop-blur-sm text-white rounded-full'><i class = 'fa-solid fa-location-dot mr-1'></i>< ?= sanitize( $project[ 'location_details' ] ?? '' ) ?></span>
+<span class = "absolute top-4 left-4 text-[10px] font-bold uppercase tracking-wider px-3 py-1.5 <?= $project['status'] === 'active' ? 'bg-emerald-500' : 'bg-slate-600' ?> text-white rounded-full shadow-md"><?= ucfirst( $project[ 'status' ] ) ?></span>
+<span class = 'absolute top-4 right-4 text-[10px] font-medium px-2.5 py-1 bg-slate-900/70 backdrop-blur-sm text-white rounded-full'><i class = 'fa-solid fa-location-dot mr-1'></i><?= sanitize( $project[ 'location_details' ] ?? '' ) ?></span>
 </div>
 <div class = 'p-6 flex-grow flex flex-col justify-between'>
 <div>
-<h3 class = 'text-lg font-bold text-slate-900 font-heading mb-3 group-hover:text-brandRed transition-colors'>< ?= sanitize( $project[ 'title' ] ) ?></h3>
-<p class = 'text-xs text-slate-600 leading-relaxed mb-4 line-clamp-3'>< ?= sanitize( $project[ 'description' ] ?? '' ) ?></p>
+<h3 class = 'text-lg font-bold text-slate-900 font-heading mb-3 group-hover:text-brandRed transition-colors'><?= sanitize( $project[ 'title' ] ) ?></h3>
+<p class = 'text-xs text-slate-600 leading-relaxed mb-4 line-clamp-3'><?= sanitize( $project[ 'description' ] ?? '' ) ?></p>
 <?php if ( $project[ 'beneficiaries_count' ] > 0 ): ?>
 <div class = 'flex items-center gap-2 text-[10px] text-slate-500 mb-2'>
-<i class = 'fa-solid fa-users text-brandRed'></i> < ?= number_format( $project[ 'beneficiaries_count' ] ) ?>+ beneficiaries
+<i class = 'fa-solid fa-users text-brandRed'></i> <?= number_format( $project[ 'beneficiaries_count' ] ) ?>+ beneficiaries
 </div>
 <?php endif;
 ?>
 </div>
 <div class = 'pt-4 border-t border-slate-100 flex items-center justify-between'>
-<span class = 'text-[10px] text-slate-400'>Since < ?= date( 'Y', strtotime( $project[ 'start_date' ] ) ) ?></span>
+<span class = 'text-[10px] text-slate-400'>Since <?= date( 'Y', strtotime( $project[ 'start_date' ] ) ) ?></span>
 <span class = 'text-brandRed hover:text-brandRed-hover text-xs font-semibold hover:underline flex items-center gap-1 group-hover:translate-x-1 transition-transform'>
 View Details <i class = 'fa-solid fa-arrow-right text-[10px]'></i>
 </span>
@@ -180,19 +180,19 @@ All Projects <i class = 'fa-solid fa-arrow-right text-xs'></i></a></div>
 </div>
 
 <div class = 'lg:col-span-6 space-y-6'>
-<span class = 'text-brandRed font-bold text-xs uppercase tracking-widest block'>< ?= sanitize( $editorialData[ 'label' ] ?? $owSections[ 'our_work_editorial' ][ 'section_subtitle' ] ?? '' ) ?></span>
-<h2 class = 'text-3xl md:text-4xl font-extrabold font-heading text-slate-900'>< ?= $owSections[ 'our_work_editorial' ][ 'section_title' ] ?? '' ?></h2>
+<span class = 'text-brandRed font-bold text-xs uppercase tracking-widest block'><?= sanitize( $editorialData[ 'label' ] ?? $owSections[ 'our_work_editorial' ][ 'section_subtitle' ] ?? '' ) ?></span>
+<h2 class = 'text-3xl md:text-4xl font-extrabold font-heading text-slate-900'><?= $owSections[ 'our_work_editorial' ][ 'section_title' ] ?? '' ?></h2>
 <p class = 'text-slate-600 text-sm leading-relaxed'>
-< ?= sanitize( $editorialData[ 'description' ] ?? '' ) ?>
+<?= sanitize( $editorialData[ 'description' ] ?? '' ) ?>
 </p>
 
 <div class = 'grid grid-cols-1 sm:grid-cols-2 gap-6 pt-4'>
 <?php foreach ( $editorialData[ 'features' ] ?? [] as $feature ): ?>
 <div class = 'space-y-2'>
 <div class = 'flex items-center gap-2 text-slate-900 font-bold text-sm'>
-<i class = "<?= $feature['icon'] ?> text-brandRed"></i> < ?= sanitize( $feature[ 'title' ] ) ?>
+<i class = "<?= $feature['icon'] ?> text-brandRed"></i> <?= sanitize( $feature[ 'title' ] ) ?>
 </div>
-<p class = 'text-xs text-slate-600 leading-relaxed'>< ?= sanitize( $feature[ 'description' ] ) ?></p>
+<p class = 'text-xs text-slate-600 leading-relaxed'><?= sanitize( $feature[ 'description' ] ) ?></p>
 </div>
 <?php endforeach;
 ?>
@@ -207,19 +207,19 @@ All Projects <i class = 'fa-solid fa-arrow-right text-xs'></i></a></div>
 <div class = 'container mx-auto px-4 sm:px-6 lg:px-8'>
 
 <div class = 'text-center max-w-3xl mx-auto mb-20'>
-<span class = 'text-brandRed font-bold text-xs uppercase tracking-widest mb-2 block'>< ?= sanitize( $owSections[ 'our_work_process' ][ 'section_subtitle' ] ?? 'Our Process' ) ?></span>
-<h2 class = 'text-3xl md:text-4xl font-extrabold font-heading text-slate-900 mb-4'>< ?= $owSections[ 'our_work_process' ][ 'section_title' ] ?? '' ?></h2>
-<p class = 'text-slate-600 text-sm'>< ?= sanitize( $processData[ 'subtitle' ] ?? '' ) ?></p>
+<span class = 'text-brandRed font-bold text-xs uppercase tracking-widest mb-2 block'><?= sanitize( $owSections[ 'our_work_process' ][ 'section_subtitle' ] ?? 'Our Process' ) ?></span>
+<h2 class = 'text-3xl md:text-4xl font-extrabold font-heading text-slate-900 mb-4'><?= $owSections[ 'our_work_process' ][ 'section_title' ] ?? '' ?></h2>
+<p class = 'text-slate-600 text-sm'><?= sanitize( $processData[ 'subtitle' ] ?? '' ) ?></p>
 </div>
 
 <div class = 'process-timeline max-w-6xl mx-auto'>
 <?php foreach ( $processData[ 'steps' ] ?? [] as $step ): ?>
 <div class = 'process-step'>
 <div class = 'process-icon-wrapper w-14 h-14 rounded-2xl bg-white border border-slate-200 shadow-md flex items-center justify-center text-lg font-bold text-brandRed font-heading'>
-< ?= $step[ 'num' ] ?>
+<?= $step[ 'num' ] ?>
 </div>
-<h4 class = 'font-bold text-slate-900 text-sm mb-1'>< ?= sanitize( $step[ 'title' ] ) ?></h4>
-<p class = 'text-[11px] text-slate-600 max-w-[150px] mx-auto lg:mx-0'>< ?= sanitize( $step[ 'description' ] ) ?></p>
+<h4 class = 'font-bold text-slate-900 text-sm mb-1'><?= sanitize( $step[ 'title' ] ) ?></h4>
+<p class = 'text-[11px] text-slate-600 max-w-[150px] mx-auto lg:mx-0'><?= sanitize( $step[ 'description' ] ) ?></p>
 </div>
 <?php endforeach;
 ?>
@@ -232,17 +232,17 @@ All Projects <i class = 'fa-solid fa-arrow-right text-xs'></i></a></div>
 <section class = 'py-20 lg:py-28 bg-white border-t border-slate-200/50'>
 <div class = 'container mx-auto px-4 sm:px-6 lg:px-8'>
 <div class = 'text-center max-w-3xl mx-auto mb-16'>
-<span class = 'text-brandRed font-bold text-xs uppercase tracking-widest mb-2 block'>< ?= sanitize( $owSections[ 'our_work_pillars' ][ 'section_subtitle' ] ?? 'Our Strategy' ) ?></span>
-<h2 class = 'text-3xl font-extrabold font-heading text-slate-900 mb-4'>< ?= $owSections[ 'our_work_pillars' ][ 'section_title' ] ?? '' ?></h2>
-<p class = 'text-slate-600 text-sm'>< ?= sanitize( $pillarsData[ 'subtitle' ] ?? '' ) ?></p>
+<span class = 'text-brandRed font-bold text-xs uppercase tracking-widest mb-2 block'><?= sanitize( $owSections[ 'our_work_pillars' ][ 'section_subtitle' ] ?? 'Our Strategy' ) ?></span>
+<h2 class = 'text-3xl font-extrabold font-heading text-slate-900 mb-4'><?= $owSections[ 'our_work_pillars' ][ 'section_title' ] ?? '' ?></h2>
+<p class = 'text-slate-600 text-sm'><?= sanitize( $pillarsData[ 'subtitle' ] ?? '' ) ?></p>
 </div>
 
 <div class = 'grid grid-cols-1 md:grid-cols-4 gap-6'>
 <?php foreach ( $pillarsData[ 'pillars' ] ?? [] as $pillar ): ?>
 <div class = 'p-8 bg-slate-50 rounded-2xl border border-slate-100/80 shadow-sm hover:shadow-md transition-shadow'>
-<div class = 'w-12 h-12 rounded-xl bg-red-50 text-brandRed flex items-center justify-center text-xl font-bold mb-6 font-heading'>< ?= $pillar[ 'num' ] ?></div>
-<h4 class = 'font-bold text-slate-900 mb-3 text-sm font-heading'>< ?= sanitize( $pillar[ 'title' ] ) ?></h4>
-<p class = 'text-xs text-slate-600 leading-relaxed'>< ?= sanitize( $pillar[ 'description' ] ) ?></p>
+<div class = 'w-12 h-12 rounded-xl bg-red-50 text-brandRed flex items-center justify-center text-xl font-bold mb-6 font-heading'><?= $pillar[ 'num' ] ?></div>
+<h4 class = 'font-bold text-slate-900 mb-3 text-sm font-heading'><?= sanitize( $pillar[ 'title' ] ) ?></h4>
+<p class = 'text-xs text-slate-600 leading-relaxed'><?= sanitize( $pillar[ 'description' ] ) ?></p>
 </div>
 <?php endforeach;
 ?>
@@ -256,11 +256,11 @@ All Projects <i class = 'fa-solid fa-arrow-right text-xs'></i></a></div>
 
 <div class = 'flex flex-col md:flex-row md:items-end justify-between mb-16'>
 <div>
-<span class = 'text-brandRed font-bold text-xs uppercase tracking-widest mb-2 block'>< ?= sanitize( $owSections[ 'our_work_featured_projects' ][ 'section_subtitle' ] ?? 'Action in the Field' ) ?></span>
-<h2 class = 'text-3xl font-extrabold font-heading text-slate-900'>< ?= $owSections[ 'our_work_featured_projects' ][ 'section_title' ] ?? 'Featured Projects' ?></h2>
+<span class = 'text-brandRed font-bold text-xs uppercase tracking-widest mb-2 block'><?= sanitize( $owSections[ 'our_work_featured_projects' ][ 'section_subtitle' ] ?? 'Action in the Field' ) ?></span>
+<h2 class = 'text-3xl font-extrabold font-heading text-slate-900'><?= $owSections[ 'our_work_featured_projects' ][ 'section_title' ] ?? 'Featured Projects' ?></h2>
 </div>
 <p class = 'text-slate-600 text-xs md:text-sm max-w-md mt-4 md:mt-0 leading-relaxed'>
-< ?= sanitize( $featuredProjData[ 'description' ] ?? 'Our latest active projects making a real difference in communities.' ) ?>
+<?= sanitize( $featuredProjData[ 'description' ] ?? 'Our latest active projects making a real difference in communities.' ) ?>
 </p>
 </div>
 
@@ -269,18 +269,18 @@ All Projects <i class = 'fa-solid fa-arrow-right text-xs'></i></a></div>
 <a href = "<?= $base ?>projects/project-name.php?slug=<?= urlencode($project['slug']) ?>" class = 'bg-white rounded-3xl border border-slate-200/60 shadow-sm overflow-hidden flex flex-col justify-between group hover:shadow-xl transition-all duration-300'>
 <div class = 'relative h-56 overflow-hidden'>
 <img src = "<?= $base ?><?= $project['hero_image'] ?? 'assets/images/water.jpg' ?>" alt = "<?= sanitize($project['title']) ?>" class = 'w-full h-full object-cover group-hover:scale-105 transition-transform duration-500'>
-<span class = "absolute top-4 left-4 text-[10px] font-bold uppercase tracking-wider px-3 py-1.5 <?= $project['status'] === 'active' ? 'bg-emerald-500' : 'bg-slate-600' ?> text-white rounded-full shadow-md">< ?= ucfirst( $project[ 'status' ] ) ?></span>
+<span class = "absolute top-4 left-4 text-[10px] font-bold uppercase tracking-wider px-3 py-1.5 <?= $project['status'] === 'active' ? 'bg-emerald-500' : 'bg-slate-600' ?> text-white rounded-full shadow-md"><?= ucfirst( $project[ 'status' ] ) ?></span>
 </div>
 <div class = 'p-6 flex-grow flex flex-col justify-between'>
 <div>
 <div class = 'flex items-center gap-2 text-slate-500 text-[10px] uppercase font-bold tracking-wider mb-2'>
-<i class = 'fa-solid fa-location-dot text-brandRed'></i> < ?= sanitize( $project[ 'location_details' ] ?? 'Pakistan' ) ?>
+<i class = 'fa-solid fa-location-dot text-brandRed'></i> <?= sanitize( $project[ 'location_details' ] ?? 'Pakistan' ) ?>
 </div>
-<h3 class = 'text-lg font-bold text-slate-900 font-heading mb-3 group-hover:text-brandRed transition-colors'>< ?= sanitize( $project[ 'title' ] ) ?></h3>
-<p class = 'text-xs text-slate-600 leading-relaxed mb-6 line-clamp-2'>< ?= sanitize( $project[ 'description' ] ?? '' ) ?></p>
+<h3 class = 'text-lg font-bold text-slate-900 font-heading mb-3 group-hover:text-brandRed transition-colors'><?= sanitize( $project[ 'title' ] ) ?></h3>
+<p class = 'text-xs text-slate-600 leading-relaxed mb-6 line-clamp-2'><?= sanitize( $project[ 'description' ] ?? '' ) ?></p>
 </div>
 <div class = 'pt-4 border-t border-slate-100 flex items-center justify-between'>
-<span class = 'text-[10px] text-slate-400'>Since < ?= date( 'Y', strtotime( $project[ 'start_date' ] ) ) ?></span>
+<span class = 'text-[10px] text-slate-400'>Since <?= date( 'Y', strtotime( $project[ 'start_date' ] ) ) ?></span>
 <span class = 'text-brandRed hover:text-brandRed-hover text-xs font-semibold hover:underline flex items-center gap-1 group-hover:translate-x-1 transition-transform'>
 View Details <i class = 'fa-solid fa-arrow-right text-[10px]'></i>
 </span>
@@ -297,14 +297,14 @@ View Details <i class = 'fa-solid fa-arrow-right text-[10px]'></i>
 <!-- CTA BANNER -->
 <section class = 'py-20 bg-slate-900 text-white relative overflow-hidden'>
 <div class = 'container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center max-w-3xl'>
-<h2 class = 'text-3xl md:text-4xl font-extrabold font-heading mb-4'>< ?= $owSections[ 'our_work_cta' ][ 'section_title' ] ?? '' ?></h2>
-<p class = 'text-slate-300 text-sm mb-8 leading-relaxed'>< ?= sanitize( $ctaData[ 'description' ] ?? '' ) ?></p>
+<h2 class = 'text-3xl md:text-4xl font-extrabold font-heading mb-4'><?= $owSections[ 'our_work_cta' ][ 'section_title' ] ?? '' ?></h2>
+<p class = 'text-slate-300 text-sm mb-8 leading-relaxed'><?= sanitize( $ctaData[ 'description' ] ?? '' ) ?></p>
 <div class = 'flex flex-wrap items-center justify-center gap-4'>
 <a href = "<?= $base ?><?= $ctaData['button1_link'] ?? 'get-involved/contribute-with-us.php' ?>" class = 'bg-brandRed hover:bg-brandRed-hover text-white font-bold text-xs px-6 py-3.5 rounded-xl shadow-lg transition-all flex items-center gap-2 uppercase tracking-wider'>
-<i class = "<?= $ctaData['button1_icon'] ?? 'fa-solid fa-handshake' ?>"></i> < ?= sanitize( $ctaData[ 'button1_text' ] ?? 'Contribute With Us' ) ?>
+<i class = "<?= $ctaData['button1_icon'] ?? 'fa-solid fa-handshake' ?>"></i> <?= sanitize( $ctaData[ 'button1_text' ] ?? 'Contribute With Us' ) ?>
 </a>
 <a href = "<?= $base ?><?= $ctaData['button2_link'] ?? 'contact/index.php' ?>" class = 'bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs px-6 py-3.5 rounded-xl border border-slate-700 transition-all flex items-center gap-2 uppercase tracking-wider'>
-<i class = "<?= $ctaData['button2_icon'] ?? 'fa-solid fa-envelope' ?>"></i> < ?= sanitize( $ctaData[ 'button2_text' ] ?? 'Contact Our Team' ) ?>
+<i class = "<?= $ctaData['button2_icon'] ?? 'fa-solid fa-envelope' ?>"></i> <?= sanitize( $ctaData[ 'button2_text' ] ?? 'Contact Our Team' ) ?>
 </a>
 </div>
 </div>

@@ -11,6 +11,9 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
 
+    env:
+      LIVE_DOMAIN: wrc.org.pk
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -36,6 +39,103 @@ jobs:
 
           echo "Deployment files verified."
 
+      - name: Resolve Hostinger document root
+        id: docroot
+        shell: bash
+        env:
+          SSH_HOST: ${{ secrets.HOSTINGER_HOST }}
+          SSH_USER: ${{ secrets.HOSTINGER_USERNAME }}
+          SSH_PORT: ${{ secrets.HOSTINGER_PORT || 22 }}
+          SSH_KEY: ${{ secrets.HOSTINGER_SSH_KEY }}
+          DEPLOY_DIR_OVERRIDE: ${{ vars.WRC_DEPLOY_DIR }}
+        run: |
+          set -euo pipefail
+
+          SSH_HOME="$HOME/.ssh"
+          mkdir -p "$SSH_HOME"
+          printf '%s\n' "$SSH_KEY" > "$SSH_HOME/id_deploy"
+          chmod 600 "$SSH_HOME/id_deploy"
+
+          SSH_OPTS=(-i "$SSH_HOME/id_deploy"
+                    -p "$SSH_PORT"
+                    -o StrictHostKeyChecking=accept-new
+                    -o UserKnownHostsFile="$SSH_HOME/known_hosts"
+                    -o BatchMode=yes
+                    -o ConnectTimeout=30)
+
+          remote() { ssh "${SSH_OPTS[@]}" "$SSH_USER@$SSH_HOST" "$@"; }
+
+          echo "=== CONNECTED TO HOSTINGER ==="
+          echo "host=$SSH_HOST  user=$SSH_USER  live_domain=$LIVE_DOMAIN"
+
+          if [ -n "${DEPLOY_DIR_OVERRIDE:-}" ]; then
+            echo "Using configured override (repo variable WRC_DEPLOY_DIR): $DEPLOY_DIR_OVERRIDE"
+            echo "dir=$DEPLOY_DIR_OVERRIDE" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          TOKEN="t$(date +%s)${RANDOM}"
+          PROBE="wrc-deploy-probe-$TOKEN.txt"
+
+          echo "=== PROBING CANDIDATE DOCUMENT ROOTS ==="
+
+          PROBED="$(remote "LIVE_DOMAIN='$LIVE_DOMAIN' PROBE='$PROBE' sh -s" <<'REMOTE'
+          set -eu
+          {
+            printf '%s\n' "$HOME/domains/$LIVE_DOMAIN/public_html"
+            printf '%s\n' "$HOME/public_html"
+            for d in "$HOME/domains"/*/public_html; do printf '%s\n' "$d"; done
+          } | awk '!seen[$0]++' > "$HOME/.wrc_candidates"
+
+          while IFS= read -r d; do
+            [ -d "$d" ] || { echo "skip (missing): $d" >&2; continue; }
+            if printf '%s' "$d" > "$d/$PROBE" 2>/dev/null; then
+              echo "probe written: $d" >&2
+              printf '%s\n' "$d"
+            else
+              echo "not writable: $d" >&2
+            fi
+          done < "$HOME/.wrc_candidates"
+          REMOTE
+          )" || PROBED=""
+
+          LIVE_DIR="$(curl -fsS --max-time 30 -H 'Cache-Control: no-cache' \
+            "https://$LIVE_DOMAIN/$PROBE" 2>/dev/null | tr -d '\r\n' || true)"
+
+          # Always clean the probe files up, success or failure.
+          remote "PROBE='$PROBE' sh -s" <<'REMOTE' || true
+          set -eu
+          if [ -f "$HOME/.wrc_candidates" ]; then
+            while IFS= read -r d; do
+              [ -d "$d" ] && rm -f "$d/$PROBE"
+            done < "$HOME/.wrc_candidates"
+            rm -f "$HOME/.wrc_candidates"
+          fi
+          for d in "$HOME/domains"/*/public_html "$HOME/public_html"; do
+            [ -d "$d" ] && rm -f "$d/$PROBE"
+          done
+          REMOTE
+
+          if [ -n "$LIVE_DIR" ] && printf '%s\n' "$PROBED" | grep -qxF -- "$LIVE_DIR"; then
+            echo "Live document root confirmed by https://$LIVE_DOMAIN/ : $LIVE_DIR"
+          else
+            REMOTE_HOME="$(remote 'printf %s "$HOME"')"
+            FALLBACK="$REMOTE_HOME/domains/$LIVE_DOMAIN/public_html"
+            if remote "[ -f '$FALLBACK/index.php' ]"; then
+              LIVE_DIR="$FALLBACK"
+              echo "WARNING: probe did not confirm the live root; using canonical path $LIVE_DIR"
+            else
+              echo "ERROR: could not determine the document root for https://$LIVE_DOMAIN/"
+              echo "Directories probed on the server:"
+              printf '%s\n' "$PROBED"
+              echo "Set the repo variable WRC_DEPLOY_DIR to the correct path to override."
+              exit 1
+            fi
+          fi
+
+          echo "DEPLOY_DIR=$LIVE_DIR"
+          echo "dir=$LIVE_DIR" >> "$GITHUB_OUTPUT"
+
       - name: Upload WRC files to Hostinger
         uses: appleboy/scp-action@v0.1.7
         with:
@@ -46,7 +146,7 @@ jobs:
           timeout: 60s
           command_timeout: 10m
           source: "about,admin,assets,contact,database,get-involved,impact,news,our-work,projects,resources,where-we-work,index.php,privacy.html,privacy.php,includes/footer.php,includes/form-submit.php,includes/functions.php,includes/header.php,includes/newsletter-subscribe.php,terms.html,terms.php"
-          target: "/home/u817261572/domains/limegreen-anteater-521120.hostingersite.com/public_html"
+          target: ${{ steps.docroot.outputs.dir }}
           overwrite: true
 
       - name: Import WRC project portfolio
@@ -61,12 +161,25 @@ jobs:
           script: |
             set -eu
 
-            DEPLOY_DIR="/home/u817261572/domains/limegreen-anteater-521120.hostingersite.com/public_html"
+            DEPLOY_DIR="${{ steps.docroot.outputs.dir }}"
+            LEGACY_DIR="/home/u817261572/domains/limegreen-anteater-521120.hostingersite.com/public_html"
 
             echo "=== CONNECTED TO HOSTINGER ==="
             whoami
 
             cd "$DEPLOY_DIR"
+
+            # The domain changed, so the live document root may differ from the original
+            # one. Bring over any image that only exists there (uploaded before the move)
+            # without ever overwriting what the repository just deployed.
+            if [ "$DEPLOY_DIR" != "$LEGACY_DIR" ] && [ -d "$LEGACY_DIR/assets" ]; then
+              echo "=== RESTORING FILES THAT ONLY EXIST IN THE OLD DOCUMENT ROOT ==="
+              echo "from: $LEGACY_DIR/assets"
+              if ! cp -rn "$LEGACY_DIR/assets/." "$DEPLOY_DIR/assets/"; then
+                echo "WARNING: some legacy files could not be restored (continuing)."
+              fi
+              echo "Restore complete (existing files were not overwritten)."
+            fi
 
             if [ ! -f database/run_project_import.php ]; then
               echo "ERROR: Import script not found."
@@ -82,6 +195,9 @@ jobs:
 
             php -r 'echo "PHP ", PHP_VERSION, " (", PHP_SAPI, ")", PHP_EOL;'
 
+            echo "=== includes/ contents ==="
+            ls -la includes/
+
             if [ ! -r includes/config.php ]; then
               echo "ERROR: includes/config.php is missing or unreadable on the server."
               echo "It is gitignored on purpose, so it must already exist in public_html/includes/."
@@ -95,7 +211,7 @@ jobs:
 
             echo "=== RUNNING PROJECT IMPORT ==="
 
-            if result="$(php database/run_project_import.php 2>&1)"; then
+            if result="$(php -d display_errors=1 -d log_errors=0 database/run_project_import.php 2>&1)"; then
               printf '%s\n' "$result"
             else
               printf '%s\n' "$result"
@@ -113,3 +229,37 @@ jobs:
                 exit 1
                 ;;
             esac
+
+      - name: Verify live website
+        shell: bash
+        run: |
+          set -uo pipefail
+
+          echo "=== LIVE SITE CHECK ==="
+
+          home_code="$(curl -sS -o /dev/null -w '%{http_code}' --max-time 60 \
+            -H 'Cache-Control: no-cache' "https://$LIVE_DOMAIN/" || echo 000)"
+          echo "https://$LIVE_DOMAIN/ -> $home_code"
+
+          ow_code="$(curl -sS -o /dev/null -w '%{http_code}' --max-time 60 \
+            -H 'Cache-Control: no-cache' "https://$LIVE_DOMAIN/our-work/" || echo 000)"
+          echo "https://$LIVE_DOMAIN/our-work/ -> $ow_code"
+
+          if curl -fsS --max-time 60 -H 'Cache-Control: no-cache' \
+              "https://$LIVE_DOMAIN/our-work/" 2>/dev/null | grep -qF '< ?='; then
+            echo "ERROR: raw PHP short tags are still visible on the live Our Work page."
+            exit 1
+          fi
+          echo "Our Work page renders PHP correctly."
+
+          if [ "$ow_code" != "200" ]; then
+            echo "ERROR: https://$LIVE_DOMAIN/our-work/ did not return 200."
+            exit 1
+          fi
+
+          if [ "$home_code" != "200" ]; then
+            echo "ERROR: the live homepage did not return 200."
+            exit 1
+          fi
+
+          echo "SUCCESS: live website is reachable and rendering."
