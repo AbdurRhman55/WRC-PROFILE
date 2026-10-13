@@ -24,15 +24,17 @@ jobs:
             database/run_project_import.php \
             includes/footer.php \
             includes/form-submit.php \
+            includes/functions.php \
+            includes/header.php \
             index.php
           do
             if [ ! -f "$item" ]; then
-              echo "ERROR: Missing file: $item"
+              echo "ERROR: Missing required file: $item"
               exit 1
             fi
           done
 
-          echo "All required deployment files are present."
+          echo "SUCCESS: Required deployment files are present."
 
       - name: Deploy WRC files to Hostinger
         uses: appleboy/scp-action@v0.1.7
@@ -48,7 +50,7 @@ jobs:
           target: "/home/u817261572/domains/limegreen-anteater-521120.hostingersite.com/public_html"
           overwrite: true
 
-      - name: Import and verify WRC project portfolio
+      - name: Diagnose Hostinger SSH and PHP
         uses: appleboy/ssh-action@v1.2.2
         with:
           host: ${{ secrets.HOSTINGER_HOST }}
@@ -61,42 +63,46 @@ jobs:
           script: |
             set -eu
 
-            DEPLOY_DIR="/home/u817261572/domains/limegreen-anteater-521120.hostingersite.com/public_html"
-
-            echo "SSH connection successful."
+            echo "=== SSH CONNECTION SUCCESSFUL ==="
             whoami
 
-            cd "$DEPLOY_DIR"
+            DEPLOY_DIR="/home/u817261572/domains/limegreen-anteater-521120.hostingersite.com/public_html"
 
-            if [ ! -f database/run_project_import.php ]; then
-              echo "ERROR: Project import script not found."
+            echo "=== CHECK DEPLOYMENT DIRECTORY ==="
+            echo "Expected path: $DEPLOY_DIR"
+
+            if [ ! -d "$DEPLOY_DIR" ]; then
+              echo "ERROR: Deployment directory does not exist."
               exit 1
             fi
 
+            cd "$DEPLOY_DIR"
+
+            echo "=== CURRENT DIRECTORY ==="
+            pwd
+
+            echo "=== CHECK IMPORT SCRIPT ==="
+            if [ ! -f database/run_project_import.php ]; then
+              echo "ERROR: Import script is missing."
+              exit 1
+            fi
+
+            ls -l database/run_project_import.php
+
+            echo "=== CHECK PHP CLI ==="
             if ! command -v php >/dev/null 2>&1; then
-              echo "ERROR: PHP CLI is not available."
+              echo "ERROR: PHP CLI is unavailable."
               exit 1
             fi
 
             php -v
 
-            printf 'Require all denied\n' > database/.htaccess
-
-            if result="$(php database/run_project_import.php 2>&1)"; then
-              printf '%s\n' "$result"
-            else
-              printf '%s\n' "$result"
-              echo "ERROR: Project database import failed."
+            echo "=== CHECK PHP SYNTAX ==="
+            if ! php -l database/run_project_import.php; then
+              echo "ERROR: PHP syntax check failed."
               exit 1
             fi
 
-            case "$result" in
-              "Imported and verified all 20 WRC Excel projects."* | \
-              "Project portfolio already matches the 20 approved Excel entries; no changes made.")
-                echo "SUCCESS: WRC project portfolio verified."
-                ;;
-              *)
-                echo "ERROR: Expected project import confirmation was not returned."
-                exit 1
-                ;;
-            esac
+            echo "=== DIAGNOSTIC CHECKS COMPLETED ==="
+            echo "Database import was not executed."
+
