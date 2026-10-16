@@ -195,13 +195,26 @@ include __DIR__ . '/includes/header.php';
               $p1 = trim(substr($msg, 0, $break));
               $p2 = trim(substr($msg, $break + 1));
             }
+            // The note is stored as one block of text with a blank line between the
+            // logical paragraphs. Printing it as a single <p> throws every break away,
+            // so the letter renders as one ragged wall of text. Split it back into
+            // real paragraphs: each one then starts on the same edge, one below the
+            // other, and the text justifies to a straight right edge.
+            $paragraphs = [];
+            foreach ([$p1, $p2] as $block) {
+              foreach (preg_split('/\n\s*\n+/', (string)$block) as $para) {
+                $para = trim($para);
+                if ($para !== '') {
+                  $paragraphs[] = $para;
+                }
+              }
+            }
           ?>
-                <p class="text-slate-700 text-base sm:text-lg leading-relaxed mb-6">
-                    <?= sanitize($p1) ?>
+                <?php foreach ($paragraphs as $para): ?>
+                <p class="text-slate-700 text-base sm:text-lg leading-relaxed text-justify mb-5 last:mb-8">
+                    <?= sanitize($para) ?>
                 </p>
-                <p class="text-slate-700 text-base sm:text-lg leading-relaxed mb-8">
-                    <?= sanitize($p2) ?>
-                </p>
+                <?php endforeach; ?>
                 <div
                     class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-6 border-t border-slate-200 pt-6 mt-4">
                     <div>

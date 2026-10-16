@@ -427,6 +427,120 @@ function getImageUrl( string $path ): string {
 }
 
 /**
+ * Year a gallery photo was taken, or null when it cannot be determined.
+ *
+ * Resolution order: the date embedded in the filename, then the EXIF capture
+ * timestamp. Lookups are memoised in a small JSON file next to the gallery so
+ * EXIF is read at most once per image; if that folder is not writable the
+ * helper simply recomputes (the filename half needs no I/O at all).
+ *
+ * @return int|null
+ */
+function photoYear( string $path ) {
+    static $cache = null;
+    static $writable = null;
+
+    if ( $path === '' ) {
+        return null;
+    }
+
+    $cacheFile = dirname( __DIR__ ) . '/assets/images/gallery/.photo-years.json';
+
+    if ( $cache === null ) {
+        $cache = [];
+        if ( is_file( $cacheFile ) ) {
+            $stored = json_decode( (string) file_get_contents( $cacheFile ), true );
+            if ( is_array( $stored ) ) {
+                $cache = $stored;
+            }
+        }
+    }
+
+    if ( array_key_exists( $path, $cache ) ) {
+        return $cache[ $path ] === null ? null : (int) $cache[ $path ];
+    }
+
+    $year = photoYearForPath( $path );
+
+    $cache[ $path ] = $year;
+
+    if ( $writable !== false && is_dir( dirname( $cacheFile ) ) ) {
+        if ( @file_put_contents( $cacheFile, json_encode( $cache ) ) === false ) {
+            $writable = false;
+        }
+    }
+
+    return $year;
+}
+
+/**
+ * Resolve the capture year for one path, without consulting the cache.
+ *
+ * Only the last 30 years are accepted, and year matches must sit on digit
+ * boundaries, so numbers inside Facebook-style filenames (…88620210164_n.jpg)
+ * are never mistaken for a capture date.
+ *
+ * @return int|null
+ */
+function photoYearForPath( string $path ): ?int {
+    $name = basename( $path );
+    $now  = (int) date( 'Y' );
+    $min  = $now - 30;
+
+    $plausible = static function ( $year ) use ( $min, $now ): ?int {
+        $year = (int) $year;
+        return ( $year >= $min && $year <= $now ) ? $year : null;
+    };
+
+    // Compact camera date: 20120211_162050.jpg, IMG-20230315-WA0012.jpg
+    if ( preg_match( '/(?<!\d)((?:19|20)\d{2})(0[1-9]|1[0-2])(0[1-9]|[12]\d|3[01])(?!\d)/', $name, $m ) ) {
+        $year = $plausible( $m[1] );
+        if ( $year !== null ) {
+            return $year;
+        }
+    }
+
+    // Separated date: WhatsApp Image 2020-08-19 at 1.08.53 PM.jpeg
+    if ( preg_match( '/(?<!\d)((?:19|20)\d{2})[-_.\/](0[1-9]|1[0-2])[-_.\/](0[1-9]|[12]\d|3[01])(?!\d)/', $name, $m ) ) {
+        $year = $plausible( $m[1] );
+        if ( $year !== null ) {
+            return $year;
+        }
+    }
+
+    // Standalone year token: IMG-2023-something.jpg
+    if ( preg_match( '/(?<!\d)((?:19|20)\d{2})(?!\d)/', $name, $m ) ) {
+        $year = $plausible( $m[1] );
+        if ( $year !== null ) {
+            return $year;
+        }
+    }
+
+    // EXIF capture timestamp, for camera originals with no date in the name.
+    if ( function_exists( 'exif_read_data' ) ) {
+        $absolute = dirname( __DIR__ ) . '/' . ltrim( $path, '/' );
+        if ( is_file( $absolute ) ) {
+            $tags = @exif_read_data( $absolute, 'ANY_TAG', true );
+            if ( is_array( $tags ) ) {
+                foreach ( [ 'EXIF' => [ 'DateTimeOriginal', 'DateTimeDigitized' ], 'IFD0' => [ 'DateTime' ] ] as $group => $keys ) {
+                    foreach ( $keys as $key ) {
+                        $value = $tags[ $group ][ $key ] ?? null;
+                        if ( is_string( $value ) && preg_match( '/^((?:19|20)\d{2})[:\-]/', $value, $m ) ) {
+                            $year = $plausible( $m[1] );
+                            if ( $year !== null ) {
+                                return $year;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    return null;
+}
+
+/**
 * Upload an image file
 */
 

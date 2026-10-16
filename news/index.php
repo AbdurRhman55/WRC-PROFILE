@@ -272,6 +272,7 @@ include dirname(__DIR__) . '/includes/header.php';
         <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
           <?php foreach ($sectionPhotos as $photo): ?>
           <div class="gallery-card" data-category="<?= htmlspecialchars($section) ?>">
+            <?php $photoYear = photoYear((string) ($photo['image_path'] ?? '')); ?>
             <div class="gallery-item aspect-square bg-slate-200 rounded-xl overflow-hidden cursor-pointer group" data-src="<?= $base ?><?= $photo['image_path'] ?>" data-caption="<?= htmlspecialchars($photo['caption'] ?? $photo['alt_text'] ?? '') ?>">
               <img src="<?= $base ?><?= $photo['image_path'] ?>" alt="<?= sanitize($photo['alt_text'] ?? $photo['caption'] ?? $sectionLabel) ?>" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" loading="lazy">
               <span class="absolute top-2 left-2 z-10 bg-white/95 backdrop-blur-sm text-ink-900 text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded-md shadow-sm flex items-center gap-1.5">
@@ -284,7 +285,7 @@ include dirname(__DIR__) . '/includes/header.php';
             <div class="mt-2.5 flex items-start gap-2">
               <span class="w-1.5 h-1.5 rounded-full bg-brandRed mt-1.5 shrink-0"></span>
               <div class="min-w-0">
-                <p class="text-xs font-semibold text-ink-900 truncate"><?= sanitize($sectionLabel) ?></p>
+                <p class="text-xs font-semibold text-ink-900 truncate"><?= sanitize($sectionLabel) ?><?= $photoYear !== null ? ' &middot; <span class="text-brandRed font-bold">' . $photoYear . '</span>' : '' ?></p>
                 <?php if (!empty($photo['caption'])): ?>
                 <p class="text-[11px] text-slate-400 truncate mt-0.5"><?= sanitize($photo['caption']) ?></p>
                 <?php endif; ?>

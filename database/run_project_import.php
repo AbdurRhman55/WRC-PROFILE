@@ -325,6 +325,67 @@ $syncPublicLabels = static function () use ( $pdo ): int {
     return $updated;
 };
 
+/**
+ * Points every stored "get involved" button at the page that actually exists.
+ *
+ * The contribute page is served from contribute-with-us.php, but several CTA
+ * records still carry the contribute-with-us.html path, which 404s and leaves
+ * the button doing nothing. get-involved/index.html has the same problem.
+ *
+ * Like the label sync this runs on every deployment, so wording written by the
+ * admin panel cannot silently drift away from the deployed routes again.
+ *
+ * Returns the number of rows updated.
+ */
+$syncContributeLinks = static function () use ( $pdo ): int {
+    $replacements = [
+        [ 'get-involved/contribute-with-us.html', 'get-involved/contribute-with-us.php' ],
+        [ 'get-involved/index.html', 'get-involved/index.php' ],
+    ];
+
+    $tables = $pdo->query(
+        "SELECT table_name FROM information_schema.tables
+          WHERE table_schema = DATABASE() AND table_type = 'BASE TABLE'
+            AND table_name NOT LIKE '%excel_backup%'
+          ORDER BY table_name"
+    )->fetchAll( PDO::FETCH_COLUMN );
+
+    if ( !$tables ) {
+        return 0;
+    }
+
+    $columnStmt = $pdo->prepare(
+        "SELECT column_name FROM information_schema.columns
+          WHERE table_schema = DATABASE() AND table_name = ?
+            AND data_type IN ('varchar','char','tinytext','text','mediumtext','longtext','json')
+          ORDER BY ordinal_position"
+    );
+
+    $updated = 0;
+
+    foreach ( $tables as $table ) {
+        $columnStmt->execute( [ $table ] );
+
+        foreach ( $columnStmt->fetchAll( PDO::FETCH_COLUMN ) as $column ) {
+            foreach ( $replacements as [ $from, $to ] ) {
+                try {
+                    $update = $pdo->prepare(
+                        "UPDATE `{$table}` SET `{$column}` = REPLACE(`{$column}`, ?, ?) WHERE `{$column}` LIKE ?"
+                    );
+                    $update->execute( [ $from, $to, '%' . $from . '%' ] );
+                    $updated += $update->rowCount();
+                } catch ( Throwable $error ) {
+                    fwrite( STDERR, "WARNING: could not update `{$table}`.`{$column}`: " . $error->getMessage() . "\n" );
+                }
+            }
+        }
+    }
+
+    echo 'CTA link sync: ' . $updated . ' stored button link(s) retargeted to the .php pages' . ( $updated ? '.' : ' (already correct).' ) . "\n";
+
+    return $updated;
+};
+
 try {
     $sqlFile = __DIR__ . '/replace_projects_from_wrc_excel.sql';
     if ( !is_file( $sqlFile ) ) {
@@ -348,6 +409,7 @@ try {
     // short-circuit below: keeps stored CTA wording in sync with the templates and
     // keeps the photo gallery free of byte-identical duplicate images.
     $syncPublicLabels();
+    $syncContributeLinks();
     $dedupePhotoGallery();
 
     $reasons = $portfolioStatus();
