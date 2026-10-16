@@ -56,7 +56,7 @@ $pagesList = [
     'annual-reports' => ['label' => 'Annual Reports', 'sections' => 2],
     'news'           => ['label' => 'News & Media', 'sections' => 1],
     'get-involved'   => ['label' => 'Get Involved', 'sections' => 5],
-    'contribute'     => ['label' => 'Contribute With Us', 'sections' => 4],
+    'contribute'     => ['label' => 'Let’s Work Together', 'sections' => 4],
     'contact'        => ['label' => 'Contact Us', 'sections' => 2],
     'impact'         => ['label' => 'Impact', 'sections' => 3],
     'where-we-work'  => ['label' => 'Where We Work', 'sections' => 3],

@@ -19,7 +19,18 @@ if ( isPost() && isset( $_POST[ 'delete_id' ] ) ) {
 }
 
 $photos = getRows( 'photo_gallery', [], 'sort_order ASC' );
-$categories = [ 'relief' => 'Relief', 'wash' => 'WASH', 'health' => 'Health', 'education' => 'Education', 'general' => 'General' ];
+
+// Sections: the standard set plus every section already used in the gallery.
+$standardSections = [ 'relief', 'wash', 'health', 'education', 'meetings', 'partnerships', 'community', 'general' ];
+$categories = [];
+foreach ( array_merge( $standardSections, array_column( $photos, 'category' ) ) as $key ) {
+    $key = strtolower( trim( ( string ) $key ) );
+    if ( $key === '' || isset( $categories[ $key ] ) ) {
+        continue;
+    }
+    $categories[ $key ] = $key === 'wash' ? 'WASH' : ucfirst( $key );
+}
+ksort( $categories, SORT_NATURAL | SORT_FLAG_CASE );
 
 include __DIR__ . '/includes/header.php';
 ?>

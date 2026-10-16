@@ -34,7 +34,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 $pageTitle = $isEdit ? 'Edit Photo' : 'Add Photo';
-$categories = ['relief' => 'Relief', 'wash' => 'WASH', 'health' => 'Health', 'education' => 'Education', 'general' => 'General'];
+
+// Sections available when tagging a photo: the standard set plus every section
+// already used in the gallery, so the dropdown always matches what is on the site.
+$standardSections = [ 'relief', 'wash', 'health', 'education', 'meetings', 'partnerships', 'community', 'general' ];
+$categories = [];
+foreach ( array_merge( $standardSections, array_column( getRows( 'photo_gallery', [], 'id ASC' ), 'category' ) ) as $key ) {
+    $key = strtolower( trim( ( string ) $key ) );
+    if ( $key === '' || isset( $categories[ $key ] ) ) {
+        continue;
+    }
+    $categories[ $key ] = $key === 'wash' ? 'WASH' : ucfirst( $key );
+}
+ksort( $categories, SORT_NATURAL | SORT_FLAG_CASE );
 include __DIR__ . '/includes/header.php';
 ?>
 
@@ -68,12 +80,13 @@ include __DIR__ . '/includes/header.php';
         <input type="text" name="caption" value="<?= htmlspecialchars($photo['caption'] ?? '') ?>" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-brandRed/20 focus:border-brandRed">
       </div>
       <div>
-        <label class="block text-xs font-semibold text-slate-600 mb-1">Category</label>
+        <label class="block text-xs font-semibold text-slate-600 mb-1">Section</label>
         <select name="category" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-brandRed/20 focus:border-brandRed">
           <?php foreach ($categories as $k => $v): ?>
-          <option value="<?= $k ?>" <?= ($photo['category'] ?? 'general') === $k ? 'selected' : '' ?>><?= $v ?></option>
+          <option value="<?= $k ?>" <?= strtolower((string)($photo['category'] ?? 'general')) === $k ? 'selected' : '' ?>><?= $v ?></option>
           <?php endforeach; ?>
         </select>
+        <p class="text-[11px] text-slate-400 mt-1.5">Photos are grouped by section in the gallery, and the section name is shown on and below every image.</p>
       </div>
       <div>
         <label class="block text-xs font-semibold text-slate-600 mb-1">Sort Order</label>

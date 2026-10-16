@@ -37,7 +37,7 @@ $campaigns = getRows('campaigns', 'is_active = 1 ORDER BY sort_order ASC');
 // Fetch bank accounts for donation modal
 $bankAccounts = getRows('bank_accounts', 'is_active = 1 ORDER BY sort_order ASC');
 
-$pageTitle = 'Contribute With Us | WRC Campaigns';
+$pageTitle = 'Let’s Work Together | WRC Campaigns';
 $metaDescription = 'Support WRC campaigns to bring clean water, food security, and education to communities in need.';
 
 include dirname(__DIR__) . '/includes/header.php';

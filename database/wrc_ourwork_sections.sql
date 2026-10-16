@@ -3,7 +3,7 @@ USE wrc_website;
 -- Our Work Hero Section
 INSERT INTO homepage_sections (section_key, section_title, section_subtitle, content, sort_order, is_active) VALUES
 ('our_work_hero', 'Our Work', 'Creating Impact Through Community-Focused Action',
- '{"hero_image":"assets/images/our-work/our-work-hero.jpg","hero_alt":"Humanitarian Fieldwork in Pakistan","subtitle":"Through strategic community interventions and humanitarian partnership, WRC works across Pakistan to address vulnerability, build resilience, and deliver swift, dignified relief.","button1_text":"Explore Our Programs","button1_link":"#sectors","button2_text":"Contribute With Us","button2_link":"get-involved/contribute-with-us.html"}',
+ '{"hero_image":"assets/images/our-work/our-work-hero.jpg","hero_alt":"Humanitarian Fieldwork in Pakistan","subtitle":"Through strategic community interventions and humanitarian partnership, WRC works across Pakistan to address vulnerability, build resilience, and deliver swift, dignified relief.","button1_text":"Explore Our Programs","button1_link":"#sectors","button2_text":"Let’s Work Together","button2_link":"get-involved/contribute-with-us.html"}',
  10, 1)
 ON DUPLICATE KEY UPDATE section_title = VALUES(section_title), content = VALUES(content);
 
@@ -38,6 +38,6 @@ ON DUPLICATE KEY UPDATE section_title = VALUES(section_title), content = VALUES(
 -- Our Work CTA Banner
 INSERT INTO homepage_sections (section_key, section_title, section_subtitle, content, sort_order, is_active) VALUES
 ('our_work_cta', 'Partner With Us for Lasting Change', NULL,
- '{"description":"Join hands with World Relief Committee to expand access to clean water, enhance health services, or support emergency relief campaigns across vulnerable communities in Pakistan.","button1_text":"Contribute With Us","button1_link":"get-involved/contribute-with-us.html","button1_icon":"fa-solid fa-handshake","button2_text":"Contact Our Team","button2_link":"contact/index.html","button2_icon":"fa-solid fa-envelope"}',
+ '{"description":"Join hands with World Relief Committee to expand access to clean water, enhance health services, or support emergency relief campaigns across vulnerable communities in Pakistan.","button1_text":"Let’s Work Together","button1_link":"get-involved/contribute-with-us.html","button1_icon":"fa-solid fa-handshake","button2_text":"Contact Our Team","button2_link":"contact/index.html","button2_icon":"fa-solid fa-envelope"}',
  15, 1)
 ON DUPLICATE KEY UPDATE section_title = VALUES(section_title), content = VALUES(content);

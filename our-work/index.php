@@ -96,7 +96,7 @@ include dirname( __DIR__ ) . '/includes/header.php';
 <?= sanitize( $heroData[ 'button1_text' ] ?? 'Explore Our Programs' ) ?>
 </a>
 <a href = "<?= $base ?><?= $heroData['button2_link'] ?? 'get-involved/contribute-with-us.php' ?>" class = 'bg-white/10 hover:bg-white/20 text-white border border-white/25 font-bold text-xs px-6 py-4 rounded-xl transition-all uppercase tracking-wider'>
-<?= sanitize( $heroData[ 'button2_text' ] ?? 'Contribute With Us' ) ?>
+<?= sanitize( $heroData[ 'button2_text' ] ?? 'Let’s Work Together' ) ?>
 </a>
 </div>
 </div>
@@ -301,7 +301,7 @@ View Details <i class = 'fa-solid fa-arrow-right text-[10px]'></i>
 <p class = 'text-slate-300 text-sm mb-8 leading-relaxed'><?= sanitize( $ctaData[ 'description' ] ?? '' ) ?></p>
 <div class = 'flex flex-wrap items-center justify-center gap-4'>
 <a href = "<?= $base ?><?= $ctaData['button1_link'] ?? 'get-involved/contribute-with-us.php' ?>" class = 'bg-brandRed hover:bg-brandRed-hover text-white font-bold text-xs px-6 py-3.5 rounded-xl shadow-lg transition-all flex items-center gap-2 uppercase tracking-wider'>
-<i class = "<?= $ctaData['button1_icon'] ?? 'fa-solid fa-handshake' ?>"></i> <?= sanitize( $ctaData[ 'button1_text' ] ?? 'Contribute With Us' ) ?>
+<i class = "<?= $ctaData['button1_icon'] ?? 'fa-solid fa-handshake' ?>"></i> <?= sanitize( $ctaData[ 'button1_text' ] ?? 'Let’s Work Together' ) ?>
 </a>
 <a href = "<?= $base ?><?= $ctaData['button2_link'] ?? 'contact/index.php' ?>" class = 'bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs px-6 py-3.5 rounded-xl border border-slate-700 transition-all flex items-center gap-2 uppercase tracking-wider'>
 <i class = "<?= $ctaData['button2_icon'] ?? 'fa-solid fa-envelope' ?>"></i> <?= sanitize( $ctaData[ 'button2_text' ] ?? 'Contact Our Team' ) ?>

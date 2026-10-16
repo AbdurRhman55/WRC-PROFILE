@@ -4,7 +4,7 @@ require_once dirname( __DIR__ ) . '/includes/functions.php';
 
 $base = siteBaseUrl();
 $pageTitle = 'Resources | WRC';
-$metaDescription = 'Access WRC audit reports and organizational policies. WRC is a registered organization committed to transparency and accountability.';
+$metaDescription = 'Access WRC organizational policies and downloadable resources. WRC is a registered organization committed to transparency and accountability.';
 
 // Fetch hero from dedicated table
 $heroRow = getRow( 'resources_hero' );
@@ -16,19 +16,19 @@ if ( $heroRow ) {
 $heroTitle = $heroRow[ 'section_title' ] ?? '';
 $heroTitle = $heroTitle ?: ( $heroData[ 'title' ] ?? 'Resources & Documents' );
 $heroSubtitle = $heroRow[ 'section_subtitle' ] ?? '';
-$heroSubtitle = $heroSubtitle ?: ( $heroData[ 'subtitle' ] ?? 'Access our audit reports and policies, and learn about WRC as a registered organization.' );
+$heroSubtitle = $heroSubtitle ?: ( $heroData[ 'subtitle' ] ?? 'Access our policies and resources, and learn about WRC as a registered organization.' );
 $heroTagline = $heroData[ 'tagline' ] ?? 'Transparency & Accountability';
-
-// Fetch resources by type
-$auditReports = getRows( 'resources', [ 'resource_type' => 'audit_report', 'is_active' => 1 ], 'year DESC' );
 
 // Fetch policies
 $policies = getRows( 'resources', [ 'resource_type' => 'policy', 'is_active' => 1 ], 'sort_order ASC' );
 
+// Fetch other downloadable resources
+$downloads = getRows( 'resources', [ 'resource_type' => 'download', 'is_active' => 1 ], 'sort_order ASC' );
+
 // Dynamic stats for hero
 $stats = [
-    [ 'label' => 'Audit Reports', 'value' => count( $auditReports ) . '+', 'icon' => 'fa-magnifying-glass-chart' ],
     [ 'label' => 'Policies', 'value' => count( $policies ) . '+', 'icon' => 'fa-shield-halved' ],
+    [ 'label' => 'Documents', 'value' => ( count( $policies ) + count( $downloads ) ) . '+', 'icon' => 'fa-file-lines' ],
     [ 'label' => 'Registered Organization', 'value' => 'WRC', 'icon' => 'fa-stamp' ],
 ];
 
@@ -116,15 +116,10 @@ class = 'bg-white/10 backdrop-blur-sm border border-white/20 rounded-2xl px-4 py
 ?>
 </div>
 <div class = 'flex flex-wrap justify-center gap-4'>
-<a href = '#audit-reports'
-
-class = 'bg-white text-slate-900 hover:bg-slate-100 font-bold text-sm px-8 py-4 rounded-xl shadow-lg transition-all flex items-center gap-2 transform hover:-translate-y-0.5'>
-<i class = 'fa-solid fa-magnifying-glass-chart text-brandRed'></i> Audit Reports
-</a>
 <a href = '#policies'
 
-class = 'bg-white/10 hover:bg-white/20 border border-white/30 text-white font-bold text-sm px-8 py-4 rounded-xl backdrop-blur-sm transition-all flex items-center gap-2 transform hover:-translate-y-0.5'>
-<i class = 'fa-solid fa-shield-halved'></i> Policies
+class = 'bg-white text-slate-900 hover:bg-slate-100 font-bold text-sm px-8 py-4 rounded-xl shadow-lg transition-all flex items-center gap-2 transform hover:-translate-y-0.5'>
+<i class = 'fa-solid fa-shield-halved text-brandRed'></i> Policies
 </a>
 <a href = '#registration'
 
@@ -142,11 +137,6 @@ class = 'bg-white/10 hover:bg-white/20 border border-white/30 text-white font-bo
 class = 'bg-white/95 backdrop-blur-md border-b border-slate-200 sticky top-20 z-40 shadow-sm'>
 <div class = 'max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'>
 <div class = 'flex overflow-x-auto gap-1 py-2 scrollbar-hide' style = 'scrollbar-width:none;'>
-<a href = '#audit-reports' aria-label = 'Jump to audit reports'
-
-class = 'shrink-0 text-xs font-semibold px-4 py-2 rounded-lg hover:bg-brandRed hover:text-white text-slate-600 transition-all whitespace-nowrap'><i
-
-class = 'fa-solid fa-magnifying-glass-chart mr-1.5 text-amber-500'></i> Audit Reports</a>
 <a href = '#policies' aria-label = 'Jump to organizational policies'
 
 class = 'shrink-0 text-xs font-semibold px-4 py-2 rounded-lg hover:bg-brandRed hover:text-white text-slate-600 transition-all whitespace-nowrap'><i
@@ -158,96 +148,6 @@ class = 'shrink-0 text-xs font-semibold px-4 py-2 rounded-lg hover:bg-brandRed h
 
 class = 'fa-solid fa-stamp mr-1.5 text-brandRed'></i> Registration Status</a>
 </div>
-</div>
-</section>
-
-<!-- AUDIT REPORTS -->
-<section id = 'audit-reports' class = 'py-20 md:py-28 bg-white'>
-<div class = 'max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'>
-<div class = 'flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-14'>
-<div>
-<div
-
-class = 'inline-flex items-center gap-2 bg-amber-50 text-amber-600 text-[11px] font-bold uppercase tracking-widest px-4 py-2 rounded-full mb-4'>
-<i class = 'fa-solid fa-magnifying-glass-chart'></i> Audit Reports
-</div>
-<h2 class = 'text-3xl md:text-4xl font-extrabold text-slate-900'
-style = "font-family:'Fraunces',serif;">External Audit Reports</h2>
-<p class = 'mt-3 text-slate-500 text-sm max-w-xl'>Independent external audit reports conducted by
-certified auditing firms for transparency and compliance.</p>
-</div>
-<?php if ( !empty( $auditReports ) ): ?>
-<div class = 'text-sm text-slate-500 font-medium shrink-0'>
-<span class = 'text-amber-600 font-bold'>
-<?= count( $auditReports ) ?>
-</span> reports available
-</div>
-<?php endif;
-?>
-</div>
-
-<?php if ( !empty( $auditReports ) ): ?>
-<div class = 'grid md:grid-cols-2 lg:grid-cols-4 gap-6'>
-<?php foreach ( $auditReports as $report ): ?>
-<?php $reportType = strtoupper( ( string ) ( $report[ 'file_type' ] ?? 'PDF' ) );
-?>
-<div
-
-class = 'group bg-white rounded-3xl border border-slate-200 overflow-hidden hover:-translate-y-1 hover:shadow-xl hover:border-amber-300 transition-all duration-300'>
-<div
-
-class = 'h-44 bg-gradient-to-br from-amber-50 via-amber-100/50 to-amber-50 flex items-center justify-center relative overflow-hidden'>
-<div
-
-class = 'absolute inset-0 bg-gradient-to-br from-amber-0 to-amber-50 group-hover:to-amber-100/50 transition-all'>
-</div>
-<div class = 'relative text-center'>
-<i class = 'fa-solid fa-magnifying-glass-chart text-amber-600 text-4xl mb-2 opacity-80'></i>
-<div class = 'text-3xl font-extrabold text-amber-700' style = "font-family:'Fraunces',serif;">
-<?= sanitize( ( string ) ( $report[ 'year' ] ?? '' ) ) ?>
-</div>
-</div>
-</div>
-<div class = 'p-5'>
-<h3 class = 'font-bold text-slate-900 text-sm mb-2 group-hover:text-amber-600 transition-colors'>
-<?= sanitize( $report[ 'title' ] ?? '' ) ?>
-</h3>
-<p class = 'text-slate-500 text-xs leading-relaxed mb-4 line-clamp-2'>
-<?= sanitize( $report[ 'description' ] ?? '' ) ?>
-</p>
-<div class = 'flex items-center justify-between pt-3 border-t border-slate-100'>
-<span class = 'text-[11px] text-slate-400 font-medium'><i
-
-class = 'fa-solid fa-file-pdf mr-1 text-amber-600'></i>
-<?= sanitize( $reportType ) ?>
-</span>
-<?php if ( !empty( $report[ 'file_path' ] ) ): ?>
-<a href = "<?= sanitize( siteUrl( $report['file_path'] ) ) ?>" target = '_blank'
-rel = 'noopener noreferrer'
-
-class = 'inline-flex items-center gap-1.5 bg-amber-600 hover:bg-amber-700 text-white text-[11px] font-bold px-3 py-1.5 rounded-lg transition-all'>
-<i class = 'fa-solid fa-download text-[10px]'></i> Download
-</a>
-<?php else: ?>
-<span class = 'text-[11px] text-slate-400 font-medium'><i class = 'fa-solid fa-clock mr-1'></i>
-Coming Soon</span>
-<?php endif;
-?>
-</div>
-</div>
-</div>
-<?php endforeach;
-?>
-</div>
-<?php else: ?>
-<div class = 'text-center py-16 bg-slate-50 rounded-2xl border border-slate-200'>
-<div class = 'w-16 h-16 rounded-full bg-amber-100 flex items-center justify-center mx-auto mb-4'><i
-
-class = 'fa-solid fa-magnifying-glass-chart text-amber-600 text-2xl'></i></div>
-<p class = 'text-slate-500 text-sm'>Audit reports will be uploaded soon.</p>
-</div>
-<?php endif;
-?>
 </div>
 </section>
 

@@ -73,7 +73,7 @@ ON DUPLICATE KEY UPDATE section_title = VALUES(section_title), content = VALUES(
 -- HISTORY: CTA
 INSERT INTO homepage_sections (section_key, section_title, section_subtitle, content, sort_order, is_active) VALUES
 ('history_cta', 'Be Part of Our Story', 'Get Involved',
- '{"description":"Join us in creating the next chapter of community transformation across Pakistan. Your support can help us reach more families in need.","button1_text":"Contribute Now","button1_link":"get-involved/contribute-with-us.html","button2_text":"Contact Us","button2_link":"contact/index.html"}',
+ '{"description":"Join us in creating the next chapter of community transformation across Pakistan. Your support can help us reach more families in need.","button1_text":"Let’s Work Together","button1_link":"get-involved/contribute-with-us.html","button2_text":"Contact Us","button2_link":"contact/index.html"}',
  50, 1)
 ON DUPLICATE KEY UPDATE section_title = VALUES(section_title), content = VALUES(content);
 

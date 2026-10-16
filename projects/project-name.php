@@ -39,7 +39,17 @@ if (!empty($relatedProjects)) {
     }
 }
 if (empty($relProjects)) {
-    $relProjects = getRows('projects', "id != {$project['id']} AND is_active = 1 ORDER BY sort_order ASC LIMIT 3");
+    // Prefer projects from the same sector so the recommendations stay relevant,
+    // then top up with the rest of the portfolio.
+    global $pdo;
+    $relStmt = $pdo->prepare(
+        'SELECT * FROM projects
+          WHERE id != :id AND is_active = 1
+          ORDER BY (category = :category) DESC, sort_order ASC
+          LIMIT 3'
+    );
+    $relStmt->execute([':id' => $project['id'], ':category' => trim((string)($project['category'] ?? ''))]);
+    $relProjects = $relStmt->fetchAll(PDO::FETCH_ASSOC);
 }
 
 // Fetch project resources
@@ -49,6 +59,44 @@ $resources = getRows('resources', ['project_id' => $project['id']], 'sort_order 
 $startDate = !empty($project['start_date']) ? date('Y', strtotime($project['start_date'])) : 'N/A';
 $endDate = !empty($project['end_date']) ? date('Y', strtotime($project['end_date'])) : 'Ongoing';
 $projectPartner = !empty($donors) ? implode(', ', array_column($donors, 'donor_name')) : 'Welfare & Relief Committee';
+
+// Detail panel values, derived from the portfolio columns that every deployment
+// repopulates, so the project details stay accurate whatever else is stored.
+$isActive        = strtolower((string)($project['status'] ?? 'active')) === 'active';
+$beneficiaryCount = (int)($project['beneficiaries_count'] ?? 0);
+$progressPercent  = max(0, min(100, (int)($project['progress_percent'] ?? 0)));
+$hasProgress      = $progressPercent > 0;
+
+$startTs = !empty($project['start_date']) ? strtotime($project['start_date']) : false;
+$endTs   = !empty($project['end_date'])   ? strtotime($project['end_date'])   : false;
+
+$periodLabel = 'Not specified';
+if ($startTs && $endTs) {
+    $periodLabel = date('M Y', $startTs) . ' – ' . date('M Y', $endTs);
+} elseif ($startTs) {
+    $periodLabel = date('M Y', $startTs) . ' – Ongoing';
+}
+
+$durationLabel = 'Not specified';
+if ($startTs && $endTs && $endTs >= $startTs) {
+    // Rounded to the nearest whole month so a Jan-Dec project reads as a full year
+    // instead of "11 months".
+    $interval = (new DateTimeImmutable('@' . $startTs))->diff(new DateTimeImmutable('@' . $endTs));
+    $months   = (int) round($interval->days / 30.44);
+    $years    = intdiv($months, 12);
+    $rest     = $months % 12;
+
+    $durationParts = [];
+    if ($years) {
+        $durationParts[] = $years . ' year' . ($years > 1 ? 's' : '');
+    }
+    if ($rest) {
+        $durationParts[] = $rest . ' month' . ($rest > 1 ? 's' : '');
+    }
+    $durationLabel = $durationParts ? implode(' ', $durationParts) : 'Under a month';
+} elseif ($startTs) {
+    $durationLabel = 'Ongoing';
+}
 
 // Status colors
 $statusConfig = [
@@ -214,8 +262,7 @@ include dirname(__DIR__) . '/includes/header.php';
                         </div>
                     </div>
 
-                    <!-- Progress Ring & Impact Stats -->
-                    <?php if ($project['status'] === 'active'): ?>
+                    <!-- Project Impact -->
                     <div
                         class="bg-gradient-to-br from-ink-900 to-ink-800 p-8 lg:p-10 rounded-3xl text-white reveal-section">
                         <div class="flex items-center gap-3 mb-8">
@@ -230,8 +277,9 @@ include dirname(__DIR__) . '/includes/header.php';
                                 <div class="bg-white/5 backdrop-blur-sm border border-white/10 p-5 rounded-2xl">
                                     <i class="fa-solid fa-users text-brandRed text-xl mb-3"></i>
                                     <div class="text-2xl font-extrabold counter-number"
-                                        data-target="<?= $project['beneficiaries_count'] ?? 0 ?>">0</div>
-                                    <div class="text-white/60 text-xs uppercase tracking-wider mt-1">Beneficiaries</div>
+                                        data-target="<?= $beneficiaryCount ?>">0</div>
+                                    <div class="text-white/60 text-xs uppercase tracking-wider mt-1">
+                                        <?= $isActive ? 'Beneficiaries' : 'Beneficiaries Served' ?></div>
                                 </div>
                                 <div class="bg-white/5 backdrop-blur-sm border border-white/10 p-5 rounded-2xl">
                                     <i class="fa-solid fa-calendar-check text-brandRed text-xl mb-3"></i>
@@ -245,14 +293,15 @@ include dirname(__DIR__) . '/includes/header.php';
                                     <div class="text-white/60 text-xs uppercase tracking-wider mt-1">Location</div>
                                 </div>
                                 <div class="bg-white/5 backdrop-blur-sm border border-white/10 p-5 rounded-2xl">
-                                    <i class="fa-solid fa-clock text-brandRed text-xl mb-3"></i>
+                                    <i
+                                        class="fa-solid <?= $isActive ? 'fa-clock' : 'fa-flag-checkered' ?> text-brandRed text-xl mb-3"></i>
                                     <div class="text-lg font-bold"><?= $endDate ?></div>
-                                    <div class="text-white/60 text-xs uppercase tracking-wider mt-1">Expected End</div>
+                                    <div class="text-white/60 text-xs uppercase tracking-wider mt-1">
+                                        <?= $isActive ? 'Expected End' : 'Completed In' ?></div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <?php endif; ?>
 
                     <!-- Objectives - Numbered Cards -->
                     <?php if (!empty($objectives)): ?>
@@ -402,6 +451,67 @@ include dirname(__DIR__) . '/includes/header.php';
                 <!-- Right Sidebar - Sticky -->
                 <div class="lg:col-span-4">
                     <div class="space-y-6 lg:sticky lg:top-32">
+
+                        <!-- Project Details -->
+                        <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm reveal-section">
+                            <div class="flex items-center gap-3 mb-5">
+                                <div class="w-10 h-10 rounded-xl bg-red-50 flex items-center justify-center">
+                                    <i class="fa-solid fa-clipboard-list text-brandRed"></i>
+                                </div>
+                                <h4 class="font-bold text-slate-900 text-sm">Project Details</h4>
+                            </div>
+                            <dl class="text-sm">
+                                <div class="flex items-start justify-between gap-4 py-3 border-b border-slate-100">
+                                    <dt class="text-slate-500 shrink-0">Status</dt>
+                                    <dd class="text-right">
+                                        <span
+                                            class="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full <?= $isActive ? 'bg-emerald-50 text-emerald-600' : 'bg-slate-100 text-slate-600' ?>">
+                                            <i
+                                                class="fa-solid <?= $isActive ? 'fa-circle text-[6px]' : 'fa-circle-check text-[10px]' ?>"></i><?= $isActive ? 'Active' : 'Completed' ?>
+                                        </span>
+                                    </dd>
+                                </div>
+                                <div class="flex items-start justify-between gap-4 py-3 border-b border-slate-100">
+                                    <dt class="text-slate-500 shrink-0">Sector</dt>
+                                    <dd class="font-semibold text-slate-900 text-right">
+                                        <?= sanitize($project['category'] ?? 'General') ?></dd>
+                                </div>
+                                <div class="flex items-start justify-between gap-4 py-3 border-b border-slate-100">
+                                    <dt class="text-slate-500 shrink-0">Location</dt>
+                                    <dd class="font-semibold text-slate-900 text-right">
+                                        <?= sanitize($project['location_details'] ?? 'Pakistan') ?></dd>
+                                </div>
+                                <div class="flex items-start justify-between gap-4 py-3 border-b border-slate-100">
+                                    <dt class="text-slate-500 shrink-0">Period</dt>
+                                    <dd class="font-semibold text-slate-900 text-right"><?= sanitize($periodLabel) ?></dd>
+                                </div>
+                                <div class="flex items-start justify-between gap-4 py-3 border-b border-slate-100">
+                                    <dt class="text-slate-500 shrink-0">Duration</dt>
+                                    <dd class="font-semibold text-slate-900 text-right"><?= sanitize($durationLabel) ?></dd>
+                                </div>
+                                <div class="flex items-start justify-between gap-4 py-3 border-b border-slate-100">
+                                    <dt class="text-slate-500 shrink-0">Beneficiaries</dt>
+                                    <dd class="font-semibold text-slate-900 text-right">
+                                        <?= number_format($beneficiaryCount) ?></dd>
+                                </div>
+                                <div class="flex items-start justify-between gap-4 py-3 border-b border-slate-100">
+                                    <dt class="text-slate-500 shrink-0">Partner</dt>
+                                    <dd class="font-semibold text-slate-900 text-right"><?= sanitize($projectPartner) ?></dd>
+                                </div>
+                                <?php if ($hasProgress): ?>
+                                <div class="pt-3">
+                                    <div class="flex items-center justify-between gap-4 mb-2">
+                                        <dt class="text-slate-500">Progress</dt>
+                                        <dd class="font-bold text-brandRed"><?= $progressPercent ?>%</dd>
+                                    </div>
+                                    <div class="progress-bar h-2 w-full bg-slate-100 rounded-full overflow-hidden">
+                                        <div class="progress-bar-fill h-full bg-brandRed rounded-full"
+                                            style="--progress-width: <?= $progressPercent ?>%; width: <?= $progressPercent ?>%;"></div>
+                                    </div>
+                                </div>
+                                <?php endif; ?>
+                            </dl>
+                        </div>
 
                         <!-- Resource Downloads -->
                         <?php if (!empty($resources)): ?>
@@ -606,7 +716,7 @@ include dirname(__DIR__) . '/includes/header.php';
             <div class="flex flex-col sm:flex-row justify-center gap-4">
                 <a href="<?= $base ?>get-involved/contribute-with-us.php"
                     class="px-8 py-4 rounded-xl bg-brandRed hover:bg-brandRed-hover text-white font-bold text-sm shadow-xl shadow-brandRed/30 transition-all uppercase tracking-wider hover:-translate-y-1">
-                    <i class="fa-solid fa-handshake mr-2"></i> Contribute Now
+                    <i class="fa-solid fa-handshake mr-2"></i> Let’s Work Together
                 </a>
                 <a href="<?= $base ?>contact/index.php"
                     class="px-8 py-4 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 text-white font-bold text-sm transition-all uppercase tracking-wider hover:-translate-y-1">

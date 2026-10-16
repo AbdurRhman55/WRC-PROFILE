@@ -130,7 +130,7 @@ include __DIR__ . '/includes/header.php';
                     </a>
                     <a href="<?= $base ?>get-involved/contribute-with-us.php"
                         class="bg-white/10 hover:bg-white/25 backdrop-blur-md text-white border border-white/30 font-semibold text-sm sm:text-base px-6 py-3.5 rounded-xl transition-all flex items-center gap-2 transform hover:-translate-y-1">
-                        Contribute With Us <i class="fa-solid fa-handshake text-xs"></i>
+                        Let’s Work Together <i class="fa-solid fa-handshake text-xs"></i>
                     </a>
                 </div>
             </div>
@@ -634,7 +634,7 @@ function renderContent(index) {
             '<a href="<?= $base ?>' + s.cta_link +
             '" class="bg-brandRed hover:bg-brandRed-hover text-white font-bold text-sm sm:text-base px-7 py-3.5 rounded-xl shadow-lg shadow-brandRed/30 transition-all flex items-center gap-2 transform hover:-translate-y-1">' +
             s.cta_text + ' <i class="fa-solid fa-arrow-right text-xs"></i></a>' +
-            '<a href="<?= $base ?>get-involved/contribute-with-us.php" class="bg-white/10 hover:bg-white/25 backdrop-blur-md text-white border border-white/30 font-semibold text-sm sm:text-base px-6 py-3.5 rounded-xl transition-all flex items-center gap-2 transform hover:-translate-y-1">Contribute With Us <i class="fa-solid fa-handshake text-xs"></i></a>' +
+            '<a href="<?= $base ?>get-involved/contribute-with-us.php" class="bg-white/10 hover:bg-white/25 backdrop-blur-md text-white border border-white/30 font-semibold text-sm sm:text-base px-6 py-3.5 rounded-xl transition-all flex items-center gap-2 transform hover:-translate-y-1">Let’s Work Together <i class="fa-solid fa-handshake text-xs"></i></a>' +
             '</div>';
         contentEl.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
         contentEl.style.opacity = '1';

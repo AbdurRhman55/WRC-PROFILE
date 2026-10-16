@@ -234,7 +234,6 @@ tailwind.config = {
             <div class = 'dropdown-menu absolute top-full right-0 w-56 bg-white border border-gray-100 rounded-2xl shadow-xl p-2 text-slate-600 text-xs'>
             <a href = "<?= $base ?>resources/index.php#annual-reports" class = 'block px-3 py-2 rounded-xl hover:bg-slate-800 hover:text-white transition-colors'><i class = 'fa-solid fa-file-pdf mr-2 text-slate-400'></i> Annual Reports</a>
             <a href = "<?= $base ?>resources/index.php#financial-reports" class = 'block px-3 py-2 rounded-xl hover:bg-slate-800 hover:text-white transition-colors'><i class = 'fa-solid fa-coins mr-2 text-slate-400'></i> Financial Reports</a>
-            <a href = "<?= $base ?>resources/index.php#audit-reports" class = 'block px-3 py-2 rounded-xl hover:bg-slate-800 hover:text-white transition-colors'><i class = 'fa-solid fa-magnifying-glass-chart mr-2 text-slate-400'></i> Audit Reports</a>
             <a href = "<?= $base ?>resources/index.php#registration" class = 'block px-3 py-2 rounded-xl hover:bg-slate-800 hover:text-white transition-colors'><i class = 'fa-solid fa-stamp mr-2 text-slate-400'></i> Registration</a>
             </div>
             </div>
@@ -257,7 +256,7 @@ tailwind.config = {
             GET INVOLVED <i class = 'fa-solid fa-chevron-down text-[8px] opacity-60'></i>
             </a>
             <div class = 'dropdown-menu absolute top-full right-0 w-56 bg-white border border-gray-100 rounded-2xl shadow-xl p-2 text-slate-600 text-xs'>
-            <a href = "<?= $base ?>get-involved/contribute-with-us.php" class = 'block px-3 py-2 rounded-xl hover:bg-slate-800 hover:text-white transition-colors'><i class = 'fa-solid fa-handshake mr-2 text-slate-400'></i> Contribute With Us</a>
+            <a href = "<?= $base ?>get-involved/contribute-with-us.php" class = 'block px-3 py-2 rounded-xl hover:bg-slate-800 hover:text-white transition-colors'><i class = 'fa-solid fa-handshake mr-2 text-slate-400'></i> Let’s Work Together</a>
             <a href = "<?= $base ?>get-involved/index.php#volunteer" class = 'block px-3 py-2 rounded-xl hover:bg-slate-800 hover:text-white transition-colors'><i class = 'fa-solid fa-hands-holding-child mr-2 text-slate-400'></i> Volunteer</a>
             <a href = "<?= $base ?>get-involved/index.php#careers" class = 'block px-3 py-2 rounded-xl hover:bg-slate-800 hover:text-white transition-colors'><i class = 'fa-solid fa-user-plus mr-2 text-slate-400'></i> Careers</a>
             <a href = "<?= $base ?>get-involved/index.php#partner" class = 'block px-3 py-2 rounded-xl hover:bg-slate-800 hover:text-white transition-colors'><i class = 'fa-solid fa-handshake-angle mr-2 text-slate-400'></i> Become a Partner</a>
@@ -283,7 +282,7 @@ tailwind.config = {
             <!-- CTA CONTRIBUTE BUTTON -->
             <div class = 'hidden lg:flex items-center gap-3 shrink-0'>
             <a href = "<?= $base ?>get-involved/contribute-with-us.php" class = 'animate-pulse-glow bg-brandRed hover:bg-brandRed-hover text-white font-bold text-xs px-4 py-2.5 rounded-xl shadow-md transition-all flex items-center gap-1.5 uppercase tracking-wider'>
-            <i class = 'fa-solid fa-handshake text-[10px]'></i> Contribute Now
+            <i class = 'fa-solid fa-handshake text-[10px]'></i> Let’s Work Together
             </a>
             </div>
 
@@ -385,7 +384,6 @@ tailwind.config = {
             <div class = 'mobile-tray-submenu'><div>
             <a href = "<?= $base ?>resources/index.php#annual-reports">Annual Reports</a>
             <a href = "<?= $base ?>resources/index.php#financial-reports">Financial Reports</a>
-            <a href = "<?= $base ?>resources/index.php#audit-reports">Audit Reports</a>
             <a href = "<?= $base ?>resources/index.php#registration">Registration</a>
             </div></div>
 
@@ -404,7 +402,7 @@ tailwind.config = {
             <i class = 'acc-icon fa-solid fa-chevron-down'></i>
             </button>
             <div class = 'mobile-tray-submenu'><div>
-            <a href = "<?= $base ?>get-involved/contribute-with-us.php">Contribute With Us</a>
+            <a href = "<?= $base ?>get-involved/contribute-with-us.php">Let’s Work Together</a>
             <a href = "<?= $base ?>get-involved/index.php#volunteer">Volunteer</a>
             <a href = "<?= $base ?>get-involved/index.php#careers">Careers</a>
             <a href = "<?= $base ?>get-involved/index.php#partner">Become a Partner</a>
@@ -426,7 +424,7 @@ tailwind.config = {
 
             <div class = 'mobile-tray-footer'>
             <a href = "<?= $base ?>get-involved/contribute-with-us.php" class = 'mobile-tray-cta'>
-            <i class = 'fa-solid fa-handshake text-xs'></i> Contribute With Us
+            <i class = 'fa-solid fa-handshake text-xs'></i> Let’s Work Together
             </a>
             </div>
             </div>

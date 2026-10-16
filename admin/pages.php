@@ -1076,7 +1076,7 @@ $pages = [
         ]
     ],
     'contribute' => [
-        'label' => 'Contribute With Us',
+        'label' => 'Let’s Work Together',
         'sections' => [
             'contribute_hero' => 'Hero Section',
             'contribute_impact' => 'Donation Impact',

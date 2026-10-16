@@ -76,6 +76,22 @@ global $pdo;
 $catStmt = $pdo->query("SELECT DISTINCT category FROM projects WHERE is_active = 1 AND category != '' ORDER BY category ASC");
 $projectCategories = $catStmt->fetchAll(PDO::FETCH_COLUMN);
 
+// Flat, lowercase search index backing the projects search box: title, sector,
+// status, location and summary all matched by a single keyword.
+$projectSearchIndex = static function (array $project): string {
+    $haystack = implode(' ', [
+        $project['title'] ?? '',
+        $project['category'] ?? '',
+        $project['status'] ?? '',
+        $project['location_details'] ?? '',
+        $project['district'] ?? '',
+        $project['description'] ?? '',
+        $project['overview'] ?? '',
+    ]);
+    $haystack = trim(preg_replace('/\s+/', ' ', strip_tags($haystack)));
+    return function_exists('mb_strtolower') ? mb_strtolower($haystack, 'UTF-8') : strtolower($haystack);
+};
+
 // Compute quick stats
 $totalProjects = count($activeProjects) + count($completedProjects);
 $totalCompleted = count($completedProjects);
@@ -164,23 +180,35 @@ include dirname(__DIR__) . '/includes/header.php';
   <!-- FILTER TABS -->
   <section id="portfolio" class="sticky top-20 z-40 bg-white/95 backdrop-blur-md border-b border-gray-100 shadow-sm">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <!-- Status Filters -->
-      <div class="flex items-center gap-1 overflow-x-auto py-3 scrollbar-hide">
-        <button class="filter-tab active whitespace-nowrap px-4 py-2 text-sm font-semibold text-slate-500 transition-colors rounded-lg hover:bg-gray-50" data-filter="all">
-          All Projects
-        </button>
-        <button class="filter-tab whitespace-nowrap px-4 py-2 text-sm font-semibold text-slate-500 transition-colors rounded-lg hover:bg-gray-50" data-filter="active">
-          <i class="fa-solid fa-circle text-[6px] text-green-500 mr-1.5"></i> Active
-        </button>
-        <button class="filter-tab whitespace-nowrap px-4 py-2 text-sm font-semibold text-slate-500 transition-colors rounded-lg hover:bg-gray-50" data-filter="completed">
-          <i class="fa-solid fa-circle-check text-[10px] text-teal-500 mr-1.5"></i> Completed
-        </button>
-        <div class="w-px h-5 bg-gray-200 mx-2"></div>
-        <?php foreach ($projectCategories as $cat): ?>
-        <button class="category-tab whitespace-nowrap px-3 py-1.5 text-xs font-semibold text-slate-500 transition-colors rounded-full border border-gray-200 hover:border-brandRed hover:text-brandRed hover:bg-red-50" data-category-filter="<?= htmlspecialchars($cat) ?>">
-          <?= htmlspecialchars($cat) ?>
-        </button>
-        <?php endforeach; ?>
+      <!-- Status / category filters and search -->
+      <div class="flex items-center gap-3 py-3">
+        <div class="flex items-center gap-1 overflow-x-auto flex-1 min-w-0 scrollbar-hide">
+          <button class="filter-tab active whitespace-nowrap px-4 py-2 text-sm font-semibold text-slate-500 transition-colors rounded-lg hover:bg-gray-50" data-filter="all">
+            All Projects
+          </button>
+          <button class="filter-tab whitespace-nowrap px-4 py-2 text-sm font-semibold text-slate-500 transition-colors rounded-lg hover:bg-gray-50" data-filter="active">
+            <i class="fa-solid fa-circle text-[6px] text-green-500 mr-1.5"></i> Active
+          </button>
+          <button class="filter-tab whitespace-nowrap px-4 py-2 text-sm font-semibold text-slate-500 transition-colors rounded-lg hover:bg-gray-50" data-filter="completed">
+            <i class="fa-solid fa-circle-check text-[10px] text-teal-500 mr-1.5"></i> Completed
+          </button>
+          <div class="w-px h-5 bg-gray-200 mx-2"></div>
+          <?php foreach ($projectCategories as $cat): ?>
+          <button class="category-tab whitespace-nowrap px-3 py-1.5 text-xs font-semibold text-slate-500 transition-colors rounded-full border border-gray-200 hover:border-brandRed hover:text-brandRed hover:bg-red-50" data-category-filter="<?= htmlspecialchars($cat) ?>">
+            <?= htmlspecialchars($cat) ?>
+          </button>
+          <?php endforeach; ?>
+        </div>
+
+        <span id="project-search-count" class="hidden shrink-0 text-[11px] font-semibold text-slate-500 bg-slate-100 border border-slate-200 px-2.5 py-1 rounded-full whitespace-nowrap"></span>
+
+        <div class="relative shrink-0 w-44 sm:w-60 lg:w-72">
+          <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs pointer-events-none"></i>
+          <input type="text" id="project-search" placeholder="Search projects&hellip;" aria-label="Search projects" autocomplete="off" class="w-full pl-9 pr-8 py-2 rounded-xl border border-gray-200 bg-gray-50 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-brandRed/20 focus:border-brandRed focus:bg-white transition-all">
+          <button type="button" id="project-search-clear" class="hidden absolute right-2.5 top-1/2 -translate-y-1/2 w-5 h-5 rounded-full bg-slate-200 hover:bg-slate-300 text-slate-600 items-center justify-center text-[10px] transition-colors" aria-label="Clear search">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
       </div>
     </div>
   </section>
@@ -198,7 +226,7 @@ include dirname(__DIR__) . '/includes/header.php';
 
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         <?php foreach ($activeProjects as $project): ?>
-        <a href="<?= $base ?>projects/project-name.php?slug=<?= urlencode($project['slug']) ?>" class="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 hover:shadow-lg transition-all duration-300 group flex flex-col" data-category="active" data-project-category="<?= htmlspecialchars($project['category'] ?? 'General') ?>">
+        <a href="<?= $base ?>projects/project-name.php?slug=<?= urlencode($project['slug']) ?>" class="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 hover:shadow-lg transition-all duration-300 group flex flex-col" data-category="active" data-project-category="<?= htmlspecialchars($project['category'] ?? 'General') ?>" data-search="<?= htmlspecialchars($projectSearchIndex($project)) ?>">
           <div class="relative h-48 overflow-hidden flex-shrink-0">
             <img src="<?= $base ?><?= $project['hero_image'] ?>" alt="<?= sanitize($project['title']) ?>" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
             <div class="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
@@ -246,7 +274,7 @@ include dirname(__DIR__) . '/includes/header.php';
 
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         <?php foreach ($completedProjects as $project): ?>
-        <a href="<?= $base ?>projects/project-name.php?slug=<?= urlencode($project['slug']) ?>" class="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 hover:shadow-lg transition-all duration-300 group flex flex-col" data-category="completed" data-project-category="<?= htmlspecialchars($project['category'] ?? 'General') ?>">
+        <a href="<?= $base ?>projects/project-name.php?slug=<?= urlencode($project['slug']) ?>" class="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 hover:shadow-lg transition-all duration-300 group flex flex-col" data-category="completed" data-project-category="<?= htmlspecialchars($project['category'] ?? 'General') ?>" data-search="<?= htmlspecialchars($projectSearchIndex($project)) ?>">
           <div class="relative h-48 overflow-hidden flex-shrink-0">
             <img src="<?= $base ?><?= $project['hero_image'] ?>" alt="<?= sanitize($project['title']) ?>" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
             <div class="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
@@ -475,7 +503,7 @@ include dirname(__DIR__) . '/includes/header.php';
           </p>
           <div class="flex flex-wrap justify-center gap-4">
             <a href="<?= $base ?><?= $ctaData['button1_link'] ?? 'get-involved/contribute-with-us.php' ?>" class="bg-brandRed hover:bg-brandRed-hover text-white font-bold text-sm px-8 py-3.5 rounded-xl shadow-lg shadow-brandRed/30 transition-all flex items-center gap-2">
-              <i class="<?= $ctaData['button1_icon'] ?? 'fa-solid fa-handshake' ?> text-xs"></i> <?= sanitize($ctaData['button1_text'] ?? 'Contribute Now') ?>
+              <i class="<?= $ctaData['button1_icon'] ?? 'fa-solid fa-handshake' ?> text-xs"></i> <?= sanitize($ctaData['button1_text'] ?? 'Let’s Work Together') ?>
             </a>
             <a href="<?= $base ?><?= $ctaData['button2_link'] ?? 'contact/index.php' ?>" class="bg-white/10 hover:bg-white/20 backdrop-blur-sm text-white font-bold text-sm px-8 py-3.5 rounded-xl border border-white/20 transition-all flex items-center gap-2">
               <i class="<?= $ctaData['button2_icon'] ?? 'fa-solid fa-envelope' ?> text-xs"></i> <?= sanitize($ctaData['button2_text'] ?? 'Contact Us') ?>
@@ -493,6 +521,54 @@ include dirname(__DIR__) . '/includes/header.php';
 <script>
   var activeStatusFilter = 'all';
   var activeCategoryFilter = '';
+  var activeSearchQuery = '';
+
+  // === PROJECTS SEARCH ===
+  // Keyword search across title, sector, location and summary. It is applied on top
+  // of the status and category filters, so every control keeps working together.
+  var searchInput = document.getElementById('project-search');
+  var searchClearBtn = document.getElementById('project-search-clear');
+  var searchCountEl = document.getElementById('project-search-count');
+  var searchDebounce = null;
+
+  function escapeHtml(value) {
+    return String(value).replace(/[&<>"']/g, function(ch) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch];
+    });
+  }
+
+  function setSearchClearVisible(visible) {
+    if (!searchClearBtn) return;
+    searchClearBtn.classList.toggle('hidden', !visible);
+    searchClearBtn.classList.toggle('flex', visible);
+  }
+
+  function applySearch(value) {
+    activeSearchQuery = String(value || '').trim().toLowerCase();
+    setSearchClearVisible(activeSearchQuery !== '');
+    filterProjects();
+  }
+
+  function clearSearch() {
+    if (searchInput) searchInput.value = '';
+    applySearch('');
+    if (searchInput) searchInput.focus();
+  }
+
+  if (searchInput) {
+    searchInput.addEventListener('input', function() {
+      var value = this.value;
+      if (searchDebounce) clearTimeout(searchDebounce);
+      searchDebounce = setTimeout(function() { applySearch(value); }, 180);
+    });
+    searchInput.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape' && this.value !== '') {
+        e.preventDefault();
+        clearSearch();
+      }
+    });
+  }
+  if (searchClearBtn) searchClearBtn.addEventListener('click', clearSearch);
 
   // Status filter tabs
   document.querySelectorAll('.filter-tab').forEach(function(tab) {
@@ -535,11 +611,13 @@ include dirname(__DIR__) . '/includes/header.php';
     allCards.forEach(function(card) {
       var status = card.getAttribute('data-category').toLowerCase();
       var projectCat = card.getAttribute('data-project-category') || '';
+      var searchHaystack = card.getAttribute('data-search') || '';
       
       var statusMatch = activeStatusFilter === 'all' || status.indexOf(activeStatusFilter.toLowerCase()) !== -1;
       var catMatch = !activeCategoryFilter || projectCat === activeCategoryFilter;
+      var searchMatch = activeSearchQuery === '' || searchHaystack.indexOf(activeSearchQuery) !== -1;
       
-      if (statusMatch && catMatch) {
+      if (statusMatch && catMatch && searchMatch) {
         card.style.display = '';
         card.style.opacity = '0';
         card.style.transform = 'translateY(10px)';
@@ -553,6 +631,17 @@ include dirname(__DIR__) . '/includes/header.php';
         card.style.display = 'none';
       }
     });
+
+    // Result count shown beside the search box while a search is active.
+    if (searchCountEl) {
+      if (activeSearchQuery !== '') {
+        searchCountEl.textContent = visibleCount + (visibleCount === 1 ? ' project found' : ' projects found');
+        searchCountEl.classList.remove('hidden');
+      } else {
+        searchCountEl.classList.add('hidden');
+        searchCountEl.textContent = '';
+      }
+    }
 
     // Show/hide section headers based on visible cards
     var activeSection = document.getElementById('active');
@@ -578,7 +667,10 @@ include dirname(__DIR__) . '/includes/header.php';
       var emptyDiv = document.createElement('div');
       emptyDiv.id = 'filter-empty-state';
       emptyDiv.className = 'col-span-full text-center py-16';
-      emptyDiv.innerHTML = '<div class="w-16 h-16 bg-slate-100 rounded-2xl flex items-center justify-center mx-auto mb-4"><i class="fa-solid fa-folder-open text-slate-300 text-2xl"></i></div><h3 class="text-lg font-display font-bold text-slate-700 mb-2">No projects found</h3><p class="text-sm text-slate-400">No projects match this filter. Try selecting a different category.</p>';
+      var emptyMessage = activeSearchQuery !== ''
+        ? 'No projects match &ldquo;' + escapeHtml(activeSearchQuery) + '&rdquo;. Try a different keyword, or clear the search.'
+        : 'No projects match this filter. Try selecting a different category.';
+      emptyDiv.innerHTML = '<div class="w-16 h-16 bg-slate-100 rounded-2xl flex items-center justify-center mx-auto mb-4"><i class="fa-solid fa-folder-open text-slate-300 text-2xl"></i></div><h3 class="text-lg font-display font-bold text-slate-700 mb-2">No projects found</h3><p class="text-sm text-slate-400">' + emptyMessage + '</p>';
       var targetSection = activeSection && activeSection.style.display !== 'none' ? activeSection : (completedSection && completedSection.style.display !== 'none' ? completedSection : null);
       if (targetSection) {
         var grid = targetSection.querySelector('.grid');

@@ -30,7 +30,7 @@ INSERT INTO site_settings (setting_key, setting_value, setting_group) VALUES
 INSERT INTO hero_sliders (title, subtitle, image_path, cta_text, cta_link, sort_order) VALUES
 ('Delivering Hope Where It''s Needed Most', 'Emergency relief, sustainable development, and community empowerment across Pakistan.', 'assets/images/hero.jpg', 'Our Programs', 'our-work/index.html', 1),
 ('Building Resilient Communities Together', 'From clean water to quality education, we create lasting change in underserved regions.', 'assets/images/hero-slider-2.jpg', 'See Our Impact', 'impact/index.html', 2),
-('Every Action Creates a Ripple of Change', 'Join thousands of donors, volunteers, and partners transforming lives.', 'assets/images/hero-slider-3.jpg', 'Contribute Now', 'get-involved/contribute-with-us.html', 3);
+('Every Action Creates a Ripple of Change', 'Join thousands of donors, volunteers, and partners transforming lives.', 'assets/images/hero-slider-3.jpg', 'Let’s Work Together', 'get-involved/contribute-with-us.html', 3);
 
 -- =============================================
 -- 3. PROGRAMS (from data.js)

@@ -1,12 +1,12 @@
 <?php
 /**
- * WRC Website - Contribute With Us (Dynamic)
+ * WRC Website - Let’s Work Together (Dynamic)
  */
 require_once dirname(__DIR__) . '/includes/config.php';
 require_once dirname(__DIR__) . '/includes/functions.php';
 
 $base = siteBaseUrl();
-$pageTitle = 'Contribute With Us | WRC';
+$pageTitle = 'Let’s Work Together | WRC';
 
 // Fetch homepage sections
 $homepageSections = getRows('homepage_sections', 'is_active = 1 ORDER BY sort_order ASC');
@@ -56,7 +56,7 @@ include __DIR__ . '/../includes/header.php';
       <i class="fa-solid fa-handshake"></i> <?= sanitize($heroData['badge'] ?? 'Make a Difference') ?>
     </span>
     <h1 class="text-4xl sm:text-5xl font-extrabold text-white mb-4 font-heading">
-      <?= sanitize($heroData['title'] ?? 'Contribute With Us') ?>
+      <?= sanitize($heroData['title'] ?? 'Let’s Work Together') ?>
     </h1>
     <p class="text-slate-300 text-base max-w-2xl mx-auto">
       <?= sanitize($heroData['subtitle'] ?? 'Every donation brings clean water, food, education, and hope to families in need. Join us in rebuilding lives across Pakistan.') ?>

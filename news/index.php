@@ -20,10 +20,66 @@ $news = getRows('news_articles', 'is_published = 1 ORDER BY published_at DESC');
 // Fetch photos from DB
 $photos = getRows('photo_gallery', ['is_active' => 1], 'sort_order ASC');
 
-// Fetch unique photo categories
-global $pdo;
-$photoCatStmt = $pdo->query("SELECT DISTINCT category FROM photo_gallery WHERE is_active = 1 AND category != '' ORDER BY category ASC");
-$photoCategories = $photoCatStmt->fetchAll(PDO::FETCH_COLUMN);
+// Normalise every photo path once, and skip rows whose file is missing so the
+// gallery can never render a broken tile.
+$galleryItems = [];
+foreach ($photos as $photo) {
+    $photoPath = trim((string) ($photo['image_path'] ?? ''));
+    if ($photoPath === '') {
+        continue;
+    }
+    if (strpos($photoPath, 'assets/') !== 0 && strpos($photoPath, 'http') !== 0 && strpos($photoPath, 'uploads/') !== 0) {
+        $photoPath = 'uploads/photos/' . $photoPath;
+    }
+    if (strpos($photoPath, 'http') !== 0 && !is_file(dirname(__DIR__) . '/' . $photoPath)) {
+        continue;
+    }
+    $photo['image_path'] = $photoPath;
+    $galleryItems[] = $photo;
+}
+
+// Group the gallery into the sections each photo was tagged with at upload time.
+$photoSections = [];
+foreach ($galleryItems as $photo) {
+    $section = strtolower(trim((string) ($photo['category'] ?? '')));
+    if ($section === '') {
+        $section = 'general';
+    }
+    $photo['section'] = $section;
+    $photoSections[$section][] = $photo;
+}
+ksort($photoSections, SORT_NATURAL | SORT_FLAG_CASE);
+
+// Sections actually shown in the gallery drive the filter buttons.
+$photoCategories = array_keys($photoSections);
+
+// Display labels + icons per section (unknown sections fall back to ucfirst).
+$photoSectionLabels = [
+    'community'    => 'Community',
+    'education'    => 'Education',
+    'general'      => 'General',
+    'health'       => 'Health',
+    'meetings'     => 'Meetings',
+    'partnerships' => 'Partnerships',
+    'relief'       => 'Relief',
+    'wash'         => 'WASH',
+];
+$photoSectionIcons = [
+    'community'    => 'fa-people-roof',
+    'education'    => 'fa-graduation-cap',
+    'general'      => 'fa-images',
+    'health'       => 'fa-heart-pulse',
+    'meetings'     => 'fa-people-group',
+    'partnerships' => 'fa-handshake',
+    'relief'       => 'fa-hand-holding-heart',
+    'wash'         => 'fa-droplet',
+];
+$photoSectionLabel = static function (string $section) use ($photoSectionLabels): string {
+    return $photoSectionLabels[$section] ?? ucfirst($section);
+};
+$photoSectionIcon = static function (string $section) use ($photoSectionIcons): string {
+    return $photoSectionIcons[$section] ?? 'fa-layer-group';
+};
 
 // Fetch videos from DB
 $videos = getRows('video_gallery', ['is_active' => 1], 'sort_order ASC');
@@ -181,31 +237,61 @@ include dirname(__DIR__) . '/includes/header.php';
       <div class="flex flex-wrap gap-2 shrink-0">
         <button class="photo-filter-btn active bg-brandRed text-white text-xs font-semibold px-4 py-2 rounded-full transition-all" data-filter="all">All</button>
         <?php foreach ($photoCategories as $cat): ?>
-        <button class="photo-filter-btn bg-slate-200 text-slate-600 text-xs font-semibold px-4 py-2 rounded-full hover:bg-brandRed hover:text-white transition-all" data-filter="<?= htmlspecialchars($cat) ?>"><?= ucfirst(htmlspecialchars($cat)) ?></button>
+        <button class="photo-filter-btn bg-slate-200 text-slate-600 text-xs font-semibold px-4 py-2 rounded-full hover:bg-brandRed hover:text-white transition-all" data-filter="<?= htmlspecialchars($cat) ?>"><?= htmlspecialchars($photoSectionLabel($cat)) ?></button>
         <?php endforeach; ?>
       </div>
       <?php endif; ?>
     </div>
 
-    <?php if (empty($photos)): ?>
+    <?php if (empty($photoSections)): ?>
     <div class="text-center py-16 bg-white rounded-2xl">
       <i class="fa-solid fa-images text-4xl text-slate-300 mb-4 block"></i>
       <h3 class="text-lg font-bold text-slate-700 mb-2">No photos yet</h3>
       <p class="text-sm text-slate-400">Photo gallery will be populated soon.</p>
     </div>
     <?php else: ?>
-    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4" id="photo-grid">
-      <?php foreach ($photos as $photo): ?>
+    <div id="photo-grid">
+      <?php foreach ($photoSections as $section => $sectionPhotos): ?>
       <?php
-        $photoPath = !empty($photo['image_path']) ? $photo['image_path'] : 'assets/images/hero/hero-slider-1.jpg';
-        if (strpos($photoPath, 'assets/') !== 0 && strpos($photoPath, 'http') !== 0 && strpos($photoPath, 'uploads/') !== 0) {
-            $photoPath = 'uploads/photos/' . $photoPath;
-        }
+        $sectionLabel = $photoSectionLabel($section);
+        $sectionIcon  = $photoSectionIcon($section);
+        $sectionCount = count($sectionPhotos);
       ?>
-      <div class="gallery-item aspect-square bg-slate-200 rounded-xl overflow-hidden cursor-pointer group" data-src="<?= $base ?><?= $photoPath ?>" data-category="<?= htmlspecialchars($photo['category'] ?? 'general') ?>" data-caption="<?= htmlspecialchars($photo['caption'] ?? $photo['alt_text'] ?? '') ?>">
-        <img src="<?= $base ?><?= $photoPath ?>" alt="<?= sanitize($photo['alt_text'] ?? $photo['caption'] ?? 'Photo') ?>" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" loading="lazy">
-        <div class="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors flex items-center justify-center opacity-0 group-hover:opacity-100">
-          <i class="fa-solid fa-expand text-white text-xl"></i>
+      <!-- SECTION: <?= sanitize($sectionLabel) ?> -->
+      <div class="photo-section mb-10" data-section="<?= htmlspecialchars($section) ?>">
+        <div class="flex items-center gap-3 mb-5 pb-4 border-b border-slate-200">
+          <span class="w-10 h-10 rounded-xl bg-brandRed/10 text-brandRed flex items-center justify-center shrink-0">
+            <i class="fa-solid <?= $sectionIcon ?>"></i>
+          </span>
+          <div class="min-w-0">
+            <h3 class="text-base sm:text-lg font-display font-bold text-ink-900 leading-tight"><?= sanitize($sectionLabel) ?></h3>
+            <p class="text-[11px] text-slate-500 font-semibold uppercase tracking-wider mt-0.5"><?= $sectionCount ?> <?= $sectionCount === 1 ? 'Photo' : 'Photos' ?> &middot; Section</p>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          <?php foreach ($sectionPhotos as $photo): ?>
+          <div class="gallery-card" data-category="<?= htmlspecialchars($section) ?>">
+            <div class="gallery-item aspect-square bg-slate-200 rounded-xl overflow-hidden cursor-pointer group" data-src="<?= $base ?><?= $photo['image_path'] ?>" data-caption="<?= htmlspecialchars($photo['caption'] ?? $photo['alt_text'] ?? '') ?>">
+              <img src="<?= $base ?><?= $photo['image_path'] ?>" alt="<?= sanitize($photo['alt_text'] ?? $photo['caption'] ?? $sectionLabel) ?>" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" loading="lazy">
+              <span class="absolute top-2 left-2 z-10 bg-white/95 backdrop-blur-sm text-ink-900 text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded-md shadow-sm flex items-center gap-1.5">
+                <i class="fa-solid <?= $sectionIcon ?> text-brandRed text-[9px]"></i><?= sanitize($sectionLabel) ?>
+              </span>
+              <div class="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors flex items-center justify-center opacity-0 group-hover:opacity-100">
+                <i class="fa-solid fa-expand text-white text-xl"></i>
+              </div>
+            </div>
+            <div class="mt-2.5 flex items-start gap-2">
+              <span class="w-1.5 h-1.5 rounded-full bg-brandRed mt-1.5 shrink-0"></span>
+              <div class="min-w-0">
+                <p class="text-xs font-semibold text-ink-900 truncate"><?= sanitize($sectionLabel) ?></p>
+                <?php if (!empty($photo['caption'])): ?>
+                <p class="text-[11px] text-slate-400 truncate mt-0.5"><?= sanitize($photo['caption']) ?></p>
+                <?php endif; ?>
+              </div>
+            </div>
+          </div>
+          <?php endforeach; ?>
         </div>
       </div>
       <?php endforeach; ?>
@@ -402,7 +488,7 @@ include dirname(__DIR__) . '/includes/header.php';
 
   // === PHOTO GALLERY FILTER ===
   var photoFilterBtns = document.querySelectorAll('.photo-filter-btn');
-  var photoItems = document.querySelectorAll('#photo-grid .gallery-item');
+  var photoCards = document.querySelectorAll('#photo-grid .gallery-card');
 
   photoFilterBtns.forEach(function(btn) {
     btn.addEventListener('click', function() {
@@ -411,19 +497,25 @@ include dirname(__DIR__) . '/includes/header.php';
       this.classList.remove('bg-slate-200', 'text-slate-600');
       
       var filter = this.getAttribute('data-filter');
-      photoItems.forEach(function(item) {
-        if (filter === 'all' || item.getAttribute('data-category') === filter) {
-          item.style.display = '';
-          item.style.opacity = '0';
-          item.style.transform = 'scale(0.9)';
+      photoCards.forEach(function(card) {
+        if (filter === 'all' || card.getAttribute('data-category') === filter) {
+          card.style.display = '';
+          card.style.opacity = '0';
+          card.style.transform = 'scale(0.9)';
           setTimeout(function() {
-            item.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
-            item.style.opacity = '1';
-            item.style.transform = 'scale(1)';
+            card.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+            card.style.opacity = '1';
+            card.style.transform = 'scale(1)';
           }, 50);
         } else {
-          item.style.display = 'none';
+          card.style.display = 'none';
         }
+      });
+
+      // Hide any section block that no longer has a visible photo.
+      document.querySelectorAll('#photo-grid .photo-section').forEach(function(section) {
+        var shown = section.querySelector('.gallery-card:not([style*="display: none"])');
+        section.style.display = shown ? '' : 'none';
       });
     });
   });
@@ -456,7 +548,7 @@ include dirname(__DIR__) . '/includes/header.php';
 
   lightboxItems.forEach(function(item, i) {
     item.addEventListener('click', function() {
-      visiblePhotos = Array.from(document.querySelectorAll('#photo-grid .gallery-item:not([style*="display: none"])'));
+      visiblePhotos = Array.from(document.querySelectorAll('#photo-grid .gallery-card:not([style*="display: none"]) .gallery-item'));
       var visIndex = visiblePhotos.indexOf(item);
       openLightbox(visIndex >= 0 ? visIndex : 0);
     });

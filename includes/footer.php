@@ -23,7 +23,7 @@ if ( !isset( $base ) ) $base = function_exists( 'siteBaseUrl' ) ? siteBaseUrl() 
 </a>
 <p class = 'max-w-md leading-relaxed text-slate-400'>WRC partners with institutions, governments, and field agencies to deliver clean water, health services, education, and emergency relief across vulnerable communities.</p>
 <div class = 'flex flex-wrap gap-3'>
-<a href = "<?= $base ?>get-involved/contribute-with-us.php" class = 'inline-flex items-center justify-center rounded-full bg-brandRed px-5 py-3 text-white text-sm font-semibold shadow-lg shadow-brandRed/20 hover:bg-[#a30000] transition'>Contribute With Us</a>
+<a href = "<?= $base ?>get-involved/contribute-with-us.php" class = 'inline-flex items-center justify-center rounded-full bg-brandRed px-5 py-3 text-white text-sm font-semibold shadow-lg shadow-brandRed/20 hover:bg-[#a30000] transition'>Let’s Work Together</a>
 <a href = "<?= $base ?>contact/index.php" class = 'inline-flex items-center justify-center rounded-full border border-slate-700 px-5 py-3 text-slate-200 text-sm hover:bg-slate-800 transition'>Contact Us</a>
 </div>
 </div>

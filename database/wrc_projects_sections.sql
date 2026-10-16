@@ -17,7 +17,7 @@ ON DUPLICATE KEY UPDATE section_title = VALUES(section_title), content = VALUES(
 -- Projects CTA Section
 INSERT INTO homepage_sections (section_key, section_title, section_subtitle, content, sort_order, is_active) VALUES
 ('projects_cta', 'Have a Project Proposal?', NULL,
- '{"description":"We welcome collaboration with local organizations, donors, and government agencies to expand our humanitarian reach across Pakistan.","icon":"fa-solid fa-lightbulb","button1_text":"Contribute Now","button1_link":"get-involved/contribute-with-us.html","button1_icon":"fa-solid fa-handshake","button2_text":"Contact Us","button2_link":"contact/index.html","button2_icon":"fa-solid fa-envelope"}',
+ '{"description":"We welcome collaboration with local organizations, donors, and government agencies to expand our humanitarian reach across Pakistan.","icon":"fa-solid fa-lightbulb","button1_text":"Let’s Work Together","button1_link":"get-involved/contribute-with-us.html","button1_icon":"fa-solid fa-handshake","button2_text":"Contact Us","button2_link":"contact/index.html","button2_icon":"fa-solid fa-envelope"}',
  32, 1)
 ON DUPLICATE KEY UPDATE section_title = VALUES(section_title), content = VALUES(content);
 

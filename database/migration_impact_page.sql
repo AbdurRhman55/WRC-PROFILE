@@ -30,4 +30,4 @@ WHERE id = 1;
 
 -- 4. Add impact_cta to homepage_sections (if not exists)
 INSERT IGNORE INTO homepage_sections (section_key, section_title, section_subtitle, content, is_active, sort_order)
-VALUES ('impact_cta', 'Your Support Fuels Every Number', 'Behind every statistic is a family, a child, a community whose future is shaped by your generosity. Join us in turning data into dignity.', '{"button1_text":"Contribute With Us","button1_link":"get-involved/contribute-with-us.php","button2_text":"Contact Us","button2_link":"contact/index.php"}', 1, 50);
+VALUES ('impact_cta', 'Your Support Fuels Every Number', 'Behind every statistic is a family, a child, a community whose future is shaped by your generosity. Join us in turning data into dignity.', '{"button1_text":"Let’s Work Together","button1_link":"get-involved/contribute-with-us.php","button2_text":"Contact Us","button2_link":"contact/index.php"}', 1, 50);

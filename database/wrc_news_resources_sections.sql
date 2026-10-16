@@ -30,7 +30,7 @@ ON DUPLICATE KEY UPDATE section_title = VALUES(section_title), content = VALUES(
 
 -- CONTRIBUTE HERO
 INSERT INTO homepage_sections (section_key, section_title, section_subtitle, content, sort_order, is_active) VALUES
-('contribute_hero', 'Contribute With Us', 'Make a Difference',
+('contribute_hero', 'Let’s Work Together', 'Make a Difference',
  '{"hero_image":"assets/images/hero.jpg","hero_alt":"Contribute to WRC","subtitle":"Every donation brings clean water, food, education, and hope to families in need across Pakistan. Your generosity creates lasting change."}',
  64, 1)
 ON DUPLICATE KEY UPDATE section_title = VALUES(section_title), content = VALUES(content);

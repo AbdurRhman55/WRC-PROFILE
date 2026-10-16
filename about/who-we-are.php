@@ -131,7 +131,7 @@ Together, we can turn compassion into meaningful action.
 <p class = 'text-slate-400 text-lg mb-10 max-w-xl mx-auto'>Join us in creating lasting change for communities that need it most.</p>
 <div class = 'flex flex-col sm:flex-row justify-center gap-4'>
 <a href = "<?= $base ?>get-involved/contribute-with-us.php" class = 'px-8 py-4 rounded-xl bg-brandRed hover:bg-brandRed-hover text-white font-bold text-sm shadow-lg shadow-brandRed/30 transition-all uppercase tracking-wider'>
-Contribute Now
+Let’s Work Together
 </a>
 <a href = "<?= $base ?>contact/index.php" class = 'px-8 py-4 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 text-white font-bold text-sm transition-all uppercase tracking-wider'>
 Contact Us
