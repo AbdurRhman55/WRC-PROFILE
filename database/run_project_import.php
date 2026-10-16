@@ -326,21 +326,31 @@ $syncPublicLabels = static function () use ( $pdo ): int {
 };
 
 /**
- * Points every stored "get involved" button at the page that actually exists.
+ * Corrects public-facing content that was saved into the database with the
+ * wrong value, so it cannot drift back on the next admin edit.
  *
- * The contribute page is served from contribute-with-us.php, but several CTA
- * records still carry the contribute-with-us.html path, which 404s and leaves
- * the button doing nothing. get-involved/index.html has the same problem.
+ * Three problems are handled here:
  *
- * Like the label sync this runs on every deployment, so wording written by the
- * admin panel cannot silently drift away from the deployed routes again.
+ *   - The contribute page and the get-involved index are served as .php, but
+ *     stored buttons still carried the .html paths, which 404. Hence the button
+ *     did nothing.
+ *   - The chairman's title was saved as "CHAIRMAIN" (and once as "Chairmain" in
+ *     a photo caption), so it renders misspelled on the homepage, the chairman
+ *     section and the gallery.
  *
- * Returns the number of rows updated.
+ * Runs on every deployment, like the label sync above.
+ *
+ * Returns the number of values rewritten.
  */
-$syncContributeLinks = static function () use ( $pdo ): int {
+$syncPublicContent = static function () use ( $pdo ): int {
     $replacements = [
+        // Broken routes.
         [ 'get-involved/contribute-with-us.html', 'get-involved/contribute-with-us.php' ],
         [ 'get-involved/index.html', 'get-involved/index.php' ],
+        // Misspellings (every case variant that occurs in the data).
+        [ 'CHAIRMAIN', 'CHAIRMAN' ],
+        [ 'Chairmain', 'Chairman' ],
+        [ 'chairmain', 'chairman' ],
     ];
 
     $tables = $pdo->query(
@@ -381,9 +391,28 @@ $syncContributeLinks = static function () use ( $pdo ): int {
         }
     }
 
-    echo 'CTA link sync: ' . $updated . ' stored button link(s) retargeted to the .php pages' . ( $updated ? '.' : ' (already correct).' ) . "\n";
+    // The hero slider's "View Gallery" button points at /gallery, which has never
+    // existed. Its three sibling slides on the same slider use bare fragments
+    // (#news, #photos, #videos) because they are already on /news/, so this one
+    // gets #photos too: it scrolls to the gallery without reloading the page.
+    //
+    // This must be an exact value UPDATE, not a REPLACE: the substring "/gallery"
+    // also appears inside every photo_gallery.image_path (assets/images/gallery/…),
+    // and rewriting those would break every image on the site.
+    $galleryFixed = 0;
 
-    return $updated;
+    try {
+        $gallery = $pdo->prepare( "UPDATE `hero_sliders` SET `cta_link` = ? WHERE `cta_link` = ?" );
+        $gallery->execute( [ '#photos', '/gallery' ] );
+        $galleryFixed = $gallery->rowCount();
+    } catch ( Throwable $error ) {
+        fwrite( STDERR, 'WARNING: could not retarget the hero slider gallery button: ' . $error->getMessage() . "\n" );
+    }
+
+    echo 'Content sync: ' . $updated . ' stored value(s) rewritten' . ( $updated ? '.' : ' (already correct).' ) . "\n";
+    echo 'Hero slider gallery button: ' . ( $galleryFixed ? $galleryFixed . ' row(s) retargeted to #photos.' : 'already correct.' ) . "\n";
+
+    return $updated + $galleryFixed;
 };
 
 try {
@@ -406,10 +435,11 @@ try {
     }
 
     // Maintenance that runs on every deployment, including the "already matches"
-    // short-circuit below: keeps stored CTA wording in sync with the templates and
+    // short-circuit below: keeps stored CTA wording in sync with the templates,
+    // rewrites links and misspellings that were saved into the database, and
     // keeps the photo gallery free of byte-identical duplicate images.
     $syncPublicLabels();
-    $syncContributeLinks();
+    $syncPublicContent();
     $dedupePhotoGallery();
 
     $reasons = $portfolioStatus();
