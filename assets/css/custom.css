@@ -845,3 +845,218 @@ html {
   font-variant-numeric: tabular-nums;
 }
 
+/* ============================================================
+   LATEST NEWS TICKER (sticky under the main header nav)
+   The track holds two identical copies of the headline list and
+   slides to -50%, so the loop is seamless with no visible jump.
+   ============================================================ */
+.news-ticker {
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.news-ticker-track {
+  display: flex;
+  align-items: center;
+  width: max-content;
+  animation: news-ticker-scroll var(--ticker-duration, 60s) linear infinite;
+  will-change: transform;
+}
+
+/* Soft edges so headlines fade out instead of being cut off. */
+.news-ticker-viewport {
+  -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 3%, #000 97%, transparent 100%);
+  mask-image: linear-gradient(90deg, transparent 0, #000 3%, #000 97%, transparent 100%);
+}
+
+/* Reading a headline should not make it run away. */
+.news-ticker-viewport:hover .news-ticker-track,
+.news-ticker-viewport:focus-within .news-ticker-track {
+  animation-play-state: paused;
+}
+
+.news-ticker-item::after {
+  content: '';
+  display: inline-block;
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: #cbd5e1;
+  margin-left: 0.75rem;
+  flex: none;
+}
+
+@keyframes news-ticker-scroll {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .news-ticker-track {
+    animation: none;
+  }
+  .news-ticker-viewport {
+    overflow-x: auto;
+    -webkit-mask-image: none;
+    mask-image: none;
+  }
+}
+
+/* ============================================================
+   STICKY SOCIAL RAIL (right-hand edge, vertically centred)
+   ============================================================ */
+.social-rail {
+  position: fixed;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 60;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.social-rail-btn {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  color: #fff;
+  background: #0f172a;
+  border-radius: 8px 0 0 8px;
+  transition: transform 0.22s ease, background-color 0.22s ease, width 0.22s ease;
+  box-shadow: -2px 2px 10px rgba(15, 23, 42, 0.18);
+}
+
+.social-rail-btn:hover,
+.social-rail-btn:focus-visible {
+  transform: translateX(-3px);
+  background: var(--accent-color, #ca0000);
+}
+
+.social-rail-btn:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: -3px;
+}
+
+/* Label slides out on hover so the rail stays compact at rest. */
+.social-rail-btn .social-rail-tip {
+  position: absolute;
+  right: calc(100% + 8px);
+  top: 50%;
+  transform: translateY(-50%) translateX(6px);
+  white-space: nowrap;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 4px 8px;
+  border-radius: 6px;
+  background: #0f172a;
+  color: #fff;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.social-rail-btn:hover .social-rail-tip,
+.social-rail-btn:focus-visible .social-rail-tip {
+  opacity: 1;
+  transform: translateY(-50%) translateX(0);
+}
+
+/* On phones the rail would sit on top of content, so it hugs the edge. */
+@media (max-width: 640px) {
+  .social-rail-btn {
+    width: 28px;
+    height: 28px;
+    font-size: 11px;
+    border-radius: 6px 0 0 6px;
+  }
+  .social-rail-btn .social-rail-tip {
+    display: none;
+  }
+}
+
+/* ============================================================
+   FEATURED NEWS POPUP
+   ============================================================ */
+.news-popup-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background: rgba(15, 23, 42, 0.55);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  opacity: 0;
+  transition: opacity 0.22s ease;
+}
+
+.news-popup-backdrop.is-open {
+  opacity: 1;
+}
+
+/* [hidden] must win over the flex display above. */
+.news-popup-backdrop[hidden] {
+  display: none;
+}
+
+.news-popup {
+  position: relative;
+  width: min(760px, 100%);
+  background: #fff;
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: 0 30px 70px -20px rgba(15, 23, 42, 0.45);
+  transform: translateY(14px) scale(0.985);
+  opacity: 0;
+  transition: transform 0.26s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.26s ease;
+}
+
+.news-popup-backdrop.is-open .news-popup {
+  transform: none;
+  opacity: 1;
+}
+
+.news-popup-close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 2;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.94);
+  color: #0f172a;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.2);
+  transition: background-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
+}
+
+.news-popup-close:hover,
+.news-popup-close:focus-visible {
+  background: var(--accent-color, #ca0000);
+  color: #fff;
+  transform: rotate(90deg);
+}
+
+@media (max-width: 767px) {
+  .news-popup {
+    max-height: 86vh;
+    overflow-y: auto;
+  }
+}
+

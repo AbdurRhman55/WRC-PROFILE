@@ -189,6 +189,24 @@ include dirname(__DIR__) . '/includes/header.php';
       <p class="text-sm text-slate-400">Check back soon for the latest updates.</p>
     </div>
     <?php else: ?>
+    <?php
+      // The same article the load popup promotes — flag it in the list so a
+      // reader who dismissed the popup can still find it again.
+      $featuredSlug = null;
+      if (isset($pdo)) {
+        try {
+          $featuredStmt = $pdo->query(
+            'SELECT slug FROM news_articles
+              WHERE is_published = 1 AND slug IS NOT NULL AND slug <> \'\'
+                AND featured_image IS NOT NULL AND featured_image <> \'\'
+              ORDER BY published_at DESC, id DESC LIMIT 1'
+          );
+          $featuredSlug = $featuredStmt ? $featuredStmt->fetchColumn() : null;
+        } catch (Throwable $e) {
+          $featuredSlug = null;
+        }
+      }
+    ?>
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-7">
       <?php foreach ($news as $item): ?>
       <?php
@@ -204,6 +222,11 @@ include dirname(__DIR__) . '/includes/header.php';
         <div class="relative h-52 overflow-hidden">
           <img src="<?= $base ?><?= $newsImage ?>" alt="<?= sanitize($item['title'] ?? '') ?>" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy">
           <span class="absolute top-3 left-3 <?= $catColor ?> text-white text-[10px] font-bold uppercase tracking-wider px-3 py-1 rounded-full"><?= sanitize($catLabel) ?></span>
+          <?php if (!empty($featuredSlug) && ($item['slug'] ?? '') === $featuredSlug): ?>
+          <span class="absolute top-3 right-3 bg-ink-900 text-white text-[10px] font-bold uppercase tracking-wider px-3 py-1 rounded-full flex items-center gap-1.5 shadow-lg">
+            <i class="fa-solid fa-star text-[9px] text-amber-400"></i> Featured
+          </span>
+          <?php endif; ?>
         </div>
         <div class="p-6">
           <div class="flex items-center gap-3 text-xs text-slate-400 mb-3">

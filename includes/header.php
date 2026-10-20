@@ -294,6 +294,65 @@ tailwind.config = {
             </button>
             </div>
             </div>
+
+            <?php
+            // LATEST NEWS TICKER
+            // Headlines are read straight from news_articles, so anything published
+            // on the news page appears here automatically. It sits inside <header>
+            // (which is sticky) so it stays pinned under the nav while scrolling.
+            $newsTicker = [];
+            if ( isset( $pdo ) ) {
+                try {
+                    $newsTickerStmt = $pdo->query(
+                        'SELECT slug, title, category FROM news_articles
+                          WHERE is_published = 1 AND slug IS NOT NULL AND slug <> ""
+                          ORDER BY published_at DESC, id DESC LIMIT 8'
+                    );
+                    $newsTicker = $newsTickerStmt ? $newsTickerStmt->fetchAll( PDO::FETCH_ASSOC ) : [];
+                } catch ( Throwable $tickerError ) {
+                    $newsTicker = [];
+                }
+            }
+
+            $newsTickerLabels = [
+                'press_release' => 'Press Release',
+                'report'        => 'Report',
+                'story'         => 'Story',
+                'blog'          => 'Blog',
+                'event'         => 'Event',
+            ];
+            ?>
+            <?php if ( count( $newsTicker ) > 1 ): ?>
+            <!-- LATEST NEWS TICKER -->
+            <div class = 'news-ticker relative z-10 w-full border-t border-slate-200/70' role = 'region' aria-label = 'Latest news headlines'>
+            <div class = 'w-full px-4 sm:px-6 lg:px-8 flex items-stretch h-10'>
+
+            <span class = 'news-ticker-label shrink-0 inline-flex items-center gap-2 bg-brandRed text-white text-[10px] font-bold uppercase tracking-[0.18em] px-3 sm:px-4'>
+            <i class = 'fa-solid fa-bolt text-[9px]'></i><span class = 'hidden sm:inline'>Latest</span><span class = 'sm:hidden'>News</span>
+            </span>
+
+            <div class = 'news-ticker-viewport relative flex-1 overflow-hidden' style = '--ticker-duration: <?= max( 36, count( $newsTicker ) * 9 ) ?>s'>
+            <div class = 'news-ticker-track items-center h-full'>
+            <?php foreach ( [ 0, 1 ] as $tickerCopy ): ?>
+            <?php foreach ( $newsTicker as $tickerItem ): ?>
+            <a href = "<?= $base ?>news/<?= rawurlencode( $tickerItem[ 'slug' ] ) ?>"
+            class = 'news-ticker-item inline-flex items-center gap-2 shrink-0 h-full px-3 sm:px-4 text-[11px] sm:text-xs text-slate-600 hover:text-brandRed transition-colors group'
+            <?= $tickerCopy === 1 ? 'aria-hidden="true" tabindex="-1"' : '' ?>>
+            <span class = 'w-1 h-1 rounded-full bg-brandRed/60 group-hover:bg-brandRed shrink-0'></span>
+            <span class = 'whitespace-nowrap font-medium'><?= sanitize( $tickerItem[ 'title' ] ) ?></span>
+            <span class = 'text-[9px] uppercase tracking-wider text-slate-400 whitespace-nowrap'><?= sanitize( $newsTickerLabels[ $tickerItem[ 'category' ] ] ?? ucfirst( str_replace( '_', ' ', (string) $tickerItem[ 'category' ] ) ) ) ?></span>
+            </a>
+            <?php endforeach; ?>
+            <?php endforeach; ?>
+            </div>
+            </div>
+
+            <a href = "<?= $base ?>news/index.php" class = 'shrink-0 hidden sm:inline-flex items-center gap-1.5 pl-4 text-[10px] font-bold uppercase tracking-wider text-slate-500 hover:text-brandRed transition-colors border-l border-slate-200/70 px-3 sm:px-4'>
+            All News <i class = 'fa-solid fa-arrow-right text-[9px]'></i>
+            </a>
+            </div>
+            </div>
+            <?php endif; ?>
             </header>
 
             <!-- MOBILE SIDE TRAY -->

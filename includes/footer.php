@@ -81,6 +81,143 @@ if ( !isset( $base ) ) $base = function_exists( 'siteBaseUrl' ) ? siteBaseUrl() 
 </div>
 </footer>
 
+<!-- STICKY SOCIAL RAIL
+     Fixed to the right edge, vertically centred, on every screen size.
+     Each button opens the official WRC profile in a new tab. -->
+<aside class = 'social-rail' aria-label = 'WRC on social media'>
+<a href = 'https://www.facebook.com/wrc.org.pk' target = '_blank' rel = 'noopener noreferrer' class = 'social-rail-btn' aria-label = 'WRC on Facebook'>
+<i class = 'fa-brands fa-facebook-f'></i><span class = 'social-rail-tip' aria-hidden = 'true'>Facebook</span>
+</a>
+<a href = 'https://www.linkedin.com/company/wrc-pakistan' target = '_blank' rel = 'noopener noreferrer' class = 'social-rail-btn' aria-label = 'WRC on LinkedIn'>
+<i class = 'fa-brands fa-linkedin-in'></i><span class = 'social-rail-tip' aria-hidden = 'true'>LinkedIn</span>
+</a>
+<a href = 'https://www.instagram.com/wrc.pakistan' target = '_blank' rel = 'noopener noreferrer' class = 'social-rail-btn' aria-label = 'WRC on Instagram'>
+<i class = 'fa-brands fa-instagram'></i><span class = 'social-rail-tip' aria-hidden = 'true'>Instagram</span>
+</a>
+<a href = 'https://x.com/WRC_Pakistan' target = '_blank' rel = 'noopener noreferrer' class = 'social-rail-btn' aria-label = 'WRC on X'>
+<i class = 'fa-brands fa-x-twitter'></i><span class = 'social-rail-tip' aria-hidden = 'true'>X (Twitter)</span>
+</a>
+<a href = 'https://www.youtube.com/@WRC-Pakistan' target = '_blank' rel = 'noopener noreferrer' class = 'social-rail-btn' aria-label = 'WRC on YouTube'>
+<i class = 'fa-brands fa-youtube'></i><span class = 'social-rail-tip' aria-hidden = 'true'>YouTube</span>
+</a>
+</aside>
+
+<!-- FEATURED NEWS POPUP
+     Shown once per session on first load, pointing at the newest published
+     story that has a picture (so it always looks complete). Clicking through
+     opens the full article. Skipped on the news pages, where the reader is
+     already looking at the news. -->
+<?php
+$popupArticle = null;
+if ( isset( $pdo ) ) {
+    try {
+        $popupStmt = $pdo->query(
+            'SELECT id, slug, title, excerpt, category, published_at, featured_image
+               FROM news_articles
+              WHERE is_published = 1
+                AND slug IS NOT NULL AND slug <> ""
+                AND featured_image IS NOT NULL AND featured_image <> ""
+              ORDER BY published_at DESC, id DESC
+              LIMIT 1'
+        );
+        $popupArticle = $popupStmt ? $popupStmt->fetch( PDO::FETCH_ASSOC ) : false;
+    } catch ( Throwable $popupError ) {
+        $popupArticle = false;
+    }
+}
+
+$popupLabels = [
+    'press_release' => 'Press Release',
+    'report'        => 'Report',
+    'story'         => 'Story',
+    'blog'          => 'Blog',
+    'event'         => 'Event',
+];
+
+if ( $popupArticle ) {
+    $popupImage = (string) $popupArticle[ 'featured_image' ];
+    if ( strpos( $popupImage, 'assets/' ) !== 0 && strpos( $popupImage, 'uploads/' ) !== 0 && strpos( $popupImage, 'http' ) !== 0 ) {
+        $popupImage = 'assets/images/' . $popupImage;
+    }
+    $popupHref  = $base . 'news/' . rawurlencode( $popupArticle[ 'slug' ] );
+    $popupLabel = $popupLabels[ $popupArticle[ 'category' ] ] ?? ucfirst( str_replace( '_', ' ', (string) $popupArticle[ 'category' ] ) );
+    $popupOnNews = strpos( $_SERVER[ 'SCRIPT_NAME' ] ?? '', '/news/' ) !== false;
+}
+?>
+<?php if ( !empty( $popupArticle ) && empty( $popupOnNews ) ): ?>
+<div id = 'news-popup' class = 'news-popup-backdrop' role = 'dialog' aria-modal = 'true' aria-labelledby = 'news-popup-title' hidden>
+<div class = 'news-popup' role = 'document'>
+
+<button id = 'news-popup-close' class = 'news-popup-close' aria-label = 'Close'>
+<i class = 'fa-solid fa-xmark'></i>
+</button>
+
+<div class = 'grid md:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)]'>
+
+<div class = 'relative h-44 md:h-full min-h-[170px] overflow-hidden bg-slate-200'>
+<img src = "<?= $popupImage ?>" alt = "<?= sanitize( $popupArticle[ 'title' ] ) ?>" class = 'absolute inset-0 w-full h-full object-cover' loading = 'lazy'>
+<div class = 'absolute inset-0 bg-gradient-to-t md:bg-gradient-to-r from-ink-900/70 via-ink-900/10 to-transparent'></div>
+</div>
+
+<div class = 'p-5 sm:p-6'>
+<div class = 'flex flex-wrap items-center gap-2 mb-3'>
+<span class = 'bg-brandRed text-white text-[9px] font-bold uppercase tracking-[0.16em] px-2.5 py-1 rounded-full'><?= sanitize( $popupLabel ) ?></span>
+<span class = 'text-[11px] text-slate-400'><i class = 'fa-solid fa-calendar-days mr-1'></i><?= formatDate( $popupArticle[ 'published_at' ] ?? date( 'Y-m-d' ) ) ?></span>
+</div>
+
+<h2 id = 'news-popup-title' class = 'text-lg sm:text-xl font-display font-bold text-ink-900 leading-snug mb-2 line-clamp-3'><?= sanitize( $popupArticle[ 'title' ] ) ?></h2>
+
+<p class = 'text-sm text-slate-500 leading-relaxed mb-5 line-clamp-3'><?= sanitize( $popupArticle[ 'excerpt' ] ?? '' ) ?></p>
+
+<div class = 'flex flex-wrap items-center gap-3'>
+<a href = "<?= $popupHref ?>" class = 'inline-flex items-center gap-2 bg-brandRed hover:bg-brandRed-hover text-white text-xs font-bold uppercase tracking-wider px-5 py-3 rounded-xl transition-all'>
+Read Full Story <i class = 'fa-solid fa-arrow-right text-[10px]'></i>
+</a>
+<a href = "<?= $base ?>news/index.php" class = 'text-xs font-semibold text-slate-500 hover:text-brandRed transition-colors'>All news</a>
+</div>
+</div>
+
+</div>
+</div>
+</div>
+
+<script>
+(function () {
+  var KEY = 'wrc-news-popup-seen';
+  var box = document.getElementById('news-popup');
+  var closeBtn = document.getElementById('news-popup-close');
+  if (!box) return;
+
+  // Once per session: a popup that reappears on every page stops being useful.
+  try { if (sessionStorage.getItem(KEY)) return; } catch (e) {}
+
+  var lastFocus = null;
+
+  function open() {
+    lastFocus = document.activeElement;
+    box.hidden = false;
+    requestAnimationFrame(function () { box.classList.add('is-open'); });
+    document.body.style.overflow = 'hidden';
+    if (closeBtn) closeBtn.focus();
+    try { sessionStorage.setItem(KEY, '1'); } catch (e) {}
+  }
+
+  function close() {
+    box.classList.remove('is-open');
+    document.body.style.overflow = '';
+    window.setTimeout(function () { box.hidden = true; }, 220);
+    if (lastFocus && lastFocus.focus) lastFocus.focus();
+  }
+
+  if (closeBtn) closeBtn.addEventListener('click', close);
+  box.addEventListener('click', function (e) { if (e.target === box) close(); });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !box.hidden) close(); });
+
+  window.setTimeout(open, 900);
+})();
+</script>
+<?php endif; ?>
+
 <!-- Main JavaScript File -->
 <script src = "<?= $base ?>assets/js/main.js"></script>
 <?php if ( isset( $extraScripts ) ) echo $extraScripts;

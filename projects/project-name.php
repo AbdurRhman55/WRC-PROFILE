@@ -106,6 +106,41 @@ $statusConfig = [
 ];
 $status = $statusConfig[strtolower($project['status'] ?? 'active')] ?? $statusConfig['active'];
 
+// Areas covered: location_details is free text such as "Buner, Swabi & Nowshera,
+// Pakistan", so split it to show every district a project actually works in.
+$areasCovered = preg_split(
+    '/\s*(?:,|&|\band\b)\s*/u',
+    (string) preg_replace('/,\s*Pakistan\s*$/iu', '', (string) ($project['location_details'] ?? '')),
+    -1,
+    PREG_SPLIT_NO_EMPTY
+);
+$areasCovered = array_values(array_unique(array_map('trim', $areasCovered)));
+
+// A stable reference so the project can be quoted in correspondence or reports.
+$projectReference = 'WRC-PRJ-' . str_pad(
+    (string) (int) (($project['sort_order'] ?? 0) ?: ($project['id'] ?? 0)),
+    3,
+    '0',
+    STR_PAD_LEFT
+);
+
+// Sector totals, computed live from the portfolio so they can never drift
+// out of date. These describe the whole sector, never just this project.
+$sectorName          = trim((string) ($project['category'] ?? ''));
+$sectorProjectCount  = 0;
+$sectorBeneficiaries = 0;
+if ($sectorName !== '') {
+    $sectorStmt = $pdo->prepare(
+        'SELECT COUNT(*) AS projects, COALESCE(SUM(beneficiaries_count), 0) AS people
+           FROM projects
+          WHERE is_active = 1 AND category = ?'
+    );
+    $sectorStmt->execute([$sectorName]);
+    $sectorRow         = $sectorStmt->fetch(PDO::FETCH_ASSOC) ?: [];
+    $sectorProjectCount  = (int) ($sectorRow['projects'] ?? 0);
+    $sectorBeneficiaries = (int) ($sectorRow['people'] ?? 0);
+}
+
 $pageTitle = sanitize($project['title']) . ' | WRC Projects';
 $metaDescription = sanitize($project['description']);
 
@@ -452,6 +487,32 @@ include dirname(__DIR__) . '/includes/header.php';
                 <div class="lg:col-span-4">
                     <div class="space-y-6 lg:sticky lg:top-32">
 
+                        <!-- Areas Covered -->
+                        <?php if (!empty($areasCovered)): ?>
+                        <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm reveal-section">
+                            <div class="flex items-center gap-3 mb-5">
+                                <div class="w-10 h-10 rounded-xl bg-red-50 flex items-center justify-center">
+                                    <i class="fa-solid fa-map-location-dot text-brandRed"></i>
+                                </div>
+                                <h4 class="font-bold text-slate-900 text-sm">Areas Covered</h4>
+                            </div>
+                            <div class="flex flex-wrap gap-2">
+                                <?php foreach ($areasCovered as $area): ?>
+                                <span
+                                    class="inline-flex items-center gap-1.5 text-[11px] font-semibold bg-slate-50 border border-slate-200 text-slate-700 px-3 py-1.5 rounded-full">
+                                    <i class="fa-solid fa-location-dot text-[9px] text-brandRed"></i>
+                                    <?= sanitize($area) ?>
+                                </span>
+                                <?php endforeach; ?>
+                            </div>
+                            <?php if (count($areasCovered) > 1): ?>
+                            <p class="text-[11px] text-slate-400 mt-4 leading-relaxed">
+                                <?= count($areasCovered) ?> districts served by this project.
+                            </p>
+                            <?php endif; ?>
+                        </div>
+                        <?php endif; ?>
+
                         <!-- Project Details -->
                         <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm reveal-section">
                             <div class="flex items-center gap-3 mb-5">
@@ -497,6 +558,11 @@ include dirname(__DIR__) . '/includes/header.php';
                                 <div class="flex items-start justify-between gap-4 py-3 border-b border-slate-100">
                                     <dt class="text-slate-500 shrink-0">Partner</dt>
                                     <dd class="font-semibold text-slate-900 text-right"><?= sanitize($projectPartner) ?></dd>
+                                </div>
+                                <div class="flex items-start justify-between gap-4 py-3 border-b border-slate-100">
+                                    <dt class="text-slate-500 shrink-0">Reference</dt>
+                                    <dd class="font-semibold text-slate-900 text-right font-mono tracking-wide">
+                                        <?= sanitize($projectReference) ?></dd>
                                 </div>
                                 <?php if ($hasProgress): ?>
                                 <div class="pt-3">
@@ -577,6 +643,36 @@ include dirname(__DIR__) . '/includes/header.php';
                                 </div>
                                 <?php endforeach; ?>
                             </div>
+                        </div>
+                        <?php endif; ?>
+
+                        <!-- Sector at a Glance -->
+                        <?php if ($sectorProjectCount > 0 && $sectorName !== ''): ?>
+                        <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm reveal-section">
+                            <div class="flex items-center gap-3 mb-5">
+                                <div class="w-10 h-10 rounded-xl bg-red-50 flex items-center justify-center">
+                                    <i class="fa-solid fa-chart-column text-brandRed"></i>
+                                </div>
+                                <h4 class="font-bold text-slate-900 text-sm"><?= sanitize($sectorName) ?> at a Glance</h4>
+                            </div>
+                            <div class="grid grid-cols-2 gap-px bg-slate-100 rounded-xl overflow-hidden mb-3">
+                                <div class="bg-slate-50 px-3 py-4 text-center">
+                                    <span class="text-xl font-extrabold text-brandRed block leading-tight">
+                                        <?= $sectorProjectCount ?></span>
+                                    <span
+                                        class="text-[10px] font-bold uppercase tracking-wider text-slate-400">WRC
+                                        projects</span>
+                                </div>
+                                <div class="bg-slate-50 px-3 py-4 text-center">
+                                    <span class="text-xl font-extrabold text-brandRed block leading-tight">
+                                        <?= number_format($sectorBeneficiaries) ?></span>
+                                    <span
+                                        class="text-[10px] font-bold uppercase tracking-wider text-slate-400">People
+                                        reached</span>
+                                </div>
+                            </div>
+                            <p class="text-[11px] text-slate-400 leading-relaxed">Combined totals for every active
+                                WRC project in this sector, not this project alone.</p>
                         </div>
                         <?php endif; ?>
 
