@@ -197,6 +197,12 @@ Read Full Story <i class = 'fa-solid fa-arrow-right text-[10px]'></i>
     lastFocus = document.activeElement;
     box.hidden = false;
     requestAnimationFrame(function () { box.classList.add('is-open'); });
+    // requestAnimationFrame is suspended while the page is hidden (background
+    // tab, restored session). Without this fallback the backdrop would stay at
+    // opacity 0 - invisible, yet with the scroll already locked - so mirror the
+    // class on a short timer. Adding a class that is present is a no-op, so the
+    // transition is never restarted when rAF does fire first.
+    setTimeout(function () { box.classList.add('is-open'); }, 100);
     document.body.style.overflow = 'hidden';
     if (closeBtn) closeBtn.focus();
     try { sessionStorage.setItem(KEY, '1'); } catch (e) {}
