@@ -7,6 +7,10 @@
 */
 
 if ( !isset( $base ) ) $base = function_exists( 'siteBaseUrl' ) ? siteBaseUrl() : '/';
+
+// Rebuilt logo: version the URL so the 7-day CDN cache cannot keep serving the old
+// mark. Computed here as well in case this file is reached without header.php.
+if ( !isset( $logoV ) ) $logoV = @filemtime( dirname( __DIR__ ) . '/assets/images/logo.png' );
 ?>
 
 <!-- FOOTER -->
@@ -16,7 +20,7 @@ if ( !isset( $base ) ) $base = function_exists( 'siteBaseUrl' ) ? siteBaseUrl() 
 
 <div class = 'xl:col-span-4 space-y-5'>
 <a href = "<?= $base ?>index.php" class = 'inline-flex items-center gap-3'>
-<img src = "<?= $base ?>assets/images/logo.png" alt = 'WRC logo' class = 'w-16 h-16 object-contain rounded-2xl bg-white p-2 border border-slate-800' />
+<img src = "<?= $base ?>assets/images/logo.png?v=<?= $logoV ? (string) $logoV : '1' ?>" alt = 'WRC logo' class = 'w-16 h-16 object-contain rounded-2xl bg-white p-2 border border-slate-800' />
 <div>
 <p class = 'text-lg font-semibold text-white font-heading'>World Relief <br> Committee</p>
 </div>

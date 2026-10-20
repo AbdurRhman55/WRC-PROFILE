@@ -99,7 +99,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       <!-- Logo -->
       <div class="text-center mb-8">
         <a href="../index.php" class="inline-flex items-center gap-3 mb-4">
-          <img src="../assets/images/logo.png" alt="WRC logo" class="w-14 h-14 object-contain rounded-xl bg-white p-1 border border-slate-200 shadow-sm" />
+          <img src="../assets/images/logo.png?v=<?= @filemtime( dirname( __DIR__ ) . '/assets/images/logo.png' ) ?: '1' ?>" alt="WRC logo" class="w-14 h-14 object-contain rounded-xl bg-white p-1 border border-slate-200 shadow-sm" />
         </a>
         <h1 class="text-2xl font-bold text-slate-900 font-heading">WRC Admin Panel</h1>
         <p class="text-slate-500 text-sm mt-1">Sign in to manage your content</p>

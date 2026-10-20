@@ -122,6 +122,9 @@ tailwind.config = {
             // 7-day CDN cache, so without a version a returning visitor can keep the
             // old rules for a week and report "the new social rail / ticker is missing".
             $customCssV = @filemtime( dirname( __DIR__ ) . '/assets/css/custom.css' );
+            // Same treatment for the logo — it is a binary the CDN will happily hold
+            // on to, so a rebuilt mark needs its own token or the old one is served.
+            if ( !isset( $logoV ) ) $logoV = @filemtime( dirname( __DIR__ ) . '/assets/images/logo.png' );
             ?>
             <link rel = 'stylesheet' href = "<?= $base ?>assets/css/custom.css?v=<?= $customCssV ? (string) $customCssV : '1' ?>">
             <?php if ( isset( $extraHead ) ) echo $extraHead;
@@ -157,7 +160,7 @@ tailwind.config = {
 
             <!-- BRAND LOGO -->
             <a href = "<?= $base ?>index.php" class = 'flex items-center gap-3 shrink-0 group'>
-            <img src = "<?= $base ?>assets/images/logo.png" alt = 'WRC logo' class = 'w-32 h-18 transition-all group-hover:border-brandRed' />
+            <img src = "<?= $base ?>assets/images/logo.png?v=<?= $logoV ? (string) $logoV : '1' ?>" alt = 'WRC logo' class = 'w-32 h-18 transition-all group-hover:border-brandRed' />
             </a>
 
             <!-- DESKTOP NAVBAR LINKS -->
@@ -371,7 +374,7 @@ tailwind.config = {
             <div id = 'mobile-tray' class = 'mobile-tray' role = 'dialog' aria-modal = 'true' aria-label = 'Navigation menu'>
             <div class = 'mobile-tray-header'>
             <a href = "<?= $base ?>index.php" class = 'flex items-center gap-2.5'>
-            <img src = "<?= $base ?>assets/images/logo.png" alt = 'WRC logo' class = 'w-9 h-9 object-contain rounded-lg bg-slate-100 p-1' />
+            <img src = "<?= $base ?>assets/images/logo.png?v=<?= $logoV ? (string) $logoV : '1' ?>" alt = 'WRC logo' class = 'w-9 h-9 object-contain rounded-lg bg-slate-100 p-1' />
             <span class = 'text-sm font-bold text-slate-900 tracking-wide'>WRC</span>
             </a>
             <button id = 'mobile-tray-close' class = 'mobile-tray-close' aria-label = 'Close menu'>

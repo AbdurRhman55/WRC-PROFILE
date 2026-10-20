@@ -3,6 +3,8 @@ $currentPage = basename( $_SERVER[ 'PHP_SELF' ] );
 $adminUser = getAdminUser();
 $adminName = $adminUser[ 'full_name' ] ?? ( $_SESSION[ 'admin_name' ] ?? 'Admin' );
 $adminRole = $adminUser[ 'role' ] ?? ( $_SESSION[ 'admin_role' ] ?? 'admin' );
+// Same logo token as the public site: the CDN caches /assets/* for 7 days.
+$logoV = @filemtime( dirname( __DIR__, 2 ) . '/assets/images/logo.png' );
 ?>
 <!DOCTYPE html>
 <html lang = 'en'>
@@ -63,7 +65,7 @@ body {
 <i class = 'fa-solid fa-bars text-lg'></i>
 </button>
 <a href = 'index.php' class = 'flex items-center gap-2.5'>
-<img src = '../../assets/images/logo.png' alt = 'WRC logo' class = 'w-8 h-8 object-contain rounded-lg' />
+<img src = '../../assets/images/logo.png?v=<?= $logoV ? (string) $logoV : '1' ?>' alt = 'WRC logo' class = 'w-8 h-8 object-contain rounded-lg' />
 <span class = 'text-sm font-bold text-slate-900 hidden sm:inline'>WRC Admin</span>
 </a>
 </div>
