@@ -117,7 +117,13 @@ tailwind.config = {
             <link rel = 'preconnect' href = 'https://fonts.googleapis.com'>
             <link rel = 'preconnect' href = 'https://fonts.gstatic.com' crossorigin>
             <link href = 'https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600;700&display=swap' rel = 'stylesheet'>
-            <link rel = 'stylesheet' href = "<?= $base ?>assets/css/custom.css">
+            <?php
+            // Version the stylesheet on its own mtime: custom.css is served with a
+            // 7-day CDN cache, so without a version a returning visitor can keep the
+            // old rules for a week and report "the new social rail / ticker is missing".
+            $customCssV = @filemtime( dirname( __DIR__ ) . '/assets/css/custom.css' );
+            ?>
+            <link rel = 'stylesheet' href = "<?= $base ?>assets/css/custom.css?v=<?= $customCssV ? (string) $customCssV : '1' ?>">
             <?php if ( isset( $extraHead ) ) echo $extraHead;
             ?>
 
@@ -125,16 +131,21 @@ tailwind.config = {
             <body class = 'bg-slate-50 text-slate-800 flex flex-col min-h-screen'>
 
             <!-- TOP UTILITY BAR -->
-            <div class = 'bg-brandRed text-white text-xs py-2 border-b border-brandRed/80 hidden lg:block w-full'>
+            <div class = 'bg-black text-white text-xs py-2 border-b border-white/10 hidden lg:block w-full overflow-hidden'>
             <div class = 'w-full px-4 sm:px-6 lg:px-8 flex justify-between items-center'>
-            <div class = 'flex items-center gap-6'>
+            <!-- Left group (537px) + address (535px) need ~1070px, which several lg+
+                 viewports do not have. The address used to wrap onto a second line and
+                 grow this bar to 49px, so it no longer matched the 33px news ticker
+                 directly beneath the nav. nowrap on the left group and truncate on the
+                 address hold the bar to a single 32px line at every lg+ width. -->
+            <div class = 'flex items-center gap-5 shrink-0 whitespace-nowrap'>
             <span class = 'flex items-center gap-2'><i class = 'fa-solid fa-phone text-white text-[11px]'></i> <?= getSetting( 'phone' ) ?></span>
             <span class = 'flex items-center gap-2'><i class = 'fa-solid fa-envelope text-white text-[11px]'></i> <?= getSetting( 'email' ) ?></span>
             <span class = 'text-white/80'>|</span>
             <span class = 'text-white/90 font-medium'><i class = 'fa-solid fa-bullhorn text-white mr-1 text-[11px]'></i> <?= getSetting( 'emergency_banner' ) ?></span>
             </div>
-            <div class = 'flex items-center gap-4 text-xs text-white'>
-            <span class = 'flex items-center gap-2'><i class = 'fa-solid fa-location-dot text-white text-[11px]'></i><?= getSetting( 'address' ) ?></span>
+            <div class = 'flex items-center gap-4 text-xs text-white min-w-0'>
+            <span class = 'min-w-0 truncate'><i class = 'fa-solid fa-location-dot text-white text-[11px] mr-1.5'></i><?= getSetting( 'address' ) ?></span>
             </div>
             </div>
             </div>
@@ -324,10 +335,10 @@ tailwind.config = {
             ?>
             <?php if ( count( $newsTicker ) > 1 ): ?>
             <!-- LATEST NEWS TICKER -->
-            <div class = 'news-ticker relative z-10 w-full border-t border-slate-200/70' role = 'region' aria-label = 'Latest news headlines'>
-            <div class = 'w-full px-4 sm:px-6 lg:px-8 flex items-stretch h-10'>
+            <div class = 'news-ticker relative z-10 w-full border-t border-black/20' role = 'region' aria-label = 'Latest news headlines'>
+            <div class = 'w-full px-4 sm:px-6 lg:px-8 flex items-stretch h-8'>
 
-            <span class = 'news-ticker-label shrink-0 inline-flex items-center gap-2 bg-brandRed text-white text-[10px] font-bold uppercase tracking-[0.18em] px-3 sm:px-4'>
+            <span class = 'news-ticker-label shrink-0 inline-flex items-center gap-2 bg-black/25 text-white text-[10px] font-bold uppercase tracking-[0.18em] px-3 sm:px-4'>
             <i class = 'fa-solid fa-bolt text-[9px]'></i><span class = 'hidden sm:inline'>Latest</span><span class = 'sm:hidden'>News</span>
             </span>
 
@@ -336,18 +347,18 @@ tailwind.config = {
             <?php foreach ( [ 0, 1 ] as $tickerCopy ): ?>
             <?php foreach ( $newsTicker as $tickerItem ): ?>
             <a href = "<?= $base ?>news/detail.php?slug=<?= rawurlencode( $tickerItem[ 'slug' ] ) ?>"
-            class = 'news-ticker-item inline-flex items-center gap-2 shrink-0 h-full px-3 sm:px-4 text-[11px] sm:text-xs text-slate-600 hover:text-brandRed transition-colors group'
+            class = 'news-ticker-item inline-flex items-center gap-2 shrink-0 h-full px-3 sm:px-4 text-[11px] sm:text-xs text-white/90 hover:text-white transition-colors group'
             <?= $tickerCopy === 1 ? 'aria-hidden="true" tabindex="-1"' : '' ?>>
-            <span class = 'w-1 h-1 rounded-full bg-brandRed/60 group-hover:bg-brandRed shrink-0'></span>
+            <span class = 'w-1 h-1 rounded-full bg-white/55 group-hover:bg-white shrink-0'></span>
             <span class = 'whitespace-nowrap font-medium'><?= sanitize( $tickerItem[ 'title' ] ) ?></span>
-            <span class = 'text-[9px] uppercase tracking-wider text-slate-400 whitespace-nowrap'><?= sanitize( $newsTickerLabels[ $tickerItem[ 'category' ] ] ?? ucfirst( str_replace( '_', ' ', (string) $tickerItem[ 'category' ] ) ) ) ?></span>
+            <span class = 'text-[9px] uppercase tracking-wider text-white/85 whitespace-nowrap'><?= sanitize( $newsTickerLabels[ $tickerItem[ 'category' ] ] ?? ucfirst( str_replace( '_', ' ', (string) $tickerItem[ 'category' ] ) ) ) ?></span>
             </a>
             <?php endforeach; ?>
             <?php endforeach; ?>
             </div>
             </div>
 
-            <a href = "<?= $base ?>news/index.php" class = 'shrink-0 hidden sm:inline-flex items-center gap-1.5 pl-4 text-[10px] font-bold uppercase tracking-wider text-slate-500 hover:text-brandRed transition-colors border-l border-slate-200/70 px-3 sm:px-4'>
+            <a href = "<?= $base ?>news/index.php" class = 'shrink-0 hidden sm:inline-flex items-center gap-1.5 pl-4 text-[10px] font-bold uppercase tracking-wider text-white/85 hover:text-white transition-colors border-l border-white/25 px-3 sm:px-4'>
             All News <i class = 'fa-solid fa-arrow-right text-[9px]'></i>
             </a>
             </div>

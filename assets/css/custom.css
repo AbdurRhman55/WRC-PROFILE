@@ -95,6 +95,12 @@ html {
   right: auto;
   max-width: min(100vw, 360px);
   box-sizing: border-box;
+  /* The news ticker is the next sibling inside the sticky <header> and paints at
+     z-index 10; without a z-index of its own the menu was drawn *behind* it, so a
+     hovering dropdown disappeared into the ticker band. .nav-item-dropdown is
+     position: relative with z-index auto, so this value is resolved against the
+     header's stacking context and 60 clears the ticker. */
+  z-index: 60;
 }
 
 .nav-item-dropdown:hover .dropdown-menu,
@@ -850,10 +856,10 @@ html {
    The track holds two identical copies of the headline list and
    slides to -50%, so the loop is seamless with no visible jump.
    ============================================================ */
+/* Brand-red band, matching the theme. Solid rather than translucent so the
+   headlines stay legible over any page background scrolling underneath. */
 .news-ticker {
-  background: rgba(255, 255, 255, 0.92);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  background: linear-gradient(180deg, #d10000 0%, #ca0000 55%, #b80000 100%);
 }
 
 .news-ticker-track {
@@ -882,7 +888,7 @@ html {
   width: 3px;
   height: 3px;
   border-radius: 50%;
-  background: #cbd5e1;
+  background: rgba(255, 255, 255, 0.45);
   margin-left: 0.75rem;
   flex: none;
 }
@@ -904,6 +910,203 @@ html {
     overflow-x: auto;
     -webkit-mask-image: none;
     mask-image: none;
+  }
+}
+
+/* ============================================================
+   NEWS ARTICLE BODY
+   The Tailwind CDN build ships no typography plugin, so the old
+   `prose-*` classes never matched anything, and Tailwind's
+   preflight resets margin to 0 on p / h2 / ul. Between them the
+   whole article painted as one unbroken block of text with an
+   h2 the same size as the body copy. These rules do the
+   typesetting that `prose` was supposed to do.
+   ============================================================ */
+.article-body {
+  /* ~66 characters at 17px: long enough to avoid ragged wrapping,
+     short enough that the eye does not lose its place on the return sweep. */
+  max-width: 46rem;
+  margin-inline: auto;
+  font-size: 1.0625rem;
+  line-height: 1.8;
+  color: #334155;
+}
+
+/* Every top-level block after the first gets breathing room. */
+.article-body > * + * {
+  margin-top: 1.25rem;
+}
+
+/* Opening paragraph: larger, darker, ruled in brand red so the article
+   has a visible entry point instead of fading into the page. */
+.article-body > p:first-child {
+  font-size: 1.1875rem;
+  line-height: 1.7;
+  font-weight: 500;
+  color: #0e1f27;
+  padding-left: 1.05rem;
+  border-left: 4px solid #ca0000;
+}
+
+/* Section headings share the same red rule as the lead, so the page
+   reads as one system rather than a heading bolted onto body text. */
+.article-body > h2,
+.article-body > h3 {
+  font-family: 'Poppins', 'Inter', sans-serif;
+  font-weight: 700;
+  color: #0e1f27;
+  line-height: 1.35;
+  letter-spacing: -0.01em;
+  padding-left: 0.95rem;
+  border-left: 4px solid #ca0000;
+}
+
+.article-body > h2 {
+  font-size: 1.4rem;
+  margin-top: 2.75rem;
+}
+
+.article-body > h3 {
+  font-size: 1.15rem;
+  margin-top: 2.1rem;
+}
+
+/* A heading directly after another block still needs the section gap. */
+.article-body > * + h2,
+.article-body > * + h3 {
+  margin-top: 2.75rem;
+}
+
+/* Bullet lists become a "key points" panel: tinted card, red rule down the
+   left, and a check marker on every item instead of a default disc. */
+.article-body > ul,
+.article-body > ol {
+  list-style: none;
+  margin-top: 1.75rem;
+  padding: 1.3rem 1.5rem;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-left: 4px solid #ca0000;
+  border-radius: 18px;
+  display: grid;
+  gap: 0.7rem;
+  counter-reset: wrc-item;
+}
+
+.article-body > ul > li,
+.article-body > ol > li {
+  position: relative;
+  padding-left: 2.1rem;
+  font-size: 1rem;
+  line-height: 1.7;
+  color: #334155;
+}
+
+.article-body > ul > li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.3rem;
+  width: 1.3rem;
+  height: 1.3rem;
+  border-radius: 50%;
+  background: #ca0000
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M2.3 6.3l2.4 2.4 4.9-5.3' fill='none' stroke='%23fff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")
+    center / 11px 11px no-repeat;
+  box-shadow: 0 3px 8px rgba(202, 0, 0, 0.28);
+}
+
+/* Ordered lists keep real numbers, restyled to match the panel. */
+.article-body > ol > li::before {
+  counter-increment: wrc-item;
+  content: counter(wrc-item);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  top: 0.2rem;
+  font-size: 11px;
+  font-weight: 700;
+  color: #fff;
+  background: #ca0000;
+  font-family: 'Poppins', 'Inter', sans-serif;
+}
+
+/* In-article photograph: 16:9 crop so mixed source sizes still line up. */
+.article-body > .ab-figure {
+  margin-top: 2rem;
+}
+
+.article-body > .ab-figure img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  border-radius: 18px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 22px 46px -30px rgba(15, 23, 42, 0.7);
+}
+
+.article-body > .ab-figure figcaption {
+  margin-top: 0.7rem;
+  font-size: 0.78rem;
+  line-height: 1.6;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #94a3b8;
+  text-align: center;
+}
+
+.article-body blockquote {
+  margin-top: 1.75rem;
+  padding: 1.1rem 1.4rem;
+  background: #f8fafc;
+  border-left: 4px solid #ca0000;
+  border-radius: 0 16px 16px 0;
+  font-size: 1.1rem;
+  font-style: italic;
+  color: #1e293b;
+}
+
+.article-body a {
+  color: #ca0000;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-thickness: 1px;
+  transition: color 0.18s ease;
+}
+
+.article-body a:hover {
+  color: #a30000;
+}
+
+.article-body strong,
+.article-body b {
+  color: #0e1f27;
+  font-weight: 600;
+}
+
+.article-body img {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Small screens: keep the rules but tighten the measure to the viewport. */
+@media (max-width: 640px) {
+  .article-body {
+    font-size: 1rem;
+    line-height: 1.75;
+  }
+  .article-body > p:first-child {
+    font-size: 1.0625rem;
+  }
+  .article-body > h2 {
+    font-size: 1.2rem;
+    margin-top: 2.2rem;
+  }
+  .article-body > ul,
+  .article-body > ol {
+    padding: 1.1rem 1.15rem;
+    border-radius: 14px;
   }
 }
 

@@ -46,6 +46,23 @@ if ( strpos( $newsImage, 'assets/' ) !== 0 && strpos( $newsImage, 'http' ) !== 0
     $newsImage = 'assets/images/' . $newsImage;
 }
 
+// The hero only uses the article photograph as a 30%-opacity backdrop under a
+// heavy gradient, so a reader never actually sees the picture. Re-show it at full
+// clarity just under the opening paragraph — that is where the long block of text
+// needs breaking up. Skipped when the body already carries an <img>.
+$bodyHtml = (string) ( $article[ 'content' ] ?? '' );
+if ( stripos( $bodyHtml, '<img' ) === false && $newsImage !== '' ) {
+    $figureHtml = "\n<figure class = 'ab-figure'>"
+                . "\n<img src = \"{$base}{$newsImage}\" alt = \"" . sanitize( $article[ 'title' ] ) . "\" loading = 'lazy' decoding = 'async'>"
+                . "\n</figure>\n";
+    $firstClose = stripos( $bodyHtml, '</p>' );
+    if ( $firstClose !== false ) {
+        $bodyHtml = substr( $bodyHtml, 0, $firstClose + 4 ) . $figureHtml . substr( $bodyHtml, $firstClose + 4 );
+    } else {
+        $bodyHtml = $figureHtml . $bodyHtml;
+    }
+}
+
 // Related articles ( same category, excluding current )
 $relatedStmt = $pdo->prepare( 'SELECT * FROM news_articles WHERE category = ? AND id != ? AND is_published = 1 ORDER BY published_at DESC LIMIT 3' );
 $relatedStmt->execute( [ $cat, $article[ 'id' ] ] );
@@ -167,17 +184,8 @@ include dirname( __DIR__ ) . '/includes/header.php';
 <!-- ARTICLE CONTENT -->
 <section class = 'py-12 sm:py-16 bg-white'>
 <div class = 'max-w-4xl mx-auto px-4 sm:px-6 lg:px-8'>
-<article class = "prose prose-lg prose-slate max-w-none
-      prose-headings:font-display prose-headings:text-ink-900
-      prose-h2:text-2xl prose-h2:mt-10 prose-h2:mb-4
-      prose-h3:text-xl prose-h3:mt-8 prose-h3:mb-3
-      prose-p:text-slate-600 prose-p:leading-relaxed
-      prose-a:text-brandRed prose-a:no-underline hover:prose-a:underline
-      prose-strong:text-ink-900
-      prose-img:rounded-2xl prose-img:shadow-lg
-      prose-blockquote:border-brandRed prose-blockquote:bg-slate-50 prose-blockquote:rounded-r-xl prose-blockquote:py-1 prose-blockquote:px-6
-      prose-li:text-slate-600">
-<?= $article[ 'content' ] ?>
+<article class = 'article-body'>
+<?= $bodyHtml ?>
 </article>
 
 <!-- SHARE -->
