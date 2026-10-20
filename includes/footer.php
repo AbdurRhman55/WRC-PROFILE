@@ -139,7 +139,7 @@ if ( $popupArticle ) {
     if ( strpos( $popupImage, 'assets/' ) !== 0 && strpos( $popupImage, 'uploads/' ) !== 0 && strpos( $popupImage, 'http' ) !== 0 ) {
         $popupImage = 'assets/images/' . $popupImage;
     }
-    $popupHref  = $base . 'news/' . rawurlencode( $popupArticle[ 'slug' ] );
+    $popupHref  = $base . 'news/detail.php?slug=' . rawurlencode( $popupArticle[ 'slug' ] );
     $popupLabel = $popupLabels[ $popupArticle[ 'category' ] ] ?? ucfirst( str_replace( '_', ' ', (string) $popupArticle[ 'category' ] ) );
     $popupOnNews = strpos( $_SERVER[ 'SCRIPT_NAME' ] ?? '', '/news/' ) !== false;
 }

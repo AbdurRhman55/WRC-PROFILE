@@ -218,7 +218,7 @@ include dirname( __DIR__ ) . '/includes/header.php';
 <!-- PREVIOUS / NEXT -->
 <nav class = 'mt-8 grid gap-4 sm:grid-cols-2' aria-label = 'More articles'>
 <?php if ( !empty( $prevArticle ) ): ?>
-<a href = "<?= $base ?>news/<?= rawurlencode( $prevArticle[ 'slug' ] ) ?>" class = 'group rounded-2xl border border-slate-200 hover:border-brandRed/40 p-5 transition-all'>
+<a href = "<?= $base ?>news/detail.php?slug=<?= rawurlencode( $prevArticle[ 'slug' ] ) ?>" class = 'group rounded-2xl border border-slate-200 hover:border-brandRed/40 p-5 transition-all'>
 <span class = 'text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400 flex items-center gap-2 mb-2'>
 <i class = 'fa-solid fa-arrow-left text-[9px] group-hover:text-brandRed transition-colors'></i> Previous
 </span>
@@ -229,7 +229,7 @@ include dirname( __DIR__ ) . '/includes/header.php';
 <?php endif; ?>
 
 <?php if ( !empty( $nextArticle ) ): ?>
-<a href = "<?= $base ?>news/<?= rawurlencode( $nextArticle[ 'slug' ] ) ?>" class = 'group rounded-2xl border border-slate-200 hover:border-brandRed/40 p-5 transition-all text-right sm:text-right'>
+<a href = "<?= $base ?>news/detail.php?slug=<?= rawurlencode( $nextArticle[ 'slug' ] ) ?>" class = 'group rounded-2xl border border-slate-200 hover:border-brandRed/40 p-5 transition-all text-right sm:text-right'>
 <span class = 'text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400 flex items-center gap-2 mb-2 sm:justify-end'>
 Next <i class = 'fa-solid fa-arrow-right text-[9px] group-hover:text-brandRed transition-colors'></i>
 </span>
@@ -279,7 +279,7 @@ $relCat = $rel[ 'category' ] ?? 'story';
 $relCatLabel = $catLabels[ $relCat ] ?? ucfirst( str_replace( '_', ' ', $relCat ) );
 $relCatColor = $catColors[ $relCat ] ?? 'bg-slate-500';
 ?>
-<a href = "<?= $base ?>news/<?= sanitize($rel['slug']) ?>" class = 'bg-white rounded-2xl overflow-hidden border border-slate-100 hover:border-brandRed/20 hover:shadow-xl transition-all group program-card-hover block'>
+<a href = "<?= $base ?>news/detail.php?slug=<?= rawurlencode( (string) $rel['slug'] ) ?>" class = 'bg-white rounded-2xl overflow-hidden border border-slate-100 hover:border-brandRed/20 hover:shadow-xl transition-all group program-card-hover block'>
 <div class = 'relative h-44 overflow-hidden'>
 <img src = "<?= $base ?><?= $relImage ?>" alt = "<?= sanitize($rel['title']) ?>" class = 'w-full h-full object-cover group-hover:scale-105 transition-transform duration-500' loading = 'lazy'>
 <span class = "absolute top-3 left-3 <?= $relCatColor ?> text-white text-[10px] font-bold uppercase tracking-wider px-3 py-1 rounded-full"><?= sanitize( $relCatLabel ) ?></span>

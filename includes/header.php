@@ -335,7 +335,7 @@ tailwind.config = {
             <div class = 'news-ticker-track items-center h-full'>
             <?php foreach ( [ 0, 1 ] as $tickerCopy ): ?>
             <?php foreach ( $newsTicker as $tickerItem ): ?>
-            <a href = "<?= $base ?>news/<?= rawurlencode( $tickerItem[ 'slug' ] ) ?>"
+            <a href = "<?= $base ?>news/detail.php?slug=<?= rawurlencode( $tickerItem[ 'slug' ] ) ?>"
             class = 'news-ticker-item inline-flex items-center gap-2 shrink-0 h-full px-3 sm:px-4 text-[11px] sm:text-xs text-slate-600 hover:text-brandRed transition-colors group'
             <?= $tickerCopy === 1 ? 'aria-hidden="true" tabindex="-1"' : '' ?>>
             <span class = 'w-1 h-1 rounded-full bg-brandRed/60 group-hover:bg-brandRed shrink-0'></span>
