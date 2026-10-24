@@ -43,7 +43,18 @@ if ( isPost() && isset( $_POST[ 'save_sections' ] ) ) {
             $updateData[ 'vision_label' ] = $content[ 'vision_label' ] ?? '';
             $updateData[ 'vision_text' ] = $content[ 'vision_text' ] ?? '';
         } else {
-            // about_hero
+            // about_hero. Every other hero table stores its heading in
+            // section_title; about_hero was created without one, which is why
+            // edits to the About page heading used to vanish. The columns are
+            // created by database/run_project_import.php on deployment, and
+            // tableHasColumn() keeps a save working during the deploy window
+            // in which the new admin code is live but the columns are not.
+            if ( tableHasColumn( $sectionKey, 'section_title' ) ) {
+                $updateData[ 'section_title' ] = $data[ 'section_title' ] ?? '';
+            }
+            if ( tableHasColumn( $sectionKey, 'section_subtitle' ) ) {
+                $updateData[ 'section_subtitle' ] = $data[ 'section_subtitle' ] ?? '';
+            }
             $updateData[ 'button1_text' ] = $content[ 'button1_text' ] ?? '';
             $updateData[ 'button1_link' ] = $content[ 'button1_link' ] ?? '';
             $updateData[ 'button2_text' ] = $content[ 'button2_text' ] ?? '';
@@ -59,10 +70,22 @@ if ( isPost() && isset( $_POST[ 'save_sections' ] ) ) {
         // section heading and subtitle belong to homepage_sections.
         if ( $sectionKey === 'chairman_message' ) {
             $sectionMeta = getRow( 'homepage_sections', [ 'section_key' => $sectionKey ] );
+            // Merge over whatever is stored instead of replacing the blob. The
+            // public pages read the chairman table (index.php overrides the map
+            // with it), but this mirror is still written on every save, and a
+            // wholesale replace used to discard any key the editor does not
+            // expose. Anything the form does post still wins.
+            $storedMeta = [];
+            if ( $sectionMeta && !empty( $sectionMeta[ 'content' ] ) ) {
+                $decoded = json_decode( $sectionMeta[ 'content' ], true );
+                if ( is_array( $decoded ) ) {
+                    $storedMeta = $decoded;
+                }
+            }
             $sectionMetaData = [
-                'section_title' => $data[ 'section_title' ] ?? "Chairman's Message",
-                'section_subtitle' => $data[ 'section_subtitle' ] ?? '',
-                'content' => json_encode( $content, JSON_UNESCAPED_UNICODE ),
+                'section_title' => $data[ 'section_title' ] ?? ( $sectionMeta[ 'section_title' ] ?? "Chairman's Message" ),
+                'section_subtitle' => $data[ 'section_subtitle' ] ?? ( $sectionMeta[ 'section_subtitle' ] ?? '' ),
+                'content' => json_encode( array_merge( $storedMeta, $content ), JSON_UNESCAPED_UNICODE ),
             ];
             if ( $sectionMeta ) {
                 updateRow( 'homepage_sections', $sectionMetaData, [ 'id' => $sectionMeta[ 'id' ] ] );
@@ -1122,8 +1145,12 @@ function loadDedicatedSection($sectionKey, $defaultTitle) {
             $row = getRow('about_hero');
             if ($row) return [
                 'section_key' => $sectionKey,
-                'section_title' => 'Hero Section',
-                'section_subtitle' => $row['subtitle'] ?? '',
+                // Read the stored heading back instead of hardcoding a label.
+                // The hardcoded 'Hero Section' here was what made an edit to
+                // the About page heading look like it had reverted: the value
+                // was never written, and the form reloaded with this placeholder.
+                'section_title' => $row['section_title'] ?? 'About World Relief Committee',
+                'section_subtitle' => $row['section_subtitle'] ?? ($row['subtitle'] ?? ''),
                 'content' => $row,
                 'is_active' => 1,
             ];
@@ -2519,7 +2546,16 @@ include __DIR__ . '/includes/header.php';
 
                                                                     <script>
 // ===== DATA STORE =====
-var pageData = <?= json_encode(array_map(function($s) { return $s['content']; }, $sections), JSON_HEX_TAG) ?>;
+// Stored state per section. The editor only posts the fields it actually
+// renders, so this is what lets the submit handler put back everything the
+// form does not expose instead of blanking it on save.
+var pageData = <?= json_encode(array_map(function($s) {
+    return [
+        'section_title'    => $s['section_title'] ?? '',
+        'section_subtitle' => $s['section_subtitle'] ?? '',
+        'content'          => $s['content'] ?? [],
+    ];
+}, $sections), JSON_HEX_TAG) ?>;
 
 // ===== HELPER: Build JSON from all data-field inputs =====
 function collectData() {
@@ -2542,8 +2578,8 @@ document.getElementById('sectionsForm').addEventListener('submit', function(e) {
   document.querySelectorAll('.section-card').forEach(function(card) {
     var sectionKey = card.getAttribute('data-section');
     var sectionData = {};
-    var secTitle = '';
-    var secSubtitle = '';
+    var secTitle = null;
+    var secSubtitle = null;
     card.querySelectorAll('[data-field]').forEach(function(el) {
       var path = el.getAttribute('data-field');
       if (path === 'section_title') { secTitle = el.value; return; }
@@ -2551,11 +2587,31 @@ document.getElementById('sectionsForm').addEventListener('submit', function(e) {
       var cleanPath = path.replace('content.', '');
       sectionData[cleanPath] = el.value;
     });
-    allData[sectionKey] = {
-      content: sectionData,
-      section_title: secTitle || card.querySelector('h3').textContent.trim(),
-      section_subtitle: secSubtitle
-    };
+
+    // Every save handler writes `?? ''` per key, so a key missing from this
+    // payload used to blank the stored value. A key is missing only when the
+    // form has no input for it, which means "not editable here" and never "the
+    // user cleared it" - so seed from the stored section and let the inputs
+    // win. Without this, saving wiped whole pages of content: the Contact page
+    // offices/map/whistleblower block, all 12 Policies, the Annual Reports
+    // archive, the Vision/Mission core values, plus fields like the Get
+    // Involved hero badge and the Projects dashboard subtitle.
+    var stored = pageData[sectionKey] || {};
+    var entry = { content: Object.assign({}, stored.content || {}, sectionData) };
+
+    // Headings behave the same way: an edited input wins, otherwise keep what
+    // is stored. The card label is only a last resort for a section that has
+    // never been saved, which is what stops a custom heading being overwritten
+    // by that label on every save.
+    entry.section_title = (secTitle !== null) ? secTitle
+      : (stored.section_title || card.querySelector('h3').textContent.trim());
+    if (secSubtitle !== null) {
+      entry.section_subtitle = secSubtitle;
+    } else if (stored.section_subtitle != null) {
+      entry.section_subtitle = stored.section_subtitle;
+    }
+
+    allData[sectionKey] = entry;
   });
 
   // Deep clone

@@ -1,0 +1,30 @@
+# WRC - admin and public form uploads
+#
+# Files in this folder are written by the admin CMS and by the site's public
+# forms. Nothing here may ever be executed by the web server.
+#
+# This folder sits outside the deployment tree on purpose: it is git-ignored
+# and is not listed in the deploy source, so uploaded images survive every
+# push. Do not move it back under assets/.
+#
+# NOTE: this file only takes effect when the vhost sets AllowOverride to
+# All / AuthConfig / Limit. The authoritative protection is the server-side
+# extension and MIME allow-lists in admin/ajax-upload.php and
+# includes/functions.php -> uploadPublicAttachment().
+
+<IfModule mod_authz_core.c>
+    <FilesMatch "(?i)\.(php|phtml|php\d|phar|pl|py|cgi|rb|sh|asp|aspx|jsp|exe|dll|htaccess)$">
+        Require all denied
+    </FilesMatch>
+</IfModule>
+
+<IfModule !mod_authz_core.c>
+    <FilesMatch "(?i)\.(php|phtml|php\d|phar|pl|py|cgi|rb|sh|asp|aspx|jsp|exe|dll|htaccess)$">
+        Order allow,deny
+        Deny from all
+    </FilesMatch>
+</IfModule>
+
+<IfModule mod_php.c>
+    php_flag engine off
+</IfModule>

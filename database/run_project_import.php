@@ -434,6 +434,25 @@ try {
         echo "Added the missing `projects.category` column required by the portfolio import.\n";
     }
 
+    // about_hero was created without the two heading columns that every other
+    // hero table has. The admin editor offers "Section Title" and "Section
+    // Subtitle" for it, but admin/pages.php -> saveHeroSection() had no column
+    // to write them to, so an edit to the About page heading looked saved and
+    // then quietly reverted on the next page load. Add the columns so the value
+    // has somewhere to live, and seed the title from the wording the public
+    // page falls back to so nothing visible changes for visitors.
+    if ( $tableExists( 'about_hero' ) ) {
+        if ( !$columnExists( 'about_hero', 'section_title' ) ) {
+            $pdo->exec( "ALTER TABLE `about_hero` ADD COLUMN `section_title` VARCHAR(255) NOT NULL DEFAULT '' AFTER `id`" );
+            $pdo->exec( "UPDATE `about_hero` SET `section_title` = 'About World Relief Committee' WHERE `section_title` = ''" );
+            echo "Added the missing `about_hero.section_title` column used by the admin editor.\n";
+        }
+        if ( !$columnExists( 'about_hero', 'section_subtitle' ) ) {
+            $pdo->exec( "ALTER TABLE `about_hero` ADD COLUMN `section_subtitle` TEXT NULL AFTER `section_title`" );
+            echo "Added the missing `about_hero.section_subtitle` column used by the admin editor.\n";
+        }
+    }
+
     // Maintenance that runs on every deployment, including the "already matches"
     // short-circuit below: keeps stored CTA wording in sync with the templates,
     // rewrites links and misspellings that were saved into the database, and

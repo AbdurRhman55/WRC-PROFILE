@@ -40,16 +40,27 @@ if ($file['error'] !== UPLOAD_ERR_OK) {
 $originalName = basename($file['name']);
 $ext = strtolower(pathinfo($originalName, PATHINFO_EXTENSION));
 
+// Uploads are stored OUTSIDE the deployment tree on purpose.
+//
+// assets/ is shipped to the server by every deploy, so anything the admin
+// uploads straight into it is an untracked file inside a tracked directory and
+// is wiped the next time that directory is reconciled with the repository.
+// That is exactly why Chairman and Our Team photographs kept vanishing after a
+// day or two while the images committed to git stayed online forever.
+//
+// uploads/ is git-ignored and is not part of the deploy source list, so it is
+// never overwritten, never pruned and survives every push — the same way
+// includes/config.php does.
 if ($type === 'image') {
     $allowed = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg'];
     $maxSize = 5 * 1024 * 1024; // 5MB
-    $uploadDir = __DIR__ . '/../assets/images/uploads';
-    $webPath = 'assets/images/uploads';
+    $uploadDir = __DIR__ . '/../uploads/images';
+    $webPath = 'uploads/images';
 } else {
     $allowed = ['pdf', 'zip', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'txt', 'csv'];
     $maxSize = 20 * 1024 * 1024; // 20MB
-    $uploadDir = __DIR__ . '/../assets/files/uploads';
-    $webPath = 'assets/files/uploads';
+    $uploadDir = __DIR__ . '/../uploads/files';
+    $webPath = 'uploads/files';
 }
 
 if (!in_array($ext, $allowed)) {

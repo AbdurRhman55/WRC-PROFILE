@@ -233,6 +233,31 @@ function getRow( string $table, array $conditions = [] ): ?array {
 }
 
 /**
+* Whether a column exists on a table.
+*
+* Used before writing optional columns so an editor never throws ( or worse,
+* silently drops a value ) while a migration is still landing on the server.
+* Results are memoised per request; schema does not change mid-request.
+*/
+
+function tableHasColumn( string $table, string $column ): bool {
+    global $pdo;
+    static $cache = [];
+    $key = $table . '.' . $column;
+    if ( isset( $cache[ $key ] ) ) {
+        return $cache[ $key ];
+    }
+    try {
+        $stmt = $pdo->prepare( 'SELECT COUNT(*) FROM information_schema.columns WHERE table_schema = DATABASE() AND table_name = ? AND column_name = ?' );
+        $stmt->execute( [ $table, $column ] );
+        $cache[ $key ] = ( bool ) $stmt->fetchColumn();
+    } catch ( Throwable $e ) {
+        $cache[ $key ] = false;
+    }
+    return $cache[ $key ];
+}
+
+/**
 * Fetch active programs
 */
 
@@ -410,9 +435,46 @@ function formatDate( string $date, string $format = 'M d, Y' ): string {
 // IMAGE HELPERS
 // ===  ===  ===  ===  ===  ===  ===  ===  ===  ===  ===  ===  ===  ===  ===
 
-function getImageUrl( string $path ): string {
+/**
+ * Whether a stored image path still resolves to a file on disk.
+ *
+ * Admin uploads used to live inside the deploy tree, so every pipeline sync
+ * wiped the files the admin had just uploaded while the database kept their
+ * paths. A stale path renders as a broken image icon, so callers use this to
+ * fall back to something sensible instead.
+ *
+ * Remote and inline (data:/blob:) images cannot be verified locally and are
+ * assumed to be present.
+ */
+function imageExists( string $path ): bool {
+    if ( trim( $path ) === '' ) {
+        return false;
+    }
+
+    if ( preg_match( '~^(?:https?:)?//|^(?:data|blob):~i', $path ) ) {
+        return true;
+    }
+
+    static $memo = [];
+    if ( array_key_exists( $path, $memo ) ) {
+        return $memo[ $path ];
+    }
+
+    $relative = ltrim( str_replace( '\\', '/', $path ), '/' );
+
+    // functions.php lives in includes/, so the project root is one level up.
+    return $memo[ $path ] = is_file( dirname( __DIR__ ) . '/' . $relative );
+}
+
+/**
+ * @param string $path     Stored path, absolute URL, or empty.
+ * @param string $fallback Project-relative image used when $path is empty or
+ *                         no longer exists on disk. Must be git-tracked, or it
+ *                         disappears on the next deploy as well.
+ */
+function getImageUrl( string $path, string $fallback = 'assets/images/hero.jpg' ): string {
     if ( empty( $path ) ) {
-        return siteUrl( 'assets/images/hero/about-hero.jpg' );
+        return siteUrl( $fallback );
     }
 
     if ( preg_match( '~^(?:https?:)?//|^(?:data|blob):~i', $path ) ) {
@@ -421,6 +483,13 @@ function getImageUrl( string $path ): string {
 
     if ( strpos( $path, 'assets/' ) !== 0 && strpos( $path, 'uploads/' ) !== 0 ) {
         $path = 'assets/images/' . ltrim( $path, '/' );
+    }
+
+    // The stored path can outlive its file (see imageExists()). Serving a URL
+    // that no longer resolves is a hard 404 and a broken image, so fall back
+    // to a guaranteed-present, git-tracked asset instead.
+    if ( !imageExists( $path ) ) {
+        return siteUrl( $fallback );
     }
 
     return siteUrl( $path );
@@ -588,7 +657,9 @@ function handleUpload( array $file, string $type = 'images' ): ?string {
     $ext = pathinfo( $file[ 'name' ], PATHINFO_EXTENSION );
     $filename = uniqid( $type === 'images' ? 'img_' : 'file_' ) . '.' . $ext;
 
-    $dir = $type === 'images' ? 'assets/images/uploads/' : 'assets/files/uploads/';
+    // uploads/ is git-ignored and outside the deploy source list, so admin
+    // uploads survive every push. See admin/ajax-upload.php for the reasoning.
+    $dir = $type === 'images' ? 'uploads/images/' : 'uploads/files/';
     $fullPath = __DIR__ . '/../' . $dir;
 
     if ( !is_dir( $fullPath ) ) {
@@ -649,7 +720,7 @@ function uploadPublicAttachment( array $file ): ?string {
     }
     if ( !in_array( $mime, $allowedMimes, true ) ) return null;
 
-    $dir = 'assets/files/uploads/';
+    $dir = 'uploads/files/';
     $fullPath = __DIR__ . '/../' . $dir;
     if ( !is_dir( $fullPath ) && !@mkdir( $fullPath, 0755, true ) ) return null;
 

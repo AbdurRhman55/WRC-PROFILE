@@ -171,9 +171,9 @@ include __DIR__ . '/includes/header.php';
         </div>
         <div
             class="grid gap-5 lg:grid-cols-[0.95fr_0.9fr] items-stretch bg-white border border-slate-200 rounded-[2rem] shadow-xl overflow-hidden">
-            <div class="relative overflow-hidden">
-                <img src="<?= sanitize(getImageUrl($chairmanImagePath)) ?>"
-                    alt="Chairman of WRC" class="w-full h-full object-cover min-h-[280px]" />
+            <div class="relative overflow-hidden min-h-[300px]">
+                <img src="<?= sanitize(getImageUrl($chairmanImagePath, 'assets/images/chairman.svg')) ?>"
+                    alt="Chairman of WRC" class="absolute inset-0 w-full h-full object-cover" />
                 <div class="absolute inset-0  mix-blend-multiply"></div>
                 <div class="absolute bottom-4 left-4 right-4 text-white">
                     <p class="text-[11px] uppercase tracking-[0.3em] text-white/80 mb-2">Message from the Chairman</p>
@@ -347,10 +347,12 @@ include __DIR__ . '/includes/header.php';
           foreach ($fundingPartners as $partner): ?>
                 <div
                     class="partner-card group flex flex-col items-center justify-center gap-3 text-center bg-white border border-slate-200 rounded-xl px-6 py-8">
+                    <?php if ( imageExists( $partner['logo_path'] ?? '' ) ): ?>
                     <div class="partner-logo w-28 h-28 flex items-center justify-center overflow-hidden">
-                        <img class="h-24 w-24 object-contain" src="<?= $base ?><?= $partner['logo_path'] ?>"
+                        <img class="h-24 w-24 object-contain" src="<?= $base ?><?= sanitize($partner['logo_path']) ?>"
                             alt="<?= sanitize($partner['name']) ?> logo">
                     </div>
+                    <?php endif; ?>
                     <span class="font-sans text-sm font-medium text-slate-950"><?= sanitize($partner['name']) ?></span>
                 </div>
                 <?php endforeach; ?>
@@ -371,10 +373,12 @@ include __DIR__ . '/includes/header.php';
           foreach ($govPartners as $partner): ?>
                 <div
                     class="partner-card group flex flex-col items-center justify-center gap-3 text-center bg-white border border-slate-200 rounded-xl px-6 py-8">
+                    <?php if ( imageExists( $partner['logo_path'] ?? '' ) ): ?>
                     <div class="partner-logo w-28 h-28 flex items-center justify-center overflow-hidden">
-                        <img class="h-24 w-24 object-contain" src="<?= $base ?><?= $partner['logo_path'] ?>"
+                        <img class="h-24 w-24 object-contain" src="<?= $base ?><?= sanitize($partner['logo_path']) ?>"
                             alt="<?= sanitize($partner['name']) ?> logo">
                     </div>
+                    <?php endif; ?>
                     <span class="font-sans text-sm font-medium text-slate-950"><?= sanitize($partner['name']) ?></span>
                 </div>
                 <?php endforeach; ?>

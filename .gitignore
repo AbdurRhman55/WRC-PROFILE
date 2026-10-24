@@ -1,3 +1,13 @@
 includes/config.php
 db-check.php
 db-direct.php
+
+# Admin uploads live here. This directory is deliberately outside the deploy
+# source list in .github/workflows/deploy.yml, so files uploaded through the
+# admin panel are never overwritten or deleted by a deployment. Committing them
+# would reintroduce the bug where Chairman and Our Team photographs vanished
+# a day or two after being uploaded.
+# (uploads/* rather than uploads/ so the protective .htaccess can be tracked.)
+uploads/*
+!uploads/.htaccess
+

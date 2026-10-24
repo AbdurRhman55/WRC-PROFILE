@@ -142,7 +142,7 @@ $chairName = $chairmanData[ 'person_name' ] ?? '';
 $chairTitle = $chairmanData[ 'person_title' ] ?? '';
 ?>
 <?php if ( !empty( $chairPhoto ) ): ?>
-<img src = "<?= sanitize( getImageUrl( $chairPhoto ) ) ?>" alt = "<?= sanitize($chairName ?: 'Chairman') ?>" class = 'w-16 h-16 rounded-full object-cover border-2 border-brandRed shadow-xl'>
+<img src = "<?= sanitize( getImageUrl( $chairPhoto, 'assets/images/chairman.svg' ) ) ?>" alt = "<?= sanitize($chairName ?: 'Chairman') ?>" class = 'w-16 h-16 rounded-full object-cover border-2 border-brandRed shadow-xl'>
 <?php else: ?>
 <div class = 'w-16 h-16 rounded-full bg-brandRed/20 border-2 border-brandRed flex items-center justify-center shrink-0 shadow-xl'>
 <i class = 'fa-solid fa-user-tie text-2xl text-white'></i>
@@ -186,7 +186,7 @@ Seasoned humanitarians & strategists guiding WRC's mission for sustainable commu
 
                 <!-- Leader Photo Container -->
                 <div class="relative aspect-[4/4.5] overflow-hidden bg-slate-100">
-                  <?php if (!empty($leader['photo_path'])): ?>
+                  <?php if (!empty($leader['photo_path']) && imageExists($leader['photo_path'])): ?>
                     <img src="<?= $base ?><?= sanitize($leader['photo_path']) ?>" alt="<?= sanitize($leader['name'] ?? '') ?>" class="w-full h-full object-cover group-hover:scale-108 transition-transform duration-700 ease-out">
                   <?php else: ?>
                     <div class="w-full h-full bg-gradient-to-br from-slate-100 to-slate-200 flex flex-col items-center justify-center p-6 text-center">

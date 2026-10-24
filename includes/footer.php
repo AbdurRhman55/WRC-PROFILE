@@ -139,10 +139,11 @@ $popupLabels = [
 ];
 
 if ( $popupArticle ) {
-    $popupImage = (string) $popupArticle[ 'featured_image' ];
-    if ( strpos( $popupImage, 'assets/' ) !== 0 && strpos( $popupImage, 'uploads/' ) !== 0 && strpos( $popupImage, 'http' ) !== 0 ) {
-        $popupImage = 'assets/images/' . $popupImage;
-    }
+    // getImageUrl() normalises the stored path, verifies the file still exists
+    // on disk and returns an absolute URL. The absolute form is what fixes
+    // sub-directory pages: a bare relative "assets/..." resolved against
+    // "/about/" to "/about/assets/..." and 404'd even when the file existed.
+    $popupImage = getImageUrl( (string) ( $popupArticle[ 'featured_image' ] ?? '' ), 'assets/images/hero.jpg' );
     $popupHref  = $base . 'news/detail.php?slug=' . rawurlencode( $popupArticle[ 'slug' ] );
     $popupLabel = $popupLabels[ $popupArticle[ 'category' ] ] ?? ucfirst( str_replace( '_', ' ', (string) $popupArticle[ 'category' ] ) );
     $popupOnNews = strpos( $_SERVER[ 'SCRIPT_NAME' ] ?? '', '/news/' ) !== false;
