@@ -2,7 +2,7 @@ USE wrc_website;
 
 -- ABOUT INDEX: Hero
 INSERT INTO homepage_sections (section_key, section_title, section_subtitle, content, sort_order, is_active) VALUES
-('about_hero', 'About Welfare Relief Committee', NULL,
+('about_hero', 'About Welfare & Relief Committee', NULL,
  '{"hero_image":"assets/images/hero.jpg","hero_alt":"WRC Team","subtitle":"Dedicated to serving vulnerable communities through humanitarian assistance, sustainable development, and emergency relief across Pakistan since 2005.","button1_text":"Who We Are","button1_link":"who-we-are.html","button2_text":"Our Leadership","button2_link":"leadership.html"}',
  40, 1)
 ON DUPLICATE KEY UPDATE section_title = VALUES(section_title), content = VALUES(content);
@@ -94,6 +94,6 @@ ON DUPLICATE KEY UPDATE section_title = VALUES(section_title), content = VALUES(
 -- LEADERSHIP: Chairman Message
 INSERT INTO homepage_sections (section_key, section_title, section_subtitle, content, sort_order, is_active) VALUES
 ('chairman_message', 'Message from the Chairman', NULL,
- '{"name":"Mr. Asad Shah","title":"Chairman, WRC","message":"Welcome to the Welfare Relief Committee. Since our establishment in 2005, we have been committed to serving the most vulnerable communities across Pakistan through humanitarian assistance, sustainable development, and emergency relief. Our journey has been one of dedication, resilience, and unwavering commitment to human dignity. Every project we undertake, every life we touch, and every community we serve reinforces our belief that meaningful change is possible when we work together. I invite you to join us in our mission to create a Pakistan where every community has access to clean water, quality healthcare, education, and the opportunity to build a dignified future."}',
+ '{"name":"Mr. Asad Shah","title":"Chairman, WRC","message":"Welcome to the Welfare & Relief Committee. Since our establishment in 2005, we have been committed to serving the most vulnerable communities across Pakistan through humanitarian assistance, sustainable development, and emergency relief. Our journey has been one of dedication, resilience, and unwavering commitment to human dignity. Every project we undertake, every life we touch, and every community we serve reinforces our belief that meaningful change is possible when we work together. I invite you to join us in our mission to create a Pakistan where every community has access to clean water, quality healthcare, education, and the opportunity to build a dignified future."}',
  53, 1)
 ON DUPLICATE KEY UPDATE section_title = VALUES(section_title), content = VALUES(content);

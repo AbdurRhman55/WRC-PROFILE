@@ -3,7 +3,7 @@ USE wrc_website;
 -- NEWS HERO
 INSERT INTO homepage_sections (section_key, section_title, section_subtitle, content, sort_order, is_active) VALUES
 ('news_hero', 'News & Media Center', NULL,
- '{"hero_image":"assets/images/hero.jpg","hero_alt":"WRC News","subtitle":"Stay updated with the latest news, press releases, events, and media from Welfare Relief Committee across Pakistan.","button1_text":"Latest News","button1_link":"#news","button2_text":"Press Releases","button2_link":"#press"}',
+ '{"hero_image":"assets/images/hero.jpg","hero_alt":"WRC News","subtitle":"Stay updated with the latest news, press releases, events, and media from Welfare & Relief Committee across Pakistan.","button1_text":"Latest News","button1_link":"#news","button2_text":"Press Releases","button2_link":"#press"}',
  60, 1)
 ON DUPLICATE KEY UPDATE section_title = VALUES(section_title), content = VALUES(content);
 

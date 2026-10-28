@@ -4,7 +4,7 @@ require_once dirname( __DIR__ ) . '/includes/functions.php';
 
 $base = siteBaseUrl();
 $pageTitle = 'Our History | WRC About';
-$metaDescription = 'Explore the history of Welfare Relief Committee (WRC) - our journey from 2005 to today, milestones, growth, and lasting impact in humanitarian aid.';
+$metaDescription = 'Explore the history of Welfare & Relief Committee (WRC) - our journey from 2005 to today, milestones, growth, and lasting impact in humanitarian aid.';
 
 // Fetch dedicated table data
 $heroRow = getRow( 'history_hero' );

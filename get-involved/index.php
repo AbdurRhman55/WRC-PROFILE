@@ -4,7 +4,7 @@ require_once dirname(__DIR__) . '/includes/functions.php';
 
 $base = siteBaseUrl();
 $pageTitle = 'Get Involved | WRC';
-$metaDescription = 'Join Welfare Relief Committee as a volunteer, explore career opportunities, or become a partner or member.';
+$metaDescription = 'Join Welfare & Relief Committee as a volunteer, explore career opportunities, or become a partner or member.';
 
 // Fetch hero & CTA from dedicated tables
 $heroRow = getRow('get_involved_hero');

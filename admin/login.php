@@ -153,7 +153,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       </form>
     </div>
 
-    <p class="text-center text-slate-500 text-xs mt-6">&copy; <?= date('Y') ?> Welfare Relief Committee. All rights reserved.</p>
+    <p class="text-center text-slate-500 text-xs mt-6">&copy; <?= date('Y') ?> Welfare & Relief Committee. All rights reserved.</p>
   </div>
 
 </body>

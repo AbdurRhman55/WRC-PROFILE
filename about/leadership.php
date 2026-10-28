@@ -4,7 +4,7 @@ require_once dirname( __DIR__ ) . '/includes/functions.php';
 
 $base = siteBaseUrl();
 $pageTitle = 'Leadership | WRC About';
-$metaDescription = 'Meet the leadership of Welfare Relief Committee (WRC) — our chairman and executive team guiding strategic vision and humanitarian impact.';
+$metaDescription = 'Meet the leadership of Welfare & Relief Committee (WRC) — our chairman and executive team guiding strategic vision and humanitarian impact.';
 
 // Fetch homepage sections
 $homepageSections = getRows( 'homepage_sections', [], 'sort_order ASC' );
@@ -241,7 +241,7 @@ Seasoned humanitarians & strategists guiding WRC's mission for sustainable commu
                         </a>
                       <?php endif; ?>
                       <?php if (empty($leader['email']) && empty($leader['linkedin_url'])): ?>
-                        <span class="text-xs text-slate-400 font-medium">Welfare Relief Committee</span>
+                        <span class="text-xs text-slate-400 font-medium">Welfare & Relief Committee</span>
                       <?php endif; ?>
                     </div>
                     <span class="text-xs font-semibold text-slate-400 group-hover:text-brandRed flex items-center gap-1 transition-colors">

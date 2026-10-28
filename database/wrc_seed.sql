@@ -10,13 +10,13 @@ USE wrc_website;
 -- =============================================
 
 INSERT INTO site_settings (setting_key, setting_value, setting_group) VALUES
-('org_name', 'Welfare Relief Committee', 'general'),
+('org_name', 'Welfare & Relief Committee', 'general'),
 ('org_abbreviation', 'WRC', 'general'),
 ('phone', '+92 300 1234567', 'contact'),
 ('email', 'info@wrc.org.pk', 'contact'),
 ('address', 'Flat#1, 3rd Floor, Shami Flats near Marbella Wedding Hall, Warsak Road, Peshawar, Pakistan', 'contact'),
 ('emergency_banner', 'Emergency Flood & Winter Aid Active', 'announcement'),
-('copyright', '2026 Welfare Relief Committee. All rights reserved.', 'footer'),
+('copyright', '2026 Welfare & Relief Committee. All rights reserved.', 'footer'),
 ('logo_path', 'assets/images/logo.png', 'general'),
 ('hero_image', 'assets/images/hero.jpg', 'general'),
 ('footer_tagline', 'WRC partners with institutions, governments, and field agencies to deliver clean water, health services, education, and emergency relief across vulnerable communities.', 'footer'),
@@ -254,7 +254,7 @@ INSERT INTO news_articles (slug, title, excerpt, category, featured_image, autho
 ('back-to-school-balochistan', 'Back-to-School Campaign Enrolls 3,200 Out-of-School Children in Balochistan', 'Our education initiative partnered with local communities to identify and enroll out-of-school children, providing school kits, uniforms, and learning materials.', 'story', 'assets/images/hero-slider-2.jpg', 'Sara Malik', '2026-08-05'),
 ('emergency-food-punjab', 'Emergency Food Distribution Reaches 4,000 Families in South Punjab', 'In partnership with local authorities, WRC distributed emergency food rations to flood-hit families across southern Punjab, covering 14 villages in three districts.', 'story', 'assets/images/hero-slider-3.jpg', 'Bilal Ahmed', '2026-07-29'),
 ('maternal-health-8-districts', 'Maternal Health Program Expands to 8 New Districts Across KPK', 'WRC has expanded its maternal and child health program to eight additional districts in Khyber Pakhtunkhwa, aiming to reduce maternal mortality through skilled birth attendance.', 'story', 'assets/images/chairman.svg', 'Nadia Shah', '2026-07-21'),
-('wrc-condemns-violence-humanitarian', 'WRC Condemns Violence Against Humanitarian Workers in Conflict Zones', 'The Welfare Relief Committee strongly condemns the recent attacks on humanitarian convoys and calls upon all parties to respect the neutrality and safety of aid workers.', 'press_release', NULL, 'WRC Media', '2026-08-25'),
+('wrc-condemns-violence-humanitarian', 'WRC Condemns Violence Against Humanitarian Workers in Conflict Zones', 'The Welfare & Relief Committee strongly condemns the recent attacks on humanitarian convoys and calls upon all parties to respect the neutrality and safety of aid workers.', 'press_release', NULL, 'WRC Media', '2026-08-25'),
 ('wrc-2025-annual-impact-report', 'WRC Releases 2025 Annual Impact Report: 420,000+ Lives Reached', 'WRC''s annual report highlights a year of significant growth in program delivery, beneficiary reach, and financial transparency across all operational sectors.', 'report', NULL, 'WRC Communications', '2026-08-10'),
 ('wrc-unicef-mou-wash-balochistan', 'WRC Signs MoU with UNICEF for Joint WASH Programs in Balochistan', 'A new memorandum of understanding between WRC and UNICEF will bring sustainable water and sanitation solutions to 50 communities across underserved districts in Balochistan.', 'press_release', NULL, 'WRC Media', '2026-07-30');
 
@@ -309,8 +309,8 @@ INSERT INTO donation_tiers (tier_name, amount, currency, description, icon_class
 -- =============================================
 
 INSERT INTO bank_accounts (bank_name, account_title, account_number, iban, branch, swift_code, sort_order) VALUES
-('Habib Bank Limited (HBL)', 'Welfare Relief Committee', '0123-4567-8901-2345', 'PK32HBLB0001234567890123', 'Warsak Road Branch, Peshawar', 'HABPPKKA', 1),
-('United Bank Limited (UBL)', 'Welfare Relief Committee', '1234-5678-9012-3456', 'PK45UBLB0012345678901234', 'University Road Branch, Peshawar', 'UNILPKKA', 2);
+('Habib Bank Limited (HBL)', 'Welfare & Relief Committee', '0123-4567-8901-2345', 'PK32HBLB0001234567890123', 'Warsak Road Branch, Peshawar', 'HABPPKKA', 1),
+('United Bank Limited (UBL)', 'Welfare & Relief Committee', '1234-5678-9012-3456', 'PK45UBLB0012345678901234', 'University Road Branch, Peshawar', 'UNILPKKA', 2);
 
 -- =============================================
 -- 18. JOB LISTINGS

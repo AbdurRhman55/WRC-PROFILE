@@ -14,19 +14,31 @@ if ($isEdit && !$story) {
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // Raw values, deliberately NOT the HTML-encoded ones getPost() returns.
+    // Every template escapes on output via sanitize()/htmlspecialchars(),
+    // so encoding here as well double-encoded on each save: a plain
+    // apostrophe was stored as "&#039;", which then rendered as literal
+    // "&#039;" text. That is why editing a story looked like it corrupts
+    // rather than updates the record.
     $data = [
-        'person_name'  => getPost('person_name'),
-        'person_title' => getPost('person_title'),
-        'location'     => getPost('location'),
-        'quote'        => getPost('quote'),
-        'sector'       => getPost('sector'),
-        'sector_badge' => getPost('sector_badge'),
+        'person_name'  => getPostRaw('person_name'),
+        'person_title' => getPostRaw('person_title'),
+        'location'     => getPostRaw('location'),
+        'quote'        => getPostRaw('quote'),
+        'sector'       => getPostRaw('sector'),
         'is_active'    => isset($_POST['is_active']) ? 1 : 0,
         'sort_order'   => getPostInt('sort_order'),
     ];
 
+    // The badge is derived rather than read back from the request: the form
+    // has no field named sector_badge, so reading it produced an empty string
+    // and silently wiped the badge on every save.
+    $data['sector_badge'] = $data['sector'] !== ''
+        ? ($sectors[$data['sector']] ?? $data['sector'])
+        : '';
+
     if (!empty($_POST['image_path'])) {
-        $data['image_path'] = $_POST['image_path'];
+        $data['image_path'] = getPostRaw('image_path');
     } elseif (isset($_FILES['image_file']) && $_FILES['image_file']['error'] === UPLOAD_ERR_OK) {
         $data['image_path'] = handleUpload($_FILES['image_file'], 'images');
     }
@@ -84,8 +96,15 @@ include __DIR__ . '/includes/header.php';
         <label class="block text-xs font-semibold text-slate-600 mb-1">Sector</label>
         <select name="sector" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-brandRed/20 focus:border-brandRed">
           <option value="">— None —</option>
-          <?php foreach ($sectors as $k => $v): ?>
-          <option value="<?= $k ?>" <?= ($story['sector'] ?? '') === $k ? 'selected' : '' ?>><?= $v ?></option>
+          <?php
+          // The seeded rows store the human label ('WASH', 'Food Security')
+          // while these options use lowercase slugs ('wash', 'food-security').
+          // Comparing literally matched nothing, so the current choice was
+          // never pre-selected and every save silently reset the field to
+          // "None". Match against either spelling, case-insensitively.
+          $storedSector = strtolower(trim((string) ($story['sector'] ?? '')));
+          foreach ($sectors as $k => $v): ?>
+          <option value="<?= $k ?>" <?= ($storedSector === $k || $storedSector === strtolower($v)) ? 'selected' : '' ?>><?= $v ?></option>
           <?php endforeach; ?>
         </select>
       </div>

@@ -4,7 +4,7 @@ require_once dirname(__DIR__) . '/includes/functions.php';
 
 $base = siteBaseUrl();
 $pageTitle = 'Contact Us | WRC';
-$metaDescription = 'Get in touch with Welfare Relief Committee for inquiries, volunteer applications, partnerships, or emergency aid requests.';
+$metaDescription = 'Get in touch with Welfare & Relief Committee for inquiries, volunteer applications, partnerships, or emergency aid requests.';
 
 // Fetch hero & content from dedicated tables
 $heroRow = getRow('contact_hero');

@@ -1149,7 +1149,7 @@ function loadDedicatedSection($sectionKey, $defaultTitle) {
                 // The hardcoded 'Hero Section' here was what made an edit to
                 // the About page heading look like it had reverted: the value
                 // was never written, and the form reloaded with this placeholder.
-                'section_title' => $row['section_title'] ?? 'About Welfare Relief Committee',
+                'section_title' => $row['section_title'] ?? 'About Welfare & Relief Committee',
                 'section_subtitle' => $row['section_subtitle'] ?? ($row['subtitle'] ?? ''),
                 'content' => $row,
                 'is_active' => 1,
@@ -1802,7 +1802,7 @@ include __DIR__ . '/includes/header.php';
                                                                     ?>
                                                                     <div class = 'field-group'>
                                                                     <label>Section Title ( page heading )</label>
-                                                                    <input type = 'text' data-field = 'section_title' value = "<?= htmlspecialchars($sData['section_title'] ?? '') ?>" placeholder = 'About Welfare Relief Committee'>
+                                                                    <input type = 'text' data-field = 'section_title' value = "<?= htmlspecialchars($sData['section_title'] ?? '') ?>" placeholder = 'About Welfare & Relief Committee'>
                                                                     </div>
                                                                     <div class = 'field-group'>
                                                                     <label>Section Subtitle</label>

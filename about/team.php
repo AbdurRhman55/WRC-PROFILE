@@ -116,7 +116,7 @@ include dirname( __DIR__ ) . '/includes/header.php';
 <?php endif;
 ?>
 <?php if ( empty( $member[ 'email' ] ) && empty( $member[ 'linkedin_url' ] ) ): ?>
-<span class = 'text-xs text-slate-400 font-medium'>Welfare Relief Committee</span>
+<span class = 'text-xs text-slate-400 font-medium'>Welfare & Relief Committee</span>
 <?php endif;
 ?>
 </div>

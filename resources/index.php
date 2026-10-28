@@ -278,7 +278,7 @@ class = 'inline-flex items-center gap-2 rounded-full bg-emerald-50 px-3 py-1 tex
 <span class = 'h-1.5 w-1.5 rounded-full bg-emerald-500'></span> Registered
 </span>
 <p class = 'mt-4 text-base leading-7 text-slate-600 sm:text-lg'>
-Welfare Relief Committee ( WRC ) is a registered organization committed to serving
+Welfare & Relief Committee ( WRC ) is a registered organization committed to serving
 communities through humanitarian support and responsible development initiatives.
 </p>
 </div>

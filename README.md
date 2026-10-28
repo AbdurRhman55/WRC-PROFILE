@@ -1,6 +1,6 @@
-# Welfare Relief Committee (WRC) NGO Website
+# Welfare & Relief Committee (WRC) NGO Website
 
-Welcome to the official website template for **Welfare Relief Committee (WRC)**. Built with **HTML5**, **Tailwind CSS**, and **Vanilla JavaScript**.
+Welcome to the official website template for **Welfare & Relief Committee (WRC)**. Built with **HTML5**, **Tailwind CSS**, and **Vanilla JavaScript**.
 
 ---
 

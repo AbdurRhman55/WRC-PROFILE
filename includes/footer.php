@@ -22,7 +22,7 @@ if ( !isset( $logoV ) ) $logoV = @filemtime( dirname( __DIR__ ) . '/assets/image
 <a href = "<?= $base ?>index.php" class = 'inline-flex items-center gap-3'>
 <img src = "<?= $base ?>assets/images/logo.png?v=<?= $logoV ? (string) $logoV : '1' ?>" alt = 'WRC logo' class = 'w-16 h-16 object-contain rounded-2xl bg-white p-2 border border-slate-800' />
 <div>
-<p class = 'text-lg font-semibold text-white font-heading'>Welfare Relief <br> Committee</p>
+<p class = 'text-lg font-semibold text-white font-heading'>Welfare & Relief <br> Committee</p>
 </div>
 </a>
 <p class = 'max-w-md leading-relaxed text-slate-400'>WRC partners with institutions, governments, and field agencies to deliver clean water, health services, education, and emergency relief across vulnerable communities.</p>

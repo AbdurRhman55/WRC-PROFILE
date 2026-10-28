@@ -338,6 +338,82 @@ $dedupeProcessSteps = static function () use ( $pdo, $tableExists ): int {
 };
 
 /**
+ * Removes duplicate rows from the homepage "Success Stories" testimonials.
+ *
+ * The seed data was applied twice, sixty-eight seconds apart, so every story
+ * existed as an identical pair (the same name, the same photo, the same quote
+ * under two ids). That produced two visible symptoms:
+ *
+ *   - The same person and photograph appeared twice on the homepage.
+ *   - Editing a story looked like it had not saved. The update did persist -
+ *     verified directly against the row - but the untouched twin beside it
+ *     kept rendering the old name and photo, so nothing appeared to change.
+ *
+ * A story is treated as the same one when the person's name, their quote and
+ * their photograph all agree. Those three together are what the visitor sees,
+ * so two rows agreeing on all three are the same testimonial shown twice. The
+ * lowest id - the original insert - is kept and later matches are removed,
+ * which means no distinct story can ever be discarded by running this.
+ *
+ * Returns the number of duplicate rows removed.
+ */
+$dedupeSuccessStories = static function () use ( $pdo, $tableExists ): int {
+    if ( !$tableExists( 'success_stories' ) ) {
+        echo "Success stories: table not present, duplicate check skipped.\n";
+        return 0;
+    }
+
+    $rows = $pdo->query( 'SELECT * FROM success_stories ORDER BY id ASC' )->fetchAll( PDO::FETCH_ASSOC );
+    if ( !$rows ) {
+        echo "Success stories: no rows, duplicate check skipped.\n";
+        return 0;
+    }
+
+    $seen   = [];
+    $remove = [];
+
+    foreach ( $rows as $row ) {
+        $key = json_encode( [
+            trim( (string) ( $row[ 'person_name' ] ?? '' ) ),
+            trim( (string) ( $row[ 'quote' ] ?? '' ) ),
+            trim( (string) ( $row[ 'image_path' ] ?? '' ) ),
+        ] );
+
+        if ( isset( $seen[ $key ] ) ) {
+            $remove[] = (int) $row[ 'id' ];
+            continue;
+        }
+
+        $seen[ $key ] = (int) $row[ 'id' ];
+    }
+
+    if ( !$remove ) {
+        echo 'Success stories: ' . count( $rows ) . " row(s) checked, no duplicates found.\n";
+        return 0;
+    }
+
+    $pdo->beginTransaction();
+    try {
+        $delete = $pdo->prepare( 'DELETE FROM success_stories WHERE id = ?' );
+        foreach ( $remove as $id ) {
+            $delete->execute( [ $id ] );
+        }
+        $pdo->commit();
+    } catch ( Throwable $error ) {
+        if ( $pdo->inTransaction() ) {
+            $pdo->rollBack();
+        }
+        throw $error;
+    }
+
+    $left = count( $rows ) - count( $remove );
+    echo 'Success stories: ' . count( $rows ) . ' row(s) checked, ' . count( $remove )
+        . " duplicate story(ies) removed; {$left} unique story(ies) remain.\n";
+
+    return count( $remove );
+};
+
+/**
  * Rewrites the public call-to-action wording wherever it is stored in content columns,
  * so the buttons read "Let's Work Together" on the live site and not only in the PHP
  * fallbacks. Idempotent: only the two exact phrases are replaced, so prose, URLs
@@ -412,7 +488,7 @@ $syncPublicLabels = static function () use ( $pdo ): int {
  *     copy and several section descriptions. Every occurrence in the database
  *     is the organisation name - verified: no occurrence is followed by
  *     anything other than " Committee" - so the rewrite is exact and cannot
- *     touch unrelated prose. The templates now say "Welfare Relief Committee",
+ *     touch unrelated prose. The templates now say "Welfare & Relief Committee",
  *     and this keeps stored content in step with them.
  *
  * Runs on every deployment, like the label sync above.
@@ -428,8 +504,15 @@ $syncPublicContent = static function () use ( $pdo ): int {
         [ 'CHAIRMAIN', 'CHAIRMAN' ],
         [ 'Chairmain', 'Chairman' ],
         [ 'chairmain', 'chairman' ],
-        // The organisation's name, as it is spelled in the templates.
-        [ 'World Relief', 'Welfare Relief' ],
+        // The organisation's name, as it is spelled in the templates. Two
+        // rules rather than one so every database converges regardless of
+        // which spelling it currently holds: the original "World Relief"
+        // found on live, and the interim "Welfare Relief" a database may
+        // already carry. Applying them in this order is safe and idempotent
+        // - rewriting the first rule produces "Welfare & Relief", which the
+        // second rule deliberately no longer matches.
+        [ 'World Relief', 'Welfare & Relief' ],
+        [ 'Welfare Relief', 'Welfare & Relief' ],
     ];
 
     $tables = $pdo->query(
@@ -523,7 +606,7 @@ try {
     if ( $tableExists( 'about_hero' ) ) {
         if ( !$columnExists( 'about_hero', 'section_title' ) ) {
             $pdo->exec( "ALTER TABLE `about_hero` ADD COLUMN `section_title` VARCHAR(255) NOT NULL DEFAULT '' AFTER `id`" );
-            $pdo->exec( "UPDATE `about_hero` SET `section_title` = 'About Welfare Relief Committee' WHERE `section_title` = ''" );
+            $pdo->exec( "UPDATE `about_hero` SET `section_title` = 'About Welfare & Relief Committee' WHERE `section_title` = ''" );
             echo "Added the missing `about_hero.section_title` column used by the admin editor.\n";
         }
         if ( !$columnExists( 'about_hero', 'section_subtitle' ) ) {
@@ -535,12 +618,14 @@ try {
     // Maintenance that runs on every deployment, including the "already matches"
     // short-circuit below: keeps stored CTA wording in sync with the templates,
     // rewrites links and misspellings that were saved into the database, keeps
-    // the photo gallery free of byte-identical duplicate images, and keeps the
-    // "How we work" timeline free of duplicated steps.
+    // the photo gallery free of byte-identical duplicate images, keeps the
+    // "How we work" timeline free of duplicated steps, and keeps the success
+    // stories free of duplicated people.
     $syncPublicLabels();
     $syncPublicContent();
     $dedupePhotoGallery();
     $dedupeProcessSteps();
+    $dedupeSuccessStories();
 
     $reasons = $portfolioStatus();
     if ( !$reasons ) {

@@ -5,6 +5,9 @@
 USE wrc_website;
 
 -- 1. Process Steps (How We Work - 8 steps)
+-- The seed below is idempotent: the schema uses CREATE TABLE IF NOT EXISTS,
+-- so re-running this file against an existing database used to append a
+-- second copy of every step instead of replacing them.
 CREATE TABLE IF NOT EXISTS process_steps (
     id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     step_number TINYINT UNSIGNED NOT NULL,
@@ -57,6 +60,9 @@ CREATE TABLE IF NOT EXISTS homepage_sections (
 -- =============================================
 
 -- Process Steps
+-- Guard runs after the CREATE TABLE above, so a fresh install creates the
+-- table first and only then replaces its contents.
+DELETE FROM process_steps;
 INSERT INTO process_steps (step_number, title, description, color_class, dot_color, sort_order) VALUES
 (1, 'Funding opportunity', 'We scan donor calls, government grants, and partnership openings, screening each against community needs and our technical capacity before pursuing it.', 'text-brandRed', 'bg-brandRed', 1),
 (2, 'Proposal development', 'Technical and finance teams co-author a proposal with clear objectives, a realistic budget, and evidence drawn from prior assessments in the field.', 'text-brandRed', 'bg-brandRed', 2),
@@ -68,12 +74,20 @@ INSERT INTO process_steps (step_number, title, description, color_class, dot_col
 (8, 'Project closure', 'Deliverables are finalized, accounts reconciled, and the project formally handed over to the communities and institutions that will sustain it.', 'text-slate-800', 'bg-slate-700', 8);
 
 -- Success Stories
+-- Same idempotency guard as the process steps above: without it, re-running
+-- this file duplicated every testimonial, which made the homepage show the
+-- same person and photograph twice and made admin edits look like no-ops.
+DELETE FROM success_stories;
 INSERT INTO success_stories (person_name, person_title, location, quote, image_path, sector, sector_badge, sort_order) VALUES
 ('Zainab Bibi', 'Community Beneficiary', 'Peshawar, KP', 'Before WRC installed the water well, my children walked 3km each day for water. Now they go to school instead. Our family''s health has completely transformed.', 'assets/images/water.jpg', 'WASH', 'WASH', 1),
 ('Ahmed Khan', 'Farmer, Sindh', 'Sukkur, Sindh', 'When the floods destroyed our crops, WRC food packs kept my family alive for three months. They didn''t just bring food — they brought hope back to our village.', 'assets/images/food.jpg', 'Food Security', 'Food Security', 2),
 ('Fatima Noor', 'Mother of 3, Punjab', 'Lahore, Punjab', 'My daughter was about to drop out of school because we couldn''t afford books. WRC gave her a complete kit and now she''s top of her class. Education changes everything.', 'assets/images/hero-slider-3.jpg', 'Education', 'Education', 3);
 
 -- Homepage Sections (Chairman Message + CTA)
-INSERT INTO homepage_sections (section_key, title, subtitle, description, person_name, person_title, image_path, cta_text, cta_link, extra_data) VALUES
-('chairman_message', 'Chairman''s Message', 'A thoughtful message from the chairman highlighting WRC''s mission, values, and commitment to community resilience.', NULL, 'Mr. Asad Shah', 'Chairman, Welfare Relief Committee', 'assets/images/hero.jpg', NULL, NULL, '{"overlay_title": "Leading with compassion, transparency, and bold action.", "note_label": "Chairman''s Note", "paragraph1": "At WRC, every life touched is a promise kept. We deliver emergency relief and sustainable development with integrity, compassion, and respect for the communities we serve.", "paragraph2": "Guided by accountability and long-term impact, our teams bring clean water, education, and hope to families rebuilding after crisis.", "vision_label": "Vision", "vision_text": "Empowering communities through resilience, dignity, and sustainable change."}'),
+-- This one uses INSERT IGNORE rather than a DELETE guard: section_key is
+-- UNIQUE, so nothing here can duplicate, and these rows are edited from the
+-- admin dashboard - re-running the setup must not discard that work. IGNORE
+-- simply fills the row in if it is missing and leaves existing content alone.
+INSERT IGNORE INTO homepage_sections (section_key, title, subtitle, description, person_name, person_title, image_path, cta_text, cta_link, extra_data) VALUES
+('chairman_message', 'Chairman''s Message', 'A thoughtful message from the chairman highlighting WRC''s mission, values, and commitment to community resilience.', NULL, 'Mr. Asad Shah', 'Chairman, Welfare & Relief Committee', 'assets/images/hero.jpg', NULL, NULL, '{"overlay_title": "Leading with compassion, transparency, and bold action.", "note_label": "Chairman''s Note", "paragraph1": "At WRC, every life touched is a promise kept. We deliver emergency relief and sustainable development with integrity, compassion, and respect for the communities we serve.", "paragraph2": "Guided by accountability and long-term impact, our teams bring clean water, education, and hope to families rebuilding after crisis.", "vision_label": "Vision", "vision_text": "Empowering communities through resilience, dignity, and sustainable change."}'),
 ('cta_banner', 'Ready to Make a Difference?', NULL, 'Every contribution helps us deliver clean water, food, education, and emergency relief to families who need it most.', NULL, NULL, NULL, 'Donate Now', 'get-involved/contribute-with-us.html', '{"button2_text": "Volunteer", "button2_link": "get-involved/index.html#volunteer", "button1_icon": "fa-solid fa-hand-holding-heart", "button2_icon": "fa-solid fa-hands-holding-child"}');

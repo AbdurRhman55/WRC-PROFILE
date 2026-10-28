@@ -3,7 +3,7 @@ require_once __DIR__ . '/includes/config.php';
 require_once __DIR__ . '/includes/functions.php';
 
 $base = siteBaseUrl();
-$pageTitle = 'Terms of Use | Welfare Relief Committee (WRC)';
+$pageTitle = 'Terms of Use | Welfare & Relief Committee (WRC)';
 $metaDescription = 'Read WRC\'s Terms of Use for website usage and institutional policies.';
 
 include __DIR__ . '/includes/header.php';
@@ -51,11 +51,11 @@ include __DIR__ . '/includes/header.php';
 
       <!-- Main Content -->
       <div class="lg:col-span-8 prose prose-slate max-w-none">
-        <p class="text-slate-600 text-sm leading-relaxed mb-8">Welcome to the Welfare Relief Committee (WRC) website. By accessing or using this website, you agree to comply with and be bound by these Terms of Use. If you do not agree with any part of these terms, please do not use this website.</p>
+        <p class="text-slate-600 text-sm leading-relaxed mb-8">Welcome to the Welfare & Relief Committee (WRC) website. By accessing or using this website, you agree to comply with and be bound by these Terms of Use. If you do not agree with any part of these terms, please do not use this website.</p>
 
         <div id="acceptance" class="mb-10">
           <h2 class="text-xl font-bold text-slate-900 mb-3 flex items-center gap-2"><span class="text-brandRed">1.</span> Acceptance of Terms</h2>
-          <p class="text-slate-600 text-sm leading-relaxed mb-3">These Terms of Use constitute a legally binding agreement between you and the Welfare Relief Committee (WRC), a registered non-governmental organization operating in Pakistan. By browsing, accessing, or using any part of this website, you acknowledge that you have read, understood, and agree to be bound by these terms.</p>
+          <p class="text-slate-600 text-sm leading-relaxed mb-3">These Terms of Use constitute a legally binding agreement between you and the Welfare & Relief Committee (WRC), a registered non-governmental organization operating in Pakistan. By browsing, accessing, or using any part of this website, you acknowledge that you have read, understood, and agree to be bound by these terms.</p>
           <p class="text-slate-600 text-sm leading-relaxed">WRC reserves the right to amend these terms at any time without prior notice. Continued use of the website following any changes constitutes acceptance of the revised terms.</p>
         </div>
 
@@ -71,7 +71,7 @@ include __DIR__ . '/includes/header.php';
           <ul class="list-disc pl-5 space-y-2 text-slate-600 text-sm leading-relaxed mb-3">
             <li>You may view and download a single copy of the material for your personal, non-commercial use.</li>
             <li>You may not reproduce, distribute, modify, create derivative works of, publicly display, or exploit any content without prior written consent from WRC.</li>
-            <li>WRC, the WRC logo, and all related marks are trademarks of the Welfare Relief Committee and may not be used without written permission.</li>
+            <li>WRC, the WRC logo, and all related marks are trademarks of the Welfare & Relief Committee and may not be used without written permission.</li>
           </ul>
         </div>
 
@@ -141,7 +141,7 @@ Payments</h2>
 <h2 class = 'text-xl font-bold text-slate-900 mb-3 flex items-center gap-2'><span class = 'text-brandRed'>12.</span> Contact Us</h2>
 <p class = 'text-slate-600 text-sm leading-relaxed mb-4'>If you have any questions about these Terms of Use, please contact us:</p>
 <div class = 'space-y-3 text-sm'>
-<div class = 'flex items-center gap-3'><div class = 'w-8 h-8 rounded-lg bg-brandRed/10 flex items-center justify-center shrink-0'><i class = 'fa-solid fa-building text-brandRed text-xs'></i></div><div><span class = 'text-slate-400'>Organization:</span> <span class = 'font-semibold text-slate-900'>Welfare Relief Committee ( WRC )</span></div></div>
+<div class = 'flex items-center gap-3'><div class = 'w-8 h-8 rounded-lg bg-brandRed/10 flex items-center justify-center shrink-0'><i class = 'fa-solid fa-building text-brandRed text-xs'></i></div><div><span class = 'text-slate-400'>Organization:</span> <span class = 'font-semibold text-slate-900'>Welfare & Relief Committee ( WRC )</span></div></div>
 <div class = 'flex items-center gap-3'><div class = 'w-8 h-8 rounded-lg bg-brandRed/10 flex items-center justify-center shrink-0'><i class = 'fa-solid fa-location-dot text-brandRed text-xs'></i></div><div><span class = 'text-slate-400'>Address:</span> <span class = 'font-semibold text-slate-900'>Flat#1, 3rd Floor, Shami Flats near Marbella Wedding Hall, Warsak Road, Peshawar, Pakistan</span></div></div>
 <div class = 'flex items-center gap-3'><div class = 'w-8 h-8 rounded-lg bg-brandRed/10 flex items-center justify-center shrink-0'><i class = 'fa-solid fa-envelope text-brandRed text-xs'></i></div><div><span class = 'text-slate-400'>Email:</span> <a href = 'mailto:info@wrc.org.pk' class = 'font-semibold text-brandRed hover:underline'>info@wrc.org.pk</a></div></div>
 <div class = 'flex items-center gap-3'><div class = 'w-8 h-8 rounded-lg bg-brandRed/10 flex items-center justify-center shrink-0'><i class = 'fa-solid fa-phone text-brandRed text-xs'></i></div><div><span class = 'text-slate-400'>Phone:</span> <a href = 'tel:+923001234567' class = 'font-semibold text-brandRed hover:underline'>+92 300 1234567</a></div></div>
