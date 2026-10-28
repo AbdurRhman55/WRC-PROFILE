@@ -67,7 +67,7 @@ $ctaData = isset( $owSections[ 'our_work_cta' ] ) ? json_decode( $owSections[ 'o
 // Fetch featured projects ( latest active )
 $featuredProjects = getRows( 'projects', "is_active = 1 AND status = 'active' ORDER BY start_date DESC LIMIT 3" );
 
-$pageTitle = 'Our Work & Core Programs | World Relief Committee (WRC)';
+$pageTitle = 'Our Work & Core Programs | Welfare Relief Committee (WRC)';
 $metaDescription = "Explore WRC's 9 core humanitarian sectors across Health, Education, WASH, Food Security, Nutrition, Livelihood, Emergency Response, DRR, and Climate Resilience.";
 
 include dirname( __DIR__ ) . '/includes/header.php';

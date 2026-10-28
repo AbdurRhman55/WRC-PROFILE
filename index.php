@@ -6,8 +6,8 @@ require_once __DIR__ . '/includes/config.php';
 require_once __DIR__ . '/includes/functions.php';
 
 $base = siteBaseUrl();
-$pageTitle = 'World Relief Committee (WRC) - Official NGO Portal';
-$metaDescription = 'World Relief Committee (WRC) is a non-profit humanitarian organization delivering health, education, WASH, food security, and emergency disaster relief globally.';
+$pageTitle = 'Welfare Relief Committee (WRC) - Official NGO Portal';
+$metaDescription = 'Welfare Relief Committee (WRC) is a non-profit humanitarian organization delivering health, education, WASH, food security, and emergency disaster relief globally.';
 
 // Fetch dynamic data
 $heroSlides = getRows('hero_sliders', ['page' => 'homepage', 'is_active' => 1], 'sort_order ASC');
@@ -112,7 +112,7 @@ include __DIR__ . '/includes/header.php';
                 <?php else: ?>
                 <span
                     class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest bg-slate-900/60 backdrop-blur-sm text-slate-100 border border-white/20 mb-6">
-                    <i class="fa-solid fa-globe text-brandRed"></i> World Relief Committee NGO
+                    <i class="fa-solid fa-globe text-brandRed"></i> Welfare Relief Committee NGO
                 </span>
                 <?php endif; ?>
                 <h1
@@ -641,7 +641,7 @@ function renderContent(index) {
         var badgeHtml = s.badge ?
             '<span class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest bg-brandRed/90 text-white mb-4 backdrop-blur-sm"><i class="fa-solid fa-globe"></i> ' +
             s.badge + '</span>' :
-            '<span class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest bg-slate-900/60 backdrop-blur-sm text-slate-100 border border-white/20 mb-6"><i class="fa-solid fa-globe text-brandRed"></i> World Relief Committee NGO</span>';
+            '<span class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest bg-slate-900/60 backdrop-blur-sm text-slate-100 border border-white/20 mb-6"><i class="fa-solid fa-globe text-brandRed"></i> Welfare Relief Committee NGO</span>';
         contentEl.innerHTML = badgeHtml +
             '<h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-white leading-tail mb-6 font-heading drop-shadow-md">' +
             s.title + '</h1>' +

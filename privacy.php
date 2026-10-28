@@ -3,8 +3,8 @@ require_once __DIR__ . '/includes/config.php';
 require_once __DIR__ . '/includes/functions.php';
 
 $base = siteBaseUrl();
-$pageTitle = 'Privacy Policy | World Relief Committee (WRC)';
-$metaDescription = 'Read the privacy policy of World Relief Committee (WRC) to understand how we collect, use, and protect your personal information.';
+$pageTitle = 'Privacy Policy | Welfare Relief Committee (WRC)';
+$metaDescription = 'Read the privacy policy of Welfare Relief Committee (WRC) to understand how we collect, use, and protect your personal information.';
 
 include __DIR__ . '/includes/header.php';
 ?>
@@ -24,7 +24,7 @@ include __DIR__ . '/includes/header.php';
 Policy
 </div>
 <h1 class = 'font-display text-3xl sm:text-4xl lg:text-5xl font-semibold text-white leading-tight mb-4'>Privacy Policy</h1>
-<p class = 'max-w-2xl text-slate-300 text-sm sm:text-base leading-relaxed'>Your privacy matters to us. This policy explains how World Relief Committee collects, uses, and safeguards your personal information.</p>
+<p class = 'max-w-2xl text-slate-300 text-sm sm:text-base leading-relaxed'>Your privacy matters to us. This policy explains how Welfare Relief Committee collects, uses, and safeguards your personal information.</p>
 <p class = 'mt-3 text-slate-400 text-xs'>Last updated: August 2026</p>
 </div>
 </section>
@@ -75,7 +75,7 @@ Policy
       Information Collection
     </h2>
     <div class="prose-custom space-y-4 text-slate-600 text-sm leading-relaxed">
-      <p>World Relief Committee (WRC) collects personal information only when it is necessary to fulfil our humanitarian mandate, provide services, or comply with legal obligations. The types of information we may collect include:</p>
+      <p>Welfare Relief Committee (WRC) collects personal information only when it is necessary to fulfil our humanitarian mandate, provide services, or comply with legal obligations. The types of information we may collect include:</p>
       <ul class="list-disc pl-6 space-y-2">
         <li><strong>Identity data</strong> &mdash; full name, date of birth, gender, and national identification details where required for programme registration.</li>
         <li><strong>Contact data</strong> &mdash; email address, telephone number, and mailing address submitted through forms, donations, or volunteer sign-ups.</li>
@@ -214,7 +214,7 @@ Children's Privacy
         <ul class="space-y-3 text-sm">
           <li class="flex items-start gap-3">
             <i class="fa-solid fa-building mt-1 text-brandRed"></i>
-            <span><strong>World Relief Committee</strong><br>Flat#1, 3rd Floor, Shami Flats near Marbella Wedding Hall, Warsak Road, Peshawar, Pakistan</span>
+            <span><strong>Welfare Relief Committee</strong><br>Flat#1, 3rd Floor, Shami Flats near Marbella Wedding Hall, Warsak Road, Peshawar, Pakistan</span>
           </li>
           <li class="flex items-center gap-3">
             <i class="fa-solid fa-envelope text-brandRed"></i>

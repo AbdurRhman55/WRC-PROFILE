@@ -8,8 +8,8 @@
 */
 
 if ( !isset( $base ) ) $base = function_exists( 'siteBaseUrl' ) ? siteBaseUrl() : '/';
-if ( !isset( $pageTitle ) ) $pageTitle = 'World Relief Committee (WRC) - Official NGO Portal';
-if ( !isset( $metaDescription ) ) $metaDescription = 'World Relief Committee (WRC) is a non-profit humanitarian organization delivering health, education, WASH, food security, and emergency disaster relief globally.';
+if ( !isset( $pageTitle ) ) $pageTitle = 'Welfare Relief Committee (WRC) - Official NGO Portal';
+if ( !isset( $metaDescription ) ) $metaDescription = 'Welfare Relief Committee (WRC) is a non-profit humanitarian organization delivering health, education, WASH, food security, and emergency disaster relief globally.';
 
 // Detect current section for navbar active state
 $currentFile = basename( $_SERVER[ 'PHP_SELF' ] );

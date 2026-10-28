@@ -10,6 +10,6 @@ ON DUPLICATE KEY UPDATE section_title = VALUES(section_title), content = VALUES(
 -- Program detail CTA Banner
 INSERT INTO homepage_sections (section_key, section_title, section_subtitle, content, sort_order, is_active) VALUES
 ('program_cta', 'Partner With Us for Greater Impact', NULL,
- '{"description":"Join hands with World Relief Committee to support localized development and relief activities under this program.","button1_text":"Support Initiatives","button1_link":"get-involved/contribute-with-us.html","button1_icon":"fa-solid fa-handshake","button2_text":"Contact Us","button2_link":"contact/index.html","button2_icon":"fa-solid fa-envelope"}',
+ '{"description":"Join hands with Welfare Relief Committee to support localized development and relief activities under this program.","button1_text":"Support Initiatives","button1_link":"get-involved/contribute-with-us.html","button1_icon":"fa-solid fa-handshake","button2_text":"Contact Us","button2_link":"contact/index.html","button2_icon":"fa-solid fa-envelope"}',
  21, 1)
 ON DUPLICATE KEY UPDATE section_title = VALUES(section_title), content = VALUES(content);

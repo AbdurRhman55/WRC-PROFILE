@@ -268,6 +268,76 @@ $dedupePhotoGallery = static function () use ( $pdo ): int {
 };
 
 /**
+ * Removes duplicate rows from the homepage "How we work" timeline.
+ *
+ * process_steps was populated twice: every one of the eight steps exists twice
+ * with the same number, the same order and the same text, so the homepage
+ * rendered each step twice in a row ("Funding opportunity", "Funding
+ * opportunity", "Proposal development", "Proposal development", ...).
+ *
+ * Only rows that agree on both the step number and its title are removed, so
+ * nothing can be lost by running this. The lowest id - the original insert -
+ * is kept and every later matching row is deleted.
+ *
+ * Returns the number of duplicate rows removed.
+ */
+$dedupeProcessSteps = static function () use ( $pdo, $tableExists ): int {
+    if ( !$tableExists( 'process_steps' ) ) {
+        echo "Process steps: table not present, duplicate check skipped.\n";
+        return 0;
+    }
+
+    $rows = $pdo->query( 'SELECT * FROM process_steps ORDER BY id ASC' )->fetchAll( PDO::FETCH_ASSOC );
+    if ( !$rows ) {
+        echo "Process steps: no rows, duplicate check skipped.\n";
+        return 0;
+    }
+
+    $seen   = [];
+    $remove = [];
+
+    foreach ( $rows as $row ) {
+        // A step is identified by the number it is published under together
+        // with its title - that is exactly what the visitor sees twice. Ids
+        // and timestamps deliberately take no part, so a re-inserted copy is
+        // still recognised as the same step.
+        $key = (string) ( $row[ 'step_number' ] ?? '' ) . "\n" . trim( (string) ( $row[ 'title' ] ?? '' ) );
+
+        if ( isset( $seen[ $key ] ) ) {
+            $remove[] = (int) $row[ 'id' ];
+            continue;
+        }
+
+        $seen[ $key ] = (int) $row[ 'id' ];
+    }
+
+    if ( !$remove ) {
+        echo 'Process steps: ' . count( $rows ) . " row(s) checked, no duplicates found.\n";
+        return 0;
+    }
+
+    $pdo->beginTransaction();
+    try {
+        $delete = $pdo->prepare( 'DELETE FROM process_steps WHERE id = ?' );
+        foreach ( $remove as $id ) {
+            $delete->execute( [ $id ] );
+        }
+        $pdo->commit();
+    } catch ( Throwable $error ) {
+        if ( $pdo->inTransaction() ) {
+            $pdo->rollBack();
+        }
+        throw $error;
+    }
+
+    $left = count( $rows ) - count( $remove );
+    echo 'Process steps: ' . count( $rows ) . ' row(s) checked, ' . count( $remove )
+        . " duplicate step(s) removed; {$left} unique step(s) remain.\n";
+
+    return count( $remove );
+};
+
+/**
  * Rewrites the public call-to-action wording wherever it is stored in content columns,
  * so the buttons read "Let's Work Together" on the live site and not only in the PHP
  * fallbacks. Idempotent: only the two exact phrases are replaced, so prose, URLs
@@ -329,7 +399,7 @@ $syncPublicLabels = static function () use ( $pdo ): int {
  * Corrects public-facing content that was saved into the database with the
  * wrong value, so it cannot drift back on the next admin edit.
  *
- * Three problems are handled here:
+ * Four problems are handled here:
  *
  *   - The contribute page and the get-involved index are served as .php, but
  *     stored buttons still carried the .html paths, which 404. Hence the button
@@ -337,6 +407,13 @@ $syncPublicLabels = static function () use ( $pdo ): int {
  *   - The chairman's title was saved as "CHAIRMAIN" (and once as "Chairmain" in
  *     a photo caption), so it renders misspelled on the homepage, the chairman
  *     section and the gallery.
+ *   - The organisation's name was stored as "World Relief Committee" in the
+ *     site settings, the chairman's title, the bank account titles, the news
+ *     copy and several section descriptions. Every occurrence in the database
+ *     is the organisation name - verified: no occurrence is followed by
+ *     anything other than " Committee" - so the rewrite is exact and cannot
+ *     touch unrelated prose. The templates now say "Welfare Relief Committee",
+ *     and this keeps stored content in step with them.
  *
  * Runs on every deployment, like the label sync above.
  *
@@ -351,6 +428,8 @@ $syncPublicContent = static function () use ( $pdo ): int {
         [ 'CHAIRMAIN', 'CHAIRMAN' ],
         [ 'Chairmain', 'Chairman' ],
         [ 'chairmain', 'chairman' ],
+        // The organisation's name, as it is spelled in the templates.
+        [ 'World Relief', 'Welfare Relief' ],
     ];
 
     $tables = $pdo->query(
@@ -444,7 +523,7 @@ try {
     if ( $tableExists( 'about_hero' ) ) {
         if ( !$columnExists( 'about_hero', 'section_title' ) ) {
             $pdo->exec( "ALTER TABLE `about_hero` ADD COLUMN `section_title` VARCHAR(255) NOT NULL DEFAULT '' AFTER `id`" );
-            $pdo->exec( "UPDATE `about_hero` SET `section_title` = 'About World Relief Committee' WHERE `section_title` = ''" );
+            $pdo->exec( "UPDATE `about_hero` SET `section_title` = 'About Welfare Relief Committee' WHERE `section_title` = ''" );
             echo "Added the missing `about_hero.section_title` column used by the admin editor.\n";
         }
         if ( !$columnExists( 'about_hero', 'section_subtitle' ) ) {
@@ -455,11 +534,13 @@ try {
 
     // Maintenance that runs on every deployment, including the "already matches"
     // short-circuit below: keeps stored CTA wording in sync with the templates,
-    // rewrites links and misspellings that were saved into the database, and
-    // keeps the photo gallery free of byte-identical duplicate images.
+    // rewrites links and misspellings that were saved into the database, keeps
+    // the photo gallery free of byte-identical duplicate images, and keeps the
+    // "How we work" timeline free of duplicated steps.
     $syncPublicLabels();
     $syncPublicContent();
     $dedupePhotoGallery();
+    $dedupeProcessSteps();
 
     $reasons = $portfolioStatus();
     if ( !$reasons ) {

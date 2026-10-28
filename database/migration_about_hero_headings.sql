@@ -22,5 +22,5 @@ ALTER TABLE `about_hero`
 -- Seed the heading with the wording the public page falls back to, so nothing
 -- visible changes for visitors the first time the column is added.
 UPDATE `about_hero`
-   SET `section_title` = 'About World Relief Committee'
+   SET `section_title` = 'About Welfare Relief Committee'
  WHERE `section_title` = '';

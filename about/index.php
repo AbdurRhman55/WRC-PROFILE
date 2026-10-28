@@ -3,8 +3,8 @@ require_once dirname( __DIR__ ) . '/includes/config.php';
 require_once dirname( __DIR__ ) . '/includes/functions.php';
 
 $base = siteBaseUrl();
-$pageTitle = 'About Us - World Relief Committee (WRC)';
-$metaDescription = 'Learn about World Relief Committee (WRC) - our mission, vision, values, governance, and commitment to transparency in delivering humanitarian aid.';
+$pageTitle = 'About Us - Welfare Relief Committee (WRC)';
+$metaDescription = 'Learn about Welfare Relief Committee (WRC) - our mission, vision, values, governance, and commitment to transparency in delivering humanitarian aid.';
 
 // Read from dedicated tables
 $hero = getRow( 'about_hero' );
@@ -39,7 +39,7 @@ include dirname( __DIR__ ) . '/includes/header.php';
 </nav>
 
 <h1 class = 'text-4xl md:text-5xl lg:text-6xl font-display font-bold text-white leading-tight mb-6 max-w-3xl'>
-<?= ( !empty( $hero[ 'section_title' ] ) ) ? sanitize( $hero[ 'section_title' ] ) : 'About World Relief Committee' ?>
+<?= ( !empty( $hero[ 'section_title' ] ) ) ? sanitize( $hero[ 'section_title' ] ) : 'About Welfare Relief Committee' ?>
 </h1>
 <p class = 'text-lg md:text-xl text-sand-50/80 max-w-2xl mb-10 leading-relaxed'>
 <?= ( !empty( $hero[ 'subtitle' ] ) ) ? sanitize( $hero[ 'subtitle' ] ) : ( !empty( $hero[ 'section_subtitle' ] ) ? sanitize( $hero[ 'section_subtitle' ] ) : 'Dedicated to serving vulnerable communities through compassionate action, transparent governance, and sustainable development since 2005.' ) ?>

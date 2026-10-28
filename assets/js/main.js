@@ -1,5 +1,5 @@
 /**
- * Main JavaScript File for World Relief Committee (WRC) NGO Website
+ * Main JavaScript File for Welfare Relief Committee (WRC) NGO Website
  * Includes Mobile Nested Submenu Accordion, Navbar Scroll Shadow, and Preset Selectors.
  */
 
