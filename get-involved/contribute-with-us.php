@@ -6,7 +6,8 @@ require_once dirname(__DIR__) . '/includes/config.php';
 require_once dirname(__DIR__) . '/includes/functions.php';
 
 $base = siteBaseUrl();
-$pageTitle = 'Let’s Work Together | WRC';
+$pageTitle = 'Let’s Build Impact Together - Partner With WRC | WRC';
+$metaDescription = 'Are you looking to collaborate on a development initiative, explore a funding opportunity, or engage technical expertise? Partner with WRC to create lasting change.';
 
 // Fetch homepage sections
 $homepageSections = getRows('homepage_sections', 'is_active = 1 ORDER BY sort_order ASC');
@@ -48,22 +49,29 @@ include __DIR__ . '/../includes/header.php';
 ?>
 
 <!-- HERO -->
-<section class="relative bg-slate-900 py-16 md:py-20 overflow-hidden min-h-[480px] md:min-h-[540px] lg:min-h-[580px] flex items-center">
-  <div class="absolute inset-0 opacity-50 bg-cover bg-center" style="background-image: url('<?= $base ?><?= $heroData['hero_image'] ?? 'assets/images/contribute-hero.jpg' ?>');"></div>
-  <div class="absolute inset-0 bg-gradient-to-r from-slate-950/70 to-slate-900/50"></div>
+<section class="relative bg-slate-900 py-16 md:py-24 overflow-hidden min-h-[480px] md:min-h-[540px] lg:min-h-[580px] flex items-center">
+  <div class="absolute inset-0 opacity-50 bg-cover bg-center" style="background-image: url('<?= $base ?><?= !empty($heroData['hero_image']) ? $heroData['hero_image'] : 'assets/images/contribute-hero.jpg' ?>');"></div>
+  <div class="absolute inset-0 bg-gradient-to-r from-slate-950/80 via-slate-900/70 to-slate-950/80"></div>
   <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 text-center">
-    <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider bg-brandRed/20 text-red-300 border border-brandRed/30 mb-4">
-      <i class="fa-solid fa-handshake"></i> <?= sanitize($heroData['badge'] ?? 'Make a Difference') ?>
+    <?php
+    $heroBadge = !empty($heroData['badge']) ? $heroData['badge'] : "Let's Work Together";
+    $heroTitle = !empty($heroData['title']) ? $heroData['title'] : "Let's Build Impact Together - Partner With WRC";
+    $heroSubtitle = !empty($heroData['subtitle']) ? $heroData['subtitle'] : "Are you looking to collaborate on a development initiative, explore a funding opportunity, or engage technical expertise for a community-focused project? We welcome partnerships with government institutions, funding agencies, development organizations, and like-minded stakeholders to turn shared goals into meaningful and sustainable outcomes.\n\nLet's work together to create lasting change.";
+    $paragraphs = preg_split('/\r\n\r\n|\n\n/', trim((string) $heroSubtitle));
+    ?>
+    <span class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wider bg-brandRed/20 text-red-300 border border-brandRed/30 mb-5">
+      <i class="fa-solid fa-handshake"></i> <?= sanitize($heroBadge) ?>
     </span>
-    <h1 class="text-4xl sm:text-5xl font-extrabold text-white mb-4 font-heading">
-      <?= sanitize($heroData['title'] ?? 'Let’s Work Together') ?>
+    <h1 class="text-3xl sm:text-4xl md:text-5xl font-extrabold text-white mb-6 font-heading max-w-4xl mx-auto leading-tight">
+      <?= sanitize($heroTitle) ?>
     </h1>
-    <p class="text-slate-300 text-base max-w-2xl mx-auto">
-      <?= sanitize($heroData['subtitle'] ?? 'Every donation brings clean water, food, education, and hope to families in need. Join us in rebuilding lives across Pakistan.') ?>
-    </p>
+    <div class="text-slate-300 text-sm sm:text-base md:text-lg max-w-3xl mx-auto leading-relaxed space-y-4">
+      <?php foreach ($paragraphs as $para): ?>
+        <p><?= sanitize(trim($para)) ?></p>
+      <?php endforeach; ?>
+    </div>
   </div>
 </section>
-
 <!-- DONATION IMPACT -->
 <section class="py-16 bg-white">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

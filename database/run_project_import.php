@@ -381,6 +381,56 @@ $syncProcessSteps = static function () use ( $pdo, $tableExists ): int {
 };
 
 /**
+ * Synchronizes the hero section of the "Let's Work Together" page (contribute_hero).
+ */
+$syncContributeHero = static function () use ( $pdo, $tableExists ): int {
+    if ( !$tableExists( 'contribute_hero' ) ) {
+        return 0;
+    }
+
+    $title    = "Let's Build Impact Together - Partner With WRC";
+    $badge    = "Let's Work Together";
+    $subtitle = "Are you looking to collaborate on a development initiative, explore a funding opportunity, or engage technical expertise for a community-focused project? We welcome partnerships with government institutions, funding agencies, development organizations, and like-minded stakeholders to turn shared goals into meaningful and sustainable outcomes.\n\nLet's work together to create lasting change.";
+
+    $exists = $pdo->query( 'SELECT id FROM contribute_hero LIMIT 1' )->fetch( PDO::FETCH_ASSOC );
+
+    if ( $exists ) {
+        $update = $pdo->prepare(
+            'UPDATE contribute_hero 
+             SET title = ?, badge = ?, subtitle = ?, section_title = ?, section_subtitle = ?
+             WHERE id = ?'
+        );
+        $update->execute( [ $title, $badge, $subtitle, $title, $badge, $exists['id'] ] );
+    } else {
+        $insert = $pdo->prepare(
+            'INSERT INTO contribute_hero (title, badge, subtitle, section_title, section_subtitle, hero_image, is_active)
+             VALUES (?, ?, ?, ?, ?, "assets/images/contribute-hero.jpg", 1)'
+        );
+        $insert->execute( [ $title, $badge, $subtitle, $title, $badge ] );
+    }
+
+    // Also keep homepage_sections entry aligned
+    if ( $tableExists( 'homepage_sections' ) ) {
+        $content = json_encode( [
+            'hero_alt'   => 'Partner With WRC',
+            'badge'      => $badge,
+            'title'      => $title,
+            'subtitle'   => $subtitle,
+            'hero_image' => 'assets/images/contribute-hero.jpg'
+        ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE );
+
+        $pdo->prepare(
+            "UPDATE homepage_sections 
+             SET section_title = ?, section_subtitle = ?, content = ?
+             WHERE section_key = 'contribute_hero'"
+        )->execute( [ $title, $badge, $content ] );
+    }
+
+    echo "Contribute hero: successfully synchronized.\n";
+    return 1;
+};
+
+/**
  * Removes duplicate rows from the homepage "How we work" timeline.
  *
  * process_steps was populated twice: every one of the eight steps exists twice
@@ -884,6 +934,7 @@ try {
     $syncPublicContent();
     $dedupePhotoGallery();
     $syncProcessSteps();
+    $syncContributeHero();
     $dedupeProcessSteps();
     $dedupeSuccessStories();
 
