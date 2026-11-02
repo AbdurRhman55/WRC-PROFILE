@@ -366,7 +366,7 @@ include __DIR__ . '/includes/header.php';
 
             <div class="fade-up relative flex justify-center mt-10">
                 <div
-                    class="relative z-10 flex flex-col items-center text-center max-w-md px-8 py-10 rounded-3xl bg-slate-950 shadow-2xl shadow-slate-950/20">
+                    class="relative z-10 flex flex-col items-center text-center max-w-lg px-8 py-10 rounded-3xl bg-slate-950 shadow-2xl shadow-slate-950/20">
                     <span class="w-11 h-11 rounded-full bg-brandRed flex items-center justify-center mb-4">
                         <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" stroke-width="2"
                             viewBox="0 0 24 24">
@@ -375,11 +375,9 @@ include __DIR__ . '/includes/header.php';
                             <circle cx="12" cy="10" r="2.5" stroke-linecap="round" stroke-linejoin="round" />
                         </svg>
                     </span>
-                    <span class="text-[11px] tracking-[0.25em] uppercase text-brandRed/70 mb-2">Where it all
-                        leads</span>
-                    <h3 class="text-2xl md:text-3xl font-semibold text-white mb-3">Community impact</h3>
-                    <p class="text-sm text-slate-200/80 leading-relaxed">Every stage exists to serve this outcome —
-                        measurable, lasting improvement in the lives of the people we work with.</p>
+                    <span class="text-[11px] tracking-[0.25em] uppercase text-brandRed/70 mb-2">Where It All Leads</span>
+                    <h3 class="text-2xl md:text-3xl font-semibold text-white mb-3">Lasting Community Impact</h3>
+                    <p class="text-sm text-slate-200/80 leading-relaxed">Every initiative we undertake is driven by one purpose: creating meaningful, measurable, and sustainable improvements in the lives of the communities we serve. Through responsible partnerships, effective implementation, and a commitment to accountability, we strive to turn resources into lasting positive change.</p>
                 </div>
             </div>
         </div>
@@ -391,14 +389,10 @@ include __DIR__ . '/includes/header.php';
     <div class="max-w-6xl mx-auto">
 
         <!-- Header -->
-        <div class="max-w-2xl mx-auto text-center mb-10 md:mb-12 reveal">
-            <span class="inline-block font-sans text-xs tracking-[0.25em] uppercase text-brandRed mb-4">Who makes it
-                possible</span>
-            <h2 class="font-display text-4xl md:text-5xl text-slate-950 leading-tight mb-5">Partners &amp; Collaborators
-            </h2>
-            <p class="font-sans text-slate-600 text-base md:text-lg leading-relaxed">Our work is made possible through
-                the trust and support of funding partners, government bodies, and institutions who share our commitment
-                to lasting community impact.</p>
+        <div class="max-w-3xl mx-auto text-center mb-10 md:mb-12 reveal">
+            <span class="inline-block font-sans text-xs tracking-[0.25em] uppercase text-brandRed mb-4">Who Makes It Possible</span>
+            <h2 class="font-display text-4xl md:text-5xl text-slate-950 leading-tight mb-5">Our Partners &amp; Collaborators</h2>
+            <p class="font-sans text-slate-600 text-base md:text-lg leading-relaxed">Meaningful and sustainable development is achieved through strong partnerships. We work alongside funding agencies, government institutions, development organizations, and strategic partners who share our vision of inclusive growth and lasting community impact. Through mutual trust, shared expertise, and collective commitment, we turn opportunities into meaningful action and sustainable outcomes.</p>
         </div>
 
         <!-- Funding partners -->
