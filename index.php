@@ -17,6 +17,74 @@ $activeProjects = getRows('projects', "status = 'active' ORDER BY start_date DES
 $provinces = getRows('provinces', 'is_active = 1 ORDER BY sort_order ASC');
 $kpStats = getRows('impact_stats', "display_page = 'home_kpi' ORDER BY sort_order ASC");
 $processSteps = getRows('process_steps', 'is_active = 1 ORDER BY sort_order ASC');
+if (empty($processSteps)) {
+    $processSteps = [
+        [
+            'step_number' => 1,
+            'title' => 'Funding Opportunity Identification',
+            'description' => 'We proactively identify and assess funding opportunities, including donor programmes, government grants, and strategic partnerships. Each opportunity is evaluated against community needs, organizational priorities, technical capacity, and eligibility requirements.',
+            'color_class' => 'text-brandRed',
+            'dot_color' => 'bg-brandRed',
+            'sort_order' => 1,
+        ],
+        [
+            'step_number' => 2,
+            'title' => 'Proposal Development',
+            'description' => 'Our technical and financial teams work collaboratively to develop evidence-based proposals with clearly defined objectives, measurable outcomes, implementation strategies, realistic budgets, and appropriate monitoring frameworks.',
+            'color_class' => 'text-brandRed',
+            'dot_color' => 'bg-brandRed',
+            'sort_order' => 2,
+        ],
+        [
+            'step_number' => 3,
+            'title' => 'Project Award & Agreement',
+            'description' => 'Upon project approval, we formalize agreements with donors and relevant stakeholders, establish roles and responsibilities, review contractual obligations, and ensure alignment with applicable regulatory and donor compliance requirements.',
+            'color_class' => 'text-brandRed',
+            'dot_color' => 'bg-brandRed',
+            'sort_order' => 3,
+        ],
+        [
+            'step_number' => 4,
+            'title' => 'Project Planning & Mobilization',
+            'description' => 'We translate approved proposals into actionable implementation plans, defining project scope, timelines, resource requirements, procurement arrangements, risk management measures, and stakeholder responsibilities. Project teams and operational resources are mobilized accordingly.',
+            'color_class' => 'text-slate-700',
+            'dot_color' => 'bg-slate-700',
+            'sort_order' => 4,
+        ],
+        [
+            'step_number' => 5,
+            'title' => 'Project Implementation',
+            'description' => 'We execute project activities through coordinated field operations, technical oversight, and active engagement with communities, government departments, and implementation partners. Our focus remains on quality delivery, efficient resource utilization, and achieving agreed objectives.',
+            'color_class' => 'text-slate-700',
+            'dot_color' => 'bg-slate-700',
+            'sort_order' => 5,
+        ],
+        [
+            'step_number' => 6,
+            'title' => 'Monitoring, Evaluation & Quality Assurance',
+            'description' => 'We systematically monitor project progress against established indicators, assess performance and outcomes, conduct field-level reviews, and identify areas requiring improvement. Regular assessments enable timely corrective actions and help maintain implementation quality.',
+            'color_class' => 'text-slate-700',
+            'dot_color' => 'bg-slate-700',
+            'sort_order' => 6,
+        ],
+        [
+            'step_number' => 7,
+            'title' => 'Reporting, Financial Accountability & Transparency',
+            'description' => 'We maintain comprehensive records of project activities, expenditures, achievements, and challenges. Periodic technical and financial reports, expenditure tracking, documentation, and audit-ready records ensure accountability to donors, partners, and relevant stakeholders.',
+            'color_class' => 'text-slate-800',
+            'dot_color' => 'bg-slate-700',
+            'sort_order' => 7,
+        ],
+        [
+            'step_number' => 8,
+            'title' => 'Project Closure & Sustainability',
+            'description' => 'At project completion, we conduct final assessments, reconcile accounts, document lessons learned, finalize deliverables, and facilitate the formal handover of relevant assets and responsibilities. We prioritize sustainability measures to support the continued benefits of project interventions beyond the funding period.',
+            'color_class' => 'text-slate-800',
+            'dot_color' => 'bg-slate-700',
+            'sort_order' => 8,
+        ],
+    ];
+}
 $successStories = getRows('success_stories', 'is_active = 1 ORDER BY sort_order ASC');
 $homepageSections = getRows('homepage_sections', 'is_active = 1 ORDER BY sort_order ASC');
 $homepageMap = [];
@@ -255,9 +323,8 @@ include __DIR__ . '/includes/header.php';
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="mx-auto max-w-3xl text-center mb-20">
             <p class="text-xs uppercase tracking-[0.35em] font-semibold text-brandRed">Our process</p>
-            <h2 class="mt-4 text-3xl sm:text-4xl font-extrabold text-slate-900">How we work</h2>
-            <p class="mt-4 text-sm sm:text-base leading-7 text-slate-600">From the first funding lead to lasting change
-                on the ground — a disciplined, transparent path that every project moves through, start to finish.</p>
+            <h2 class="mt-4 text-3xl sm:text-4xl font-extrabold text-slate-900">How We Work</h2>
+            <p class="mt-4 text-sm sm:text-base leading-7 text-slate-600">From identifying funding opportunities to delivering sustainable impact, we follow a structured, accountable, and transparent project management approach. Every initiative is guided by evidence, collaboration, quality standards, and measurable results.</p>
         </div>
 
         <div class="relative max-w-5xl mx-auto timeline-track">
@@ -504,9 +571,28 @@ include __DIR__ . '/includes/header.php';
                     </div>
                     <p class="text-slate-600 text-sm leading-relaxed italic mb-4">"<?= sanitize($story['quote']) ?>"</p>
                     <div class="flex items-center gap-3 pt-3 border-t border-slate-100">
-                        <div class="w-9 h-9 rounded-full bg-slate-200 overflow-hidden"><img
-                                src="<?= $base ?><?= $story['image_path'] ?: 'assets/images/hero.jpg' ?>" alt="<?= sanitize($story['person_name']) ?>"
+                        <?php
+                        // The portrait beside the name. An uploaded author photo wins;
+                        // otherwise the person's initials are shown rather than
+                        // repeating the story photo, so the two images on a card are
+                        // always distinct. Decorative only - the name is printed
+                        // alongside, so it carries no information for screen readers.
+                        $authorPhoto = trim((string) ($story['author_image'] ?? ''));
+                        if ($authorPhoto === '') {
+                            $nameParts = preg_split('/\s+/', trim((string) $story['person_name']));
+                            $initials  = mb_strtoupper(
+                                mb_substr($nameParts[0] ?? '', 0, 1)
+                                . mb_substr($nameParts[count($nameParts) - 1] ?? '', 0, 1)
+                            );
+                        }
+                        ?>
+                        <?php if ($authorPhoto !== ''): ?>
+                        <div class="w-9 h-9 rounded-full bg-slate-200 overflow-hidden shrink-0"><img
+                                src="<?= $base ?><?= $authorPhoto ?>" alt="<?= sanitize($story['person_name']) ?>"
                                 class="w-full h-full object-cover"></div>
+                        <?php else: ?>
+                        <div class="w-9 h-9 rounded-full bg-brandRed/10 text-brandRed shrink-0 flex items-center justify-center text-[11px] font-bold uppercase tracking-wider" aria-hidden="true"><?= sanitize($initials) ?></div>
+                        <?php endif; ?>
                         <div>
                             <p class="text-sm font-bold text-slate-900"><?= sanitize($story['person_name']) ?></p>
                             <p class="text-[11px] text-slate-400"><?= sanitize($story['person_title']) ?></p>

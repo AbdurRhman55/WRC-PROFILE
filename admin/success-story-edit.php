@@ -37,11 +37,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         ? ($sectors[$data['sector']] ?? $data['sector'])
         : '';
 
-    if (!empty($_POST['image_path'])) {
-        $data['image_path'] = getPostRaw('image_path');
-    } elseif (isset($_FILES['image_file']) && $_FILES['image_file']['error'] === UPLOAD_ERR_OK) {
-        $data['image_path'] = handleUpload($_FILES['image_file'], 'images');
-    }
+    // Both photographs are always written, blank included. Guarding them with
+    // !empty() meant that clearing a photo with the widget's remove button
+    // posted an empty value which was then dropped on the floor, so the old
+    // image reappeared after every save. An empty string is a legitimate
+    // value here: it records that the photograph was removed. (Uploads do not
+    // arrive through $_FILES at all - the widget posts the new file to
+    // ajax-upload.php and writes the returned path into these same fields.)
+    $data['image_path']   = getPostRaw('image_path');
+    $data['author_image'] = getPostRaw('author_image');
 
     if (!$data['person_name'] || !$data['quote']) {
         setFlash('error', 'Name and quote are required.');
@@ -116,9 +120,11 @@ include __DIR__ . '/includes/header.php';
   </div>
 
   <div class="bg-white rounded-2xl border border-slate-200 p-6">
-    <h2 class="text-sm font-bold text-slate-900 uppercase tracking-wider mb-4">Photo</h2>
-    <div class="md:col-span-2">
-      <?php uploadWidget('image_path', 'Person Photo', $story['image_path'] ?? '', 'image', 'story_image_upload'); ?>
+    <h2 class="text-sm font-bold text-slate-900 uppercase tracking-wider mb-4">Photographs</h2>
+    <p class="text-xs text-slate-500 mb-4 leading-relaxed">The story photo is the large image at the top of the card. The author photo is the small portrait shown beside the name - if it is left blank the card falls back to the person's initials, so it is never a duplicate of the story photo. Both can be uploaded, replaced or removed here.</p>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <?php uploadWidget('image_path', 'Story Photo', $story['image_path'] ?? '', 'image', 'story_image_upload'); ?>
+      <?php uploadWidget('author_image', 'Author Photo (optional)', $story['author_image'] ?? '', 'image', 'story_author_upload'); ?>
     </div>
   </div>
 

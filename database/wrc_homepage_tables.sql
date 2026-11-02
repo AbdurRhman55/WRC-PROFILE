@@ -29,6 +29,7 @@ CREATE TABLE IF NOT EXISTS success_stories (
     location VARCHAR(255),
     quote TEXT NOT NULL,
     image_path VARCHAR(500),
+    author_image VARCHAR(500),
     sector VARCHAR(100),
     sector_badge VARCHAR(50),
     is_active TINYINT(1) NOT NULL DEFAULT 1,
@@ -64,24 +65,28 @@ CREATE TABLE IF NOT EXISTS homepage_sections (
 -- table first and only then replaces its contents.
 DELETE FROM process_steps;
 INSERT INTO process_steps (step_number, title, description, color_class, dot_color, sort_order) VALUES
-(1, 'Funding opportunity', 'We scan donor calls, government grants, and partnership openings, screening each against community needs and our technical capacity before pursuing it.', 'text-brandRed', 'bg-brandRed', 1),
-(2, 'Proposal development', 'Technical and finance teams co-author a proposal with clear objectives, a realistic budget, and evidence drawn from prior assessments in the field.', 'text-brandRed', 'bg-brandRed', 2),
-(3, 'Project award', 'Once selected, we formalize the agreement with the donor, confirm compliance requirements, and mobilize the core project team.', 'text-brandRed', 'bg-brandRed', 3),
-(4, 'Planning', 'We map scope, timelines, and responsibilities with local stakeholders, turning the proposal into a workable operational plan.', 'text-slate-700', 'bg-slate-700', 4),
-(5, 'Implementation', 'Activities move onto the ground, delivered with technical rigor and close coordination with the communities and institutions we serve.', 'text-slate-700', 'bg-slate-700', 5),
-(6, 'Monitoring & evaluation', 'Indicators are tracked against the plan, so we can catch issues early and adjust course before they affect outcomes.', 'text-slate-700', 'bg-slate-700', 6),
-(7, 'Reporting', 'Results, spending, and lessons learned are documented clearly for funders, partners, and the communities involved.', 'text-slate-800', 'bg-slate-700', 7),
-(8, 'Project closure', 'Deliverables are finalized, accounts reconciled, and the project formally handed over to the communities and institutions that will sustain it.', 'text-slate-800', 'bg-slate-700', 8);
+(1, 'Funding Opportunity Identification', 'We proactively identify and assess funding opportunities, including donor programmes, government grants, and strategic partnerships. Each opportunity is evaluated against community needs, organizational priorities, technical capacity, and eligibility requirements.', 'text-brandRed', 'bg-brandRed', 1),
+(2, 'Proposal Development', 'Our technical and financial teams work collaboratively to develop evidence-based proposals with clearly defined objectives, measurable outcomes, implementation strategies, realistic budgets, and appropriate monitoring frameworks.', 'text-brandRed', 'bg-brandRed', 2),
+(3, 'Project Award & Agreement', 'Upon project approval, we formalize agreements with donors and relevant stakeholders, establish roles and responsibilities, review contractual obligations, and ensure alignment with applicable regulatory and donor compliance requirements.', 'text-brandRed', 'bg-brandRed', 3),
+(4, 'Project Planning & Mobilization', 'We translate approved proposals into actionable implementation plans, defining project scope, timelines, resource requirements, procurement arrangements, risk management measures, and stakeholder responsibilities. Project teams and operational resources are mobilized accordingly.', 'text-slate-700', 'bg-slate-700', 4),
+(5, 'Project Implementation', 'We execute project activities through coordinated field operations, technical oversight, and active engagement with communities, government departments, and implementation partners. Our focus remains on quality delivery, efficient resource utilization, and achieving agreed objectives.', 'text-slate-700', 'bg-slate-700', 5),
+(6, 'Monitoring, Evaluation & Quality Assurance', 'We systematically monitor project progress against established indicators, assess performance and outcomes, conduct field-level reviews, and identify areas requiring improvement. Regular assessments enable timely corrective actions and help maintain implementation quality.', 'text-slate-700', 'bg-slate-700', 6),
+(7, 'Reporting, Financial Accountability & Transparency', 'We maintain comprehensive records of project activities, expenditures, achievements, and challenges. Periodic technical and financial reports, expenditure tracking, documentation, and audit-ready records ensure accountability to donors, partners, and relevant stakeholders.', 'text-slate-800', 'bg-slate-700', 7),
+(8, 'Project Closure & Sustainability', 'At project completion, we conduct final assessments, reconcile accounts, document lessons learned, finalize deliverables, and facilitate the formal handover of relevant assets and responsibilities. We prioritize sustainability measures to support the continued benefits of project interventions beyond the funding period.', 'text-slate-800', 'bg-slate-700', 8);
 
 -- Success Stories
 -- Same idempotency guard as the process steps above: without it, re-running
 -- this file duplicated every testimonial, which made the homepage show the
 -- same person and photograph twice and made admin edits look like no-ops.
 DELETE FROM success_stories;
-INSERT INTO success_stories (person_name, person_title, location, quote, image_path, sector, sector_badge, sort_order) VALUES
-('Zainab Bibi', 'Community Beneficiary', 'Peshawar, KP', 'Before WRC installed the water well, my children walked 3km each day for water. Now they go to school instead. Our family''s health has completely transformed.', 'assets/images/water.jpg', 'WASH', 'WASH', 1),
-('Ahmed Khan', 'Farmer, Sindh', 'Sukkur, Sindh', 'When the floods destroyed our crops, WRC food packs kept my family alive for three months. They didn''t just bring food — they brought hope back to our village.', 'assets/images/food.jpg', 'Food Security', 'Food Security', 2),
-('Fatima Noor', 'Mother of 3, Punjab', 'Lahore, Punjab', 'My daughter was about to drop out of school because we couldn''t afford books. WRC gave her a complete kit and now she''s top of her class. Education changes everything.', 'assets/images/hero-slider-3.jpg', 'Education', 'Education', 3);
+-- The photographs are WRC's own field photos: a WASH training session, flood
+-- damage in Swat, and a government school prize distribution. author_image is
+-- left NULL - the card falls back to the person's initials, so the portrait is
+-- never a copy of the story photo.
+INSERT INTO success_stories (person_name, person_title, location, quote, image_path, author_image, sector, sector_badge, sort_order) VALUES
+('Zainab Bibi', 'Community Beneficiary', 'Peshawar, KP', 'Before WRC installed the water well, my children walked 3km each day for water. Now they go to school instead. Our family''s health has completely transformed.', 'assets/images/gallery/9.JPG', NULL, 'WASH', 'WASH', 1),
+('Ahmed Khan', 'Farmer, Sindh', 'Sukkur, Sindh', 'When the floods destroyed our crops, WRC food packs kept my family alive for three months. They didn''t just bring food — they brought hope back to our village.', 'assets/images/projects/flood-swat.jpg', NULL, 'Food Security', 'Food Security', 2),
+('Fatima Noor', 'Mother of 3, Punjab', 'Lahore, Punjab', 'My daughter was about to drop out of school because we couldn''t afford books. WRC gave her a complete kit and now she''s top of her class. Education changes everything.', 'assets/images/gallery/11.JPG', NULL, 'Education', 'Education', 3);
 
 -- Homepage Sections (Chairman Message + CTA)
 -- This one uses INSERT IGNORE rather than a DELETE guard: section_key is

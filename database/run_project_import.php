@@ -268,6 +268,119 @@ $dedupePhotoGallery = static function () use ( $pdo ): int {
 };
 
 /**
+ * Synchronizes the 8 professional process steps for the homepage "How We Work" section.
+ *
+ * Ensures each step has the exact approved professional title, description,
+ * colors and sort order.
+ *
+ * Returns the number of steps synchronized.
+ */
+$syncProcessSteps = static function () use ( $pdo, $tableExists ): int {
+    if ( !$tableExists( 'process_steps' ) ) {
+        echo "Process steps: table not present, sync skipped.\n";
+        return 0;
+    }
+
+    $steps = [
+        [
+            'step_number' => 1,
+            'title'       => 'Funding Opportunity Identification',
+            'description' => 'We proactively identify and assess funding opportunities, including donor programmes, government grants, and strategic partnerships. Each opportunity is evaluated against community needs, organizational priorities, technical capacity, and eligibility requirements.',
+            'color_class' => 'text-brandRed',
+            'dot_color'   => 'bg-brandRed',
+            'sort_order'  => 1,
+        ],
+        [
+            'step_number' => 2,
+            'title'       => 'Proposal Development',
+            'description' => 'Our technical and financial teams work collaboratively to develop evidence-based proposals with clearly defined objectives, measurable outcomes, implementation strategies, realistic budgets, and appropriate monitoring frameworks.',
+            'color_class' => 'text-brandRed',
+            'dot_color'   => 'bg-brandRed',
+            'sort_order'  => 2,
+        ],
+        [
+            'step_number' => 3,
+            'title'       => 'Project Award & Agreement',
+            'description' => 'Upon project approval, we formalize agreements with donors and relevant stakeholders, establish roles and responsibilities, review contractual obligations, and ensure alignment with applicable regulatory and donor compliance requirements.',
+            'color_class' => 'text-brandRed',
+            'dot_color'   => 'bg-brandRed',
+            'sort_order'  => 3,
+        ],
+        [
+            'step_number' => 4,
+            'title'       => 'Project Planning & Mobilization',
+            'description' => 'We translate approved proposals into actionable implementation plans, defining project scope, timelines, resource requirements, procurement arrangements, risk management measures, and stakeholder responsibilities. Project teams and operational resources are mobilized accordingly.',
+            'color_class' => 'text-slate-700',
+            'dot_color'   => 'bg-slate-700',
+            'sort_order'  => 4,
+        ],
+        [
+            'step_number' => 5,
+            'title'       => 'Project Implementation',
+            'description' => 'We execute project activities through coordinated field operations, technical oversight, and active engagement with communities, government departments, and implementation partners. Our focus remains on quality delivery, efficient resource utilization, and achieving agreed objectives.',
+            'color_class' => 'text-slate-700',
+            'dot_color'   => 'bg-slate-700',
+            'sort_order'  => 5,
+        ],
+        [
+            'step_number' => 6,
+            'title'       => 'Monitoring, Evaluation & Quality Assurance',
+            'description' => 'We systematically monitor project progress against established indicators, assess performance and outcomes, conduct field-level reviews, and identify areas requiring improvement. Regular assessments enable timely corrective actions and help maintain implementation quality.',
+            'color_class' => 'text-slate-700',
+            'dot_color'   => 'bg-slate-700',
+            'sort_order'  => 6,
+        ],
+        [
+            'step_number' => 7,
+            'title'       => 'Reporting, Financial Accountability & Transparency',
+            'description' => 'We maintain comprehensive records of project activities, expenditures, achievements, and challenges. Periodic technical and financial reports, expenditure tracking, documentation, and audit-ready records ensure accountability to donors, partners, and relevant stakeholders.',
+            'color_class' => 'text-slate-800',
+            'dot_color'   => 'bg-slate-700',
+            'sort_order'  => 7,
+        ],
+        [
+            'step_number' => 8,
+            'title'       => 'Project Closure & Sustainability',
+            'description' => 'At project completion, we conduct final assessments, reconcile accounts, document lessons learned, finalize deliverables, and facilitate the formal handover of relevant assets and responsibilities. We prioritize sustainability measures to support the continued benefits of project interventions beyond the funding period.',
+            'color_class' => 'text-slate-800',
+            'dot_color'   => 'bg-slate-700',
+            'sort_order'  => 8,
+        ],
+    ];
+
+    $pdo->beginTransaction();
+    try {
+        $pdo->exec( 'DELETE FROM process_steps' );
+
+        $insert = $pdo->prepare(
+            'INSERT INTO process_steps (step_number, title, description, color_class, dot_color, is_active, sort_order)
+             VALUES (?, ?, ?, ?, ?, 1, ?)'
+        );
+
+        foreach ( $steps as $step ) {
+            $insert->execute( [
+                $step['step_number'],
+                $step['title'],
+                $step['description'],
+                $step['color_class'],
+                $step['dot_color'],
+                $step['sort_order'],
+            ] );
+        }
+
+        $pdo->commit();
+        echo 'Process steps: successfully synced ' . count( $steps ) . " professional steps.\n";
+        return count( $steps );
+    } catch ( Throwable $error ) {
+        if ( $pdo->inTransaction() ) {
+            $pdo->rollBack();
+        }
+        fwrite( STDERR, "WARNING: could not sync process_steps: " . $error->getMessage() . "\n" );
+        return 0;
+    }
+};
+
+/**
  * Removes duplicate rows from the homepage "How we work" timeline.
  *
  * process_steps was populated twice: every one of the eight steps exists twice
@@ -414,6 +527,108 @@ $dedupeSuccessStories = static function () use ( $pdo, $tableExists ): int {
 };
 
 /**
+ * Unwinds HTML-entity encoding that earlier saves wrote into stored content.
+ *
+ * getPost() used to escape on input while every template escaped again on
+ * output, so each save stacked another layer: "&" became "&amp;", a further
+ * edit made that "&amp;amp", and so on. Visitors read the literal characters
+ * "&amp;" wherever an ampersand belonged - 174 places on the live site.
+ *
+ * Content is now stored exactly as it is typed (@see getPost()), so this puts
+ * historical rows in step with it. Decoding repeats until the value stops
+ * changing, which unwinds any number of accumulated layers, and is idempotent:
+ * text already stored plainly matches none of the LIKE predicates. JSON columns
+ * are only rewritten when the result still parses, so a decoded quote mark can
+ * never corrupt a structured document.
+ *
+ * Returns the number of values rewritten.
+ */
+$normalizeStoredHtml = static function () use ( $pdo, $tableExists ): int {
+    $tables = $pdo->query(
+        "SELECT table_name FROM information_schema.tables
+         WHERE table_schema = DATABASE() AND table_type = 'BASE TABLE'"
+    )->fetchAll( PDO::FETCH_COLUMN );
+
+    $rewritten = 0;
+
+    foreach ( $tables as $table ) {
+        if ( !$tableExists( $table ) ) {
+            continue;
+        }
+
+        $columns = $pdo->query( "SHOW COLUMNS FROM `{$table}`" )->fetchAll( PDO::FETCH_ASSOC );
+        $hasId   = false;
+        foreach ( $columns as $column ) {
+            if ( $column[ 'Field' ] === 'id' ) {
+                $hasId = true;
+                break;
+            }
+        }
+        if ( !$hasId ) {
+            continue;
+        }
+
+        foreach ( $columns as $column ) {
+            $type = (string) $column[ 'Type' ];
+            if ( !preg_match( '/char|text|enum|set|json/i', $type ) ) {
+                continue;
+            }
+
+            $field = $column[ 'Field' ];
+            if ( $field === 'id' ) {
+                continue;
+            }
+            $isJson = strtolower( $type ) === 'json';
+
+            try {
+                $rows = $pdo->query(
+                    "SELECT id, `{$field}` FROM `{$table}`
+                     WHERE `{$field}` LIKE '%&amp;%' OR `{$field}` LIKE '%&#0%'
+                        OR `{$field}` LIKE '%&lt;%'   OR `{$field}` LIKE '%&gt;%'
+                        OR `{$field}` LIKE '%&quot;%' OR `{$field}` LIKE '%&apos;%'"
+                )->fetchAll( PDO::FETCH_ASSOC );
+            } catch ( Throwable $error ) {
+                continue;
+            }
+
+            if ( !$rows ) {
+                continue;
+            }
+
+            $update = $pdo->prepare( "UPDATE `{$table}` SET `{$field}` = ? WHERE id = ?" );
+
+            foreach ( $rows as $row ) {
+                $original = (string) $row[ $field ];
+                $value    = $original;
+
+                for ( $pass = 0; $pass < 8; $pass++ ) {
+                    $decoded = html_entity_decode( $value, ENT_QUOTES | ENT_HTML5, 'UTF-8' );
+                    if ( $decoded === $value ) {
+                        break;
+                    }
+                    $value = $decoded;
+                }
+
+                if ( $value === $original ) {
+                    continue;
+                }
+
+                if ( $isJson && json_decode( $value, true ) === null && json_last_error() !== JSON_ERROR_NONE ) {
+                    continue;
+                }
+
+                $update->execute( [ $value, $row[ 'id' ] ] );
+                $rewritten += $update->rowCount();
+            }
+        }
+    }
+
+    echo 'Stored HTML entities: ' . $rewritten . " value(s) unwound to plain text.\n";
+
+    return $rewritten;
+};
+
+/**
  * Rewrites the public call-to-action wording wherever it is stored in content columns,
  * so the buttons read "Let's Work Together" on the live site and not only in the PHP
  * fallbacks. Idempotent: only the two exact phrases are replaced, so prose, URLs
@@ -504,15 +719,17 @@ $syncPublicContent = static function () use ( $pdo ): int {
         [ 'CHAIRMAIN', 'CHAIRMAN' ],
         [ 'Chairmain', 'Chairman' ],
         [ 'chairmain', 'chairman' ],
-        // The organisation's name, as it is spelled in the templates. Two
+        // The organisation's name, as it is spelled in the templates. Three
         // rules rather than one so every database converges regardless of
         // which spelling it currently holds: the original "World Relief"
-        // found on live, and the interim "Welfare Relief" a database may
-        // already carry. Applying them in this order is safe and idempotent
-        // - rewriting the first rule produces "Welfare & Relief", which the
-        // second rule deliberately no longer matches.
+        // found on live, the interim "Welfare Relief" a database may already
+        // carry, and the spelled-out "Welfare and Relief" some prose was
+        // written with. Applying them in this order is safe and idempotent -
+        // rewriting the first rule produces "Welfare & Relief", which the
+        // later rules deliberately no longer match.
         [ 'World Relief', 'Welfare & Relief' ],
         [ 'Welfare Relief', 'Welfare & Relief' ],
+        [ 'Welfare and Relief', 'Welfare & Relief' ],
     ];
 
     $tables = $pdo->query(
@@ -615,15 +832,58 @@ try {
         }
     }
 
+    // Each success story is shown with two photographs: the large story photo
+    // and the small portrait beside the author's name. Only one column existed,
+    // so the two were forced to display the same file and the portrait could
+    // never be set, replaced or cleared on its own.
+    if ( $tableExists( 'success_stories' ) && !$columnExists( 'success_stories', 'author_image' ) ) {
+        $pdo->exec( "ALTER TABLE `success_stories` ADD COLUMN `author_image` VARCHAR(500) NULL AFTER `image_path`" );
+        echo "Added the missing `success_stories.author_image` column used by the admin editor.\n";
+    }
+
+    // The seeded stories pointed at stock photographs that have nothing to do
+    // with this organisation's work. Point them at WRC's own field photos, but
+    // only while they still hold one of those stock paths: once an
+    // administrator has chosen a photograph of their own, a deployment must not
+    // overwrite their choice.
+    if ( $tableExists( 'success_stories' ) && $columnExists( 'success_stories', 'author_image' ) ) {
+        $replacements = [
+            'assets/images/water.jpg'         => 'assets/images/gallery/9.JPG',
+            'assets/images/food.jpg'          => 'assets/images/projects/flood-swat.jpg',
+            'assets/images/hero-slider-3.jpg' => 'assets/images/gallery/11.JPG',
+        ];
+        $replaced     = 0;
+
+        // Matched one path at a time. An earlier version matched every stock
+        // path in a single WHERE, so the first pass rewrote all three rows to
+        // the same photograph.
+        foreach ( $replacements as $stock => $real ) {
+            $statement = $pdo->prepare(
+                "UPDATE `success_stories` SET `image_path` = ? WHERE `image_path` = ?"
+            );
+            $statement->execute( [ $real, $stock ] );
+            $replaced += $statement->rowCount();
+        }
+
+        if ( $replaced ) {
+            echo "Replaced {$replaced} stock success-story photograph(s) with WRC's own field photos.\n";
+        }
+    }
+
     // Maintenance that runs on every deployment, including the "already matches"
     // short-circuit below: keeps stored CTA wording in sync with the templates,
     // rewrites links and misspellings that were saved into the database, keeps
     // the photo gallery free of byte-identical duplicate images, keeps the
     // "How we work" timeline free of duplicated steps, and keeps the success
     // stories free of duplicated people.
+    // First of all: every rule below matches on plain text, so entities that
+    // earlier saves wrote into stored content have to be unwound before any of
+    // them can see "Welfare & Relief" as it is actually spelled.
+    $normalizeStoredHtml();
     $syncPublicLabels();
     $syncPublicContent();
     $dedupePhotoGallery();
+    $syncProcessSteps();
     $dedupeProcessSteps();
     $dedupeSuccessStories();
 

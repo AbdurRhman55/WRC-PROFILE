@@ -750,8 +750,21 @@ function isPost(): bool {
     return $_SERVER[ 'REQUEST_METHOD' ] === 'POST';
 }
 
+/**
+ * Returns the posted value exactly as the author typed it.
+ *
+ * This deliberately does NOT run sanitize()/htmlspecialchars() on the way in.
+ * Escaping belongs at the point of output, and every template that renders
+ * stored content already escapes via sanitize() or htmlspecialchars(). Doing
+ * it here as well double-encoded on every save: a plain apostrophe was stored
+ * as "&#039;", and with repeated edits "&" compounded into "&amp;", then
+ * "&amp;amp;", and further - which is what left visitors reading the literal
+ * text "&amp;" in place of an ampersand. trim() is all that is wanted here.
+ *
+ * @see sanitize() - the matching escape, applied when rendering.
+ */
 function getPost( string $key, string $default = '' ): string {
-    return isset( $_POST[ $key ] ) ? sanitize( $_POST[ $key ] ) : $default;
+    return isset( $_POST[ $key ] ) ? trim( (string) $_POST[ $key ] ) : $default;
 }
 
 function getPostRaw( string $key, string $default = '' ): string {
