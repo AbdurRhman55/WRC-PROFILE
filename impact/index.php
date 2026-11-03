@@ -59,7 +59,7 @@ $sdgs = $contentData['sdgs'] ?? [
 ];
 
 // Case Studies
-$caseStudies = $contentData['case_studies'] ?? [
+$caseStudies = getRows('success_stories', 'is_active = 1 ORDER BY sort_order ASC');
     [
         'image' => '../assets/images/water.jpg',
         'category' => 'WASH',
@@ -265,7 +265,7 @@ include dirname(__DIR__) . '/includes/header.php';
       <?php foreach ($caseStudies as $cs): ?>
       <article class="bg-slate-50 rounded-[2rem] border border-slate-200 overflow-hidden group hover:shadow-xl transition-all duration-300 hover:-translate-y-1 flex flex-col">
         <div class="relative h-56 overflow-hidden">
-          <img src="<?= $cs['image'] ?>" alt="<?= sanitize($cs['title']) ?>" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+          <img src="<?= $cs['image_path'] ?>" alt="<?= sanitize($cs['title']) ?>" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
           <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/20 to-transparent"></div>
           <div class="absolute top-4 left-4">
             <span class="px-3 py-1 rounded-full bg-<?= $cs['categoryColor'] ?> text-white text-[11px] font-semibold uppercase tracking-wider"><?= sanitize($cs['category']) ?></span>

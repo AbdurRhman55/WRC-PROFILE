@@ -85,7 +85,7 @@ if (empty($processSteps)) {
         ],
     ];
 }
-$successStories = getRows('success_stories', 'is_active = 1 ORDER BY sort_order ASC');
+$successStories = getRows('success_stories', 'is_active = 1 ORDER BY sort_order ASC LIMIT 3');
 $homepageSections = getRows('homepage_sections', 'is_active = 1 ORDER BY sort_order ASC');
 $homepageMap = [];
 foreach ($homepageSections as $s) $homepageMap[$s['section_key']] = $s;
@@ -596,7 +596,7 @@ include __DIR__ . '/includes/header.php';
             </div>
             <?php endforeach; ?>
         </div>
-        <div class="text-center mt-10"><a href="<?= $base ?>impact/index.html#case-studies"
+        <div class="text-center mt-10"><a href="<?= $base ?>impact#case-studies"
                 class="inline-flex items-center gap-2 bg-brandRed hover:bg-brandRed-hover text-white text-sm font-bold px-6 py-3 rounded-xl transition-all shadow-lg shadow-brandRed/20">Read
                 More Stories <i class="fa-solid fa-arrow-right text-xs"></i></a></div>
     </div>
