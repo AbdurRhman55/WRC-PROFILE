@@ -58,42 +58,12 @@ $sdgs = $contentData['sdgs'] ?? [
     ['number' => '13', 'title' => 'Climate Action', 'desc' => 'WRC integrates climate resilience into disaster preparedness, promotes renewable energy access, and supports reforestation and environmental restoration projects.', 'color' => 'emerald-700', 'bg' => 'emerald', 'progress' => '64', 'tags' => ['50,000 Trees Planted', '15 Solar Installations'], 'icon' => 'fa-leaf'],
 ];
 
-// Case Studies
+// Case Studies - taken from the same stories the dashboard manages, so an edit
+// in the admin panel updates the homepage and this page together. The hardcoded
+// copies that used to sit here were left behind when this query was introduced:
+// the dangling array after the semicolon was a PHP parse error, and on a server
+// that hides error output it surfaced as "HTTP ERROR 500" for the whole page.
 $caseStudies = getRows('success_stories', 'is_active = 1 ORDER BY sort_order ASC');
-    [
-        'image' => '../assets/images/water.jpg',
-        'category' => 'WASH',
-        'categoryColor' => 'blue-500',
-        'title' => 'Clean Water for Nowshera: A Community Transformed',
-        'desc' => 'In 2023, WRC installed 35 deep tube wells across 12 villages in Nowshera District, providing clean drinking water to over 8,000 residents previously dependent on contaminated sources.',
-        'stats' => [['val' => '8,200', 'label' => 'People Served'], ['val' => '35', 'label' => 'Wells Built'], ['val' => '12', 'label' => 'Villages']],
-        'quote' => '"Before the wells, my children walked 3 km daily for water that made them sick. Now they have clean water at school and more time to study."',
-        'author' => '— Fatima Bibi, Mother of 4, Nowshera',
-        'outcome' => 'Outcome: Waterborne diseases reduced by 62% in target villages.',
-    ],
-    [
-        'image' => '../assets/images/hero-slider-3.jpg',
-        'category' => 'Education',
-        'categoryColor' => 'red-600',
-        'title' => 'Bright Futures: Orphan Education in Peshawar',
-        'desc' => 'WRC\'s orphan sponsorship program enrolled 1,200 children in Peshawar, providing school kits, uniforms, tuition support, and after-school tutoring for 18 months.',
-        'stats' => [['val' => '1,200', 'label' => 'Children Enrolled'], ['val' => '92%', 'label' => 'Pass Rate'], ['val' => '8', 'label' => 'Schools']],
-        'quote' => '"I want to become a doctor. WRC helped me stay in school when my family could not afford it. I am now first in my class."',
-        'author' => '— Ayesha Khan, Student, Grade 8',
-        'outcome' => 'Outcome: 92% exam pass rate; dropout rate reduced from 34% to 4%.',
-    ],
-    [
-        'image' => '../assets/images/food.jpg',
-        'category' => 'Food Security',
-        'categoryColor' => 'amber-500',
-        'title' => 'Emergency Flood Relief in Sindh: Feeding Thousands',
-        'desc' => 'During the 2023 Pakistan floods, WRC distributed 12,000 emergency food packages and set up 8 community kitchens in Sukkhur and Dadu districts within 72 hours.',
-        'stats' => [['val' => '12,000', 'label' => 'Food Packages'], ['val' => '48,000', 'label' => 'People Fed'], ['val' => '72 hrs', 'label' => 'Response Time']],
-        'quote' => '"When the flood destroyed everything, WRC arrived with food for our entire village within three days. They saved us from starvation."',
-        'author' => '— Muhammad Raza, Farmer, Sukkur',
-        'outcome' => 'Outcome: Zero malnutrition deaths in target areas; 100% distribution transparency.',
-    ],
-];
 
 // CTA Section
 $ctaRow = getRow('homepage_sections', ['section_key' => 'impact_cta']);
@@ -263,36 +233,44 @@ include dirname(__DIR__) . '/includes/header.php';
 
     <div class="grid gap-8 lg:grid-cols-3">
       <?php foreach ($caseStudies as $cs): ?>
+      <?php
+        // These rows come from success_stories, which has a different shape from
+        // the old hardcoded array: there is no title/desc/stats/outcome column.
+        // The person's name is the headline, the sector is the badge, and the
+        // testimonial is the body.
+        $csPhoto = trim((string) ($cs['image_path'] ?? ''));
+        $csBadge = trim((string) ($cs['sector_badge'] ?? '')) ?: trim((string) ($cs['sector'] ?? ''));
+        $csMeta  = implode(' · ', array_filter([
+            trim((string) ($cs['person_title'] ?? '')),
+            trim((string) ($cs['location'] ?? '')),
+        ]));
+      ?>
       <article class="bg-slate-50 rounded-[2rem] border border-slate-200 overflow-hidden group hover:shadow-xl transition-all duration-300 hover:-translate-y-1 flex flex-col">
-        <div class="relative h-56 overflow-hidden">
-          <img src="<?= $cs['image_path'] ?>" alt="<?= sanitize($cs['title']) ?>" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+        <div class="relative h-56 overflow-hidden bg-slate-200">
+          <?php if ($csPhoto !== ''): ?>
+          <img src="<?= $base ?><?= sanitize($csPhoto) ?>" alt="<?= sanitize($cs['person_name']) ?>" loading="lazy"
+            class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+          <?php endif; ?>
           <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/20 to-transparent"></div>
+          <?php if ($csBadge !== ''): ?>
           <div class="absolute top-4 left-4">
-            <span class="px-3 py-1 rounded-full bg-<?= $cs['categoryColor'] ?> text-white text-[11px] font-semibold uppercase tracking-wider"><?= sanitize($cs['category']) ?></span>
+            <span class="px-3 py-1 rounded-full bg-brandRed text-white text-[11px] font-semibold uppercase tracking-wider"><?= sanitize($csBadge) ?></span>
           </div>
+          <?php endif; ?>
           <div class="absolute bottom-4 left-4 right-4">
-            <h3 class="text-xl font-bold text-white leading-tight"><?= sanitize($cs['title']) ?></h3>
+            <h3 class="text-xl font-bold text-white leading-tight"><?= sanitize($cs['person_name']) ?></h3>
           </div>
         </div>
         <div class="p-5 sm:p-6 flex-1 flex flex-col">
-          <p class="text-slate-600 text-sm leading-6 mb-4"><?= sanitize($cs['desc']) ?></p>
-
-          <div class="grid grid-cols-3 gap-3 mb-4">
-            <?php foreach ($cs['stats'] as $csStat): ?>
-            <div class="text-center p-2 bg-white rounded-xl border border-slate-100">
-              <div class="text-lg font-bold text-slate-900"><?= sanitize($csStat['val']) ?></div>
-              <div class="text-[10px] text-slate-500"><?= sanitize($csStat['label']) ?></div>
-            </div>
-            <?php endforeach; ?>
+          <div class="bg-white border-l-4 border-brandRed rounded-r-xl p-4">
+            <p class="text-slate-600 text-sm italic leading-relaxed"><?= sanitize($cs['quote']) ?></p>
           </div>
 
-          <div class="bg-white border-l-4 border-brandRed rounded-r-xl p-3 mb-4">
-            <p class="text-slate-600 text-xs italic leading-relaxed"><?= sanitize($cs['quote']) ?></p>
-            <p class="text-slate-900 text-xs font-semibold mt-2"><?= sanitize($cs['author']) ?></p>
-          </div>
-
-          <div class="mt-auto pt-3 border-t border-slate-200">
-            <p class="text-[11px] text-green-600 font-semibold"><i class="fa-solid fa-check-circle mr-1"></i> <?= sanitize($cs['outcome']) ?></p>
+          <div class="mt-auto pt-4">
+            <p class="text-slate-900 text-xs font-semibold"><?= sanitize($cs['person_name']) ?></p>
+            <?php if ($csMeta !== ''): ?>
+            <p class="text-slate-500 text-[11px] mt-0.5"><?= sanitize($csMeta) ?></p>
+            <?php endif; ?>
           </div>
         </div>
       </article>
