@@ -69,30 +69,57 @@ include dirname( __DIR__ ) . '/includes/header.php';
 </section>
 
 <!-- AREAS OF IMPACT -->
-<?php $impactItems = $impactData[ 'items' ] ?? [];
+<?php
+$impactItems   = $impactData[ 'items' ] ?? [];
+$impactTotal   = max( 1, count( $impactItems ) );
+// One accent per sector keeps the six cards visually distinct without adding
+// another editable field to the dashboard.
+$sectorAccents = [ '#c8102e', '#0f766e', '#0369a1', '#b45309', '#6d28d9', '#be123c' ];
+$impactIntro   = 'We take a comprehensive approach to community development, addressing immediate humanitarian needs while implementing sustainable solutions that strengthen communities and improve quality of life. Our work focuses on key sectors where strategic interventions can create meaningful and lasting impact.';
 ?>
 <section class = 'py-24 bg-slate-50 border-t border-slate-200'>
 <div class = 'container mx-auto px-4 sm:px-6 lg:px-8'>
-<div class = 'text-center mb-16 max-w-2xl mx-auto'>
-<h2 class = 'text-3xl font-display font-bold text-slate-900 mb-4'>
+<div class = 'text-center mb-16 max-w-3xl mx-auto'>
+<div class = 'inline-flex items-center gap-2 bg-white border border-slate-200 text-brandRed text-[11px] font-bold uppercase tracking-[0.18em] px-4 py-1.5 rounded-full mb-5 shadow-sm'>
+<i class = 'fa-solid fa-layer-group'></i> What We Do
+</div>
+<h2 class = 'text-3xl md:text-4xl font-display font-bold text-slate-900 mb-4'>
 <?= ( !empty( $impact[ 'section_title' ] ) ) ? sanitize( $impact[ 'section_title' ] ) : 'Our Areas of Impact' ?>
 </h2>
-<p class = 'text-slate-600'>
-<?= ( !empty( $impact[ 'section_subtitle' ] ) ) ? sanitize( $impact[ 'section_subtitle' ] ) : ( !empty( $impactData[ 'subtitle' ] ) ? sanitize( $impactData[ 'subtitle' ] ) : 'We take a holistic approach to community development, addressing immediate needs while building long-term resilience.' ) ?>
+<p class = 'text-slate-600 leading-relaxed'>
+<?= ( !empty( $impact[ 'section_subtitle' ] ) ) ? sanitize( $impact[ 'section_subtitle' ] ) : sanitize( $impactIntro ) ?>
 </p>
 </div>
 
-<div class = 'grid sm:grid-cols-2 lg:grid-cols-3 gap-6'>
-<?php foreach ( $impactItems as $item ): ?>
-<div class = 'bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex items-start gap-4 hover:shadow-md transition-shadow group'>
-<div class = 'w-12 h-12 shrink-0 bg-slate-50 group-hover:bg-brandRed/10 rounded-xl flex items-center justify-center transition-colors'>
-<i class = "fa-solid <?= $item['icon'] ?? 'fa-circle-info' ?> text-slate-400 group-hover:text-brandRed text-lg transition-colors"></i>
+<div class = 'grid sm:grid-cols-2 lg:grid-cols-3 gap-7'>
+<?php foreach ( $impactItems as $index => $item ):
+  $accent      = $sectorAccents[ $index % count( $sectorAccents ) ];
+  $sectorImage = trim( (string) ( $item[ 'image' ] ?? '' ) );
+  $sectorIcon  = $item[ 'icon' ] ?? 'fa-circle-info';
+?>
+<article class = 'group relative flex flex-col bg-white rounded-2xl border border-slate-200/70 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 overflow-hidden'>
+<div class = 'relative h-52 bg-slate-100 overflow-hidden'>
+<?php if ( $sectorImage !== '' ): ?>
+<img src = "<?= $base . ltrim( $sectorImage, '/' ) ?>" alt = "<?= sanitize( $item[ 'title' ] ?? '' ) ?>" loading = 'lazy' class = 'w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105'>
+<?php else: ?>
+<div class = 'w-full h-full flex items-center justify-center' style = 'background:linear-gradient(135deg, <?= $accent ?>26, <?= $accent ?>08)'>
+<i class = "fa-solid <?= sanitize( $sectorIcon ) ?> text-5xl" style = 'color:<?= $accent ?>66'></i>
 </div>
-<div>
-<h3 class = 'font-bold text-slate-900 mb-1'><?= sanitize( $item[ 'title' ] ?? '' ) ?></h3>
-<p class = 'text-sm text-slate-500'><?= sanitize( $item[ 'description' ] ?? '' ) ?></p>
+<?php endif; ?>
+<div class = 'absolute inset-0 bg-gradient-to-t from-slate-950/75 via-slate-900/10 to-transparent'></div>
+<span class = 'absolute top-4 right-4 inline-flex items-center justify-center w-11 h-11 rounded-xl text-white shadow-lg' style = 'background:<?= $accent ?>'>
+<i class = "fa-solid <?= sanitize( $sectorIcon ) ?>"></i>
+</span>
+<span class = 'absolute bottom-4 left-5 text-[11px] font-bold uppercase tracking-[0.2em] text-white/80'>
+<?= sprintf( '%02d', $index + 1 ) ?> <span class = 'text-white/40'>/</span> <?= sprintf( '%02d', $impactTotal ) ?>
+</span>
 </div>
+<div class = 'flex-1 p-6'>
+<h3 class = 'font-bold text-slate-900 text-lg mb-2'><?= sanitize( $item[ 'title' ] ?? '' ) ?></h3>
+<p class = 'text-sm text-slate-600 leading-relaxed'><?= sanitize( $item[ 'description' ] ?? '' ) ?></p>
 </div>
+<span class = 'block h-1 w-full' style = 'background:<?= $accent ?>'></span>
+</article>
 <?php endforeach;
 ?>
 </div>
@@ -100,19 +127,32 @@ include dirname( __DIR__ ) . '/includes/header.php';
 </section>
 
 <!-- WHY WE EXIST -->
-<?php $whyItems = $whyData[ 'items' ] ?? [];
+<?php
+$whyItems = array_slice($whyData[ 'items' ] ?? [], 0, 4);
+$whyIntro = 'We believe that meaningful development begins with recognizing the potential of every individual and creating an environment where communities can thrive. Our work is guided by principles that place people, dignity, accountability, and long-term progress at the Centre of every intervention.';
 ?>
 <section class = 'py-24 bg-ink-900 text-white relative overflow-hidden'>
 <div class = 'absolute inset-0 opacity-10 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-white via-transparent to-transparent'></div>
-<div class = 'container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center'>
-<h2 class = 'text-3xl lg:text-4xl font-display font-bold mb-16'>
+<div class = 'container mx-auto px-4 sm:px-6 lg:px-8 relative z-10'>
+<div class = 'text-center max-w-3xl mx-auto mb-14'>
+<div class = 'inline-flex items-center gap-2 bg-white/5 border border-white/10 text-brandRed text-[11px] font-bold uppercase tracking-[0.18em] px-4 py-1.5 rounded-full mb-5'>
+<i class = 'fa-solid fa-compass'></i> Our Principles
+</div>
+<h2 class = 'text-3xl lg:text-4xl font-display font-bold mb-4'>
 <?= ( !empty( $whyExist[ 'section_title' ] ) ) ? sanitize( $whyExist[ 'section_title' ] ) : 'Why We Exist' ?>
 </h2>
-<div class = 'grid md:grid-cols-3 gap-8 max-w-5xl mx-auto text-left'>
-<?php foreach ( $whyItems as $item ): ?>
-<div class = 'space-y-4'>
-<i class = "fa-solid <?= $item['icon'] ?? 'fa-circle-info' ?> text-3xl text-brandRed"></i>
-<h3 class = 'text-xl font-bold'><?= sanitize( $item[ 'title' ] ?? '' ) ?></h3>
+<p class = 'text-sand-50/70 leading-relaxed'>
+<?= ( !empty( $whyExist[ 'section_subtitle' ] ) ) ? sanitize( $whyExist[ 'section_subtitle' ] ) : sanitize( $whyIntro ) ?>
+</p>
+</div>
+<div class = 'grid grid-cols-2 gap-6 max-w-4xl mx-auto text-left'>
+<?php foreach ( $whyItems as $index => $item ): ?>
+<div class = 'relative bg-white/[0.04] border border-white/10 rounded-2xl p-8 hover:bg-white/[0.07] hover:border-white/20 transition-all duration-300'>
+<span class = 'absolute top-6 right-7 text-4xl font-display font-bold text-white/[0.07] select-none'><?= sprintf( '%02d', $index + 1 ) ?></span>
+<div class = 'w-12 h-12 rounded-xl bg-brandRed/15 text-brandRed flex items-center justify-center mb-5'>
+<i class = "fa-solid <?= sanitize( $item[ 'icon' ] ?? 'fa-circle-info' ) ?> text-lg"></i>
+</div>
+<h3 class = 'text-lg font-bold mb-2'><?= sanitize( $item[ 'title' ] ?? '' ) ?></h3>
 <p class = 'text-sand-50/70 text-sm leading-relaxed'><?= sanitize( $item[ 'description' ] ?? '' ) ?></p>
 </div>
 <?php endforeach;
