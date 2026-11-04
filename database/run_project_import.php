@@ -920,6 +920,14 @@ try {
         }
     }
 
+    // Each "Areas of Impact" sector now carries its own photograph. The column
+    // is additive, so older rows simply have no image and the public page falls
+    // back to the sector icon.
+    if ( $tableExists( 'who_we_are_impact_items' ) && !$columnExists( 'who_we_are_impact_items', 'image' ) ) {
+        $pdo->exec( "ALTER TABLE `who_we_are_impact_items` ADD COLUMN `image` VARCHAR(500) NOT NULL DEFAULT '' AFTER `description`" );
+        echo "Added `who_we_are_impact_items.image` for the sector photographs.\n";
+    }
+
     // The submissions screen can only shortlist if the status column accepts the
     // value; the original ENUM stopped at "archived". Widening it is safe: the
     // existing four values keep working and no row changes.
@@ -955,6 +963,11 @@ try {
     // because that path exits on deployments where the portfolio already
     // matches.
     require_once __DIR__ . '/seed_careers.php';
+
+    // Who We Are content: the two section introductions, the four principles in
+    // their agreed wording, and a real WRC photograph for each impact sector.
+    // Also marker-guarded, so dashboard edits survive future deployments.
+    require_once __DIR__ . '/seed_about_sections.php';
 
     $reasons = $portfolioStatus();
     if ( !$reasons ) {

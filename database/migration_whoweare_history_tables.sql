@@ -33,6 +33,7 @@ CREATE TABLE IF NOT EXISTS who_we_are_impact_items (
     icon VARCHAR(255) DEFAULT '',
     title VARCHAR(255) DEFAULT '',
     description TEXT,
+    image VARCHAR(500) NOT NULL DEFAULT '',
     sort_order TINYINT UNSIGNED DEFAULT 0,
     FOREIGN KEY (impact_id) REFERENCES who_we_are_impact(id) ON DELETE CASCADE
 ) ENGINE=InnoDB;

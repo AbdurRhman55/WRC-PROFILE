@@ -169,8 +169,14 @@ if ( $flash ): ?>
 
                                         <!-- Upload Widget Script -->
                                         <script>
-                                        document.addEventListener( 'DOMContentLoaded', function() {
-                                            document.querySelectorAll( '.upload-widget' ).forEach( function( widget ) {
+                                        // Bind one upload widget. Exposed so screens that build their
+                                        // fields after page load (the About page item editor does) can
+                                        // wire up the widgets they just inserted.
+                                        window.WRCBindUploadWidget = function( widget ) {
+                                            if ( !widget || widget.dataset.wrcUploadBound === '1' ) {
+                                                return;
+                                            }
+                                            widget.dataset.wrcUploadBound = '1';
                                                 var type = widget.dataset.type || 'image';
                                                 var baseUrl = widget.dataset.baseUrl || '/';
                                                 var input = widget.querySelector( 'input[type=file]' );
@@ -255,8 +261,13 @@ if ( $flash ): ?>
                                                         showPreview( zone, v, type );
                                                     }
                                                 }
-                                            }
-                                        );
-                                    }
-                                );
+                                            };
+
+                                        window.WRCBindUploadWidgets = function( root ) {
+                                            ( root || document ).querySelectorAll( '.upload-widget' ).forEach( window.WRCBindUploadWidget );
+                                        };
+
+                                        document.addEventListener( 'DOMContentLoaded', function() {
+                                            window.WRCBindUploadWidgets( document );
+                                        } );
                                 </script>

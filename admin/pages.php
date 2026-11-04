@@ -539,7 +539,7 @@ if ( isPost() && isset( $_POST[ 'save_sections' ] ) ) {
             $pdo->exec( "DELETE FROM who_we_are_impact_items WHERE impact_id = {$imp['id']}" );
             $items = $content[ 'items' ] ?? [];
             foreach ( $items as $i => $item ) {
-                insertRow( 'who_we_are_impact_items', [ 'impact_id' => $imp[ 'id' ], 'icon' => $item[ 'icon' ] ?? '', 'title' => $item[ 'title' ] ?? '', 'description' => $item[ 'description' ] ?? '', 'sort_order' => $i ] );
+                insertRow( 'who_we_are_impact_items', [ 'impact_id' => $imp[ 'id' ], 'icon' => $item[ 'icon' ] ?? '', 'title' => $item[ 'title' ] ?? '', 'description' => $item[ 'description' ] ?? '', 'image' => $item[ 'image' ] ?? '', 'sort_order' => $i ] );
             }
         }
     }
@@ -2686,11 +2686,18 @@ function renderItems_<?= $sKey ?>() {
   el.innerHTML = '';
   var isPillars = '<?= $sKey ?>' === 'our_work_pillars';
   itemsArr_<?= $sKey ?>.forEach(function(item, i) {
+    var imageField = '';
+    if (<?= $sKey === 'who_we_are_impact' ? 'true' : 'false' ?>) {
+      var imageId = 'sectorImage_<?= $sKey ?>_' + i;
+      var imageValue = (item.image || '').replace(/"/g, '&quot;');
+      imageField = '<div class="field-group"><label>Sector Image (upload from your computer)</label><input type="text" class="upload-path-input" id="' + imageId + '" value="' + imageValue + '" onchange="itemsArr_<?= $sKey ?>[' + i + '].image=this.value" placeholder="assets/images/sectors/education.jpg"><div class="upload-widget" data-type="image" data-target="' + imageId + '" data-base-url="<?= htmlspecialchars(siteBaseUrl(), ENT_QUOTES) ?>" style="margin-top:8px"><div class="upload-zone"><input type="file" accept="image/*"><div class="upload-placeholder"><i class="fa-solid fa-cloud-arrow-up"></i><p>Click or drag to upload a sector image</p></div></div></div></div>';
+    }
     var numField = isPillars ? '<div class="field-group"><label>Number</label><input value="'+(item.num||'').replace(/"/g,'&quot;')+'" onchange="itemsArr_<?= $sKey ?>['+i+'].num=this.value" placeholder="01"></div>' : '<div class="field-group"><label>Icon</label><input value="'+(item.icon||'').replace(/"/g,'&quot;')+'" onchange="itemsArr_<?= $sKey ?>['+i+'].icon=this.value" placeholder="fa-solid fa-heart"></div>';
-    el.innerHTML += '<div class="dynamic-item"><button type="button" class="remove-btn" onclick="itemsArr_<?= $sKey ?>.splice('+i+',1);renderItems_<?= $sKey ?>()"><i class="fa-solid fa-xmark"></i></button><div class="field-row-3">'+numField+'<div class="field-group"><label>Title</label><input value="'+(item.title||'').replace(/"/g,'&quot;')+'" onchange="itemsArr_<?= $sKey ?>['+i+'].title=this.value"></div><div class="field-group"><label>Description</label><input value="'+(item.description||'').replace(/"/g,'&quot;')+'" onchange="itemsArr_<?= $sKey ?>['+i+'].description=this.value"></div></div>'+(item.amount !== undefined ? '<div class="field-group"><label>Amount</label><input value="'+(item.amount||'').replace(/"/g,'&quot;')+'" onchange="itemsArr_<?= $sKey ?>['+i+'].amount=this.value"></div>' : '')+(item.link !== undefined ? '<div class="field-row"><div class="field-group"><label>Link</label><input value="'+(item.link||'').replace(/"/g,'&quot;')+'" onchange="itemsArr_<?= $sKey ?>['+i+'].link=this.value"></div><div class="field-group"><label>Link Text</label><input value="'+(item.link_text||'').replace(/"/g,'&quot;')+'" onchange="itemsArr_<?= $sKey ?>['+i+'].link_text=this.value"></div></div>' : '')+'</div>';
+    el.innerHTML += '<div class="dynamic-item"><button type="button" class="remove-btn" onclick="itemsArr_<?= $sKey ?>.splice('+i+',1);renderItems_<?= $sKey ?>()"><i class="fa-solid fa-xmark"></i></button><div class="field-row-3">'+numField+'<div class="field-group"><label>Title</label><input value="'+(item.title||'').replace(/"/g,'&quot;')+'" onchange="itemsArr_<?= $sKey ?>['+i+'].title=this.value"></div><div class="field-group"><label>Description</label><input value="'+(item.description||'').replace(/"/g,'&quot;')+'" onchange="itemsArr_<?= $sKey ?>['+i+'].description=this.value"></div></div>'+imageField+(item.amount !== undefined ? '<div class="field-group"><label>Amount</label><input value="'+(item.amount||'').replace(/"/g,'&quot;')+'" onchange="itemsArr_<?= $sKey ?>['+i+'].amount=this.value"></div>' : '')+(item.link !== undefined ? '<div class="field-row"><div class="field-group"><label>Link</label><input value="'+(item.link||'').replace(/"/g,'&quot;')+'" onchange="itemsArr_<?= $sKey ?>['+i+'].link=this.value"></div><div class="field-group"><label>Link Text</label><input value="'+(item.link_text||'').replace(/"/g,'&quot;')+'" onchange="itemsArr_<?= $sKey ?>['+i+'].link_text=this.value"></div></div>' : '')+'</div>';
   });
+  if (window.WRCBindUploadWidgets) { window.WRCBindUploadWidgets(el); }
 }
-function addItem_<?= $sKey ?>() { itemsArr_<?= $sKey ?>.push({icon:'',title:'',description:''}); renderItems_<?= $sKey ?>(); }
+function addItem_<?= $sKey ?>() { itemsArr_<?= $sKey ?>.push(<?= $sKey === 'who_we_are_impact' ? "{icon:'',title:'',description:'',image:''}" : "{icon:'',title:'',description:''}" ?>); renderItems_<?= $sKey ?>(); }
 renderItems_<?= $sKey ?>();
 
 // ===== STATS: <?= $sKey ?> =====
