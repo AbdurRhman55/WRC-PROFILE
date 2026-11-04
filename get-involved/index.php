@@ -22,7 +22,7 @@ $memberBenefits = json_decode($membershipRow['benefits'] ?? '[]', true);
 $memberTypes = json_decode($membershipRow['membership_types'] ?? '[]', true);
 
 // Fetch open job listings
-$jobs = getRows('job_listings', 'is_active = 1 ORDER BY id ASC');
+$jobs = getRows('job_listings', 'is_active = 1 ORDER BY posted_at DESC, id DESC');
 
 include dirname(__DIR__) . '/includes/header.php';
 ?>
@@ -193,10 +193,22 @@ include dirname(__DIR__) . '/includes/header.php';
 
       <?php if (!empty($jobs)): ?>
         <?php foreach ($jobs as $job):
-          $jobContent = json_decode($job['content'] ?? '{}', true);
+          $jobContent       = json_decode((string) ($job['content'] ?? '{}'), true) ?: [];
           $responsibilities = $jobContent['responsibilities'] ?? [];
-          $requirements = $jobContent['requirements'] ?? [];
-          $jobIcon = $jobContent['icon'] ?? 'fa-briefcase';
+          $requirements     = $jobContent['requirements'] ?? [];
+          $jobIcon          = $jobContent['icon'] ?? 'fa-briefcase';
+
+          // job_listings keeps requirements in a plain text column; the JSON
+          // "content" shape only exists on older installs. Without this fallback
+          // the requirements section never rendered at all.
+          if (!is_array($requirements) || !$requirements) {
+            $rawRequirements = trim((string) ($job['requirements'] ?? ''));
+            $requirements = $rawRequirements === ''
+              ? []
+              : array_values(array_filter(array_map('trim', preg_split('/\r\n|\r|\n/', $rawRequirements))));
+          }
+
+          $typeLabels = ['full_time' => 'Full Time', 'part_time' => 'Part Time', 'contract' => 'Contract', 'internship' => 'Internship'];
         ?>
       <div class="bg-white rounded-2xl border border-slate-200/60 shadow-sm overflow-hidden career-card">
         <button onclick="toggleCareer(this)" class="w-full text-left px-6 py-5 flex items-center justify-between gap-4 hover:bg-slate-50 transition-colors">
@@ -207,11 +219,17 @@ include dirname(__DIR__) . '/includes/header.php';
             <div class="min-w-0">
               <h3 class="font-bold text-slate-900 text-sm"><?= sanitize($job['title']) ?></h3>
               <div class="flex flex-wrap items-center gap-3 text-xs text-slate-500 mt-1">
+                <?php if (!empty($job['department'])): ?>
+                <span><i class="fa-solid fa-building mr-1 text-brandRed"></i><?= sanitize($job['department']) ?></span>
+                <?php endif; ?>
                 <?php if (!empty($job['location'])): ?>
                 <span><i class="fa-solid fa-location-dot mr-1 text-brandRed"></i><?= sanitize($job['location']) ?></span>
                 <?php endif; ?>
                 <?php if (!empty($job['employment_type'])): ?>
-                <span><i class="fa-solid fa-clock mr-1 text-brandRed"></i><?= sanitize($job['employment_type']) ?></span>
+                <span><i class="fa-solid fa-clock mr-1 text-brandRed"></i><?= sanitize($typeLabels[$job['employment_type']] ?? $job['employment_type']) ?></span>
+                <?php endif; ?>
+                <?php if (!empty($job['posted_at'])): ?>
+                <span><i class="fa-solid fa-calendar-days mr-1 text-brandRed"></i>Posted <?= sanitize(formatDate($job['posted_at'], 'd M Y')) ?></span>
                 <?php endif; ?>
                 <?php if (!empty($job['salary_range'])): ?>
                 <span class="font-semibold text-brandRed"><?= sanitize($job['salary_range']) ?></span>

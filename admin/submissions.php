@@ -15,7 +15,7 @@ if (isPost()) {
     if (isset($_POST['update_status'])) {
         $id = (int) $_POST['submission_id'];
         $newStatus = $_POST['new_status'];
-        $allowed = ['new', 'read', 'replied', 'archived'];
+        $allowed = ['new', 'read', 'replied', 'archived', 'shortlisted', 'rejected'];
         if (in_array($newStatus, $allowed)) {
             $stmt = $pdo->prepare("UPDATE contact_submissions SET status = ? WHERE id = ?");
             $stmt->execute([$newStatus, $id]);
@@ -34,7 +34,7 @@ $conditions = [];
 $params = [];
 $where = [];
 
-if ($filterStatus !== '' && in_array($filterStatus, ['new', 'read', 'replied', 'archived'])) {
+if ($filterStatus !== '' && in_array($filterStatus, ['new', 'read', 'replied', 'archived', 'shortlisted', 'rejected'])) {
     $where[] = "`status` = ?";
     $params[] = $filterStatus;
 }
@@ -54,10 +54,12 @@ $stmt->execute($params);
 $submissions = $stmt->fetchAll();
 
 $statusColors = [
-    'new'      => 'bg-green-50 text-green-600 border border-green-200',
-    'read'     => 'bg-blue-50 text-blue-600 border border-blue-200',
-    'replied'  => 'bg-purple-50 text-purple-600 border border-purple-200',
-    'archived' => 'bg-slate-100 text-slate-500 border border-slate-200',
+    'new'         => 'bg-green-50 text-green-600 border border-green-200',
+    'read'        => 'bg-blue-50 text-blue-600 border border-blue-200',
+    'replied'     => 'bg-purple-50 text-purple-600 border border-purple-200',
+    'archived'    => 'bg-slate-100 text-slate-500 border border-slate-200',
+    'shortlisted' => 'bg-emerald-50 text-emerald-700 border border-emerald-200',
+    'rejected'    => 'bg-rose-50 text-rose-600 border border-rose-200',
 ];
 
 $typeColors = [
@@ -97,6 +99,8 @@ include __DIR__ . '/includes/header.php';
         <option value="new" <?= $filterStatus === 'new' ? 'selected' : '' ?>>New</option>
         <option value="read" <?= $filterStatus === 'read' ? 'selected' : '' ?>>Read</option>
         <option value="replied" <?= $filterStatus === 'replied' ? 'selected' : '' ?>>Replied</option>
+        <option value="shortlisted" <?= $filterStatus === 'shortlisted' ? 'selected' : '' ?>>Shortlisted</option>
+        <option value="rejected" <?= $filterStatus === 'rejected' ? 'selected' : '' ?>>Rejected</option>
         <option value="archived" <?= $filterStatus === 'archived' ? 'selected' : '' ?>>Archived</option>
       </select>
     </div>
@@ -167,6 +171,35 @@ include __DIR__ . '/includes/header.php';
           <td class="px-5 py-3 text-slate-500 text-xs"><?= date('M d, Y g:i A', strtotime($sub['submitted_at'])) ?></td>
           <td class="px-5 py-3 text-right" onclick="event.stopPropagation()">
             <div class="flex items-center justify-end gap-1">
+              <?php if (!empty($sub['attachment'])): ?>
+              <a href="view-cv.php?id=<?= (int) $sub['id'] ?>" target="_blank" rel="noopener"
+                 class="inline-flex items-center gap-1.5 bg-brandRed/10 text-brandRed hover:bg-brandRed hover:text-white transition-colors px-2.5 py-1.5 rounded-lg text-[11px] font-bold"
+                 title="Open CV">
+                <i class="fa-solid fa-file-pdf text-xs"></i> CV
+              </a>
+              <?php endif; ?>
+              <?php if ($sub['inquiry_type'] === 'career' && $sub['status'] !== 'shortlisted'): ?>
+              <form method="POST" class="inline">
+                <input type="hidden" name="csrf_token" value="<?= generateCSRF() ?>">
+                <input type="hidden" name="update_status" value="1">
+                <input type="hidden" name="submission_id" value="<?= $sub['id'] ?>">
+                <input type="hidden" name="new_status" value="shortlisted">
+                <button type="submit" class="text-slate-400 hover:text-emerald-600 transition-colors p-1.5 rounded-lg hover:bg-emerald-50" title="Shortlist">
+                  <i class="fa-solid fa-user-check text-xs"></i>
+                </button>
+              </form>
+              <?php endif; ?>
+              <?php if ($sub['inquiry_type'] === 'career' && $sub['status'] !== 'rejected'): ?>
+              <form method="POST" class="inline">
+                <input type="hidden" name="csrf_token" value="<?= generateCSRF() ?>">
+                <input type="hidden" name="update_status" value="1">
+                <input type="hidden" name="submission_id" value="<?= $sub['id'] ?>">
+                <input type="hidden" name="new_status" value="rejected">
+                <button type="submit" class="text-slate-400 hover:text-rose-600 transition-colors p-1.5 rounded-lg hover:bg-rose-50" title="Reject">
+                  <i class="fa-solid fa-user-xmark text-xs"></i>
+                </button>
+              </form>
+              <?php endif; ?>
               <?php if ($sub['status'] !== 'read'): ?>
               <form method="POST" class="inline">
                 <input type="hidden" name="csrf_token" value="<?= generateCSRF() ?>">
@@ -224,9 +257,9 @@ include __DIR__ . '/includes/header.php';
             <div class="mt-4">
               <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Attachment</span>
               <p class="mt-1.5">
-                <a href="../<?= htmlspecialchars($sub['attachment']) ?>" target="_blank" rel="noopener"
+                <a href="view-cv.php?id=<?= (int) $sub['id'] ?>" target="_blank" rel="noopener"
                    class="inline-flex items-center gap-2 bg-white border border-slate-200 rounded-xl px-4 py-2 text-sm font-semibold text-brandRed hover:bg-brandRed hover:text-white transition-colors">
-                  <i class="fa-solid fa-paperclip text-xs"></i> <?= htmlspecialchars(basename($sub['attachment'])) ?>
+                  <i class="fa-solid fa-file-pdf text-xs"></i> Open CV (<?= htmlspecialchars(basename($sub['attachment'])) ?>)
                 </a>
               </p>
             </div>

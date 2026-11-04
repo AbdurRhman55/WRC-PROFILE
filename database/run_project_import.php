@@ -920,6 +920,17 @@ try {
         }
     }
 
+    // The submissions screen can only shortlist if the status column accepts the
+    // value; the original ENUM stopped at "archived". Widening it is safe: the
+    // existing four values keep working and no row changes.
+    if ( $tableExists( 'contact_submissions' ) ) {
+        $statusColumn = $pdo->query( "SHOW COLUMNS FROM `contact_submissions` LIKE 'status'" )->fetch( PDO::FETCH_ASSOC );
+        if ( $statusColumn && stripos( (string) $statusColumn['Type'], 'shortlisted' ) === false ) {
+            $pdo->exec( "ALTER TABLE `contact_submissions` MODIFY COLUMN `status` ENUM('new','read','replied','archived','shortlisted','rejected') NOT NULL DEFAULT 'new'" );
+            echo "Extended `contact_submissions.status` with the shortlisting values.\n";
+        }
+    }
+
     // Maintenance that runs on every deployment, including the "already matches"
     // short-circuit below: keeps stored CTA wording in sync with the templates,
     // rewrites links and misspellings that were saved into the database, keeps
@@ -937,6 +948,13 @@ try {
     $syncContributeHero();
     $dedupeProcessSteps();
     $dedupeSuccessStories();
+
+    // Recruitment data. The script keeps its own marker row in site_settings,
+    // so this runs once and never touches the shortlisting work done later in
+    // the dashboard. It must sit before the portfolio short-circuit below,
+    // because that path exits on deployments where the portfolio already
+    // matches.
+    require_once __DIR__ . '/seed_careers.php';
 
     $reasons = $portfolioStatus();
     if ( !$reasons ) {

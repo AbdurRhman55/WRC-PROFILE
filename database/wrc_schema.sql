@@ -296,7 +296,7 @@ CREATE TABLE contact_submissions (
     is_anonymous TINYINT(1) DEFAULT 0,
     volunteer_interest BOOLEAN DEFAULT FALSE,
     attachment VARCHAR(255) NULL DEFAULT NULL,
-    status ENUM('new','read','replied','archived') DEFAULT 'new',
+    status ENUM('new','read','replied','archived','shortlisted','rejected') DEFAULT 'new',
     submitted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB;
 
