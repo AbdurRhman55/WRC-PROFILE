@@ -128,7 +128,7 @@ $impactIntro   = 'We take a comprehensive approach to community development, add
 
 <!-- WHY WE EXIST -->
 <?php
-$whyItems = $whyData[ 'items' ] ?? [];
+$whyItems = array_slice($whyData[ 'items' ] ?? [], 0, 4);
 $whyIntro = 'We believe that meaningful development begins with recognizing the potential of every individual and creating an environment where communities can thrive. Our work is guided by principles that place people, dignity, accountability, and long-term progress at the Centre of every intervention.';
 ?>
 <section class = 'py-24 bg-ink-900 text-white relative overflow-hidden'>
