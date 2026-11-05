@@ -166,9 +166,9 @@ $whyIntro = 'We believe that meaningful development begins with recognizing the 
 <div class = "absolute inset-0 bg-[url('../assets/images/hero/about-hero.jpg')] bg-cover bg-center mix-blend-multiply opacity-10"></div>
 <div class = 'container relative z-10 mx-auto px-4'>
 <h2 class = 'text-3xl md:text-4xl font-display font-bold text-white mb-4 max-w-2xl mx-auto leading-tight'>
-Together, we can turn compassion into meaningful action.
+Together, We Can Turn Compassion into Meaningful Action.
 </h2>
-<p class = 'text-slate-400 text-lg mb-10 max-w-xl mx-auto'>Join us in creating lasting change for communities that need it most.</p>
+<p class = 'text-slate-400 text-lg mb-10 max-w-xl mx-auto'>Lasting change happens when commitment meets collaboration. Join WRC in building stronger, more resilient communities and creating opportunities for a better future.</p>
 <div class = 'flex flex-col sm:flex-row justify-center gap-4'>
 <a href = "<?= $base ?>get-involved/contribute-with-us.php" class = 'px-8 py-4 rounded-xl bg-brandRed hover:bg-brandRed-hover text-white font-bold text-sm shadow-lg shadow-brandRed/30 transition-all uppercase tracking-wider'>
 Let’s Work Together
