@@ -2496,7 +2496,39 @@ include __DIR__ . '/includes/header.php';
                                                                     </div>
 
                                                                     <?php
-                                                                    // ===  == DEFAULT ( simple text fields ) ===  ==
+                                                                    // ===  == VISION, MISSION & CORE VALUES ( cards + values ) ===  ==
+                                                                     elseif ( $sKey === 'vision_mission_content' ):
+                                                                     ?>
+                                                                     <p style = 'font-size:0.75rem;color:#64748b;margin-bottom:0.75rem;'>The page heading and introduction live in the Hero Section above. Everything below is edited here.</p>
+
+                                                                     <!-- Vision & Mission -->
+                                                                     <div style = 'margin-top:1rem;padding:1rem;background:#f8fafc;border-radius:0.75rem;border:1px solid #e2e8f0;'>
+                                                                     <p style = 'font-size:0.75rem;font-weight:700;color:#ca0000;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.25rem;'>Vision &amp; Mission</p>
+                                                                     <p style = 'font-size:0.75rem;color:#64748b;margin-bottom:0.75rem;'>The two statement cards at the top of the page.</p>
+                                                                     <div id = 'visionItemsList_vision_mission_content' class = 'space-y-2'></div>
+                                                                     <button type = 'button' class = 'add-btn' onclick = 'addVisionItem_vision_mission_content()'><i class = 'fa-solid fa-plus text-xs'></i> Add Vision / Mission Card</button>
+                                                                     </div>
+
+                                                                     <!-- Core Values -->
+                                                                     <div style = 'margin-top:1rem;padding:1rem;background:#f8fafc;border-radius:0.75rem;border:1px solid #e2e8f0;'>
+                                                                     <p style = 'font-size:0.75rem;font-weight:700;color:#ca0000;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.25rem;'>Core Values</p>
+                                                                     <p style = 'font-size:0.75rem;color:#64748b;margin-bottom:0.75rem;'>Each value is a card in the grid. Use a Font Awesome class for the icon, e.g. fa-solid fa-hand-holding-heart.</p>
+                                                                     <div class = 'field-row'>
+                                                                     <div class = 'field-group'>
+                                                                     <label>Core Values Heading</label>
+                                                                     <input type = 'text' data-field = 'content.core_values_title' value = "<?= htmlspecialchars( $content[ 'core_values_title' ] ?? '' ) ?>" placeholder = 'Our Core Values'>
+                                                                     </div>
+                                                                     <div class = 'field-group'>
+                                                                     <label>Core Values Subtitle</label>
+                                                                     <input type = 'text' data-field = 'content.core_values_subtitle' value = "<?= htmlspecialchars( $content[ 'core_values_subtitle' ] ?? '' ) ?>" placeholder = 'The foundation of everything we do'>
+                                                                     </div>
+                                                                     </div>
+                                                                     <div id = 'coreValuesList_vision_mission_content' class = 'space-y-2'></div>
+                                                                     <button type = 'button' class = 'add-btn' onclick = 'addCoreValue_vision_mission_content()'><i class = 'fa-solid fa-plus text-xs'></i> Add Core Value</button>
+                                                                     </div>
+
+                                                                     <?php
+                                                                     // ===  == DEFAULT ( simple text fields ) ===  ==
                                                                     else:
                                                                     ?>
                                                                     <div class = 'field-group'>
@@ -2670,6 +2702,12 @@ document.getElementById('sectionsForm').addEventListener('submit', function(e) {
     if (typeof window['projectsArr_' + key] !== 'undefined') {
       allData[key].content.projects = window['projectsArr_' + key];
     }
+    if (typeof window['visionItemsArr_' + key] !== 'undefined') {
+      allData[key].content.vision_items = window['visionItemsArr_' + key];
+    }
+    if (typeof window['coreValuesArr_' + key] !== 'undefined') {
+      allData[key].content.core_values = window['coreValuesArr_' + key];
+    }
   });
 
   document.getElementById('sectionsJson').value = JSON.stringify(allData);
@@ -2714,6 +2752,48 @@ function addStat_<?= $sKey ?>() { statsArr_<?= $sKey ?>.push({value:'',label:'',
 renderStats_<?= $sKey ?>();
 
 <?php endforeach; ?>
+
+<?php if (isset($sections['vision_mission_content'])): ?>
+// ===== OVERRIDE: vision_mission_content ( vision_items / core_values ) =====
+var visionItemsArr_vision_mission_content = <?= json_encode($sections['vision_mission_content']['content']['vision_items'] ?? [], JSON_HEX_TAG) ?>;
+function renderVisionItems_vision_mission_content() {
+  var el = document.getElementById('visionItemsList_vision_mission_content');
+  if (!el) return;
+  el.innerHTML = '';
+  visionItemsArr_vision_mission_content.forEach(function(item, i) {
+    el.innerHTML += '<div class="dynamic-item">' +
+      '<button type="button" class="remove-btn" onclick="visionItemsArr_vision_mission_content.splice(' + i + ',1);renderVisionItems_vision_mission_content()"><i class="fa-solid fa-xmark"></i></button>' +
+      '<div class="field-group"><label>Title</label><input value="' + (item.title||'').replace(/"/g,'&quot;') + '" onchange="visionItemsArr_vision_mission_content[' + i + '].title=this.value" placeholder="Our Vision"></div>' +
+      '<div class="field-group"><label>Text</label><textarea rows="3" onchange="visionItemsArr_vision_mission_content[' + i + '].text=this.value" placeholder="Statement shown on the card">' + (item.text||'').replace(/</g,'&lt;') + '</textarea></div>' +
+      '</div>';
+  });
+}
+function addVisionItem_vision_mission_content() {
+  visionItemsArr_vision_mission_content.push({title:'', text:''});
+  renderVisionItems_vision_mission_content();
+}
+renderVisionItems_vision_mission_content();
+
+var coreValuesArr_vision_mission_content = <?= json_encode($sections['vision_mission_content']['content']['core_values'] ?? [], JSON_HEX_TAG) ?>;
+function renderCoreValues_vision_mission_content() {
+  var el = document.getElementById('coreValuesList_vision_mission_content');
+  if (!el) return;
+  el.innerHTML = '';
+  coreValuesArr_vision_mission_content.forEach(function(item, i) {
+    el.innerHTML += '<div class="dynamic-item">' +
+      '<button type="button" class="remove-btn" onclick="coreValuesArr_vision_mission_content.splice(' + i + ',1);renderCoreValues_vision_mission_content()"><i class="fa-solid fa-xmark"></i></button>' +
+      '<div class="field-row"><div class="field-group"><label>Icon</label><input value="' + (item.icon||'').replace(/"/g,'&quot;') + '" onchange="coreValuesArr_vision_mission_content[' + i + '].icon=this.value" placeholder="fa-solid fa-hand-holding-heart"></div>' +
+      '<div class="field-group"><label>Title</label><input value="' + (item.title||'').replace(/"/g,'&quot;') + '" onchange="coreValuesArr_vision_mission_content[' + i + '].title=this.value" placeholder="Integrity"></div></div>' +
+      '<div class="field-group"><label>Description</label><textarea rows="2" onchange="coreValuesArr_vision_mission_content[' + i + '].desc=this.value" placeholder="What this value means in practice">' + (item.desc||'').replace(/</g,'&lt;') + '</textarea></div>' +
+      '</div>';
+  });
+}
+function addCoreValue_vision_mission_content() {
+  coreValuesArr_vision_mission_content.push({icon:'fa-solid fa-star', title:'', desc:''});
+  renderCoreValues_vision_mission_content();
+}
+renderCoreValues_vision_mission_content();
+<?php endif; ?>
 
 <?php if (isset($sections['impact_content'])): ?>
 // ===== OVERRIDE: impact_content STATS (custom fields: target/icon/color/label/sub) =====

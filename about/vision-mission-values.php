@@ -58,19 +58,34 @@ include dirname( __DIR__ ) . '/includes/header.php';
 </section>
 
 <!-- VISION & MISSION -->
-<section class = 'py-16 bg-white'>
+<?php
+$visionItems = $contentData[ 'vision_items' ] ?? [];
+if ( empty( $visionItems ) ) {
+    $visionItems = [
+        [ 'title' => 'Our Vision', 'text' => 'A world where every community is resilient, self-reliant, and has access to essential services including healthcare, education, clean water, and economic opportunities.' ],
+        [ 'title' => 'Our Mission', 'text' => 'To deliver compassionate, transparent, and effective humanitarian assistance and sustainable development programs that empower vulnerable communities across Pakistan.' ],
+    ];
+}
+$visionAccents = [ '#c8102e', '#0f766e' ];
+$visionIcons   = [ 'fa-solid fa-eye', 'fa-solid fa-hand-holding-heart' ];
+?>
+<section class = 'py-20 bg-white'>
 <div class = 'max-w-6xl mx-auto px-4 sm:px-6 lg:px-8'>
 <div class = 'grid md:grid-cols-2 gap-8'>
-<?php
-$visionItems = $contentData[ 'vision_items' ] ?? [
-    [ 'title' => 'Our Vision', 'text' => 'A world where every community is resilient, self-reliant, and has access to essential services including healthcare, education, clean water, and economic opportunities.' ],
-    [ 'title' => 'Our Mission', 'text' => 'To deliver compassionate, transparent, and effective humanitarian assistance and sustainable development programs that empower vulnerable communities across Pakistan.' ]
-];
-foreach ( $visionItems as $item ): ?>
-<div class = 'bg-slate-50 rounded-2xl p-8 border border-slate-100'>
-<h3 class = 'text-xl font-bold text-slate-900 mb-4'><?= sanitize( $item[ 'title' ] ) ?></h3>
-<p class = 'text-slate-600 leading-relaxed'><?= sanitize( $item[ 'text' ] ) ?></p>
+<?php foreach ( $visionItems as $index => $item ):
+    $accent = $visionAccents[ $index % count( $visionAccents ) ];
+    $icon   = $visionIcons[ $index % count( $visionIcons ) ];
+?>
+<article class = 'relative overflow-hidden rounded-2xl border border-slate-200 bg-slate-50 p-8 md:p-10'>
+<span class = 'absolute inset-x-0 top-0 h-1' style = 'background:<?= $accent ?>'></span>
+<div class = 'flex items-center gap-4 mb-5'>
+<span class = 'w-12 h-12 shrink-0 rounded-xl flex items-center justify-center text-white shadow-lg' style = 'background:<?= $accent ?>'>
+<i class = "<?= $icon ?>"></i>
+</span>
+<h3 class = 'text-xl font-bold text-slate-900'><?= sanitize( $item[ 'title' ] ?? '' ) ?></h3>
 </div>
+<p class = 'text-slate-600 leading-relaxed'><?= sanitize( $item[ 'text' ] ?? '' ) ?></p>
+</article>
 <?php endforeach;
 ?>
 </div>
@@ -78,30 +93,54 @@ foreach ( $visionItems as $item ): ?>
 </section>
 
 <!-- CORE VALUES -->
-<section class = 'py-16 bg-slate-50'>
+<?php
+$values = $contentData[ 'core_values' ] ?? [];
+if ( empty( $values ) ) {
+    $values = [
+        [ 'icon' => 'fa-hand-holding-heart', 'title' => 'Integrity', 'desc' => 'We uphold the highest standards of honesty and transparency in all our operations.' ],
+        [ 'icon' => 'fa-heart', 'title' => 'Compassion', 'desc' => 'We approach every situation with empathy and genuine care for human dignity.' ],
+        [ 'icon' => 'fa-clipboard-check', 'title' => 'Accountability', 'desc' => 'We are responsible to our donors, partners, and the communities we serve.' ],
+        [ 'icon' => 'fa-people-group', 'title' => 'Inclusion', 'desc' => 'We ensure equitable access to assistance regardless of gender, ethnicity, or background.' ],
+        [ 'icon' => 'fa-handshake', 'title' => 'Respect', 'desc' => 'We honor the culture, dignity, and rights of every individual and community.' ],
+        [ 'icon' => 'fa-leaf', 'title' => 'Sustainability', 'desc' => 'We design programs that create lasting positive change beyond our direct involvement.' ],
+    ];
+}
+
+$valuesTitle    = trim( (string) ( $contentData[ 'core_values_title' ] ?? '' ) );
+$valuesSubtitle = trim( (string) ( $contentData[ 'core_values_subtitle' ] ?? '' ) );
+if ( $valuesTitle === '' )    { $valuesTitle = 'Our Core Values'; }
+if ( $valuesSubtitle === '' ) { $valuesSubtitle = 'The foundation of everything we do'; }
+
+$valueAccents = [ '#c8102e', '#0f766e', '#0369a1', '#b45309', '#6d28d9', '#be123c' ];
+?>
+<section class = 'py-20 bg-slate-50 border-t border-slate-200'>
 <div class = 'max-w-6xl mx-auto px-4 sm:px-6 lg:px-8'>
-<div class = 'text-center mb-12'>
-<h2 class = 'text-3xl font-extrabold text-slate-900'>Core Values</h2>
-<p class = 'text-slate-500 mt-3'>The foundation of everything we do</p>
+<div class = 'text-center max-w-2xl mx-auto mb-14'>
+<div class = 'inline-flex items-center gap-2 bg-white border border-slate-200 text-brandRed text-[11px] font-bold uppercase tracking-[0.18em] px-4 py-1.5 rounded-full mb-5 shadow-sm'>
+<i class = 'fa-solid fa-gem'></i> What Guides Us
+</div>
+<h2 class = 'text-3xl md:text-4xl font-extrabold text-slate-900'><?= sanitize( $valuesTitle ) ?></h2>
+<p class = 'text-slate-500 mt-3 leading-relaxed'><?= sanitize( $valuesSubtitle ) ?></p>
 </div>
 <div class = 'grid sm:grid-cols-2 lg:grid-cols-3 gap-6'>
-<?php
-$values = $contentData[ 'core_values' ] ?? [
-    [ 'icon' => 'fa-hand-holding-heart', 'title' => 'Integrity', 'desc' => 'We uphold the highest standards of honesty and transparency in all our operations.' ],
-    [ 'icon' => 'fa-heart', 'title' => 'Compassion', 'desc' => 'We approach every situation with empathy and genuine care for human dignity.' ],
-    [ 'icon' => 'fa-clipboard-check', 'title' => 'Accountability', 'desc' => 'We are responsible to our donors, partners, and the communities we serve.' ],
-    [ 'icon' => 'fa-people-group', 'title' => 'Inclusion', 'desc' => 'We ensure equitable access to assistance regardless of gender, ethnicity, or background.' ],
-    [ 'icon' => 'fa-handshake', 'title' => 'Respect', 'desc' => 'We honor the culture, dignity, and rights of every individual and community.' ],
-    [ 'icon' => 'fa-leaf', 'title' => 'Sustainability', 'desc' => 'We design programs that create lasting positive change beyond our direct involvement.' ]
-];
-foreach ( $values as $v ): ?>
-<div class = 'bg-white rounded-xl p-6 border border-slate-200 hover:shadow-lg transition-shadow'>
-<div class = 'w-12 h-12 rounded-xl bg-brandRed/10 flex items-center justify-center mb-4'>
-<i class = "fa-solid <?= $v['icon'] ?> text-brandRed text-lg"></i>
+<?php foreach ( $values as $index => $v ):
+    $accent    = $valueAccents[ $index % count( $valueAccents ) ];
+    $iconClass = trim( (string) ( $v[ 'icon' ] ?? '' ) );
+    if ( $iconClass === '' ) {
+        $iconClass = 'fa-solid fa-star';
+    } elseif ( strpos( $iconClass, 'fa-solid' ) === false && strpos( $iconClass, 'fa-regular' ) === false && strpos( $iconClass, 'fa-brands' ) === false ) {
+        $iconClass = 'fa-solid ' . $iconClass;
+    }
+?>
+<article class = 'group relative overflow-hidden bg-white rounded-2xl border border-slate-200 p-7 hover:shadow-xl hover:-translate-y-1 transition-all duration-300'>
+<span class = 'absolute top-4 right-6 text-4xl font-extrabold text-slate-100 select-none'><?= sprintf( '%02d', $index + 1 ) ?></span>
+<div class = 'w-12 h-12 rounded-xl flex items-center justify-center mb-5' style = 'background:<?= $accent ?>14;color:<?= $accent ?>'>
+<i class = "<?= sanitize( $iconClass ) ?> text-lg"></i>
 </div>
-<h4 class = 'font-bold text-slate-900 mb-2'><?= sanitize( $v[ 'title' ] ) ?></h4>
-<p class = 'text-slate-500 text-sm leading-relaxed'><?= sanitize( $v[ 'desc' ] ) ?></p>
-</div>
+<h4 class = 'font-bold text-slate-900 mb-2'><?= sanitize( $v[ 'title' ] ?? '' ) ?></h4>
+<p class = 'text-slate-500 text-sm leading-relaxed'><?= sanitize( $v[ 'desc' ] ?? '' ) ?></p>
+<span class = 'absolute inset-x-0 bottom-0 h-0.5 origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-300' style = 'background:<?= $accent ?>'></span>
+</article>
 <?php endforeach;
 ?>
 </div>

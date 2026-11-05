@@ -249,7 +249,12 @@ if ( $flash ): ?>
                                                         zone.innerHTML = html;
                                                         zone.querySelector( '.upload-remove' ).addEventListener( 'click', function( e ) {
                                                             e.stopPropagation();
-                                                            if ( pathInput ) { pathInput.value = ''; }
+                                                            if ( pathInput ) {
+                                                                pathInput.value = '';
+                                                                // Tell any listener (the About page card editor keeps
+                                                                // its own copy of the value) that the path is now empty.
+                                                                pathInput.dispatchEvent( new Event( 'change' ) );
+                                                            }
                                                             zone.innerHTML = '<div class="upload-placeholder"><i class="fa-solid fa-cloud-arrow-up"></i><p>Click or drag to upload</p></div>';
                                                         } );
                                                     }
