@@ -22,13 +22,13 @@ include dirname( __DIR__ ) . '/includes/header.php';
 <!-- Hero Section -->
 <section class = 'relative w-full bg-ink-900 text-white min-h-[520px] flex items-center overflow-hidden'>
 <div class = 'absolute inset-0 z-0'>
-<div class = 'absolute inset-0 bg-cover bg-center bg-no-repeat' style = "background-image: url('<?= $base ?><?= $heroData['hero_image'] ?? 'assets/images/hero/about-hero.jpg' ?>');"></div>
 <div class = 'absolute inset-0 bg-gradient-to-r from-ink-900 via-ink-900/80 to-ink-900/40'></div>
 <div class = 'absolute inset-0 bg-gradient-to-t from-ink-900/90 via-transparent to-ink-900/50'></div>
 </div>
 
-<div class = 'relative z-10 w-full px-4 sm:px-6 lg:px-8 py-20 lg:py-28'>
-<div class = 'max-w-7xl mx-auto'>
+<div class = 'relative z-10 w-full px-4 sm:px-6 lg:px-8 py-14 lg:py-20'>
+<div class = 'max-w-7xl mx-auto grid items-center gap-10 lg:grid-cols-2 lg:gap-14'>
+<div>
 <nav class = 'flex items-center gap-2 text-sm text-white/60 mb-8' aria-label = 'Breadcrumb'>
 <a href = "<?= $base ?>index.php" class = 'hover:text-white transition-colors'>Home</a>
 <i class = 'fa-solid fa-chevron-right text-[10px]'></i>
@@ -43,6 +43,18 @@ include dirname( __DIR__ ) . '/includes/header.php';
 <p class = 'text-lg md:text-xl text-sand-50/80 max-w-2xl mb-10 leading-relaxed'>
 <?= ( !empty( $teamHero[ 'section_subtitle' ] ) ) ? sanitize( $teamHero[ 'section_subtitle' ] ) : ( !empty( $heroData[ 'subtitle' ] ) ? sanitize( $heroData[ 'subtitle' ] ) : ( !empty( $heroData[ 'section_subtitle' ] ) ? sanitize( $heroData[ 'section_subtitle' ] ) : 'Meet the dedicated individuals driving our mission forward and making a lasting impact in communities around the world.' ) ) ?>
 </p>
+</div>
+
+<!-- The whole group photo, uncropped: the frame keeps the picture's own
+     proportions ( 4:3 ) instead of stretching it to cover the hero, so
+     every face - standing and seated - stays visible at any width. -->
+<div>
+<figure class = 'm-0'>
+<div class = 'rounded-2xl overflow-hidden border border-white/15 shadow-2xl shadow-black/60 bg-black/30'>
+<img src = "<?= $base ?><?= sanitize( $heroData[ 'hero_image' ] ?? 'assets/images/hero.jpg' ) ?>" alt = "<?= sanitize( $heroData[ 'hero_alt' ] ?? 'Welfare & Relief Committee team' ) ?>" class = 'block w-full h-auto'>
+</div>
+</figure>
+</div>
 </div>
 </div>
 </section>

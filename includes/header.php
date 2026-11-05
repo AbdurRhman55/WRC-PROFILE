@@ -7,6 +7,98 @@
 * The $pageTitle variable sets the <title> tag
 */
 
+// ===  ===  ===  ===  ===  ===  ===  ===  ===  ===  ===  ===  ===  ===  ===
+// IMAGE FOCUS ( FOCAL POINT ) APPLIER
+// ===  ===  ===  ===  ===  ===  ===  ===  ===  ===  ===  ===  ===  ===  ===
+// Every image field in the dashboard can store a focal point as a URL
+// fragment on the path it already had: "uploads/images/photo.jpg#35-70"
+// ( x% - y% ). No new column and no save-function change - and because
+// browsers strip fragments before requesting a file, the picture keeps
+// loading even where this applier does not run.
+//
+// Here the fragment is taken out of the markup and turned into
+// object-position ( <img> ) or background-position ( inline
+// background-image ), so each template keeps showing exactly the part of
+// the photo the admin picked - without touching the 50-odd image tags
+// spread across the public site.
+if ( !function_exists( 'wrcApplyFocalPoints' ) ) {
+
+    function wrcFocalImgTag( array $m ): string {
+        $tag = $m[ 0 ];
+        if ( !preg_match( '/\ssrc\s*=\s*("|\')(.*?)\1/is', $tag, $sm, PREG_OFFSET_CAPTURE ) ) return $tag;
+        $url = $sm[ 2 ][ 0 ];
+        $at  = $sm[ 2 ][ 1 ];
+        if ( !preg_match( '/^(.*)#(\d{1,3})-(\d{1,3})$/', $url, $fm ) || $fm[ 1 ] === '' ) return $tag;
+        $path = $fm[ 1 ];
+        $x    = min( 100, (int) $fm[ 2 ] );
+        $y    = min( 100, (int) $fm[ 3 ] );
+
+        // 1. Drop the fragment from src - the file itself is never touched.
+        //    The quotes already surround $url, so only the URL text itself
+        //    is replaced ( offset points inside the opening quote ).
+        $tag = substr_replace( $tag, $path, $at, strlen( $url ) );
+
+        // 2. Remember the choice as object-position ( a later inline style
+        //    wins over any object-* utility class the template carries ).
+        $style = 'object-position:' . $x . '% ' . $y . '%;';
+        if ( preg_match( '/\sstyle\s*=\s*("|\')(.*?)\1/is', $tag, $st, PREG_OFFSET_CAPTURE ) ) {
+            $sv = $st[ 2 ][ 0 ];
+            $so = $st[ 2 ][ 1 ];
+            $tag = substr_replace( $tag, rtrim( $sv, " \t\n\r;" ) . ';' . $style, $so, strlen( $sv ) );
+        } else {
+            $tag = preg_replace( '/^<img/i', '<img style="' . $style . '"', $tag, 1 );
+        }
+
+        return $tag;
+    }
+
+    function wrcFocalStyleAttr( array $m ): string {
+        $full  = $m[ 0 ];
+        $outer = $m[ 1 ];
+        $style = $m[ 2 ];
+        if ( strpos( $style, '#' ) === false ) return $full;
+        // Group 1 is the whole url( ... ) call so only it is rewritten -
+        // the "background-image:" property name has to survive.
+        if ( !preg_match( '/background-image\s*:\s*(url\(\s*(["\']?)([^)"\']*)\2\s*\))/i', $style, $bm ) ) return $full;
+        $urlPart = $bm[ 1 ];
+        $url     = $bm[ 3 ];
+        if ( !preg_match( '/^(.*)#(\d{1,3})-(\d{1,3})$/', $url, $fm ) || $fm[ 1 ] === '' ) return $full;
+        $path = $fm[ 1 ];
+        $x    = min( 100, (int) $fm[ 2 ] );
+        $y    = min( 100, (int) $fm[ 3 ] );
+
+        // Re-quote with the opposite character to the surrounding attribute.
+        $inner    = ( $outer === '"' ) ? "'" : '"';
+        $newUrl   = 'url(' . $inner . $path . $inner . ')';
+        $replaced = str_replace( $urlPart, $newUrl, $style );
+        // One clean separator, whatever the template already ended with.
+        $newStyle = rtrim( $replaced, " \t\n\r;" ) . ';background-position:' . $x . '% ' . $y . '%;';
+        // Keep the head up to and including the opening quote; only the
+        // value between the quotes is rewritten.
+        $head     = substr( $full, 0, strpos( $full, $outer ) + 1 );
+
+        return $head . $newStyle . $outer;
+    }
+
+    function wrcApplyFocalPoints( string $html ): string {
+        if ( strpos( $html, '#' ) === false ) return $html;
+        $out = preg_replace_callback( '/<img\b[^>]*>/i', 'wrcFocalImgTag', $html );
+        if ( $out === null ) return $html;
+        $out = preg_replace_callback( '/\bstyle\s*=\s*("|\')(.*?)\1/is', 'wrcFocalStyleAttr', $out );
+        if ( $out === null ) return $html;
+
+        return $out;
+    }
+
+    // Buffered from the very top of the public header so everything the
+    // page renders after it ( body, footer ) is covered. The admin uses its
+    // own header, so the dashboard never goes through this.
+    if ( !defined( 'WRC_FOCAL_BUFFERED' ) ) {
+        define( 'WRC_FOCAL_BUFFERED', 1 );
+        ob_start( 'wrcApplyFocalPoints' );
+    }
+}
+
 if ( !isset( $base ) ) $base = function_exists( 'siteBaseUrl' ) ? siteBaseUrl() : '/';
 if ( !isset( $pageTitle ) ) $pageTitle = 'Welfare & Relief Committee (WRC) - Official NGO Portal';
 if ( !isset( $metaDescription ) ) $metaDescription = 'Welfare & Relief Committee (WRC) is a non-profit humanitarian organization delivering health, education, WASH, food security, and emergency disaster relief globally.';
