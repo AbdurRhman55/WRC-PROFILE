@@ -82,8 +82,20 @@ include __DIR__ . '/includes/header.php';
           <td class="px-5 py-3 text-slate-600"><?= htmlspecialchars($member['title']) ?></td>
           <td class="px-5 py-3">
             <?php
-              $roleColors = ['chairman' => 'bg-brandRed-light text-brandRed', 'executive' => 'bg-purple-50 text-purple-600', 'leadership' => 'bg-blue-50 text-blue-600', 'staff' => 'bg-slate-100 text-slate-600'];
-              $roleLabels = ['chairman' => 'Chairman', 'executive' => 'Executive', 'leadership' => 'Leadership', 'staff' => 'Staff'];
+              $roleColors = [
+                'chairman'   => 'bg-brandRed-light text-brandRed',
+                'board'      => 'bg-amber-50 text-amber-700 border border-amber-200',
+                'executive'  => 'bg-purple-50 text-purple-600 border border-purple-200',
+                'leadership' => 'bg-blue-50 text-blue-600 border border-blue-200',
+                'staff'      => 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+              ];
+              $roleLabels = [
+                'chairman'   => 'Chairman',
+                'board'      => 'Governance Board',
+                'executive'  => 'Executive Leadership',
+                'leadership' => 'Senior Management',
+                'staff'      => 'Our Team (Staff)'
+              ];
               $rt = $member['role_type'];
             ?>
             <span class="inline-flex text-[11px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full <?= $roleColors[$rt] ?? 'bg-slate-50 text-slate-600' ?>"><?= $roleLabels[$rt] ?? $rt ?></span>

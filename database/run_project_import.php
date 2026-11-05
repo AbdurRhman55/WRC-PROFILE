@@ -939,6 +939,16 @@ try {
         }
     }
 
+    // Ensure team_members.role_type includes 'board' and align staff designations
+    if ( $tableExists( 'team_members' ) ) {
+        $roleCol = $pdo->query( "SHOW COLUMNS FROM `team_members` LIKE 'role_type'" )->fetch( PDO::FETCH_ASSOC );
+        if ( $roleCol && stripos( (string) $roleCol['Type'], 'board' ) === false ) {
+            $pdo->exec( "ALTER TABLE `team_members` MODIFY COLUMN `role_type` ENUM('chairman','board','executive','leadership','staff') NOT NULL DEFAULT 'staff'" );
+            echo "Extended `team_members.role_type` with 'board'.\n";
+        }
+        $pdo->exec( "UPDATE `team_members` SET `name` = 'Abd Ur Rahman', `title` = 'Programme Assistant', `role_type` = 'staff' WHERE (`id` = 5 OR `name` LIKE '%Abdur%' OR `name` LIKE '%Rahman%') AND (`title` LIKE '%Operations%' OR `role_type` = 'leadership')" );
+    }
+
     // Maintenance that runs on every deployment, including the "already matches"
     // short-circuit below: keeps stored CTA wording in sync with the templates,
     // rewrites links and misspellings that were saved into the database, keeps

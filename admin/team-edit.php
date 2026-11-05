@@ -41,7 +41,7 @@ if (isPost()) {
 
     if (empty($name)) $errors[] = 'Name is required.';
     if (empty($title)) $errors[] = 'Title/Role is required.';
-    $validRoles = ['chairman', 'executive', 'leadership', 'staff'];
+    $validRoles = ['chairman', 'board', 'executive', 'leadership', 'staff'];
     if (!in_array($role_type, $validRoles)) $errors[] = 'Invalid role type.';
 
     if (empty($errors)) {
@@ -112,7 +112,13 @@ include __DIR__ . '/includes/header.php';
         <label class="block text-sm font-medium text-slate-700 mb-1">Role Type *</label>
         <select name="role_type" required class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-brandRed/20 focus:border-brandRed">
           <?php
-          $roles = ['chairman' => 'Chairman', 'executive' => 'Executive', 'leadership' => 'Leadership', 'staff' => 'Staff'];
+          $roles = [
+            'chairman'   => 'Chairman',
+            'board'      => 'Governance & Executive Board',
+            'executive'  => 'Executive Leadership (CEO / Executive Director)',
+            'leadership' => 'Senior Management / Directors',
+            'staff'      => 'Our Team (Programme, IT, Operations, Staff)'
+          ];
           foreach ($roles as $val => $label):
           ?>
           <option value="<?= $val ?>" <?= ($member['role_type'] ?? '') === $val ? 'selected' : '' ?>><?= $label ?></option>
