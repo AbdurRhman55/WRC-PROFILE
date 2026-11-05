@@ -92,7 +92,7 @@ include dirname( __DIR__ ) . '/includes/header.php';
           <i class="fa-solid fa-users-rectangle"></i>
         </div>
         <div class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Pillar 01</div>
-        <h3 class="text-lg font-bold text-slate-900 mb-2">Board of Directors</h3>
+        <h3 class="text-lg font-bold text-slate-900 mb-1">Board of Directors</h3>
         <p class="text-sm font-semibold text-brandRed mb-2">Strategic Governance &amp; Institutional Oversight</p>
         <p class="text-xs text-slate-600 leading-relaxed">
           Provides highest-level fiduciary oversight, policy formulation, ethical stewardship, and strategic guidance for long-term viability.
@@ -105,7 +105,7 @@ include dirname( __DIR__ ) . '/includes/header.php';
           <i class="fa-solid fa-user-tie"></i>
         </div>
         <div class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Pillar 02</div>
-        <h3 class="text-lg font-bold text-slate-900 mb-2">Chairman</h3>
+        <h3 class="text-lg font-bold text-slate-900 mb-1">Chairman</h3>
         <p class="text-sm font-semibold text-brandRed mb-2">Board Leadership &amp; Institutional Representation</p>
         <p class="text-xs text-slate-600 leading-relaxed">
           Leads the Board of Directors, presides over governance sessions, guides strategic direction, and represents WRC with partners and authorities.
@@ -118,7 +118,7 @@ include dirname( __DIR__ ) . '/includes/header.php';
           <i class="fa-solid fa-briefcase"></i>
         </div>
         <div class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Pillar 03</div>
-        <h3 class="text-lg font-bold text-slate-900 mb-2">Executive Director</h3>
+        <h3 class="text-lg font-bold text-slate-900 mb-1">Executive Director</h3>
         <p class="text-sm font-semibold text-brandRed mb-2">Executive Management &amp; Organizational Leadership</p>
         <p class="text-xs text-slate-600 leading-relaxed">
           Leads executive administration, directs operational leadership, supervises departmental heads, and translates board policies into action.
@@ -131,7 +131,7 @@ include dirname( __DIR__ ) . '/includes/header.php';
           <i class="fa-solid fa-calculator text-brandRed"></i>
         </div>
         <div class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Pillar 04</div>
-        <h3 class="text-lg font-bold text-slate-900 mb-2">Finance &amp; Administration</h3>
+        <h3 class="text-lg font-bold text-slate-900 mb-1">Finance &amp; Administration</h3>
         <p class="text-sm font-semibold text-brandRed mb-2">Financial Management &amp; Administrative Oversight</p>
         <p class="text-xs text-slate-600 leading-relaxed">
           Oversees budgeting, financial accounting, donor compliance, external audits, human resources, and general institutional administration.
@@ -144,7 +144,7 @@ include dirname( __DIR__ ) . '/includes/header.php';
           <i class="fa-solid fa-diagram-project text-brandRed"></i>
         </div>
         <div class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Pillar 05</div>
-        <h3 class="text-lg font-bold text-slate-900 mb-2">Programmes &amp; Development</h3>
+        <h3 class="text-lg font-bold text-slate-900 mb-1">Programmes &amp; Development</h3>
         <p class="text-sm font-semibold text-brandRed mb-2">Programme Planning, Development &amp; Implementation</p>
         <p class="text-xs text-slate-600 leading-relaxed">
           Leads evidence-based program design, funding proposal preparation, multi-sector humanitarian interventions, and M&amp;E frameworks.
@@ -157,7 +157,7 @@ include dirname( __DIR__ ) . '/includes/header.php';
           <i class="fa-solid fa-truck-fast text-brandRed"></i>
         </div>
         <div class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Pillar 06</div>
-        <h3 class="text-lg font-bold text-slate-900 mb-2">Operations &amp; Logistics</h3>
+        <h3 class="text-lg font-bold text-slate-900 mb-1">Operations &amp; Logistics</h3>
         <p class="text-sm font-semibold text-brandRed mb-2">Operations, Supply Chain &amp; Logistics Support</p>
         <p class="text-xs text-slate-600 leading-relaxed">
           Directs procurement, warehousing, emergency supply chain deployment, IT infrastructure, asset tracking, and security protocols.
@@ -178,23 +178,24 @@ include dirname( __DIR__ ) . '/includes/header.php';
         Governance &amp; Executive Flowchart
       </h2>
       <p class="mt-4 text-slate-600 text-base md:text-lg">
-        An interconnected structure connecting strategic oversight with executive leadership and operational frontline delivery.
+        An interconnected hierarchy linking strategic governance with executive leadership and operational frontline delivery.
       </p>
     </div>
 
-    <!-- FLOWCHART CONTAINER -->
-    <div class="max-w-6xl mx-auto">
+    <!-- FLOWCHART CANVAS -->
+    <div class="max-w-7xl mx-auto">
 
       <!-- ========================================================= -->
       <!-- TIER 1: GOVERNANCE & BOARD (Chairman leads the Board) -->
       <!-- ========================================================= -->
-      <div class="relative z-10 max-w-2xl mx-auto">
-        <div class="bg-slate-950 text-white rounded-3xl p-6 sm:p-8 shadow-xl border border-slate-800 text-center relative overflow-hidden">
-          <!-- Subtle corner accent -->
-          <div class="absolute top-0 right-0 w-32 h-32 bg-brandRed/10 rounded-full blur-2xl pointer-events-none"></div>
+      <div class="relative z-10 max-w-3xl mx-auto">
+        <div class="bg-slate-950 text-white rounded-3xl p-6 sm:p-8 shadow-2xl border border-slate-800 text-center relative overflow-hidden">
+          <!-- Subtle top accent glow -->
+          <div class="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-brandRed via-amber-500 to-brandRed"></div>
+          <div class="absolute top-0 right-0 w-48 h-48 bg-brandRed/10 rounded-full blur-3xl pointer-events-none"></div>
 
-          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 text-[11px] font-bold uppercase tracking-widest text-slate-300 border border-white/15 mb-4">
-            <i class="fa-solid fa-shield-halved text-brandRed"></i> Strategic Governance &amp; Oversight
+          <div class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-white/10 text-[11px] font-bold uppercase tracking-widest text-slate-200 border border-white/15 mb-4">
+            <i class="fa-solid fa-shield-halved text-brandRed"></i> Tier 1 • Strategic Governance &amp; Institutional Oversight
           </div>
 
           <h3 class="text-2xl sm:text-3xl font-display font-bold text-white mb-1">
@@ -204,165 +205,194 @@ include dirname( __DIR__ ) . '/includes/header.php';
             Led by the Chairman of the Board
           </p>
 
-          <!-- Inside Governance: Integrated Leadership Duo -->
+          <!-- Inside Governance: Chairman leading Board Members -->
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-left">
-            <div class="bg-white/5 rounded-2xl p-4 border border-white/10">
-              <div class="flex items-center gap-2.5 mb-2">
-                <div class="w-8 h-8 rounded-lg bg-brandRed/20 text-brandRed flex items-center justify-center text-sm shrink-0">
+            <!-- Chairman Card -->
+            <div class="bg-white/5 rounded-2xl p-5 border border-white/10 hover:border-brandRed/40 transition-colors">
+              <div class="flex items-center gap-3 mb-2.5">
+                <div class="w-10 h-10 rounded-xl bg-brandRed/20 text-brandRed flex items-center justify-center text-lg shrink-0 border border-brandRed/30">
                   <i class="fa-solid fa-user-tie"></i>
                 </div>
                 <div>
-                  <h4 class="text-sm font-bold text-white">Chairman</h4>
-                  <p class="text-[10px] text-slate-400 uppercase tracking-wider">Leads the Board</p>
+                  <h4 class="text-base font-bold text-white leading-tight">Chairman</h4>
+                  <p class="text-[10px] text-brandRed font-semibold uppercase tracking-wider">Leads the Board of Directors</p>
                 </div>
               </div>
               <p class="text-xs text-slate-300 leading-relaxed">
-                Institutional representation, presiding over board governance, and guiding strategic direction.
+                Board leadership, institutional representation, presiding over governance sessions, and guiding strategic direction.
               </p>
             </div>
 
-            <div class="bg-white/5 rounded-2xl p-4 border border-white/10">
-              <div class="flex items-center gap-2.5 mb-2">
-                <div class="w-8 h-8 rounded-lg bg-white/10 text-white flex items-center justify-center text-sm shrink-0">
+            <!-- Board Members Card -->
+            <div class="bg-white/5 rounded-2xl p-5 border border-white/10 hover:border-white/20 transition-colors">
+              <div class="flex items-center gap-3 mb-2.5">
+                <div class="w-10 h-10 rounded-xl bg-white/10 text-white flex items-center justify-center text-lg shrink-0 border border-white/15">
                   <i class="fa-solid fa-users-rectangle"></i>
                 </div>
                 <div>
-                  <h4 class="text-sm font-bold text-white">Board Members</h4>
-                  <p class="text-[10px] text-slate-400 uppercase tracking-wider">Fiduciary Guardians</p>
+                  <h4 class="text-base font-bold text-white leading-tight">Board Members</h4>
+                  <p class="text-[10px] text-slate-400 font-semibold uppercase tracking-wider">Strategic Governance</p>
                 </div>
               </div>
               <p class="text-xs text-slate-300 leading-relaxed">
-                Strategic oversight, approving policies and annual budgets, ensuring fiduciary and legal accountability.
+                Strategic oversight, approving organizational policies and budgets, ensuring fiduciary accountability and ethical compliance.
               </p>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- CONNECTOR 1: Vertical line from Board to Executive Director -->
-      <div class="flex flex-col items-center justify-center py-2">
-        <div class="w-0.5 h-10 bg-slate-300 relative">
+      <!-- ========================================================= -->
+      <!-- CONNECTOR 1: Seamless Line from Board to Executive Director -->
+      <!-- ========================================================= -->
+      <div class="flex flex-col items-center justify-center my-0">
+        <!-- Top stem -->
+        <div class="w-0.5 h-8 bg-slate-300"></div>
+        <!-- Middle label pill -->
+        <div class="bg-white px-4 py-1.5 rounded-full border border-slate-300 text-slate-700 shadow-sm z-20 flex items-center gap-2">
+          <i class="fa-solid fa-arrow-down text-[10px] text-brandRed"></i>
+          <span class="text-[11px] font-bold uppercase tracking-wider">
+            Reports to Board of Directors
+          </span>
+        </div>
+        <!-- Bottom stem with arrowhead -->
+        <div class="w-0.5 h-8 bg-slate-300 relative">
           <div class="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2.5 h-2.5 border-r-2 border-b-2 border-slate-400 rotate-45"></div>
         </div>
-        <span class="text-[10px] font-bold uppercase tracking-widest text-slate-500 bg-white px-3 py-1 rounded-full border border-slate-200 -mt-2 shadow-xs z-10">
-          Reports to Board of Directors
-        </span>
       </div>
 
       <!-- ========================================================= -->
       <!-- TIER 2: EXECUTIVE MANAGEMENT (Executive Director) -->
       <!-- ========================================================= -->
-      <div class="relative z-10 max-w-xl mx-auto mt-2">
-        <div class="bg-white rounded-3xl p-6 sm:p-7 shadow-lg border-2 border-slate-200/90 hover:border-brandRed/40 transition-colors text-center relative">
-          <div class="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-brandRed/10 text-brandRed text-[10px] font-bold uppercase tracking-widest border border-brandRed/20 mb-2">
-            <i class="fa-solid fa-briefcase text-[10px]"></i> Executive Management
+      <div class="relative z-10 max-w-xl mx-auto">
+        <div class="bg-white rounded-3xl p-6 sm:p-7 shadow-xl border-2 border-slate-200/90 hover:border-brandRed/40 transition-colors text-center relative overflow-hidden">
+          <div class="absolute top-0 inset-x-0 h-1 bg-brandRed"></div>
+
+          <div class="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-brandRed/10 text-brandRed text-[10px] font-bold uppercase tracking-widest border border-brandRed/20 mb-3">
+            <i class="fa-solid fa-briefcase text-[10px]"></i> Tier 2 • Executive Management
           </div>
 
           <h3 class="text-2xl font-display font-bold text-slate-900 mb-1">
             Executive Director
           </h3>
-          <p class="text-slate-500 text-xs font-semibold uppercase tracking-wider mb-3">
+          <p class="text-brandRed text-xs font-semibold uppercase tracking-wider mb-3">
             Executive Management &amp; Organizational Leadership
           </p>
           <p class="text-xs text-slate-600 leading-relaxed max-w-md mx-auto">
-            Responsible for overall operational leadership, translating strategic board directives into program execution, donor compliance, and supervising departmental directors.
+            Responsible for overall operational leadership, translating board directives into program execution, supervising departmental directors, and managing donor compliance.
           </p>
         </div>
       </div>
 
-      <!-- CONNECTOR 2: Branching connector to 4 Functional Areas -->
-      <div class="relative mt-2">
-        <!-- Trunk down from Executive Director -->
-        <div class="w-0.5 h-10 bg-slate-300 mx-auto"></div>
-
-        <!-- Horizontal Distribution Bar (Desktop: spans across the 4 functional columns) -->
-        <div class="hidden lg:block relative max-w-5xl mx-auto">
-          <div class="h-0.5 bg-slate-300 w-full"></div>
-          <!-- 4 Vertical Drop Pins -->
-          <div class="absolute top-0 left-[12.5%] -translate-x-1/2 w-0.5 h-8 bg-slate-300">
-            <div class="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 border-r-2 border-b-2 border-slate-400 rotate-45"></div>
-          </div>
-          <div class="absolute top-0 left-[37.5%] -translate-x-1/2 w-0.5 h-8 bg-slate-300">
-            <div class="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 border-r-2 border-b-2 border-slate-400 rotate-45"></div>
-          </div>
-          <div class="absolute top-0 left-[62.5%] -translate-x-1/2 w-0.5 h-8 bg-slate-300">
-            <div class="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 border-r-2 border-b-2 border-slate-400 rotate-45"></div>
-          </div>
-          <div class="absolute top-0 left-[87.5%] -translate-x-1/2 w-0.5 h-8 bg-slate-300">
-            <div class="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 border-r-2 border-b-2 border-slate-400 rotate-45"></div>
-          </div>
-        </div>
-
-        <!-- Label on branch -->
-        <div class="text-center my-2">
-          <span class="text-[10px] font-bold uppercase tracking-widest text-slate-500 bg-white px-3 py-1 rounded-full border border-slate-200 shadow-xs inline-block">
+      <!-- ========================================================= -->
+      <!-- CONNECTOR 2: Seamless Branching to 4 Functional Areas -->
+      <!-- ========================================================= -->
+      
+      <!-- Stem directly under Executive Director -->
+      <div class="flex flex-col items-center justify-center my-0">
+        <div class="w-0.5 h-8 bg-slate-300"></div>
+        <div class="bg-white px-4 py-1.5 rounded-full border border-slate-300 text-slate-700 shadow-sm z-20 flex items-center gap-2">
+          <i class="fa-solid fa-arrow-down text-[10px] text-brandRed"></i>
+          <span class="text-[11px] font-bold uppercase tracking-wider">
             Directs &amp; Oversees Four Functional Areas
           </span>
+        </div>
+        <div class="w-0.5 h-6 bg-slate-300"></div>
+      </div>
+
+      <!-- Desktop 4-Column Connector Crossbar (Matches the 4-col card grid below pixel-perfect) -->
+      <div class="hidden lg:grid grid-cols-4 gap-6 max-w-7xl mx-auto -mb-0.5">
+        <!-- Branch 1 (Col 1: starts at center 50%, goes right across gap to col 2) -->
+        <div class="relative h-8">
+          <div class="absolute top-0 right-0 w-[calc(50%+12px)] h-0.5 bg-slate-300"></div>
+          <div class="absolute top-0 left-1/2 -translate-x-1/2 w-0.5 h-full bg-slate-300"></div>
+          <div class="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 border-r-2 border-b-2 border-slate-400 rotate-45"></div>
+        </div>
+
+        <!-- Branch 2 (Col 2: bridges left gap from col 1, spans across to col 3 gap) -->
+        <div class="relative h-8">
+          <div class="absolute top-0 -left-3 -right-3 h-0.5 bg-slate-300"></div>
+          <div class="absolute top-0 left-1/2 -translate-x-1/2 w-0.5 h-full bg-slate-300"></div>
+          <div class="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 border-r-2 border-b-2 border-slate-400 rotate-45"></div>
+        </div>
+
+        <!-- Branch 3 (Col 3: bridges left gap from col 2, spans across to col 4 gap) -->
+        <div class="relative h-8">
+          <div class="absolute top-0 -left-3 -right-3 h-0.5 bg-slate-300"></div>
+          <div class="absolute top-0 left-1/2 -translate-x-1/2 w-0.5 h-full bg-slate-300"></div>
+          <div class="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 border-r-2 border-b-2 border-slate-400 rotate-45"></div>
+        </div>
+
+        <!-- Branch 4 (Col 4: bridges left gap from col 3, ends at center 50%) -->
+        <div class="relative h-8">
+          <div class="absolute top-0 left-0 w-[calc(50%+12px)] h-0.5 bg-slate-300"></div>
+          <div class="absolute top-0 left-1/2 -translate-x-1/2 w-0.5 h-full bg-slate-300"></div>
+          <div class="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 border-r-2 border-b-2 border-slate-400 rotate-45"></div>
         </div>
       </div>
 
       <!-- ========================================================= -->
       <!-- TIER 3: FOUR FUNCTIONAL & OPERATIONAL AREAS -->
       <!-- ========================================================= -->
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto mt-6">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto">
 
         <!-- Area 1: Finance & Administration -->
         <div class="bg-white rounded-2xl border border-slate-200/90 shadow-sm p-5 hover:shadow-md hover:border-slate-300 transition-all flex flex-col h-full relative">
-          <div class="h-1 w-full bg-slate-700 rounded-t-2xl absolute top-0 left-0 right-0"></div>
+          <div class="h-1.5 w-full bg-slate-700 rounded-t-2xl absolute top-0 left-0 right-0"></div>
           <div class="flex items-center gap-2 mb-3 mt-1">
             <div class="w-9 h-9 rounded-xl bg-slate-100 flex items-center justify-center text-slate-700 text-sm shrink-0">
               <i class="fa-solid fa-calculator"></i>
             </div>
             <div>
-              <span class="text-[10px] font-bold uppercase tracking-widest text-slate-400">Area 01</span>
+              <span class="text-[10px] font-bold uppercase tracking-widest text-slate-400">Functional Area 01</span>
               <h4 class="text-sm font-bold text-slate-900 leading-tight">Finance &amp; Admin</h4>
             </div>
           </div>
           <p class="text-xs font-semibold text-brandRed mb-3">
             Financial Management &amp; Administrative Oversight
           </p>
-          <ul class="text-xs text-slate-600 space-y-1.5 border-t border-slate-100 pt-3 mt-auto">
+          <ul class="text-xs text-slate-600 space-y-2 border-t border-slate-100 pt-3 mt-auto">
             <li class="flex items-start gap-1.5">
-              <i class="fa-solid fa-check text-[10px] text-slate-400 mt-0.5"></i>
-              <span>Budget planning, accounting &amp; treasury</span>
+              <i class="fa-solid fa-circle-check text-[11px] text-slate-400 mt-0.5 shrink-0"></i>
+              <span>Financial accounting, budgeting &amp; treasury</span>
             </li>
             <li class="flex items-start gap-1.5">
-              <i class="fa-solid fa-check text-[10px] text-slate-400 mt-0.5"></i>
-              <span>Financial compliance &amp; external audits</span>
+              <i class="fa-solid fa-circle-check text-[11px] text-slate-400 mt-0.5 shrink-0"></i>
+              <span>Donor compliance &amp; statutory external audits</span>
             </li>
             <li class="flex items-start gap-1.5">
-              <i class="fa-solid fa-check text-[10px] text-slate-400 mt-0.5"></i>
-              <span>Human resource management &amp; admin</span>
+              <i class="fa-solid fa-circle-check text-[11px] text-slate-400 mt-0.5 shrink-0"></i>
+              <span>Human resource management &amp; legal admin</span>
             </li>
           </ul>
         </div>
 
         <!-- Area 2: Programmes & Development -->
         <div class="bg-white rounded-2xl border border-slate-200/90 shadow-sm p-5 hover:shadow-md hover:border-slate-300 transition-all flex flex-col h-full relative">
-          <div class="h-1 w-full bg-brandRed rounded-t-2xl absolute top-0 left-0 right-0"></div>
+          <div class="h-1.5 w-full bg-brandRed rounded-t-2xl absolute top-0 left-0 right-0"></div>
           <div class="flex items-center gap-2 mb-3 mt-1">
             <div class="w-9 h-9 rounded-xl bg-brandRed/10 flex items-center justify-center text-brandRed text-sm shrink-0">
               <i class="fa-solid fa-diagram-project"></i>
             </div>
             <div>
-              <span class="text-[10px] font-bold uppercase tracking-widest text-slate-400">Area 02</span>
-              <h4 class="text-sm font-bold text-slate-900 leading-tight">Programmes &amp; Dev</h4>
+              <span class="text-[10px] font-bold uppercase tracking-widest text-slate-400">Functional Area 02</span>
+              <h4 class="text-sm font-bold text-slate-900 leading-tight">Programmes &amp; Development</h4>
             </div>
           </div>
           <p class="text-xs font-semibold text-brandRed mb-3">
             Programme Planning, Development &amp; Implementation
           </p>
-          <ul class="text-xs text-slate-600 space-y-1.5 border-t border-slate-100 pt-3 mt-auto">
+          <ul class="text-xs text-slate-600 space-y-2 border-t border-slate-100 pt-3 mt-auto">
             <li class="flex items-start gap-1.5">
-              <i class="fa-solid fa-check text-[10px] text-slate-400 mt-0.5"></i>
-              <span>Project design, proposals &amp; donor liaison</span>
+              <i class="fa-solid fa-circle-check text-[11px] text-brandRed/60 mt-0.5 shrink-0"></i>
+              <span>Evidence-based project proposals &amp; donor liaison</span>
             </li>
             <li class="flex items-start gap-1.5">
-              <i class="fa-solid fa-check text-[10px] text-slate-400 mt-0.5"></i>
-              <span>Sector programs (Health, WASH, Food, Education)</span>
+              <i class="fa-solid fa-circle-check text-[11px] text-brandRed/60 mt-0.5 shrink-0"></i>
+              <span>Integrated sector programs (Health, WASH, Food)</span>
             </li>
             <li class="flex items-start gap-1.5">
-              <i class="fa-solid fa-check text-[10px] text-slate-400 mt-0.5"></i>
+              <i class="fa-solid fa-circle-check text-[11px] text-brandRed/60 mt-0.5 shrink-0"></i>
               <span>Monitoring, Evaluation &amp; Learning (MEL)</span>
             </li>
           </ul>
@@ -370,30 +400,30 @@ include dirname( __DIR__ ) . '/includes/header.php';
 
         <!-- Area 3: Operations & Logistics -->
         <div class="bg-white rounded-2xl border border-slate-200/90 shadow-sm p-5 hover:shadow-md hover:border-slate-300 transition-all flex flex-col h-full relative">
-          <div class="h-1 w-full bg-slate-700 rounded-t-2xl absolute top-0 left-0 right-0"></div>
+          <div class="h-1.5 w-full bg-slate-700 rounded-t-2xl absolute top-0 left-0 right-0"></div>
           <div class="flex items-center gap-2 mb-3 mt-1">
             <div class="w-9 h-9 rounded-xl bg-slate-100 flex items-center justify-center text-slate-700 text-sm shrink-0">
               <i class="fa-solid fa-truck-fast"></i>
             </div>
             <div>
-              <span class="text-[10px] font-bold uppercase tracking-widest text-slate-400">Area 03</span>
+              <span class="text-[10px] font-bold uppercase tracking-widest text-slate-400">Functional Area 03</span>
               <h4 class="text-sm font-bold text-slate-900 leading-tight">Operations &amp; Logistics</h4>
             </div>
           </div>
           <p class="text-xs font-semibold text-brandRed mb-3">
             Operations, Supply Chain &amp; Logistics Management
           </p>
-          <ul class="text-xs text-slate-600 space-y-1.5 border-t border-slate-100 pt-3 mt-auto">
+          <ul class="text-xs text-slate-600 space-y-2 border-t border-slate-100 pt-3 mt-auto">
             <li class="flex items-start gap-1.5">
-              <i class="fa-solid fa-check text-[10px] text-slate-400 mt-0.5"></i>
+              <i class="fa-solid fa-circle-check text-[11px] text-slate-400 mt-0.5 shrink-0"></i>
               <span>Procurement, supply chain &amp; warehousing</span>
             </li>
             <li class="flex items-start gap-1.5">
-              <i class="fa-solid fa-check text-[10px] text-slate-400 mt-0.5"></i>
+              <i class="fa-solid fa-circle-check text-[11px] text-slate-400 mt-0.5 shrink-0"></i>
               <span>Emergency relief distribution logistics</span>
             </li>
             <li class="flex items-start gap-1.5">
-              <i class="fa-solid fa-check text-[10px] text-slate-400 mt-0.5"></i>
+              <i class="fa-solid fa-circle-check text-[11px] text-slate-400 mt-0.5 shrink-0"></i>
               <span>IT infrastructure, assets &amp; fleet security</span>
             </li>
           </ul>
@@ -401,30 +431,30 @@ include dirname( __DIR__ ) . '/includes/header.php';
 
         <!-- Area 4: Field & Community Implementation -->
         <div class="bg-white rounded-2xl border border-slate-200/90 shadow-sm p-5 hover:shadow-md hover:border-slate-300 transition-all flex flex-col h-full relative">
-          <div class="h-1 w-full bg-brandRed rounded-t-2xl absolute top-0 left-0 right-0"></div>
+          <div class="h-1.5 w-full bg-brandRed rounded-t-2xl absolute top-0 left-0 right-0"></div>
           <div class="flex items-center gap-2 mb-3 mt-1">
             <div class="w-9 h-9 rounded-xl bg-brandRed/10 flex items-center justify-center text-brandRed text-sm shrink-0">
               <i class="fa-solid fa-people-roof"></i>
             </div>
             <div>
-              <span class="text-[10px] font-bold uppercase tracking-widest text-slate-400">Area 04</span>
+              <span class="text-[10px] font-bold uppercase tracking-widest text-slate-400">Functional Area 04</span>
               <h4 class="text-sm font-bold text-slate-900 leading-tight">Field Implementation</h4>
             </div>
           </div>
           <p class="text-xs font-semibold text-brandRed mb-3">
             Community Mobilization &amp; Frontline Execution
           </p>
-          <ul class="text-xs text-slate-600 space-y-1.5 border-t border-slate-100 pt-3 mt-auto">
+          <ul class="text-xs text-slate-600 space-y-2 border-t border-slate-100 pt-3 mt-auto">
             <li class="flex items-start gap-1.5">
-              <i class="fa-solid fa-check text-[10px] text-slate-400 mt-0.5"></i>
+              <i class="fa-solid fa-circle-check text-[11px] text-brandRed/60 mt-0.5 shrink-0"></i>
               <span>Regional offices &amp; district project teams</span>
             </li>
             <li class="flex items-start gap-1.5">
-              <i class="fa-solid fa-check text-[10px] text-slate-400 mt-0.5"></i>
+              <i class="fa-solid fa-circle-check text-[11px] text-brandRed/60 mt-0.5 shrink-0"></i>
               <span>Community mobilization &amp; beneficiary feedback</span>
             </li>
             <li class="flex items-start gap-1.5">
-              <i class="fa-solid fa-check text-[10px] text-slate-400 mt-0.5"></i>
+              <i class="fa-solid fa-circle-check text-[11px] text-brandRed/60 mt-0.5 shrink-0"></i>
               <span>District line department coordination</span>
             </li>
           </ul>
@@ -432,10 +462,10 @@ include dirname( __DIR__ ) . '/includes/header.php';
 
       </div>
 
-      <!-- Integrated Synergies Banner -->
-      <div class="mt-12 bg-slate-50 border border-slate-200 rounded-2xl p-6 text-center max-w-4xl mx-auto">
+      <!-- Coordination Footer Note -->
+      <div class="mt-12 bg-slate-50 border border-slate-200 rounded-2xl p-6 text-center max-w-4xl mx-auto shadow-xs">
         <p class="text-xs text-slate-600 leading-relaxed">
-          <strong class="text-slate-900">Inter-Departmental Coordination:</strong> Field &amp; Community Implementation operates in close daily synergy with Programmes &amp; Development for technical delivery, and with Operations &amp; Logistics for timely procurement and material supply, all under the executive oversight of the Executive Director.
+          <strong class="text-slate-900">Inter-Departmental Synergy:</strong> Field &amp; Community Implementation coordinates directly with Programmes &amp; Development for technical delivery, and with Operations &amp; Logistics for material supply chain, reporting to executive leadership under the Executive Director.
         </p>
       </div>
 
