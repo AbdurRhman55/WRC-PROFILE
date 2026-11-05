@@ -139,13 +139,18 @@ $categories = [
     ]
 ];
 
+$totalPolicies = 0;
+foreach ( $categories as $c ) {
+    $totalPolicies += count( $c['policies'] );
+}
+
 include dirname( __DIR__ ) . '/includes/header.php';
 ?>
 
 <main class="flex-grow bg-slate-50">
 
     <!-- HERO SECTION -->
-    <section class="relative bg-slate-900 text-white min-h-[460px] flex items-center py-24 overflow-hidden">
+    <section class="relative bg-slate-900 text-white min-h-[440px] flex items-center py-20 overflow-hidden">
         <div class="absolute inset-0 z-0">
             <img src="<?= $base ?><?= $heroData['hero_image'] ?? 'assets/images/hero/about-hero.jpg' ?>" 
                  alt="WRC Policies & Compliance" 
@@ -153,7 +158,7 @@ include dirname( __DIR__ ) . '/includes/header.php';
             <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-900/85 to-slate-900/60"></div>
         </div>
         
-        <!-- Subtle Grid Pattern -->
+        <!-- Subtle Pattern -->
         <div class="absolute inset-0 bg-[radial-gradient(#ffffff0a_1px,transparent_1px)] [background-size:24px_24px] pointer-events-none"></div>
 
         <div class="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 max-w-6xl">
@@ -189,76 +194,84 @@ include dirname( __DIR__ ) . '/includes/header.php';
         </div>
     </section>
 
-    <!-- QUICK CATEGORY JUMP / PILL BAR -->
-    <section class="bg-white border-b border-slate-200 sticky top-16 z-30 shadow-sm">
-        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
-            <div class="flex items-center justify-between gap-4 overflow-x-auto no-scrollbar py-1">
-                <span class="text-xs font-bold uppercase tracking-wider text-slate-400 whitespace-nowrap hidden md:inline-flex items-center gap-1.5">
-                    <i class="fa-solid fa-list-check text-brandRed"></i> Framework:
-                </span>
-                <div class="flex items-center gap-2 sm:gap-3 flex-nowrap">
-                    <?php foreach ( $categories as $cat ): ?>
-                    <a href="#<?= $cat['id'] ?>" 
-                       class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-medium bg-slate-100 hover:bg-brandRed hover:text-white text-slate-700 transition whitespace-nowrap border border-slate-200/80 hover:border-brandRed">
-                        <i class="<?= $cat['icon'] ?> text-[11px]"></i>
-                        <span><?= $cat['num'] ?>. <?= $cat['name'] ?></span>
-                    </a>
-                    <?php endforeach; ?>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- MAIN FRAMEWORK SECTION -->
-    <section class="py-16 md:py-20">
+    <!-- PROFESSIONAL FILTER TABS COMPONENT -->
+    <section class="py-12 md:py-16">
         <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
 
-            <div class="text-center max-w-2xl mx-auto mb-14">
+            <div class="text-center max-w-2xl mx-auto mb-10">
                 <span class="text-xs font-bold uppercase tracking-wider text-brandRed bg-brandRed/10 px-3 py-1 rounded-full inline-block mb-3">
-                    Standardized Structure
+                    Policy Directory
                 </span>
                 <h2 class="text-3xl font-extrabold text-slate-900 tracking-tight font-heading">
                     Our Policy Framework
                 </h2>
                 <div class="w-16 h-1 bg-brandRed mx-auto mt-4 rounded-full"></div>
                 <p class="text-sm text-slate-600 mt-4 leading-relaxed">
-                    Organized across four foundational pillars that govern our programmatic interventions, workforce conduct, institutional safeguarding, and fiduciary duties.
+                    Filter by institutional pillar to explore approved policies, compliance mandates, and operational guidelines.
                 </p>
             </div>
 
-            <div class="space-y-12">
+            <!-- INTERACTIVE FILTER TABS -->
+            <div class="flex flex-wrap items-center justify-center gap-2 sm:gap-3 mb-10" id="policyFilterContainer">
+                <!-- All Filter Button -->
+                <button type="button" 
+                        data-filter="all"
+                        class="policy-filter-btn active inline-flex items-center gap-2 px-4 sm:px-5 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all duration-200 shadow-sm border bg-brandRed text-white border-brandRed">
+                    <i class="fa-solid fa-shapes text-xs"></i>
+                    <span>All Policies</span>
+                    <span class="filter-count ml-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-white/20 text-white">
+                        <?= $totalPolicies ?>
+                    </span>
+                </button>
+
+                <?php foreach ( $categories as $cat ): ?>
+                <button type="button" 
+                        data-filter="<?= $cat['id'] ?>"
+                        class="policy-filter-btn inline-flex items-center gap-2 px-4 sm:px-5 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all duration-200 shadow-sm border bg-white hover:bg-slate-100 text-slate-700 border-slate-200 hover:border-slate-300">
+                    <i class="<?= $cat['icon'] ?> text-xs text-brandRed"></i>
+                    <span><?= $cat['num'] ?>. <?= $cat['name'] ?></span>
+                    <span class="filter-count ml-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-600 border border-slate-200">
+                        <?= count( $cat['policies'] ) ?>
+                    </span>
+                </button>
+                <?php endforeach; ?>
+            </div>
+
+            <!-- FILTERED SECTIONS -->
+            <div class="space-y-10" id="policyPillarsWrapper">
                 <?php foreach ( $categories as $idx => $cat ): ?>
-                <div id="<?= $cat['id'] ?>" class="scroll-mt-32 bg-white rounded-2xl border border-slate-200/90 shadow-sm hover:shadow-md transition-shadow overflow-hidden">
+                <div class="policy-pillar-block bg-white rounded-2xl border border-slate-200/90 shadow-sm overflow-hidden transition-all duration-300"
+                     data-category="<?= $cat['id'] ?>">
                     
-                    <!-- CATEGORY HEADER -->
-                    <div class="bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 text-white px-6 py-5 sm:px-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-700/60">
-                        <div class="flex items-start sm:items-center gap-4">
-                            <div class="w-12 h-12 rounded-xl bg-brandRed text-white flex items-center justify-center flex-shrink-0 shadow-lg shadow-brandRed/20">
-                                <i class="<?= $cat['icon'] ?> text-lg"></i>
+                    <!-- PILLAR HEADER -->
+                    <div class="bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 text-white px-6 py-4 sm:px-8 flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-700/60">
+                        <div class="flex items-center gap-3.5">
+                            <div class="w-10 h-10 rounded-lg bg-brandRed text-white flex items-center justify-center flex-shrink-0 shadow-md shadow-brandRed/20">
+                                <i class="<?= $cat['icon'] ?> text-sm"></i>
                             </div>
                             <div>
-                                <div class="flex items-center gap-2 mb-1">
-                                    <span class="text-xs font-bold uppercase tracking-wider text-brandRed bg-white/10 px-2.5 py-0.5 rounded-full">
+                                <div class="flex items-center gap-2">
+                                    <span class="text-[10px] font-bold uppercase tracking-wider text-brandRed bg-white/10 px-2 py-0.5 rounded-full">
                                         Pillar <?= $cat['num'] ?>
                                     </span>
-                                    <span class="text-xs text-slate-400 font-medium hidden sm:inline">•</span>
-                                    <span class="text-xs text-slate-300 font-medium hidden sm:inline"><?= $cat['tag'] ?></span>
+                                    <span class="text-xs text-slate-400">•</span>
+                                    <span class="text-xs text-slate-300 font-medium"><?= $cat['tag'] ?></span>
                                 </div>
-                                <h3 class="text-xl sm:text-2xl font-bold font-heading text-white">
+                                <h3 class="text-lg sm:text-xl font-bold font-heading text-white">
                                     <?= $cat['num'] ?>. <?= $cat['name'] ?>
                                 </h3>
                             </div>
                         </div>
-                        <p class="text-xs sm:text-sm text-slate-300 sm:text-right max-w-sm sm:border-l sm:border-slate-700/80 sm:pl-4">
+                        <p class="text-xs text-slate-300 sm:text-right max-w-sm sm:border-l sm:border-slate-700/80 sm:pl-4">
                             <?= $cat['desc'] ?>
                         </p>
                     </div>
 
-                    <!-- POLICY CARDS GRID -->
+                    <!-- POLICY CARDS -->
                     <div class="p-6 sm:p-8">
                         <div class="grid grid-cols-1 <?= count( $cat['policies'] ) === 2 ? 'md:grid-cols-2' : 'md:grid-cols-3' ?> gap-6">
                             <?php foreach ( $cat['policies'] as $policy ): ?>
-                            <div class="group relative flex flex-col justify-between bg-slate-50/70 hover:bg-white rounded-xl p-6 border border-slate-200 hover:border-brandRed/40 transition-all duration-300 hover:shadow-md">
+                            <div class="group relative flex flex-col justify-between bg-slate-50/70 hover:bg-white rounded-xl p-5 border border-slate-200 hover:border-brandRed/40 transition-all duration-300 hover:shadow-md">
                                 <div>
                                     <div class="flex items-center justify-between gap-2 mb-3">
                                         <span class="inline-block text-[11px] font-semibold text-slate-600 bg-white group-hover:bg-brandRed/10 group-hover:text-brandRed px-2.5 py-1 rounded-md border border-slate-200/80 group-hover:border-brandRed/30 transition-colors">
@@ -274,8 +287,8 @@ include dirname( __DIR__ ) . '/includes/header.php';
                                     </p>
                                 </div>
 
-                                <div class="mt-5 pt-4 border-t border-slate-200/60 flex items-center justify-between text-xs text-slate-500">
-                                    <span class="inline-flex items-center gap-1.5 font-medium text-slate-600">
+                                <div class="mt-5 pt-3.5 border-t border-slate-200/60 flex items-center justify-between text-xs text-slate-500">
+                                    <span class="inline-flex items-center gap-1.5 font-medium text-slate-600 text-[11px]">
                                         <i class="fa-solid fa-circle-check text-emerald-600 text-[10px]"></i> Active Institutional Standard
                                     </span>
                                     <span class="text-slate-400 group-hover:text-brandRed transition-colors">
@@ -340,17 +353,59 @@ include dirname( __DIR__ ) . '/includes/header.php';
                     <span class="text-slate-300">•</span>
                     <a href="<?= $base ?>about/who-we-are.php" class="text-brandRed hover:underline font-medium">Who We Are</a>
                 </div>
-                <div>
-                    <a href="#governance-ethics" class="inline-flex items-center gap-1.5 text-slate-500 hover:text-slate-900 transition">
-                        <span>Back to top</span>
-                        <i class="fa-solid fa-arrow-up text-[10px]"></i>
-                    </a>
-                </div>
             </div>
 
         </div>
     </section>
 
 </main>
+
+<!-- JAVASCRIPT FILTERING SCRIPT (Clean, no scroll jitter) -->
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const filterButtons = document.querySelectorAll('.policy-filter-btn');
+    const policyBlocks = document.querySelectorAll('.policy-pillar-block');
+
+    filterButtons.forEach(btn => {
+        btn.addEventListener('click', function () {
+            const filter = this.getAttribute('data-filter');
+
+            // Reset all button styles
+            filterButtons.forEach(b => {
+                b.classList.remove('active', 'bg-brandRed', 'text-white', 'border-brandRed');
+                b.classList.add('bg-white', 'text-slate-700', 'border-slate-200');
+                const countBadge = b.querySelector('.filter-count');
+                if (countBadge) {
+                    countBadge.classList.remove('bg-white/20', 'text-white');
+                    countBadge.classList.add('bg-slate-100', 'text-slate-600', 'border', 'border-slate-200');
+                }
+            });
+
+            // Activate clicked button
+            this.classList.add('active', 'bg-brandRed', 'text-white', 'border-brandRed');
+            this.classList.remove('bg-white', 'text-slate-700', 'border-slate-200');
+            const activeBadge = this.querySelector('.filter-count');
+            if (activeBadge) {
+                activeBadge.classList.add('bg-white/20', 'text-white');
+                activeBadge.classList.remove('bg-slate-100', 'text-slate-600', 'border', 'border-slate-200');
+            }
+
+            // Filter blocks with smooth fade
+            policyBlocks.forEach(block => {
+                const category = block.getAttribute('data-category');
+                if (filter === 'all' || category === filter) {
+                    block.style.display = 'block';
+                    block.classList.remove('opacity-0', 'translate-y-2');
+                    block.classList.add('opacity-100', 'translate-y-0');
+                } else {
+                    block.style.display = 'none';
+                    block.classList.remove('opacity-100', 'translate-y-0');
+                    block.classList.add('opacity-0', 'translate-y-2');
+                }
+            });
+        });
+    });
+});
+</script>
 
 <?php include dirname( __DIR__ ) . '/includes/footer.php'; ?>
