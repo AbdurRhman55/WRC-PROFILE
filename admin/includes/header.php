@@ -180,6 +180,19 @@ if ( $flash ): ?>
                                                 var type = widget.dataset.type || 'image';
                                                 var baseUrl = widget.dataset.baseUrl || '/';
                                                 var input = widget.querySelector( 'input[type=file]' );
+                                                // The preview below replaces everything inside the zone. If the
+                                                // file input lives there it gets destroyed with it, so replacing
+                                                // an image that already has a value silently stops working.
+                                                // Keep the input on the widget itself so it always survives.
+                                                if ( !input ) {
+                                                    input = document.createElement( 'input' );
+                                                    input.type = 'file';
+                                                    input.accept = ( type === 'image' ) ? 'image/*' : '';
+                                                }
+                                                if ( input.parentNode !== widget ) {
+                                                    input.style.display = 'none';
+                                                    widget.appendChild( input );
+                                                }
                                                 var pathInput = widget.closest( '.form-group' )?.querySelector( 'input.upload-path-input' ) || document.getElementById( widget.dataset.target );
                                                 var preview = widget.querySelector( '.upload-preview' );
                                                 var zone = widget.querySelector( '.upload-zone' );
