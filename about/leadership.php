@@ -68,51 +68,49 @@ include dirname( __DIR__ ) . '/includes/header.php';
 
 /**
  * Helper to render team profile cards consistently across all profiles.
+ * Matches the exact styling, sizing, and structure of about/team.php.
  */
 function renderProfileCard( array $member, string $badgeText = 'Profile' ): void {
     $photo = trim( (string) ( $member['photo_path'] ?? '' ) );
     $hasPhoto = $photo !== '' && imageExists( $photo );
     $imgUrl = getImageUrl( $photo, 'assets/images/chairman.svg' );
-    $name = $member['name'] ?? '';
-    $title = $member['title'] ?? '';
-    $bio = $member['bio'] ?? '';
+    $name = $member['full_name'] ?? $member['name'] ?? '';
+    $title = $member['role_title'] ?? $member['title'] ?? 'Team Member';
+    $bio = $member['description'] ?? $member['bio'] ?? '';
     $email = $member['email'] ?? '';
     $linkedin = $member['linkedin_url'] ?? '';
     ?>
     <div class="bg-white rounded-3xl border border-slate-200/80 overflow-hidden hover:shadow-2xl hover:shadow-slate-900/10 hover:-translate-y-2 transition-all duration-500 group flex flex-col h-full relative">
-      <!-- Hover Top Accent Bar -->
+      <!-- Top Accent Line -->
       <div class="h-1.5 w-full bg-gradient-to-r from-brandRed via-red-500 to-amber-500 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left"></div>
 
-      <!-- Member Photo Container with strict uniform dimensions and top-focused portrait crop -->
-      <div class="relative aspect-[4/4.8] w-full overflow-hidden bg-slate-100">
+      <!-- Member Image Container: exact aspect-[4/4.5] as team.php -->
+      <div class="relative aspect-[4/4.5] w-full overflow-hidden bg-slate-100">
         <?php if ( $hasPhoto ): ?>
-          <img src="<?= sanitize( $imgUrl ) ?>" alt="<?= sanitize( $name ) ?>" class="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-700 ease-out">
+          <img src="<?= sanitize( $imgUrl ) ?>" alt="<?= sanitize( $name ) ?>" class="w-full h-full object-cover group-hover:scale-108 transition-transform duration-700 ease-out">
         <?php else: ?>
           <div class="w-full h-full bg-gradient-to-br from-slate-100 to-slate-200 flex flex-col items-center justify-center p-6 text-center">
             <div class="w-20 h-20 rounded-full bg-brandRed/10 border border-brandRed/20 flex items-center justify-center mb-3">
-              <i class="fa-solid fa-user-tie text-3xl text-brandRed"></i>
+              <i class="fa-solid fa-user text-3xl text-brandRed"></i>
             </div>
             <span class="text-xs text-slate-400 font-medium uppercase tracking-wider font-heading">WRC Profile</span>
           </div>
         <?php endif; ?>
 
-        <!-- Role Pill Badge -->
+        <!-- Role Badge -->
         <div class="absolute top-3 right-3 px-3 py-1 rounded-full bg-slate-900/85 backdrop-blur-md text-[10px] font-bold tracking-widest uppercase text-white shadow-md border border-white/10">
           <?= sanitize( strtoupper( $badgeText ) ) ?>
         </div>
-
-        <!-- Gradient Bottom Overlay -->
-        <div class="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-slate-950/70 to-transparent pointer-events-none opacity-60 group-hover:opacity-80 transition-opacity"></div>
       </div>
 
-      <!-- Card Body -->
+      <!-- Member Content -->
       <div class="p-6 flex flex-col flex-grow justify-between bg-white">
         <div>
           <h3 class="text-xl font-bold font-display text-slate-900 group-hover:text-brandRed transition-colors duration-300 leading-snug mb-1">
             <?= sanitize( $name ) ?>
           </h3>
           <p class="text-brandRed text-xs font-semibold uppercase tracking-wider mb-4 flex items-center gap-1.5">
-            <i class="fa-solid fa-briefcase text-[10px] opacity-70"></i>
+            <i class="fa-solid fa-id-badge text-[10px] opacity-70"></i>
             <?= sanitize( $title ) ?>
           </p>
           <?php if ( !empty( $bio ) ): ?>
@@ -126,16 +124,16 @@ function renderProfileCard( array $member, string $badgeText = 'Profile' ): void
           <?php endif; ?>
         </div>
 
-        <!-- Footer / Contact Links -->
+        <!-- Footer Social Links -->
         <div class="pt-4 border-t border-slate-100 flex items-center justify-between mt-auto">
           <div class="flex items-center gap-2">
             <?php if ( !empty( $email ) ): ?>
-              <a href="mailto:<?= sanitize( $email ) ?>" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-brandRed hover:text-white text-slate-500 flex items-center justify-center transition-all duration-300" title="Email <?= sanitize( $name ) ?>">
+              <a href="mailto:<?= sanitize( $email ) ?>" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-brandRed hover:text-white text-slate-500 flex items-center justify-center transition-all duration-300" aria-label="Email <?= sanitize( $name ) ?>" title="Email <?= sanitize( $name ) ?>">
                 <i class="fa-solid fa-envelope text-xs"></i>
               </a>
             <?php endif; ?>
             <?php if ( !empty( $linkedin ) ): ?>
-              <a href="<?= sanitize( $linkedin ) ?>" target="_blank" rel="noopener noreferrer" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-blue-600 hover:text-white text-slate-500 flex items-center justify-center transition-all duration-300" title="LinkedIn Profile">
+              <a href="<?= sanitize( $linkedin ) ?>" target="_blank" rel="noopener noreferrer" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-blue-600 hover:text-white text-slate-500 flex items-center justify-center transition-all duration-300" aria-label="LinkedIn" title="LinkedIn Profile">
                 <i class="fa-brands fa-linkedin-in text-xs"></i>
               </a>
             <?php endif; ?>
@@ -279,9 +277,11 @@ $message2 = $chairmanData[ 'paragraph2' ] ?? '';
     </div>
 
     <?php if ( !empty( $boardMembers ) ): ?>
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 <?= count( $boardMembers ) === 1 ? 'max-w-md mx-auto' : ( count( $boardMembers ) === 2 ? 'max-w-3xl mx-auto' : 'max-w-6xl mx-auto' ) ?>">
+      <div class="flex flex-wrap justify-center gap-8">
         <?php foreach ( $boardMembers as $member ): ?>
-          <?php renderProfileCard( $member, 'Governance & Board' ); ?>
+          <div class="w-full sm:w-[calc(50%-1rem)] lg:w-[calc(25%-1.5rem)] max-w-sm flex flex-col">
+            <?php renderProfileCard( $member, 'Governance & Board' ); ?>
+          </div>
         <?php endforeach; ?>
       </div>
     <?php endif; ?>
@@ -304,9 +304,11 @@ $message2 = $chairmanData[ 'paragraph2' ] ?? '';
     </div>
 
     <?php if ( !empty( $execLeaders ) ): ?>
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 <?= count( $execLeaders ) <= 2 ? 'max-w-3xl mx-auto' : 'max-w-6xl mx-auto' ?>">
+      <div class="flex flex-wrap justify-center gap-8">
         <?php foreach ( $execLeaders as $leader ): ?>
-          <?php renderProfileCard( $leader, 'Executive Leadership' ); ?>
+          <div class="w-full sm:w-[calc(50%-1rem)] lg:w-[calc(25%-1.5rem)] max-w-sm flex flex-col">
+            <?php renderProfileCard( $leader, 'Executive Leadership' ); ?>
+          </div>
         <?php endforeach; ?>
       </div>
     <?php else: ?>
@@ -333,9 +335,11 @@ $message2 = $chairmanData[ 'paragraph2' ] ?? '';
     </div>
 
     <?php if ( !empty( $teamStaff ) ): ?>
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 <?= count( $teamStaff ) === 1 ? 'max-w-md mx-auto' : ( count( $teamStaff ) === 2 ? 'max-w-3xl mx-auto' : ( count( $teamStaff ) === 3 ? 'max-w-5xl mx-auto' : 'max-w-7xl mx-auto' ) ) ?>">
+      <div class="flex flex-wrap justify-center gap-8">
         <?php foreach ( $teamStaff as $staff ): ?>
-          <?php renderProfileCard( $staff, 'Our Team' ); ?>
+          <div class="w-full sm:w-[calc(50%-1rem)] lg:w-[calc(25%-1.5rem)] max-w-sm flex flex-col">
+            <?php renderProfileCard( $staff, 'Our Team' ); ?>
+          </div>
         <?php endforeach; ?>
       </div>
     <?php else: ?>
