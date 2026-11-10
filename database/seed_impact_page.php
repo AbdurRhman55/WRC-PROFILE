@@ -9,19 +9,23 @@
  *  - Replaces the old M&E steps with the approved five-step
  *    monitoring, evaluation, and accountability framework, plus its intro.
  *
- * Existing counters, SDG cards, and case studies are preserved. The pass is
- * guarded by a site_settings marker, so later dashboard edits survive every
- * deployment.
+ *  v2  Sets the SDG section heading and both introduction paragraphs
+ *      ("Global Goals Alignment" / "Contributing to the United Nations...").
+ *
+ * Existing counters, SDG cards, and case studies are preserved. Each pass is
+ * guarded by its own site_settings marker, so later dashboard edits survive
+ * every deployment.
  *
  * Standalone:  php database/seed_impact_page.php
- * Re-run:      DELETE FROM site_settings WHERE setting_key = 'impact_page_v1';
+ * Re-run:      DELETE FROM site_settings WHERE setting_key IN ('impact_page_v1','impact_page_v2');
  */
 
 if ( !isset( $pdo ) || !( $pdo instanceof PDO ) ) {
     require_once dirname( __DIR__ ) . '/includes/config.php';
 }
 
-const WRC_IMPACT_MARKER = 'impact_page_v1';
+const WRC_IMPACT_MARKER     = 'impact_page_v1';
+const WRC_IMPACT_SDG_MARKER = 'impact_page_v2';
 
 /** Add the columns and tables the impact page needs, without touching rows. */
 function wrc_impact_ensure_schema( PDO $pdo ): void {
@@ -75,16 +79,27 @@ try {
     throw $error;
 }
 
-try {
-    $marker = $pdo->prepare( 'SELECT setting_value FROM site_settings WHERE setting_key = ?' );
-    $marker->execute( [ WRC_IMPACT_MARKER ] );
-    if ( $marker->fetchColumn() === 'done' ) {
-        echo "Impact page content already applied; left untouched.\n";
-        return;
+/** True when a content pass has already been applied. */
+function wrc_impact_done( PDO $pdo, string $marker ): bool {
+    try {
+        $statement = $pdo->prepare( 'SELECT setting_value FROM site_settings WHERE setting_key = ?' );
+        $statement->execute( [ $marker ] );
+        return $statement->fetchColumn() === 'done';
+    } catch ( Throwable $error ) {
+        return false;
     }
-} catch ( Throwable $error ) {
-    // Older database without site_settings: carry on.
 }
+
+/** Record a finished content pass. */
+function wrc_impact_mark( PDO $pdo, string $marker ): void {
+    $pdo->prepare(
+        'INSERT INTO site_settings (setting_key, setting_value, setting_group)
+         VALUES (?, ?, ?)
+         ON DUPLICATE KEY UPDATE setting_value = VALUES(setting_value)'
+    )->execute( [ $marker, 'done', 'system' ] );
+}
+
+$applied = [];
 
 $heroCopy = [
     'eyebrow'       => 'Our Impact in Numbers',
@@ -163,6 +178,8 @@ $mneSteps = [
     ],
 ];
 
+// ---------------------------------------------------------------- pass v1 --
+if ( !wrc_impact_done( $pdo, WRC_IMPACT_MARKER ) ) {
 try {
     $pdo->beginTransaction();
 
@@ -213,18 +230,66 @@ try {
         )->execute( [ 'Impact at a Glance', '', $json ] );
     }
 
-    $pdo->prepare(
-        'INSERT INTO site_settings (setting_key, setting_value, setting_group)
-         VALUES (?, ?, ?)
-         ON DUPLICATE KEY UPDATE setting_value = VALUES(setting_value)'
-    )->execute( [ WRC_IMPACT_MARKER, 'done', 'system' ] );
+    wrc_impact_mark( $pdo, WRC_IMPACT_MARKER );
 
     $pdo->commit();
 
-    echo "Impact page prepared: hero copy, five indicators, and the accountability framework added.\n";
+    $applied[] = 'hero copy, indicators, and the accountability framework';
 } catch ( Throwable $error ) {
     if ( $pdo->inTransaction() ) {
         $pdo->rollBack();
     }
     throw $error;
+}
+}
+
+// ---------------------------------------------------------------- pass v2 --
+if ( !wrc_impact_done( $pdo, WRC_IMPACT_SDG_MARKER ) ) {
+    $sdgCopy = [
+        'sdg_eyebrow' => 'Global Goals Alignment',
+        'sdg_title'   => 'Contributing to the United Nations Sustainable Development Goals (SDGs)',
+        'sdg_intro1'  => "WRC seeks to align its humanitarian and development initiatives with relevant United Nations Sustainable Development Goals (SDGs). Through programmes addressing healthcare, education, livelihoods, women's empowerment, clean water, and humanitarian needs, we aim to contribute to inclusive and sustainable development.",
+        'sdg_intro2'  => 'Our programme activities are mapped against relevant SDG targets to demonstrate their contribution and identify opportunities for greater impact.',
+    ];
+
+    try {
+        $pdo->beginTransaction();
+
+        $contentRow = $pdo->query( 'SELECT * FROM impact_content ORDER BY id LIMIT 1' )->fetch( PDO::FETCH_ASSOC );
+        $data = [];
+        if ( $contentRow ) {
+            $decoded = json_decode( (string) ( $contentRow[ 'content' ] ?? '' ), true );
+            $data    = is_array( $decoded ) ? $decoded : [];
+        }
+
+        $data = array_merge( $data, $sdgCopy );
+        $json = json_encode( $data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES );
+
+        if ( $contentRow ) {
+            $pdo->prepare( 'UPDATE impact_content SET content = ? WHERE id = ?' )
+                ->execute( [ $json, $contentRow[ 'id' ] ] );
+        } else {
+            $pdo->prepare(
+                'INSERT INTO impact_content (section_title, section_subtitle, content, is_active)
+                 VALUES (?, ?, ?, 1)'
+            )->execute( [ 'Impact at a Glance', '', $json ] );
+        }
+
+        wrc_impact_mark( $pdo, WRC_IMPACT_SDG_MARKER );
+
+        $pdo->commit();
+
+        $applied[] = 'SDG heading and introduction';
+    } catch ( Throwable $error ) {
+        if ( $pdo->inTransaction() ) {
+            $pdo->rollBack();
+        }
+        throw $error;
+    }
+}
+
+if ( $applied ) {
+    echo 'Impact page prepared: ' . implode( '; ', $applied ) . ".\n";
+} else {
+    echo "Impact page content already applied; left untouched.\n";
 }

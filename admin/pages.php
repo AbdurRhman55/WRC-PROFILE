@@ -2132,6 +2132,22 @@ include __DIR__ . '/includes/header.php';
                                                                     <!-- SDGs -->
                                                                     <div style = 'margin-top:1rem;padding:1rem;background:#f8fafc;border-radius:0.75rem;border:1px solid #e2e8f0;'>
                                                                     <p style = 'font-size:0.75rem;font-weight:700;color:#ca0000;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.75rem;'>SDG Contributions</p>
+                                                                    <div class = 'field-group'>
+                                                                    <label>SDG Small Heading ( eyebrow )</label>
+                                                                    <input type = 'text' data-field = 'content.sdg_eyebrow' value = "<?= htmlspecialchars($content['sdg_eyebrow'] ?? '') ?>" placeholder = 'Global Goals Alignment'>
+                                                                    </div>
+                                                                    <div class = 'field-group'>
+                                                                    <label>SDG Heading</label>
+                                                                    <input type = 'text' data-field = 'content.sdg_title' value = "<?= htmlspecialchars($content['sdg_title'] ?? '') ?>" placeholder = 'Contributing to the United Nations Sustainable Development Goals (SDGs)'>
+                                                                    </div>
+                                                                    <div class = 'field-group'>
+                                                                    <label>SDG Introduction ( first paragraph )</label>
+                                                                    <textarea data-field = 'content.sdg_intro1' rows = '3' placeholder = 'WRC seeks to align its humanitarian and development initiatives...'><?= htmlspecialchars( $content[ 'sdg_intro1' ] ?? '' ) ?></textarea>
+                                                                    </div>
+                                                                    <div class = 'field-group'>
+                                                                    <label>SDG Introduction ( second paragraph )</label>
+                                                                    <textarea data-field = 'content.sdg_intro2' rows = '2' placeholder = 'Our programme activities are mapped against relevant SDG targets...'><?= htmlspecialchars( $content[ 'sdg_intro2' ] ?? '' ) ?></textarea>
+                                                                    </div>
                                                                     <div id = 'sdgsList_impact_content' class = 'space-y-2'></div>
                                                                     <button type = 'button' class = 'add-btn' onclick = 'addSdg_impact_content()'><i class = 'fa-solid fa-plus text-xs'></i> Add SDG</button>
                                                                     </div>

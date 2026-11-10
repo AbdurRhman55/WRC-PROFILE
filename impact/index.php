@@ -99,6 +99,14 @@ $sdgs = $contentData['sdgs'] ?? [
     ['number' => '13', 'title' => 'Climate Action', 'desc' => 'WRC integrates climate resilience into disaster preparedness, promotes renewable energy access, and supports reforestation and environmental restoration projects.', 'color' => 'emerald-700', 'bg' => 'emerald', 'progress' => '64', 'tags' => ['50,000 Trees Planted', '15 Solar Installations'], 'icon' => 'fa-leaf'],
 ];
 
+// SDG section copy (dashboard-managed, approved wording as the fallback).
+$sdgEyebrow = trim((string) ($contentData['sdg_eyebrow'] ?? '')) ?: 'Global Goals Alignment';
+$sdgTitle   = trim((string) ($contentData['sdg_title'] ?? '')) ?: 'Contributing to the United Nations Sustainable Development Goals (SDGs)';
+$sdgIntro1  = trim((string) ($contentData['sdg_intro1'] ?? ''))
+    ?: "WRC seeks to align its humanitarian and development initiatives with relevant United Nations Sustainable Development Goals (SDGs). Through programmes addressing healthcare, education, livelihoods, women's empowerment, clean water, and humanitarian needs, we aim to contribute to inclusive and sustainable development.";
+$sdgIntro2  = trim((string) ($contentData['sdg_intro2'] ?? ''))
+    ?: 'Our programme activities are mapped against relevant SDG targets to demonstrate their contribution and identify opportunities for greater impact.';
+
 // Case Studies - taken from the same stories the dashboard manages, so an edit
 // in the admin panel updates the homepage and this page together. The hardcoded
 // copies that used to sit here were left behind when this query was introduced:
@@ -279,43 +287,52 @@ include dirname(__DIR__) . '/includes/header.php';
 
 
 <!-- SDG CONTRIBUTION MAP -->
-<section id="sdgs" class="bg-slate-50 py-16 lg:py-20">
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <div class="text-center mb-12 lg:mb-16">
-      <p class="text-brandRed text-xs uppercase tracking-[0.35em] font-semibold mb-3">Global Goals Alignment</p>
-      <h2 class="text-3xl sm:text-4xl font-display font-bold text-ink-900">SDG Contribution Map</h2>
-      <p class="mt-4 mx-auto max-w-2xl text-slate-600 text-sm sm:text-base leading-7">WRC programs directly contribute to the United Nations Sustainable Development Goals, creating measurable progress toward a more equitable world.</p>
+<section id="sdgs" class="relative overflow-hidden bg-slate-50 py-16 lg:py-24">
+  <div class="pointer-events-none absolute -left-32 top-10 h-80 w-80 rounded-full bg-brandRed/5 blur-3xl"></div>
+  <div class="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+    <div class="mx-auto max-w-4xl text-center">
+      <span class="inline-flex items-center gap-2 rounded-full border border-brandRed/15 bg-white px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.22em] text-brandRed shadow-sm">
+        <i class="fa-solid fa-globe text-[10px]"></i> <?= sanitize($sdgEyebrow) ?>
+      </span>
+      <h2 class="mt-5 text-3xl font-display font-bold leading-[1.18] text-ink-900 sm:text-4xl"><?= sanitize($sdgTitle) ?></h2>
+    </div>
+    <div class="mx-auto mt-7 grid max-w-5xl gap-5 text-sm leading-7 text-slate-600 sm:text-base md:grid-cols-2 md:gap-10">
+      <p><?= sanitize($sdgIntro1) ?></p>
+      <p class="md:border-l md:border-slate-200 md:pl-10"><?= sanitize($sdgIntro2) ?></p>
     </div>
 
-    <div class="grid gap-6 lg:grid-cols-2">
+    <div class="mt-12 grid gap-6 md:grid-cols-2">
       <?php foreach ($sdgs as $sdg): ?>
-      <div class="bg-white rounded-[2rem] border border-slate-200 shadow-sm overflow-hidden group hover:shadow-xl transition-all duration-300">
+      <article class="group relative overflow-hidden rounded-[1.75rem] border border-slate-200 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
         <div class="flex items-stretch">
-          <div class="w-28 sm:w-32 shrink-0 bg-<?= $sdg['bg'] ?>-600 flex flex-col items-center justify-center p-4 text-white">
-            <i class="fa-solid <?= $sdg['icon'] ?> text-3xl sm:text-4xl mb-2"></i>
-            <span class="text-xs font-bold uppercase tracking-wider">SDG <?= sanitize($sdg['number']) ?></span>
-            <span class="text-[10px] text-white/80 text-center mt-1 leading-tight"><?= nl2br(sanitize($sdg['title'])) ?></span>
+          <div class="relative flex w-24 shrink-0 flex-col items-center justify-center overflow-hidden bg-gradient-to-b from-<?= $sdg['bg'] ?>-500 to-<?= $sdg['bg'] ?>-700 p-4 text-white sm:w-28">
+            <span class="pointer-events-none absolute -right-1 -top-3 font-display text-6xl font-bold text-white/10"><?= sanitize($sdg['number']) ?></span>
+            <i class="fa-solid <?= sanitize($sdg['icon']) ?> mb-2 text-2xl sm:text-3xl"></i>
+            <span class="text-[10px] font-bold uppercase tracking-[0.18em] text-white/75">SDG</span>
+            <span class="font-display text-2xl font-bold leading-none"><?= sanitize($sdg['number']) ?></span>
           </div>
           <div class="flex-1 p-5 sm:p-6">
-            <h3 class="text-lg font-bold text-slate-900 mb-2"><?= sanitize($sdg['title']) ?></h3>
-            <p class="text-slate-600 text-sm leading-6 mb-4"><?= sanitize($sdg['desc']) ?></p>
-            <div class="space-y-2">
+            <h3 class="text-lg font-bold leading-snug text-ink-900"><?= sanitize($sdg['title']) ?></h3>
+            <p class="mt-2 text-sm leading-6 text-slate-600"><?= sanitize($sdg['desc']) ?></p>
+
+            <div class="mt-5">
               <div class="flex items-center justify-between text-xs">
-                <span class="text-slate-500">Progress toward target</span>
+                <span class="font-medium text-slate-500">Progress toward target</span>
                 <span class="font-semibold text-<?= $sdg['color'] ?>"><?= sanitize($sdg['progress']) ?>%</span>
               </div>
-              <div class="w-full bg-slate-100 rounded-full h-2">
-                <div class="bg-<?= $sdg['color'] ?> h-2 rounded-full animate-[progress_1.5s_ease-out_forwards]" style="width: <?= (int) $sdg['progress'] ?>%;"></div>
+              <div class="mt-2 h-2 w-full overflow-hidden rounded-full bg-slate-100">
+                <div class="h-full rounded-full bg-gradient-to-r from-<?= $sdg['bg'] ?>-400 to-<?= $sdg['bg'] ?>-600" style="width: <?= (int) $sdg['progress'] ?>%;"></div>
               </div>
             </div>
-            <div class="flex flex-wrap gap-2 mt-4">
+
+            <div class="mt-4 flex flex-wrap gap-2">
               <?php foreach ($sdg['tags'] as $tag): ?>
-              <span class="px-2.5 py-1 rounded-full bg-<?= $sdg['bg'] ?>-50 text-<?= $sdg['bg'] ?>-700 text-[11px] font-medium border border-<?= $sdg['bg'] ?>-100"><?= sanitize($tag) ?></span>
+              <span class="rounded-full border border-<?= $sdg['bg'] ?>-100 bg-<?= $sdg['bg'] ?>-50 px-2.5 py-1 text-[11px] font-medium text-<?= $sdg['bg'] ?>-700"><?= sanitize($tag) ?></span>
               <?php endforeach; ?>
             </div>
           </div>
         </div>
-      </div>
+      </article>
       <?php endforeach; ?>
     </div>
   </div>
