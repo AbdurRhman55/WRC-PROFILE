@@ -98,9 +98,6 @@ try {
 $heroTitle    = 'Contact Us';
 $heroSubtitle = "Let's Connect and Make a Difference";
 
-$introEyebrow = 'Get in Touch';
-$introTitle   = "We're Here to Help";
-
 $introOne   = 'We welcome communication from individuals, communities, government institutions, development partners, donors, and organizations interested in working with WRC.';
 $introTwo   = 'Whether you have an inquiry, wish to explore a partnership, need information about our programmes, or would like to share feedback, our team is here to assist you.';
 $introThree = 'We value open communication and aim to respond to all inquiries timely.';
@@ -129,11 +126,9 @@ try {
     }
 
     $merged = array_merge( $existing, [
-        'intro_eyebrow' => $introEyebrow,
-        'intro_title'   => $introTitle,
-        'intro1'        => $introOne,
-        'intro2'        => $introTwo,
-        'intro3'        => $introThree,
+        'intro1' => $introOne,
+        'intro2' => $introTwo,
+        'intro3' => $introThree,
     ] );
 
     $json = json_encode( $merged, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES );

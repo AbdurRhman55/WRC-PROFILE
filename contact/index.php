@@ -19,8 +19,6 @@ $whistleData  = $contentData['whistleblower'] ?? [];
 $mapEmbed     = $contentData['map_embed'] ?? '';
 
 // Introduction copy (dashboard-managed, approved wording as the fallback).
-$introEyebrow = trim((string) ($contentData['intro_eyebrow'] ?? '')) ?: 'Get in Touch';
-$introTitle   = trim((string) ($contentData['intro_title'] ?? '')) ?: "We're Here to Help";
 $introOne     = trim((string) ($contentData['intro1'] ?? '')) ?: "We welcome communication from individuals, communities, government institutions, development partners, donors, and organizations interested in working with WRC.";
 $introTwo     = trim((string) ($contentData['intro2'] ?? '')) ?: "Whether you have an inquiry, wish to explore a partnership, need information about our programmes, or would like to share feedback, our team is here to assist you.";
 $introThree   = trim((string) ($contentData['intro3'] ?? '')) ?: 'We value open communication and aim to respond to all inquiries timely.';
@@ -156,71 +154,29 @@ include dirname(__DIR__) . '/includes/header.php';
       <div class="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-white/20 text-white/90 text-[11px] font-semibold uppercase tracking-widest px-4 py-2 rounded-full mb-6">
         <i class="fa-solid fa-envelope text-white text-xs"></i> <?= sanitize($heroRow['badge'] ?? 'Get In Touch') ?>
       </div>
-      <h1 class="text-4xl md:text-5xl lg:text-6xl font-extrabold leading-tight mb-6" style="font-family:'Fraunces',serif;">
+      <h1 class="text-4xl md:text-5xl lg:text-6xl font-extrabold leading-tight mb-4" style="font-family:'Fraunces',serif;">
         <?= sanitize($heroTitle) ?>
       </h1>
-      <p class="text-lg md:text-xl text-white/70 leading-relaxed mb-10 max-w-2xl mx-auto">
+      <p class="text-xl md:text-2xl font-semibold text-white/95 leading-snug max-w-2xl mx-auto">
         <?= sanitize($heroSubtitle) ?>
       </p>
-      <div class="flex flex-wrap justify-center gap-4">
+      <div class="mt-6 max-w-3xl mx-auto space-y-3 text-sm md:text-base leading-relaxed text-white/75">
+        <p><?= sanitize($introOne) ?></p>
+        <p><?= sanitize($introTwo) ?></p>
+      </div>
+      <div class="mt-4 text-center">
+        <p class="inline-flex max-w-2xl items-start gap-2 text-left text-xs md:text-sm text-white/60">
+          <i class="fa-solid fa-clock mt-0.5 shrink-0 text-brandRed"></i>
+          <span><?= sanitize($introThree) ?></span>
+        </p>
+      </div>
+      <div class="mt-8 flex flex-wrap justify-center gap-4">
         <a href="#offices" class="bg-white text-slate-900 hover:bg-slate-100 font-bold text-sm px-8 py-4 rounded-xl shadow-lg transition-all flex items-center gap-2 transform hover:-translate-y-0.5">
           <i class="fa-solid fa-location-dot text-brandRed"></i> Our Offices
         </a>
         <a href="#contact" class="bg-white/10 hover:bg-white/20 border border-white/30 text-white font-bold text-sm px-8 py-4 rounded-xl backdrop-blur-sm transition-all flex items-center gap-2 transform hover:-translate-y-0.5">
           <i class="fa-solid fa-paper-plane"></i> Send Message
         </a>
-      </div>
-    </div>
-  </div>
-</section>
-
-
-<!-- INTRODUCTION -->
-<section class="py-16 lg:py-20 bg-slate-50">
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <div class="grid grid-cols-1 gap-12 lg:grid-cols-12 lg:gap-16 lg:items-start">
-      <div class="lg:col-span-7">
-        <span class="text-brandRed text-xs font-bold uppercase tracking-[0.22em]"><?= sanitize($introEyebrow) ?></span>
-        <h2 class="mt-3 text-3xl md:text-4xl font-extrabold text-slate-900" style="font-family:'Fraunces',serif;"><?= sanitize($introTitle) ?></h2>
-        <div class="mt-6 space-y-4 text-base leading-8 text-slate-600">
-          <p><?= sanitize($introOne) ?></p>
-          <p><?= sanitize($introTwo) ?></p>
-          <p><?= sanitize($introThree) ?></p>
-        </div>
-      </div>
-      <div class="lg:col-span-5">
-        <div class="rounded-3xl border border-slate-200 bg-white p-7 sm:p-8 shadow-sm">
-          <p class="text-[11px] font-bold uppercase tracking-[0.2em] text-slate-400">Quick Links</p>
-          <div class="mt-4 space-y-2.5">
-            <a href="#contact" class="group flex items-start gap-4 rounded-2xl border border-slate-200 bg-slate-50/60 p-4 transition-all hover:-translate-y-0.5 hover:border-brandRed/30 hover:bg-white hover:shadow-md">
-              <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brandRed/10 text-brandRed"><i class="fa-solid fa-paper-plane"></i></span>
-              <span>
-                <span class="block text-sm font-bold text-slate-900 transition-colors group-hover:text-brandRed">Send a Message</span>
-                <span class="mt-0.5 block text-xs leading-relaxed text-slate-500">General inquiries and programme information</span>
-              </span>
-            </a>
-            <a href="#feedback" class="group flex items-start gap-4 rounded-2xl border border-slate-200 bg-slate-50/60 p-4 transition-all hover:-translate-y-0.5 hover:border-brandRed/30 hover:bg-white hover:shadow-md">
-              <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brandRed/10 text-brandRed"><i class="fa-solid fa-comment-dots"></i></span>
-              <span>
-                <span class="block text-sm font-bold text-slate-900 transition-colors group-hover:text-brandRed">Share Feedback</span>
-                <span class="mt-0.5 block text-xs leading-relaxed text-slate-500">Tell us how we can serve communities better</span>
-              </span>
-            </a>
-            <a href="#whistleblower" class="group flex items-start gap-4 rounded-2xl border border-slate-200 bg-slate-50/60 p-4 transition-all hover:-translate-y-0.5 hover:border-brandRed/30 hover:bg-white hover:shadow-md">
-              <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brandRed/10 text-brandRed"><i class="fa-solid fa-shield-halved"></i></span>
-              <span>
-                <span class="block text-sm font-bold text-slate-900 transition-colors group-hover:text-brandRed">Report a Concern</span>
-                <span class="mt-0.5 block text-xs leading-relaxed text-slate-500">Confidential channel for ethical concerns</span>
-              </span>
-            </a>
-          </div>
-          <div class="mt-6 border-t border-slate-200 pt-5">
-            <p class="text-xs text-slate-500">Prefer email?</p>
-            <a href="mailto:<?= sanitize($emailAddress) ?>" class="mt-1 inline-flex items-center gap-2 text-sm font-bold text-slate-900 transition-colors hover:text-brandRed">
-              <i class="fa-solid fa-envelope text-brandRed text-xs"></i> <?= sanitize($emailAddress) ?>
-            </a>
-          </div>
-        </div>
       </div>
     </div>
   </div>
