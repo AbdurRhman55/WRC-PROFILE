@@ -406,6 +406,9 @@ if ( isPost() && isset( $_POST[ 'save_sections' ] ) ) {
             'section_subtitle' => $data[ 'section_subtitle' ] ?? '',
             'hero_image' => $content[ 'hero_image' ] ?? $content[ 'image_path' ] ?? '',
             'subtitle' => $content[ 'subtitle' ] ?? '',
+            'eyebrow' => $content[ 'eyebrow' ] ?? '',
+            'intro1' => $content[ 'intro1' ] ?? '',
+            'intro2' => $content[ 'intro2' ] ?? '',
             'button1_text' => $content[ 'button1_text' ] ?? '',
             'button1_link' => $content[ 'button1_link' ] ?? '',
             'button2_text' => $content[ 'button2_text' ] ?? '',
@@ -1845,7 +1848,21 @@ include __DIR__ . '/includes/header.php';
                                                                     <input type = 'text' data-field = 'content.subtitle' value = "<?= htmlspecialchars($content['subtitle'] ?? $content['hero_alt'] ?? '') ?>" placeholder = 'Section subtitle'>
                                                                     </div>
                                                                     </div>
-                                                                    <?php if ( $sKey === 'impact_hero' ): ?>
+                                                                    <?php if ( $sKey === 'projects_hero' ): ?>
+                                                                    <!-- Projects Hero: eyebrow + hero paragraphs -->
+                                                                    <div class = 'field-group'>
+                                                                    <label>Small Heading ( eyebrow )</label>
+                                                                    <input type = 'text' data-field = 'content.eyebrow' value = "<?= htmlspecialchars($content['eyebrow'] ?? '') ?>" placeholder = 'Our Portfolio'>
+                                                                    </div>
+                                                                    <div class = 'field-group'>
+                                                                    <label>Hero Paragraph 1</label>
+                                                                    <textarea data-field = 'content.intro1' rows = '3' placeholder = 'What the portfolio covers...'><?= htmlspecialchars( $content[ 'intro1' ] ?? '' ) ?></textarea>
+                                                                    </div>
+                                                                    <div class = 'field-group'>
+                                                                    <label>Hero Paragraph 2</label>
+                                                                    <textarea data-field = 'content.intro2' rows = '4'><?= htmlspecialchars( $content[ 'intro2' ] ?? '' ) ?></textarea>
+                                                                    </div>
+                                                                    <?php elseif ( $sKey === 'impact_hero' ): ?>
                                                                     <!-- Impact Hero: Heading ( H1 ) -->
                                                                     <div class = 'field-group'>
                                                                     <label>Heading ( H1 ) — use &lt;

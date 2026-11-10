@@ -989,6 +989,10 @@ try {
     // form settings are preserved.
     require_once __DIR__ . '/seed_contact_page.php';
 
+    // Project Portfolio page: approved hero eyebrow, headline, and the two
+    // introduction paragraphs. Stored on projects_hero, curated rows are kept.
+    require_once __DIR__ . '/seed_portfolio_page.php';
+
     $reasons = $portfolioStatus();
     if ( !$reasons ) {
         echo 'Project portfolio already matches the ' . PORTFOLIO_SIZE . " approved Excel entries; no changes made.\n";

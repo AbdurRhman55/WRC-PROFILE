@@ -101,8 +101,25 @@ $provinceCount = count(getRows('provinces'));
 // Fetch success stories
 $successStories = getRows('success_stories', ['is_active' => 1], 'sort_order ASC', 3);
 
-$pageTitle = 'Projects Portfolio & Dashboard - WRC NGO';
-$metaDescription = 'Discover WRC active and completed humanitarian projects transforming communities across Pakistan.';
+// Hero copy (dashboard-managed, approved wording as the fallback).
+$portfolioEyebrow = trim((string) ($heroData['eyebrow'] ?? '')) ?: 'Our Portfolio';
+$portfolioTitle   = trim((string) ($heroData['section_title'] ?? '')) ?: 'Delivering Projects, Creating Lasting Impact';
+$portfolioIntro1  = trim((string) ($heroData['intro1'] ?? '')) ?: "Explore WRC's portfolio of humanitarian and development initiatives implemented across Pakistan in collaboration with government departments, institutional partners, and development organizations.";
+$portfolioIntro2  = trim((string) ($heroData['intro2'] ?? '')) ?: "Our portfolio highlights our experience in healthcare service delivery, education and skills development, women's empowerment, humanitarian assistance, community development, and emergency response. Each project reflects our commitment to addressing community needs through practical interventions, effective coordination, and responsible implementation.";
+
+// Split the headline at the first comma so the closing clause can carry the
+// gold accent; a headline without a comma stays on one line.
+$portfolioTitleParts = array_map('trim', explode(',', $portfolioTitle, 2));
+
+$quickStats = [
+    ['icon' => 'fa-solid fa-folder-open', 'tone' => 'text-brandRed bg-brandRed/10', 'value' => $totalProjects, 'label' => 'Total Projects'],
+    ['icon' => 'fa-solid fa-circle-check', 'tone' => 'text-teal-600 bg-teal-50', 'value' => $totalCompleted, 'label' => 'Completed'],
+    ['icon' => 'fa-solid fa-bolt', 'tone' => 'text-amber-500 bg-amber-50', 'value' => $totalActive, 'label' => 'Active Now'],
+    ['icon' => 'fa-solid fa-map-location-dot', 'tone' => 'text-ink-900 bg-slate-100', 'value' => $provinceCount, 'label' => 'Provinces Covered'],
+];
+
+$pageTitle = 'Our Portfolio | Welfare & Relief Committee (WRC)';
+$metaDescription = "Explore WRC's portfolio of humanitarian and development initiatives across Pakistan — healthcare, education and skills, women's empowerment, community development, and emergency response.";
 
 include dirname(__DIR__) . '/includes/header.php';
 ?>
@@ -121,31 +138,35 @@ include dirname(__DIR__) . '/includes/header.php';
 <main class="flex-grow">
 
   <!-- HERO SECTION -->
-  <section class="relative w-full min-h-[480px] md:min-h-[540px] lg:min-h-[580px] flex items-center overflow-hidden">
+  <section class="relative w-full min-h-[520px] md:min-h-[580px] lg:min-h-[640px] flex items-center overflow-hidden bg-ink-900">
     <div class="absolute inset-0">
-      <img src="<?= $base ?><?= $heroData['hero_image'] ?? 'assets/images/projects-hero.jpg' ?>" alt="<?= sanitize($heroData['hero_alt'] ?? 'WRC Projects') ?>" class="w-full h-full object-cover" />
-      <div class="absolute inset-0 bg-gradient-to-r from-ink-900/80 via-ink-900/50 to-transparent"></div>
-      <div class="absolute inset-0 bg-gradient-to-t from-ink-900/80 via-transparent to-ink-900/30"></div>
+      <img src="<?= $base ?><?= $heroData['hero_image'] ?? 'assets/images/hero/projects-hero.jpg' ?>" alt="<?= sanitize($heroData['hero_alt'] ?? 'WRC project portfolio') ?>" class="w-full h-full object-cover" />
+      <div class="absolute inset-0 bg-gradient-to-r from-ink-900/90 via-ink-900/65 to-ink-900/20"></div>
+      <div class="absolute inset-0 bg-gradient-to-t from-ink-900/85 via-transparent to-ink-900/30"></div>
     </div>
     <div class="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-20 lg:py-24">
-      <div class="max-w-2xl">
-        <nav class="mb-6 flex items-center gap-2 text-sm text-white/60">
+      <div class="max-w-3xl">
+        <nav class="mb-6 flex items-center gap-2 text-xs sm:text-sm text-white/60">
           <a href="<?= $base ?>index.php" class="hover:text-white transition-colors">Home</a>
           <i class="fa-solid fa-chevron-right text-[9px]"></i>
           <span class="text-gold-400">Projects</span>
         </nav>
-        <h1 class="text-4xl sm:text-5xl lg:text-6xl font-display font-bold text-white leading-tight mb-5">
-          <?= $projSections['projects_hero']['section_title'] ?? 'Our Projects Portfolio' ?><br>
-          <span class="text-gold-400">Portfolio</span>
+        <span class="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.2em] text-white/90 backdrop-blur-sm">
+          <i class="fa-solid fa-layer-group text-gold-400 text-[10px]"></i> <?= sanitize($portfolioEyebrow) ?>
+        </span>
+        <h1 class="mt-5 text-4xl sm:text-5xl lg:text-6xl font-display font-bold text-white leading-[1.08]">
+          <?= sanitize($portfolioTitleParts[0]) ?><?php if (count($portfolioTitleParts) === 2 && $portfolioTitleParts[1] !== ''): ?>,<br>
+          <span class="text-gold-400"><?= sanitize($portfolioTitleParts[1]) ?></span><?php endif; ?>
         </h1>
-        <p class="text-lg text-white/80 leading-relaxed mb-8 max-w-xl">
-          <?= sanitize($heroData['subtitle'] ?? '') ?>
-        </p>
-        <div class="flex flex-wrap gap-4">
-          <a href="<?= $heroData['button1_link'] ?? '#active' ?>" class="bg-brandRed hover:bg-brandRed-hover text-white font-bold text-sm px-6 py-3.5 rounded-xl shadow-lg shadow-brandRed/30 transition-all flex items-center gap-2">
+        <div class="mt-6 space-y-3 text-base md:text-lg text-white/80 leading-relaxed max-w-2xl">
+          <p><?= sanitize($portfolioIntro1) ?></p>
+          <p class="text-white/70"><?= sanitize($portfolioIntro2) ?></p>
+        </div>
+        <div class="mt-8 flex flex-wrap gap-4">
+          <a href="<?= $heroData['button1_link'] ?? '#active' ?>" class="bg-brandRed hover:bg-brandRed-hover text-white font-bold text-sm px-6 py-3.5 rounded-xl shadow-lg shadow-brandRed/30 transition-all flex items-center gap-2 transform hover:-translate-y-0.5">
             <i class="fa-solid fa-spinner text-xs"></i> <?= sanitize($heroData['button1_text'] ?? 'Active Projects') ?>
           </a>
-          <a href="<?= $heroData['button2_link'] ?? '#dashboard' ?>" class="bg-white/10 hover:bg-white/20 backdrop-blur-sm text-white font-bold text-sm px-6 py-3.5 rounded-xl border border-white/20 transition-all flex items-center gap-2">
+          <a href="<?= $heroData['button2_link'] ?? '#dashboard' ?>" class="bg-white/10 hover:bg-white/20 backdrop-blur-sm text-white font-bold text-sm px-6 py-3.5 rounded-xl border border-white/20 transition-all flex items-center gap-2 transform hover:-translate-y-0.5">
             <i class="fa-solid fa-chart-line text-xs"></i> <?= sanitize($heroData['button2_text'] ?? 'View Dashboard') ?>
           </a>
         </div>
@@ -156,23 +177,16 @@ include dirname(__DIR__) . '/includes/header.php';
   <!-- QUICK STATS BAR -->
   <section class="bg-white border-b border-gray-100 shadow-sm">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="grid grid-cols-2 md:grid-cols-4 divide-x divide-gray-100">
-        <div class="py-6 px-4 text-center">
-          <div class="text-3xl font-display font-bold text-brandRed"><?= $totalProjects ?></div>
-          <div class="text-xs text-slate-500 font-medium mt-1 uppercase tracking-wider">Total Projects</div>
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 py-6">
+        <?php foreach ($quickStats as $stat): ?>
+        <div class="stat-card rounded-2xl border border-slate-100 bg-slate-50/70 px-4 py-5 text-center">
+          <span class="mx-auto mb-2.5 flex h-10 w-10 items-center justify-center rounded-xl bg-white shadow-sm <?= $stat['tone'] ?>">
+            <i class="<?= $stat['icon'] ?> text-sm"></i>
+          </span>
+          <div class="text-2xl sm:text-3xl font-display font-bold text-ink-900 leading-none"><?= $stat['value'] ?></div>
+          <div class="mt-2 text-[10px] sm:text-[11px] text-slate-500 font-semibold uppercase tracking-[0.14em]"><?= $stat['label'] ?></div>
         </div>
-        <div class="py-6 px-4 text-center">
-          <div class="text-3xl font-display font-bold text-teal-500"><?= $totalCompleted ?></div>
-          <div class="text-xs text-slate-500 font-medium mt-1 uppercase tracking-wider">Completed</div>
-        </div>
-        <div class="py-6 px-4 text-center">
-          <div class="text-3xl font-display font-bold text-gold-400"><?= $totalActive ?></div>
-          <div class="text-xs text-slate-500 font-medium mt-1 uppercase tracking-wider">Active Now</div>
-        </div>
-        <div class="py-6 px-4 text-center">
-          <div class="text-3xl font-display font-bold text-ink-900"><?= $provinceCount ?></div>
-          <div class="text-xs text-slate-500 font-medium mt-1 uppercase tracking-wider">Provinces</div>
-        </div>
+        <?php endforeach; ?>
       </div>
     </div>
   </section>
