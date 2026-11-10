@@ -993,6 +993,11 @@ try {
     // introduction paragraphs. Stored on projects_hero, curated rows are kept.
     require_once __DIR__ . '/seed_portfolio_page.php';
 
+    // Impact page: approved hero copy, five indicators, and the monitoring,
+    // evaluation, and accountability framework. Counters, SDGs, and stories
+    // already stored are preserved.
+    require_once __DIR__ . '/seed_impact_page.php';
+
     $reasons = $portfolioStatus();
     if ( !$reasons ) {
         echo 'Project portfolio already matches the ' . PORTFOLIO_SIZE . " approved Excel entries; no changes made.\n";

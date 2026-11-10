@@ -692,9 +692,11 @@ if ( isPost() && isset( $_POST[ 'save_sections' ] ) ) {
             'section_title' => $data[ 'section_title' ] ?? '',
             'section_subtitle' => $data[ 'section_subtitle' ] ?? '',
             'hero_image' => $content[ 'hero_image' ] ?? '',
+            'eyebrow' => $content[ 'eyebrow' ] ?? '',
             'heading' => $content[ 'heading' ] ?? '',
             'description' => $content[ 'description' ] ?? '',
-            'cta_primary' => $content[ 'cta_primary' ] ?? 'View Impact Dashboard',
+            'intro2' => $content[ 'intro2' ] ?? '',
+            'cta_primary' => $content[ 'cta_primary' ] ?? 'Impact at a Glance',
             'cta_secondary' => $content[ 'cta_secondary' ] ?? 'SDG Contributions',
         ];
         if ( $exists ) {
@@ -1863,23 +1865,31 @@ include __DIR__ . '/includes/header.php';
                                                                     <textarea data-field = 'content.intro2' rows = '4'><?= htmlspecialchars( $content[ 'intro2' ] ?? '' ) ?></textarea>
                                                                     </div>
                                                                     <?php elseif ( $sKey === 'impact_hero' ): ?>
+                                                                    <!-- Impact Hero: Eyebrow ( small heading ) -->
+                                                                    <div class = 'field-group'>
+                                                                    <label>Small Heading ( eyebrow )</label>
+                                                                    <input type = 'text' data-field = 'content.eyebrow' value = "<?= htmlspecialchars($content['eyebrow'] ?? '') ?>" placeholder = 'Our Impact in Numbers'>
+                                                                    </div>
                                                                     <!-- Impact Hero: Heading ( H1 ) -->
                                                                     <div class = 'field-group'>
-                                                                    <label>Heading ( H1 ) — use &lt;
-                                                                    br&gt;
-                                                                    for line break</label>
-                                                                    <input type = 'text' data-field = 'content.heading' value = "<?= htmlspecialchars($content['heading'] ?? '') ?>" placeholder = 'Measuring What Matters,<br>Changing What Counts.'>
+                                                                    <label>Heading ( H1 )</label>
+                                                                    <input type = 'text' data-field = 'content.heading' value = "<?= htmlspecialchars($content['heading'] ?? '') ?>" placeholder = 'Measuring Progress, Demonstrating Accountability'>
                                                                     </div>
                                                                     <!-- Impact Hero: Description -->
                                                                     <div class = 'field-group'>
-                                                                    <label>Description</label>
-                                                                    <textarea data-field = 'content.description' rows = '3'><?= htmlspecialchars( $content[ 'description' ] ?? '' ) ?></textarea>
+                                                                    <label>Description ( first paragraph )</label>
+                                                                    <textarea data-field = 'content.description' rows = '4'><?= htmlspecialchars( $content[ 'description' ] ?? '' ) ?></textarea>
+                                                                    </div>
+                                                                    <!-- Impact Hero: Second paragraph -->
+                                                                    <div class = 'field-group'>
+                                                                    <label>Description ( second paragraph )</label>
+                                                                    <textarea data-field = 'content.intro2' rows = '3'><?= htmlspecialchars( $content[ 'intro2' ] ?? '' ) ?></textarea>
                                                                     </div>
                                                                     <!-- Impact Hero: CTA Buttons -->
                                                                     <div class = 'field-row'>
                                                                     <div class = 'field-group'>
                                                                     <label>CTA Primary ( button text )</label>
-                                                                    <input type = 'text' data-field = 'content.cta_primary' value = "<?= htmlspecialchars($content['cta_primary'] ?? '') ?>" placeholder = 'View Impact Dashboard'>
+                                                                    <input type = 'text' data-field = 'content.cta_primary' value = "<?= htmlspecialchars($content['cta_primary'] ?? '') ?>" placeholder = 'Impact at a Glance'>
                                                                     </div>
                                                                     <div class = 'field-group'>
                                                                     <label>CTA Secondary ( button text )</label>
@@ -2089,6 +2099,19 @@ include __DIR__ . '/includes/header.php';
                                                                     <div class = 'field-group'>
                                                                     <label>Section Title</label>
                                                                     <input type = 'text' data-field = 'section_title' value = "<?= htmlspecialchars($sData['section_title'] ?? '') ?>" placeholder = 'Impact Dashboard'>
+                                                                    </div>
+
+                                                                    <!-- Impact Indicators ( "Impact at a Glance" cards ) -->
+                                                                    <div style = 'margin-top:1rem;padding:1rem;background:#f8fafc;border-radius:0.75rem;border:1px solid #e2e8f0;'>
+                                                                    <p style = 'font-size:0.75rem;font-weight:700;color:#ca0000;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.75rem;'>Impact at a Glance ( indicator cards )</p>
+                                                                    <div id = 'indicatorsList_impact_content' class = 'space-y-2'></div>
+                                                                    <button type = 'button' class = 'add-btn' onclick = 'addIndicator_impact_content()'><i class = 'fa-solid fa-plus text-xs'></i> Add Indicator</button>
+                                                                    </div>
+
+                                                                    <!-- M&E Intro -->
+                                                                    <div class = 'field-group' style = 'margin-top:1rem;'>
+                                                                    <label>Monitoring, Evaluation &amp; Accountability Framework — introduction</label>
+                                                                    <textarea data-field = 'content.mne_intro' rows = '3' placeholder = 'WRC recognizes that effective programme delivery requires...'><?= htmlspecialchars( $content[ 'mne_intro' ] ?? '' ) ?></textarea>
                                                                     </div>
 
                                                                     <!-- Impact Stats -->
@@ -2781,6 +2804,9 @@ document.getElementById('sectionsForm').addEventListener('submit', function(e) {
     if (typeof window['mneStepsArr_' + key] !== 'undefined') {
       allData[key].content.mne_steps = window['mneStepsArr_' + key];
     }
+    if (typeof window['indicatorsArr_' + key] !== 'undefined') {
+      allData[key].content.indicators = window['indicatorsArr_' + key];
+    }
     if (typeof window['sdgsArr_' + key] !== 'undefined') {
       allData[key].content.sdgs = window['sdgsArr_' + key];
     }
@@ -2917,6 +2943,19 @@ function renderStats_impact_content() {
 }
 function addStat_impact_content() { statsArr_impact_content.push({target:'',label:'',icon:'',color:'',sub:''}); renderStats_impact_content(); }
 renderStats_impact_content();
+
+// ===== IMPACT INDICATORS ( "Impact at a Glance" cards ) =====
+var indicatorsArr_impact_content = <?= json_encode($sections['impact_content']['content']['indicators'] ?? [], JSON_HEX_TAG) ?>;
+function renderIndicators_impact_content() {
+  var el = document.getElementById('indicatorsList_impact_content');
+  if (!el) return;
+  el.innerHTML = '';
+  indicatorsArr_impact_content.forEach(function(item, i) {
+    el.innerHTML += '<div class="dynamic-item"><button type="button" class="remove-btn" onclick="indicatorsArr_impact_content.splice('+i+',1);renderIndicators_impact_content()"><i class="fa-solid fa-xmark"></i></button><div class="field-row"><div class="field-group"><label>Icon</label><input value="'+(item.icon||'').replace(/"/g,'&quot;')+'" onchange="indicatorsArr_impact_content['+i+'].icon=this.value" placeholder="fa-heart-pulse"></div><div class="field-group"><label>Title</label><input value="'+(item.title||'').replace(/"/g,'&quot;')+'" onchange="indicatorsArr_impact_content['+i+'].title=this.value" placeholder="Healthcare Services"></div></div><div class="field-group"><label>Description</label><textarea rows="2" onchange="indicatorsArr_impact_content['+i+'].desc=this.value" placeholder="Tracking access to essential healthcare...">'+(item.desc||'').replace(/</g,'&lt;')+'</textarea></div></div>';
+  });
+}
+function addIndicator_impact_content() { indicatorsArr_impact_content.push({icon:'',title:'',desc:''}); renderIndicators_impact_content(); }
+renderIndicators_impact_content();
 
 // ===== M&E STEPS =====
 var mneStepsArr_impact_content = <?= json_encode($sections['impact_content']['content']['mne_steps'] ?? [], JSON_HEX_TAG) ?>;

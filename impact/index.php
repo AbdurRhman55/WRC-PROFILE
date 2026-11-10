@@ -3,7 +3,8 @@ require_once dirname(__DIR__) . '/includes/config.php';
 require_once dirname(__DIR__) . '/includes/functions.php';
 
 $base = siteBaseUrl();
-$pageTitle = 'Impact & SDG Contributions | WRC';
+$pageTitle = 'Our Impact in Numbers | Welfare & Relief Committee (WRC)';
+$metaDescription = "WRC measures the reach, effectiveness, and outcomes of its humanitarian and development work across Pakistan through systematic monitoring, programme reporting, and performance assessment.";
 
 // Fetch homepage_sections for impact page
 $homepageSections = getRows('homepage_sections', 'is_active = 1 ORDER BY sort_order ASC');
@@ -31,6 +32,40 @@ $heroData    = $hero['parsed_content'] ?? [];
 $content     = $impactSections['impact_content'] ?? null;
 $contentData = $content['parsed_content'] ?? [];
 
+// Hero copy (dashboard-managed, approved wording as the fallback). The stored
+// heading may still contain an old <br>; strip it before splitting on the comma.
+$heroEyebrow = trim((string) ($heroData['eyebrow'] ?? '')) ?: 'Our Impact in Numbers';
+$heroHeading = trim(preg_replace('/\s+/', ' ', strip_tags((string) ($heroData['heading'] ?? ''))))
+    ?: 'Measuring Progress, Demonstrating Accountability';
+$heroIntro1  = trim((string) ($heroData['description'] ?? ''))
+    ?: "WRC is committed to measuring the reach, effectiveness, and outcomes of its humanitarian and development initiatives. Through systematic monitoring, programme reporting, and performance assessment, we track progress, identify areas for improvement, and strengthen accountability to our partners, donors, and the communities we serve.";
+$heroIntro2  = trim((string) ($heroData['intro2'] ?? ''))
+    ?: 'Our impact indicators reflect the scale of our interventions, the services delivered, and the progress achieved across our programme sectors.';
+
+// Split the headline at the first comma so the closing clause can carry the
+// gold accent; a headline without a comma stays on one line.
+$heroTitleParts = array_map('trim', explode(',', $heroHeading, 2));
+
+// Impact at a Glance indicators
+$indicators = array_values(array_filter((array) ($contentData['indicators'] ?? []), 'is_array'));
+if (empty($indicators)) {
+    $indicators = [
+        ['icon' => 'fa-heart-pulse', 'title' => 'Healthcare Services', 'desc' => 'Tracking access to essential healthcare, medical assistance, and community health interventions.'],
+        ['icon' => 'fa-graduation-cap', 'title' => 'Education & Skills Development', 'desc' => 'Measuring participation in educational programmes, vocational training, and capacity-building initiatives.'],
+        ['icon' => 'fa-hand-holding-heart', 'title' => 'Humanitarian Assistance', 'desc' => 'Monitoring households reached through food assistance, emergency relief, and essential support.'],
+        ['icon' => 'fa-faucet-drip', 'title' => 'Water, Sanitation & Hygiene', 'desc' => 'Assessing access to clean water and community-based WASH interventions.'],
+        ['icon' => 'fa-people-roof', 'title' => "Women's Empowerment", 'desc' => 'Tracking participation in vocational training, skills development, and livelihood initiatives.'],
+    ];
+}
+
+$indicatorStyles = [
+    ['icon' => 'bg-rose-50 text-brandRed', 'bar' => 'bg-brandRed'],
+    ['icon' => 'bg-sky-50 text-sky-600', 'bar' => 'bg-sky-500'],
+    ['icon' => 'bg-amber-50 text-amber-600', 'bar' => 'bg-amber-500'],
+    ['icon' => 'bg-cyan-50 text-cyan-600', 'bar' => 'bg-cyan-500'],
+    ['icon' => 'bg-violet-50 text-violet-600', 'bar' => 'bg-violet-500'],
+];
+
 // Dashboard stats
 $stats = $contentData['stats'] ?? [
     ['icon' => 'fa-heart-pulse', 'color' => 'brandRed', 'target' => '150000', 'label' => 'Lives Impacted', 'sub' => 'Across 4 provinces since inception'],
@@ -41,14 +76,20 @@ $stats = $contentData['stats'] ?? [
     ['icon' => 'fa-map-location-dot', 'color' => 'teal', 'target' => '200', 'label' => 'Communities Served', 'sub' => 'Rural & underserved regions reached'],
 ];
 
-// M&E steps
-$mneSteps = $contentData['mne_steps'] ?? [
-    ['label' => 'Step 01', 'title' => 'Third-Party Audits', 'desc' => 'Independent auditors verify financial integrity, program delivery, and beneficiary outcomes against internationally recognized standards.', 'icon' => 'fa-stamp', 'side' => 'left'],
-    ['label' => 'Step 02', 'title' => 'Real-Time Data Tracking', 'desc' => 'Digital dashboards capture field data as it happens, enabling rapid response to emerging needs and evidence-based decision making.', 'icon' => 'fa-database', 'side' => 'right'],
-    ['label' => 'Step 03', 'title' => 'Quality Standards (ISO Compliance)', 'desc' => 'Programs are aligned with ISO 9001 and ISO 22000 quality management systems to ensure consistent, reliable delivery across all sectors.', 'icon' => 'fa-certificate', 'side' => 'left'],
-    ['label' => 'Step 04', 'title' => 'Community Feedback Loops', 'desc' => 'Beneficiary satisfaction surveys, community scorecards, and grievance mechanisms ensure programs remain responsive and community-driven.', 'icon' => 'fa-comments', 'side' => 'right'],
-    ['label' => 'Step 05', 'title' => 'Annual Impact Assessments', 'desc' => 'Comprehensive annual evaluations synthesize data across sectors to measure long-term outcomes and inform strategic planning.', 'icon' => 'fa-chart-line', 'side' => 'left'],
-];
+// M&E framework
+$mneIntro = trim((string) ($contentData['mne_intro'] ?? ''))
+    ?: 'WRC recognizes that effective programme delivery requires continuous monitoring, transparent reporting, and meaningful accountability. Our monitoring and evaluation approach focuses on tracking implementation progress, assessing programme performance, identifying challenges, and documenting results.';
+
+$mneSteps = array_values(array_filter((array) ($contentData['mne_steps'] ?? []), 'is_array'));
+if (empty($mneSteps)) {
+    $mneSteps = [
+        ['label' => '01', 'title' => 'Programme Monitoring', 'desc' => 'Regular monitoring of project activities, implementation progress, timelines, and deliverables against approved project plans.', 'icon' => 'fa-magnifying-glass-chart', 'side' => 'left'],
+        ['label' => '02', 'title' => 'Data Collection & Verification', 'desc' => 'Systematic collection and review of programme information, beneficiary records, and supporting documentation to maintain reliable reporting.', 'icon' => 'fa-clipboard-check', 'side' => 'right'],
+        ['label' => '03', 'title' => 'Quality Assurance', 'desc' => 'Review of implementation processes and service delivery to identify gaps, strengthen operational standards, and promote continuous improvement.', 'icon' => 'fa-shield-halved', 'side' => 'left'],
+        ['label' => '04', 'title' => 'Community Feedback & Accountability', 'desc' => 'Encouraging feedback from beneficiaries and communities to understand their experiences, identify concerns, and improve programme responsiveness.', 'icon' => 'fa-comments', 'side' => 'right'],
+        ['label' => '05', 'title' => 'Evaluation & Reporting', 'desc' => 'Periodic assessment of programme achievements, challenges, outputs, and outcomes to support evidence-based decisions and institutional learning.', 'icon' => 'fa-chart-line', 'side' => 'left'],
+    ];
+}
 
 // SDGs
 $sdgs = $contentData['sdgs'] ?? [
@@ -77,33 +118,39 @@ include dirname(__DIR__) . '/includes/header.php';
 <main class="flex-grow">
 
 <!-- HERO SECTION -->
-<section class="relative w-full bg-slate-900 text-white min-h-[480px] md:min-h-[540px] lg:min-h-[580px] flex items-center overflow-hidden">
+<section class="relative isolate w-full min-h-[560px] md:min-h-[620px] flex items-center overflow-hidden bg-ink-900">
   <div class="absolute inset-0 z-0">
-    <div class="absolute inset-0 opacity-50 bg-cover bg-center" style="background-image: url('<?= $base ?><?= $heroData['hero_image'] ?? 'assets/images/impact-hero.jpg' ?>');"></div>
-    <div class="absolute inset-0 bg-gradient-to-br from-brandRed/60 via-slate-900/50 to-slate-950/80"></div>
+    <img src="<?= $base ?><?= sanitize($heroData['hero_image'] ?? 'assets/images/hero/impact-hero.jpg') ?>" alt="WRC programme impact across Pakistan" class="h-full w-full object-cover" />
+    <div class="absolute inset-0 bg-gradient-to-r from-ink-900/95 via-ink-900/80 to-ink-900/35"></div>
+    <div class="absolute inset-0 bg-gradient-to-t from-ink-900/90 via-transparent to-ink-900/40"></div>
+    <div class="absolute -right-24 top-1/2 h-[420px] w-[420px] -translate-y-1/2 rounded-full bg-brandRed/20 blur-3xl"></div>
   </div>
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full py-16 md:py-20 lg:py-24">
+  <div class="relative z-10 mx-auto w-full max-w-7xl px-4 py-16 sm:px-6 md:py-20 lg:px-8 lg:py-24">
     <div class="max-w-3xl">
-      <nav class="text-xs text-slate-400 mb-6 flex items-center gap-2">
-        <a href="<?= $base ?>index.php" class="hover:text-white transition">Home</a>
-        <i class="fa-solid fa-chevron-right text-[8px]"></i>
-        <span class="text-white">Impact</span>
+      <nav class="mb-6 flex items-center gap-2 text-xs text-white/55 sm:text-sm">
+        <a href="<?= $base ?>index.php" class="transition-colors hover:text-white">Home</a>
+        <i class="fa-solid fa-chevron-right text-[9px]"></i>
+        <span class="text-gold-400">Impact</span>
       </nav>
-      <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider bg-white/10 backdrop-blur-sm text-white border border-white/20 mb-6">
-        <i class="fa-solid fa-chart-column text-white"></i> <?= $hero ? sanitize($hero['section_title']) : 'Impact & SDG Center' ?>
+      <span class="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.2em] text-white/90 backdrop-blur-sm">
+        <i class="fa-solid fa-chart-column text-[10px] text-gold-400"></i> <?= sanitize($heroEyebrow) ?>
       </span>
-      <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-white leading-tight mb-6 font-heading drop-shadow-md">
-        <?= $hero ? sanitize($heroData['heading'] ?? 'Measuring What Matters,<br>Changing What Counts.') : 'Measuring What Matters,<br>Changing What Counts.' ?>
+      <h1 class="mt-5 text-4xl font-display font-bold leading-[1.08] text-white sm:text-5xl lg:text-6xl">
+        <?= sanitize($heroTitleParts[0]) ?><?php if (count($heroTitleParts) === 2 && $heroTitleParts[1] !== ''): ?>,<br>
+        <span class="text-gold-400"><?= sanitize($heroTitleParts[1]) ?></span><?php endif; ?>
       </h1>
-      <p class="text-base sm:text-lg text-white/80 mb-8 leading-relaxed drop-shadow-sm max-w-2xl">
-        <?= $hero ? sanitize($heroData['description'] ?? $hero['section_subtitle'] ?? 'Every data point represents a life touched. Our Impact & SDG Center tracks outcomes, ensures accountability, and drives continuous improvement across every WRC program.') : 'Every data point represents a life touched. Our Impact & SDG Center tracks outcomes, ensures accountability, and drives continuous improvement across every WRC program.' ?>
+      <p class="mt-6 max-w-2xl text-base leading-relaxed text-white/80 md:text-lg">
+        <?= sanitize($heroIntro1) ?>
       </p>
-      <div class="flex flex-wrap gap-4 items-center">
-        <a href="#dashboard" class="bg-white hover:bg-slate-100 text-slate-900 font-bold text-sm px-7 py-3.5 rounded-xl shadow-lg transition-all flex items-center gap-2 transform hover:-translate-y-1">
-          <i class="fa-solid fa-arrow-down"></i> <?= $heroData['cta_primary'] ?? 'View Impact Dashboard' ?>
+      <p class="mt-5 max-w-2xl border-l-2 border-gold-400/70 pl-4 text-sm font-medium leading-relaxed text-gold-400/95 md:text-base">
+        <?= sanitize($heroIntro2) ?>
+      </p>
+      <div class="mt-9 flex flex-wrap items-center gap-4">
+        <a href="#glance" class="flex items-center gap-2 rounded-xl bg-brandRed px-7 py-3.5 text-sm font-bold text-white shadow-lg shadow-brandRed/30 transition-all hover:bg-brandRed-hover hover:-translate-y-0.5">
+          <i class="fa-solid fa-arrow-down"></i> <?= sanitize($heroData['cta_primary'] ?? 'Impact at a Glance') ?>
         </a>
-        <a href="#sdgs" class="bg-white/10 hover:bg-white/25 backdrop-blur-md text-white border border-white/30 font-semibold text-sm px-6 py-3.5 rounded-xl transition-all flex items-center gap-2 transform hover:-translate-y-1">
-          <i class="fa-solid fa-globe"></i> <?= $heroData['cta_secondary'] ?? 'SDG Contributions' ?>
+        <a href="#sdgs" class="flex items-center gap-2 rounded-xl border border-white/30 bg-white/10 px-6 py-3.5 text-sm font-semibold text-white backdrop-blur-md transition-all hover:bg-white/20 hover:-translate-y-0.5">
+          <i class="fa-solid fa-globe"></i> <?= sanitize($heroData['cta_secondary'] ?? 'SDG Contributions') ?>
         </a>
       </div>
     </div>
@@ -111,24 +158,71 @@ include dirname(__DIR__) . '/includes/header.php';
 </section>
 
 
-<!-- IMPACT METRICS DASHBOARD -->
-<section id="dashboard" class="bg-slate-950 py-16 lg:py-20">
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <div class="text-center mb-12 lg:mb-16">
-      <p class="text-brandRed text-xs uppercase tracking-[0.35em] font-semibold mb-3">Our Impact in Numbers</p>
-      <h2 class="text-3xl sm:text-4xl font-extrabold text-white">Impact Metrics Dashboard</h2>
-      <p class="mt-4 mx-auto max-w-2xl text-slate-400 text-sm sm:text-base leading-7">Real-time tracking of WRC's reach, outcomes, and community transformation across all program sectors.</p>
+<!-- IMPACT AT A GLANCE -->
+<section id="glance" class="bg-sand-50 py-16 lg:py-24">
+  <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+    <div class="mx-auto max-w-3xl text-center">
+      <p class="text-xs font-semibold uppercase tracking-[0.35em] text-brandRed">Programme Sectors</p>
+      <h2 class="mt-3 text-3xl font-display font-bold text-ink-900 sm:text-4xl">Impact at a Glance</h2>
     </div>
 
-    <div class="grid grid-cols-2 md:grid-cols-3 gap-6 lg:gap-8">
-      <?php foreach ($stats as $stat): ?>
-      <div class="bg-white/5 backdrop-blur-sm border border-white/10 rounded-[2rem] p-6 lg:p-8 text-center group hover:bg-white/10 hover:border-brandRed/30 transition-all duration-300">
-        <div class="w-16 h-16 mx-auto mb-5 rounded-2xl bg-<?= $stat['color'] ?>/15 flex items-center justify-center group-hover:scale-110 transition-transform">
-          <i class="fa-solid <?= $stat['icon'] ?> text-2xl text-<?= $stat['color'] ?>-400"></i>
+    <div class="mt-12 grid gap-5 md:grid-cols-2 lg:grid-cols-6">
+      <?php foreach ($indicators as $i => $indicator): ?>
+      <?php
+        $style = $indicatorStyles[$i % count($indicatorStyles)];
+        $span  = $i < 3 ? 'lg:col-span-2' : ($i === 4 ? 'md:col-span-2 lg:col-span-3' : 'lg:col-span-3');
+      ?>
+      <article class="group relative overflow-hidden rounded-3xl border border-slate-200 bg-white p-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-brandRed/20 hover:shadow-xl <?= $span ?>">
+        <span class="absolute inset-x-0 top-0 h-1 <?= $style['bar'] ?>"></span>
+        <div class="flex items-start gap-4">
+          <span class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl <?= $style['icon'] ?> transition-transform duration-300 group-hover:scale-105">
+            <i class="fa-solid <?= sanitize($indicator['icon'] ?? 'fa-chart-simple') ?> text-lg"></i>
+          </span>
+          <div>
+            <h3 class="text-lg font-bold leading-snug text-ink-900"><?= sanitize($indicator['title'] ?? '') ?></h3>
+            <p class="mt-2 text-sm leading-relaxed text-slate-600"><?= sanitize($indicator['desc'] ?? '') ?></p>
+          </div>
         </div>
-        <div class="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white mb-2 font-heading counter-val" data-target="<?= $stat['target'] ?>">0</div>
-        <p class="text-slate-400 text-sm font-medium"><?= sanitize($stat['label']) ?></p>
-        <p class="text-slate-500 text-xs mt-1"><?= sanitize($stat['sub']) ?></p>
+      </article>
+      <?php endforeach; ?>
+    </div>
+  </div>
+</section>
+
+
+<!-- IMPACT IN NUMBERS -->
+<section id="dashboard" class="relative overflow-hidden bg-ink-900 py-14 lg:py-16">
+  <span id="stats" class="sr-only">Beneficiary statistics</span>
+  <div class="pointer-events-none absolute -left-24 top-0 h-72 w-72 rounded-full bg-brandRed/20 blur-3xl"></div>
+  <div class="pointer-events-none absolute -right-16 bottom-0 h-72 w-72 rounded-full bg-gold-400/10 blur-3xl"></div>
+  <div class="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+    <div class="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+      <div>
+        <p class="text-xs font-semibold uppercase tracking-[0.35em] text-gold-400">Our Reach</p>
+        <h2 class="mt-3 text-2xl font-display font-bold text-white sm:text-3xl">Impact in Numbers</h2>
+      </div>
+      <p class="max-w-md text-sm leading-relaxed text-white/55">Live delivery figures from programme reports across Pakistan.</p>
+    </div>
+
+    <div class="mt-10 grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-6">
+      <?php
+      $statTones = [
+          'brandRed' => 'text-rose-400 bg-rose-500/10',
+          'blue'     => 'text-sky-400 bg-sky-500/10',
+          'amber'    => 'text-amber-400 bg-amber-500/10',
+          'green'    => 'text-emerald-400 bg-emerald-500/10',
+          'purple'   => 'text-violet-400 bg-violet-500/10',
+          'teal'     => 'text-teal-300 bg-teal-500/10',
+      ];
+      foreach ($stats as $stat):
+          $tone = $statTones[$stat['color'] ?? ''] ?? 'text-gold-400 bg-white/5';
+      ?>
+      <div class="rounded-2xl border border-white/10 bg-white/5 p-4 text-center backdrop-blur-sm transition-colors hover:border-white/20 hover:bg-white/10">
+        <span class="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-xl <?= $tone ?>">
+          <i class="fa-solid <?= sanitize($stat['icon'] ?? 'fa-chart-simple') ?> text-sm"></i>
+        </span>
+        <div class="counter-val text-2xl font-display font-bold leading-none text-white sm:text-3xl" data-target="<?= sanitize($stat['target'] ?? '0') ?>">0</div>
+        <p class="mt-2 text-[11px] font-semibold uppercase tracking-[0.1em] text-white/70"><?= sanitize($stat['label'] ?? '') ?></p>
       </div>
       <?php endforeach; ?>
     </div>
@@ -136,39 +230,45 @@ include dirname(__DIR__) . '/includes/header.php';
 </section>
 
 
-<!-- MONITORING & EVALUATION FRAMEWORK -->
-<section id="mne" class="bg-white py-16 lg:py-20">
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <div class="text-center mb-12 lg:mb-16">
-      <p class="text-brandRed text-xs uppercase tracking-[0.35em] font-semibold mb-3">How We Ensure Quality</p>
-      <h2 class="text-3xl sm:text-4xl font-extrabold text-slate-900">Monitoring &amp; Evaluation Framework</h2>
-      <p class="mt-4 mx-auto max-w-2xl text-slate-600 text-sm sm:text-base leading-7">A rigorous, multi-layered M&amp;E system that tracks every intervention from delivery to long-term outcome.</p>
+<!-- MONITORING, EVALUATION & ACCOUNTABILITY FRAMEWORK -->
+<section id="mne" class="bg-white py-16 lg:py-24">
+  <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+    <div class="mx-auto max-w-3xl text-center">
+      <p class="text-xs font-semibold uppercase tracking-[0.35em] text-brandRed">How We Ensure Quality</p>
+      <h2 class="mt-3 text-3xl font-display font-bold leading-tight text-ink-900 sm:text-4xl">Monitoring, Evaluation &amp; Accountability Framework</h2>
+      <p class="mt-5 text-sm leading-7 text-slate-600 sm:text-base"><?= sanitize($mneIntro) ?></p>
     </div>
 
-    <div class="relative max-w-4xl mx-auto">
-      <div class="hidden md:block absolute left-1/2 top-0 bottom-0 w-px -translate-x-1/2 bg-slate-200"></div>
-      <div class="md:hidden absolute left-[19px] top-0 bottom-0 w-px bg-slate-200"></div>
+    <div class="relative mx-auto mt-14 max-w-4xl">
+      <div class="absolute bottom-0 left-5 top-0 hidden w-px -translate-x-1/2 bg-gradient-to-b from-transparent via-slate-200 to-transparent md:left-1/2 md:block"></div>
+      <div class="absolute bottom-0 left-[19px] top-0 w-px bg-gradient-to-b from-transparent via-slate-200 to-transparent md:hidden"></div>
 
       <div class="space-y-10 md:space-y-0">
         <?php foreach ($mneSteps as $i => $step): ?>
-        <div class="relative md:grid md:grid-cols-2 md:gap-x-16 md:items-center <?= $i < count($mneSteps) - 1 ? 'md:pb-16' : '' ?>">
-          <?php if ($step['side'] === 'left'): ?>
-          <div class="pl-14 md:pl-0 md:pr-16 md:text-right">
-            <span class="text-sm uppercase tracking-[0.28em] font-semibold text-brandRed"><?= sanitize($step['label']) ?></span>
-            <h3 class="mt-2 text-xl md:text-2xl font-semibold text-slate-900"><?= sanitize($step['title']) ?></h3>
-            <p class="mt-3 text-sm md:text-[15px] text-slate-600 leading-relaxed"><?= sanitize($step['desc']) ?></p>
+        <div class="relative md:grid md:grid-cols-2 md:items-center md:gap-x-16 <?= $i < count($mneSteps) - 1 ? 'md:pb-14' : '' ?>">
+          <?php if (($step['side'] ?? 'left') === 'left'): ?>
+          <div class="pl-16 md:pl-0 md:pr-16 md:text-right">
+            <span class="inline-flex items-center gap-3 text-xs font-semibold uppercase tracking-[0.28em] text-brandRed md:justify-end">
+              <span class="font-display text-sm text-brandRed"><?= sanitize($step['label'] ?? sprintf('%02d', $i + 1)) ?></span>
+              <span class="h-px w-8 bg-brandRed/40"></span>
+            </span>
+            <h3 class="mt-3 text-xl font-bold text-ink-900 md:text-2xl"><?= sanitize($step['title'] ?? '') ?></h3>
+            <p class="mt-3 text-sm leading-relaxed text-slate-600 md:text-[15px]"><?= sanitize($step['desc'] ?? '') ?></p>
           </div>
           <div class="hidden md:block"></div>
           <?php else: ?>
           <div class="hidden md:block"></div>
-          <div class="pl-14 md:pl-16">
-            <span class="text-sm uppercase tracking-[0.28em] font-semibold text-brandRed"><?= sanitize($step['label']) ?></span>
-            <h3 class="mt-2 text-xl md:text-2xl font-semibold text-slate-900"><?= sanitize($step['title']) ?></h3>
-            <p class="mt-3 text-sm md:text-[15px] text-slate-600 leading-relaxed"><?= sanitize($step['desc']) ?></p>
+          <div class="pl-16 md:pl-16">
+            <span class="inline-flex items-center gap-3 text-xs font-semibold uppercase tracking-[0.28em] text-brandRed">
+              <span class="font-display text-sm text-brandRed"><?= sanitize($step['label'] ?? sprintf('%02d', $i + 1)) ?></span>
+              <span class="h-px w-8 bg-brandRed/40"></span>
+            </span>
+            <h3 class="mt-3 text-xl font-bold text-ink-900 md:text-2xl"><?= sanitize($step['title'] ?? '') ?></h3>
+            <p class="mt-3 text-sm leading-relaxed text-slate-600 md:text-[15px]"><?= sanitize($step['desc'] ?? '') ?></p>
           </div>
           <?php endif; ?>
-          <span class="absolute left-[13px] md:left-1/2 top-1 md:top-1/2 -translate-x-1/2 md:-translate-y-1/2 w-10 h-10 rounded-full bg-brandRed flex items-center justify-center z-10 shadow-lg shadow-brandRed/30">
-            <i class="fa-solid <?= $step['icon'] ?> text-white text-sm"></i>
+          <span class="absolute left-0 top-1 flex h-10 w-10 items-center justify-center rounded-full border-4 border-white bg-brandRed text-white shadow-lg shadow-brandRed/25 md:left-1/2 md:top-1/2 md:-translate-x-1/2 md:-translate-y-1/2">
+            <i class="fa-solid <?= sanitize($step['icon'] ?? 'fa-circle-check') ?> text-xs"></i>
           </span>
         </div>
         <?php endforeach; ?>
@@ -183,7 +283,7 @@ include dirname(__DIR__) . '/includes/header.php';
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <div class="text-center mb-12 lg:mb-16">
       <p class="text-brandRed text-xs uppercase tracking-[0.35em] font-semibold mb-3">Global Goals Alignment</p>
-      <h2 class="text-3xl sm:text-4xl font-extrabold text-slate-900">SDG Contribution Map</h2>
+      <h2 class="text-3xl sm:text-4xl font-display font-bold text-ink-900">SDG Contribution Map</h2>
       <p class="mt-4 mx-auto max-w-2xl text-slate-600 text-sm sm:text-base leading-7">WRC programs directly contribute to the United Nations Sustainable Development Goals, creating measurable progress toward a more equitable world.</p>
     </div>
 
@@ -227,7 +327,7 @@ include dirname(__DIR__) . '/includes/header.php';
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <div class="text-center mb-12 lg:mb-16">
       <p class="text-brandRed text-xs uppercase tracking-[0.35em] font-semibold mb-3">Real Stories, Real Impact</p>
-      <h2 class="text-3xl sm:text-4xl font-extrabold text-slate-900">Case Studies</h2>
+      <h2 class="text-3xl sm:text-4xl font-display font-bold text-ink-900">Case Studies</h2>
       <p class="mt-4 mx-auto max-w-2xl text-slate-600 text-sm sm:text-base leading-7">In-depth look at how WRC programs transform lives, backed by data and beneficiary voices.</p>
     </div>
 
@@ -283,7 +383,7 @@ include dirname(__DIR__) . '/includes/header.php';
 <!-- CTA BANNER -->
 <section class="bg-brandRed py-14 lg:py-16">
   <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-    <h2 class="text-3xl sm:text-4xl font-extrabold text-white mb-4 font-heading"><?= sanitize($ctaTitle) ?></h2>
+    <h2 class="text-3xl sm:text-4xl font-display font-bold text-white mb-4"><?= sanitize($ctaTitle) ?></h2>
     <p class="text-white/80 text-sm sm:text-base max-w-2xl mx-auto mb-8 leading-relaxed"><?= sanitize($ctaSubtitle) ?></p>
     <div class="flex flex-wrap justify-center gap-4">
       <a href="<?= $base ?><?= $ctaData['button1_link'] ?? 'get-involved/contribute-with-us.php' ?>" class="bg-white hover:bg-slate-100 text-brandRed font-bold text-sm px-8 py-3.5 rounded-xl shadow-lg transition-all flex items-center gap-2 transform hover:-translate-y-1">
