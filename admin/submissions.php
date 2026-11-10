@@ -163,7 +163,8 @@ include __DIR__ . '/includes/header.php';
           <td class="px-5 py-3 text-slate-500 text-xs"><?= htmlspecialchars($sub['email']) ?></td>
           <td class="px-5 py-3 text-slate-700 max-w-[200px] truncate" title="<?= htmlspecialchars($sub['subject']) ?>"><?= htmlspecialchars($sub['subject']) ?></td>
           <td class="px-5 py-3">
-            <span class="inline-flex text-[11px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full <?= $typeColors[$sub['inquiry_type']] ?? 'bg-slate-50 text-slate-600' ?>"><?= htmlspecialchars($sub['inquiry_type']) ?></span>
+            <?php $typeLabel = trim((string) ($sub['inquiry_label'] ?? '')) ?: ucfirst((string) $sub['inquiry_type']); ?>
+            <span class="inline-flex whitespace-nowrap text-[11px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full <?= $typeColors[$sub['inquiry_type']] ?? 'bg-slate-50 text-slate-600' ?>"><?= htmlspecialchars($typeLabel) ?></span>
           </td>
           <td class="px-5 py-3">
             <span class="inline-flex text-[11px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full <?= $statusColors[$sub['status']] ?? 'bg-slate-50 text-slate-600' ?>"><?= htmlspecialchars($sub['status']) ?></span>
@@ -239,14 +240,18 @@ include __DIR__ . '/includes/header.php';
         <!-- Detail row (hidden by default) -->
         <tr class="detail-row hidden" id="detail-<?= $sub['id'] ?>">
           <td colspan="8" class="px-5 py-5 bg-slate-50 border-b border-slate-200">
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-sm">
               <div>
                 <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Phone</span>
                 <p class="text-slate-700 mt-1"><?= !empty($sub['phone']) ? htmlspecialchars($sub['phone']) : '<span class="text-slate-300">—</span>' ?></p>
               </div>
               <div>
-                <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Volunteer Interest</span>
-                <p class="text-slate-700 mt-1"><?= !empty($sub['volunteer_interest']) ? '<span class="text-green-600 font-semibold">Yes</span>' : 'No' ?></p>
+                <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Organization</span>
+                <p class="text-slate-700 mt-1"><?= !empty($sub['organization'] ?? '') ? htmlspecialchars($sub['organization']) : '<span class="text-slate-300">—</span>' ?></p>
+              </div>
+              <div>
+                <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Inquiry Type</span>
+                <p class="text-slate-700 mt-1"><?= htmlspecialchars(trim((string) ($sub['inquiry_label'] ?? '')) ?: ucfirst((string) $sub['inquiry_type'])) ?></p>
               </div>
               <div>
                 <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Submitted At</span>

@@ -23,6 +23,36 @@ $introOne     = trim((string) ($contentData['intro1'] ?? '')) ?: "We welcome com
 $introTwo     = trim((string) ($contentData['intro2'] ?? '')) ?: "Whether you have an inquiry, wish to explore a partnership, need information about our programmes, or would like to share feedback, our team is here to assist you.";
 $introThree   = trim((string) ($contentData['intro3'] ?? '')) ?: 'We value open communication and aim to respond to all inquiries timely.';
 
+// Contact form copy (dashboard-managed, approved wording as the fallback).
+$formEyebrow     = trim((string) ($contentData['form_subtitle'] ?? '')) ?: 'Contact Us';
+$formTitle       = trim((string) ($contentData['form_title'] ?? '')) ?: 'Send Us a Message';
+$formDescription = trim((string) ($contentData['form_description'] ?? '')) ?: 'Have a question, need more information about our work, or wish to explore an opportunity to collaborate with WRC? We would be pleased to hear from you.';
+$formNote        = trim((string) ($contentData['form_note'] ?? '')) ?: 'Please complete the contact form, and our team will review your inquiry and get back to you as soon as possible.';
+$formClosing     = trim((string) ($contentData['form_closing'] ?? '')) ?: "We value your communication and appreciate your interest in WRC's humanitarian and development initiatives.";
+
+// Inquiry Type options and the dashboard filter each one maps to.
+$inquiryTypes = array_values(array_filter(array_map('trim', (array) ($contentData['inquiry_types'] ?? [])), 'strlen'));
+if (empty($inquiryTypes)) {
+    $inquiryTypes = [
+        'General Inquiry',
+        'Partnership & Collaboration',
+        'Project / Programme Inquiry',
+        'Donor & Funding Inquiry',
+        'Feedback & Suggestions',
+        'Complaint / Concern',
+        'Other',
+    ];
+}
+$inquiryTypeMap = [
+    'General Inquiry'             => 'general',
+    'Partnership & Collaboration' => 'partnership',
+    'Project / Programme Inquiry' => 'program',
+    'Donor & Funding Inquiry'     => 'donation',
+    'Feedback & Suggestions'      => 'general',
+    'Complaint / Concern'         => 'general',
+    'Other'                       => 'general',
+];
+
 $heroTitle    = trim((string) ($heroRow['section_title'] ?? '')) ?: 'Contact Us';
 $heroSubtitle = trim((string) ($heroRow['section_subtitle'] ?? '')) ?: "Let's Connect and Make a Difference";
 $emailAddress = 'info@wrc.org.pk';
@@ -45,22 +75,37 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($formType === 'contact') {
         $name = trim($_POST['name'] ?? '');
         $email = trim($_POST['email'] ?? '');
+        $phone = trim($_POST['phone'] ?? '');
+        $organization = trim($_POST['organization'] ?? '');
+        $inquiryLabel = trim($_POST['inquiry_type'] ?? '');
         $subject = trim($_POST['subject'] ?? '');
         $message = trim($_POST['message'] ?? '');
-        if ($name && $email && $subject && $message) {
+        if ($name && filter_var($email, FILTER_VALIDATE_EMAIL) && $inquiryLabel && $subject && $message) {
+            $row = [
+                'full_name' => $name, 'email' => $email,
+                'phone' => $phone !== '' ? $phone : null,
+                'organization' => $organization !== '' ? $organization : null,
+                'inquiry_label' => $inquiryLabel,
+                'subject' => $subject,
+                'message' => $message, 'inquiry_type' => $inquiryTypeMap[$inquiryLabel] ?? 'general',
+                'status' => 'new',
+                'submitted_at' => date('Y-m-d H:i:s'),
+            ];
             try {
-                insertRow('contact_submissions', [
-                    'full_name' => $name, 'email' => $email, 'subject' => $subject,
-                    'message' => $message, 'inquiry_type' => 'general', 'status' => 'new',
-                    'submitted_at' => date('Y-m-d H:i:s'),
-                ]);
+                try {
+                    insertRow('contact_submissions', $row);
+                } catch (Throwable $e) {
+                    // Older database without the organization/label columns.
+                    unset($row['organization'], $row['inquiry_label']);
+                    insertRow('contact_submissions', $row);
+                }
                 $contactSuccess = true;
             } catch (Throwable $e) {
                 error_log('contact form failed: ' . $e->getMessage());
                 $formError = 'We could not save your message right now. Please try again in a moment.';
             }
         } else {
-            $formError = 'Please fill in all required fields.';
+            $formError = 'Please fill in your name, a valid email address, an inquiry type, a subject, and a message.';
         }
     } elseif ($formType === 'feedback') {
         $name = trim($_POST['feedback_name'] ?? '');
@@ -172,7 +217,7 @@ include dirname(__DIR__) . '/includes/header.php';
       </div>
       <div class="mt-8 flex flex-wrap justify-center gap-4">
         <a href="#offices" class="bg-white text-slate-900 hover:bg-slate-100 font-bold text-sm px-8 py-4 rounded-xl shadow-lg transition-all flex items-center gap-2 transform hover:-translate-y-0.5">
-          <i class="fa-solid fa-location-dot text-brandRed"></i> Our Offices
+          <i class="fa-solid fa-location-dot text-brandRed"></i> Our Office
         </a>
         <a href="#contact" class="bg-white/10 hover:bg-white/20 border border-white/30 text-white font-bold text-sm px-8 py-4 rounded-xl backdrop-blur-sm transition-all flex items-center gap-2 transform hover:-translate-y-0.5">
           <i class="fa-solid fa-paper-plane"></i> Send Message
@@ -193,6 +238,49 @@ include dirname(__DIR__) . '/includes/header.php';
     </div>
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 items-stretch">
       <?php if (!empty($offices)): ?>
+      <?php if (count($offices) === 1): $office = $offices[0]; ?>
+      <div class="md:col-span-3 mx-auto w-full max-w-4xl overflow-hidden rounded-3xl border border-slate-200 bg-slate-50 shadow-sm">
+        <div class="grid gap-8 p-8 sm:p-10 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)] lg:items-center">
+          <div>
+            <div class="flex items-center gap-4">
+              <span class="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-brandRed text-white">
+                <i class="fa-solid <?= sanitize($office['icon'] ?? 'fa-building') ?> text-xl"></i>
+              </span>
+              <div>
+                <h3 class="text-xl font-bold text-slate-900"><?= sanitize($office['name'] ?? 'Head Office') ?></h3>
+                <?php if (!empty($office['badge'])): ?>
+                <span class="mt-1 inline-flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-[0.16em] text-brandRed">
+                  <i class="fa-solid fa-star text-[9px]"></i> <?= sanitize($office['badge']) ?>
+                </span>
+                <?php endif; ?>
+              </div>
+            </div>
+            <p class="mt-5 text-sm leading-relaxed text-slate-600"><?= sanitize($office['address'] ?? '') ?></p>
+          </div>
+          <div class="space-y-3">
+            <?php if (!empty($office['phone'])): ?>
+            <div class="flex items-center gap-3 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-600">
+              <i class="fa-solid fa-phone text-brandRed text-xs w-4"></i> <?= sanitize($office['phone']) ?>
+            </div>
+            <?php endif; ?>
+            <?php if (!empty($office['email'])): ?>
+            <div class="flex items-center gap-3 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-600">
+              <i class="fa-solid fa-envelope text-brandRed text-xs w-4"></i>
+              <a href="mailto:<?= sanitize($office['email']) ?>" class="transition-colors hover:text-brandRed"><?= sanitize($office['email']) ?></a>
+            </div>
+            <?php endif; ?>
+            <?php if (!empty($office['hours'])): ?>
+            <div class="flex items-center gap-3 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-600">
+              <i class="fa-solid fa-clock text-brandRed text-xs w-4"></i> <?= sanitize($office['hours']) ?>
+            </div>
+            <?php endif; ?>
+            <a href="https://www.google.com/maps/search/?api=1&amp;query=<?= rawurlencode($office['address'] ?? ($office['name'] ?? 'WRC')) ?>" target="_blank" rel="noopener noreferrer" class="inline-flex w-full items-center justify-center gap-2 bg-brandRed text-white text-xs font-bold px-5 py-3 rounded-xl hover:bg-brandRed-hover transition-all">
+              <i class="fa-solid fa-directions"></i> Get Directions
+            </a>
+          </div>
+        </div>
+      </div>
+      <?php else: ?>
       <?php foreach ($offices as $office): ?>
       <div class="bg-slate-50 rounded-2xl p-7 border border-slate-200 hover:shadow-xl hover:border-brandRed/20 transition-all flex flex-col">
         <div class="w-12 h-12 rounded-xl bg-brandRed text-white flex items-center justify-center mb-5">
@@ -221,6 +309,7 @@ include dirname(__DIR__) . '/includes/header.php';
         </a>
       </div>
       <?php endforeach; ?>
+      <?php endif; ?>
       <?php else: ?>
       <div class="md:col-span-3 rounded-2xl border border-dashed border-slate-300 bg-slate-50 px-6 py-12 text-center text-sm text-slate-500">
         Our office details are being updated. Please use the contact form below or email us at
@@ -243,9 +332,14 @@ include dirname(__DIR__) . '/includes/header.php';
 
       <!-- LEFT: Info -->
       <div class="lg:col-span-2">
-        <span class="text-brandRed text-xs font-bold uppercase tracking-widest"><?= sanitize($contentData['form_subtitle'] ?? 'Contact Us') ?></span>
-        <h2 class="text-3xl md:text-4xl font-extrabold text-slate-900 mt-2 mb-4" style="font-family:'Fraunces',serif;"><?= sanitize($contentData['form_title'] ?? 'Send a Message') ?></h2>
-        <p class="text-slate-600 text-sm mb-8 leading-relaxed"><?= sanitize($contentData['form_description'] ?? '') ?></p>
+        <span class="text-brandRed text-xs font-bold uppercase tracking-widest"><?= sanitize($formEyebrow) ?></span>
+        <h2 class="text-3xl md:text-4xl font-extrabold text-slate-900 mt-2 mb-4" style="font-family:'Fraunces',serif;"><?= sanitize($formTitle) ?></h2>
+        <p class="text-slate-600 text-sm leading-relaxed"><?= sanitize($formDescription) ?></p>
+        <p class="text-slate-500 text-sm leading-relaxed mt-3"><?= sanitize($formNote) ?></p>
+        <div class="mt-6 mb-8 flex items-start gap-3 rounded-2xl border border-brandRed/15 bg-brandRed/5 p-4">
+          <i class="fa-solid fa-hand-holding-heart text-brandRed mt-0.5"></i>
+          <p class="text-xs leading-relaxed text-slate-600"><?= sanitize($formClosing) ?></p>
+        </div>
         <div class="space-y-3">
           <?php foreach ($contactInfo as $info): ?>
           <div class="flex items-center gap-4 p-4 bg-white rounded-xl border border-slate-200 hover:shadow-md transition-all">
@@ -262,23 +356,30 @@ include dirname(__DIR__) . '/includes/header.php';
           <?php if ($contactSuccess || ($_GET['submitted'] ?? '') === 'contact'): ?>
           <div class="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-xl text-sm font-medium mb-6 flex items-center gap-2"><i class="fa-solid fa-circle-check"></i> Message sent successfully! We'll get back to you soon.</div>
           <?php elseif (($_GET['error'] ?? '') === 'contact'): ?>
-          <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl text-sm font-medium mb-6 flex items-center gap-2"><i class="fa-solid fa-circle-exclamation"></i> Your message could not be sent. Please check the fields and try again.</div>
+          <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl text-sm font-medium mb-6 flex items-center gap-2"><i class="fa-solid fa-circle-exclamation"></i> Your message could not be sent. Please check the required fields and try again.</div>
           <?php endif; ?>
           <form id="contact-form" class="space-y-5" method="POST" action="">
             <input type="hidden" name="form_type" value="contact">
             <div class="grid sm:grid-cols-2 gap-4">
-              <div><label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Full Name <span class="text-brandRed">*</span></label><input type="text" name="name" required class="w-full bg-slate-50 border border-slate-200 px-4 py-3 rounded-xl text-sm focus:bg-white focus:ring-2 focus:ring-brandRed focus:border-brandRed outline-none transition-all" placeholder="Your name"></div>
-              <div><label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Email <span class="text-brandRed">*</span></label><input type="email" name="email" required class="w-full bg-slate-50 border border-slate-200 px-4 py-3 rounded-xl text-sm focus:bg-white focus:ring-2 focus:ring-brandRed focus:border-brandRed outline-none transition-all" placeholder="you@email.com"></div>
+              <div><label for="contact-name" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Full Name <span class="text-brandRed">*</span></label><input type="text" id="contact-name" name="name" required class="w-full bg-slate-50 border border-slate-200 px-4 py-3 rounded-xl text-sm focus:bg-white focus:ring-2 focus:ring-brandRed focus:border-brandRed outline-none transition-all" placeholder="Your full name"></div>
+              <div><label for="contact-email" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Email Address <span class="text-brandRed">*</span></label><input type="email" id="contact-email" name="email" required class="w-full bg-slate-50 border border-slate-200 px-4 py-3 rounded-xl text-sm focus:bg-white focus:ring-2 focus:ring-brandRed focus:border-brandRed outline-none transition-all" placeholder="you@example.com"></div>
             </div>
-            <div><label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Subject <span class="text-brandRed">*</span></label>
-              <select name="subject" required class="w-full bg-slate-50 border border-slate-200 px-4 py-3 rounded-xl text-sm focus:bg-white focus:ring-2 focus:ring-brandRed focus:border-brandRed outline-none transition-all text-slate-700">
-                <option value="">Select a subject...</option>
-                <?php foreach ($contentData['subjects'] ?? ['General Inquiry','Partnership Proposal','Donation Inquiry','Media Request','Program Information','Other'] as $subject): ?>
-                <option value="<?= sanitize($subject) ?>"><?= sanitize($subject) ?></option>
-                <?php endforeach; ?>
-              </select>
+            <div class="grid sm:grid-cols-2 gap-4">
+              <div><label for="contact-phone" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Phone Number</label><input type="tel" id="contact-phone" name="phone" class="w-full bg-slate-50 border border-slate-200 px-4 py-3 rounded-xl text-sm focus:bg-white focus:ring-2 focus:ring-brandRed focus:border-brandRed outline-none transition-all" placeholder="+92 300 1234567"></div>
+              <div><label for="contact-organization" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Organization</label><input type="text" id="contact-organization" name="organization" class="w-full bg-slate-50 border border-slate-200 px-4 py-3 rounded-xl text-sm focus:bg-white focus:ring-2 focus:ring-brandRed focus:border-brandRed outline-none transition-all" placeholder="Your organization (optional)"></div>
             </div>
-            <div><label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Message <span class="text-brandRed">*</span></label><textarea name="message" required rows="5" class="w-full bg-slate-50 border border-slate-200 px-4 py-3 rounded-xl text-sm focus:bg-white focus:ring-2 focus:ring-brandRed focus:border-brandRed outline-none transition-all resize-none" placeholder="How can we help you?"></textarea></div>
+            <div class="grid sm:grid-cols-2 gap-4">
+              <div><label for="contact-inquiry" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Inquiry Type <span class="text-brandRed">*</span></label>
+                <select id="contact-inquiry" name="inquiry_type" required class="w-full bg-slate-50 border border-slate-200 px-4 py-3 rounded-xl text-sm focus:bg-white focus:ring-2 focus:ring-brandRed focus:border-brandRed outline-none transition-all text-slate-700">
+                  <option value="">Select an inquiry type...</option>
+                  <?php foreach ($inquiryTypes as $inquiryType): ?>
+                  <option value="<?= sanitize($inquiryType) ?>"><?= sanitize($inquiryType) ?></option>
+                  <?php endforeach; ?>
+                </select>
+              </div>
+              <div><label for="contact-subject" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Subject <span class="text-brandRed">*</span></label><input type="text" id="contact-subject" name="subject" required class="w-full bg-slate-50 border border-slate-200 px-4 py-3 rounded-xl text-sm focus:bg-white focus:ring-2 focus:ring-brandRed focus:border-brandRed outline-none transition-all" placeholder="How can we help?"></div>
+            </div>
+            <div><label for="contact-message" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Message <span class="text-brandRed">*</span></label><textarea id="contact-message" name="message" required rows="5" class="w-full bg-slate-50 border border-slate-200 px-4 py-3 rounded-xl text-sm focus:bg-white focus:ring-2 focus:ring-brandRed focus:border-brandRed outline-none transition-all resize-none" placeholder="Tell us more about your inquiry..."></textarea></div>
             <button type="submit" class="w-full bg-brandRed hover:bg-brandRed-hover text-white font-bold py-3.5 rounded-xl transition-all shadow-md text-sm uppercase tracking-wider flex items-center justify-center gap-2 transform hover:-translate-y-0.5">
               <i class="fa-solid fa-paper-plane text-xs"></i> Send Message
             </button>
