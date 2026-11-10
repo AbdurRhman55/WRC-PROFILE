@@ -1798,7 +1798,7 @@ include __DIR__ . '/includes/header.php';
                                                                     $content = $sData[ 'content' ];
 
                                                                     // ===  == HERO SECTIONS ===  ==
-                                                                    if ( preg_match( '/_hero$/', $sKey ) || $sKey === 'chairman_message' ):
+                                                                    if ( ( preg_match( '/_hero$/', $sKey ) && $sKey !== 'annual_reports_hero' ) || $sKey === 'chairman_message' ):
                                                                     ?>
                                                                     <div class = 'field-group'>
                                                                     <label>Section Title ( page heading )</label>
@@ -2483,6 +2483,64 @@ include __DIR__ . '/includes/header.php';
                                                                     <label>Stats</label>
                                                                     <div id = "statsList_<?= $sKey ?>" class = 'space-y-2'></div>
                                                                     <button type = 'button' class = 'add-btn' onclick = "addStat_<?= $sKey ?>()"><i class = 'fa-solid fa-plus text-xs'></i> Add Stat</button>
+                                                                    </div>
+
+                                                                    <?php
+                                                                    // ===  == ANNUAL REPORTS HERO ===  ==
+                                                                    elseif ( $sKey === 'annual_reports_hero' ):
+                                                                    ?>
+                                                                    <div class = 'field-group'>
+                                                                    <label>Hero Image</label>
+                                                                    <?php $heroImgId = 'hero_img_' . preg_replace( '/[^a-z0-9]/', '_', $sKey );
+                                                                    ?>
+                                                                    <input type = 'text' data-field = 'content.hero_image' id = "<?= $heroImgId ?>" value = "<?= htmlspecialchars( $content[ 'hero_image' ] ?? '' ) ?>" class = 'upload-path-input' placeholder = 'assets/images/...'>
+                                                                    <div class = 'upload-widget' data-type = 'image' data-target = "<?= $heroImgId ?>" data-base-url = "<?= htmlspecialchars( siteBaseUrl(), ENT_QUOTES, 'UTF-8' ) ?>" style = 'margin-top:8px'>
+                                                                    <div class = 'upload-zone'>
+                                                                    <input type = 'file' accept = 'image/*'>
+                                                                    <div class = 'upload-placeholder'>
+                                                                    <i class = 'fa-solid fa-cloud-arrow-up'></i>
+                                                                    <p>Click or drag to upload the hero image</p>
+                                                                    </div>
+                                                                    </div>
+                                                                    </div>
+                                                                    </div>
+                                                                    <div class = 'field-group'>
+                                                                    <label>Page Title</label>
+                                                                    <input type = 'text' data-field = 'section_title' value = "<?= htmlspecialchars( $sData[ 'section_title' ] ?? '' ) ?>" placeholder = 'Annual Reports'>
+                                                                    </div>
+                                                                    <div class = 'field-group'>
+                                                                    <label>Page Subtitle</label>
+                                                                    <textarea data-field = 'section_subtitle' rows = '2' placeholder = 'Transparency Through Reporting, Accountability Through Action'><?= htmlspecialchars( $sData[ 'section_subtitle' ] ?? '' ) ?></textarea>
+                                                                    </div>
+
+                                                                    <?php
+                                                                    // ===  == ANNUAL REPORTS CONTENT ===  ==
+                                                                    elseif ( $sKey === 'annual_reports_content' ):
+                                                                    ?>
+                                                                    <div style = 'margin-bottom:1rem;padding:0.85rem 1rem;background:#eff6ff;border:1px solid #bfdbfe;border-radius:0.75rem;font-size:0.78rem;color:#1e40af;display:flex;gap:0.6rem;align-items:flex-start;'>
+                                                                    <i class = 'fa-solid fa-circle-info' style = 'margin-top:0.15rem;'></i>
+                                                                    <div>
+                                                                    <strong>Report PDFs are managed in Resources.</strong><br>
+                                                                    Add, edit, upload, publish or remove an annual report in
+                                                                    <a href = 'resources.php?tab=reports&amp;filter=annual_report' style = 'text-decoration:underline;font-weight:600;'>Resources &rarr; Reports</a>.
+                                                                    Every published report appears on this page automatically.
+                                                                    </div>
+                                                                    </div>
+                                                                    <div class = 'field-group'>
+                                                                    <label>Section Heading</label>
+                                                                    <input type = 'text' data-field = 'section_title' value = "<?= htmlspecialchars( $sData[ 'section_title' ] ?? '' ) ?>" placeholder = 'Explore Our Annual Reports'>
+                                                                    </div>
+                                                                    <div class = 'field-group'>
+                                                                    <label>Section Description</label>
+                                                                    <textarea data-field = 'section_subtitle' rows = '2'><?= htmlspecialchars( $sData[ 'section_subtitle' ] ?? '' ) ?></textarea>
+                                                                    </div>
+                                                                    <div class = 'field-group'>
+                                                                    <label>Introduction &mdash; Paragraph 1</label>
+                                                                    <textarea data-field = 'content.intro1' rows = '4' placeholder = 'Why WRC publishes annual reports...'><?= htmlspecialchars( $content[ 'intro1' ] ?? '' ) ?></textarea>
+                                                                    </div>
+                                                                    <div class = 'field-group'>
+                                                                    <label>Introduction &mdash; Paragraph 2</label>
+                                                                    <textarea data-field = 'content.intro2' rows = '3'><?= htmlspecialchars( $content[ 'intro2' ] ?? '' ) ?></textarea>
                                                                     </div>
 
                                                                     <?php

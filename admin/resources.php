@@ -244,8 +244,8 @@ include __DIR__ . '/includes/header.php';
 <div class="tab-content <?= $activeTab === 'reports' ? 'active' : '' ?>" id="tab-reports">
   <div class="flex items-center justify-between mb-6">
     <div class="text-sm text-slate-500">Manage annual, financial, and audit reports</div>
-    <a href="resource-edit.php" class="inline-flex items-center gap-2 bg-brandRed text-white px-5 py-2.5 rounded-xl text-sm font-semibold hover:bg-red-700 transition-colors shadow-sm">
-      <i class="fa-solid fa-plus text-xs"></i> Add Report
+    <a href="resource-edit.php?type=<?= urlencode($filter !== 'all' ? $filter : 'annual_report') ?>" class="inline-flex items-center gap-2 bg-brandRed text-white px-5 py-2.5 rounded-xl text-sm font-semibold hover:bg-red-700 transition-colors shadow-sm">
+      <i class="fa-solid fa-plus text-xs"></i> Add <?= $filter === 'all' ? 'Report' : $typeLabels[$filter] ?>
     </a>
   </div>
 
@@ -302,7 +302,7 @@ include __DIR__ . '/includes/header.php';
         </thead>
         <tbody id="reportTableBody">
           <?php if (empty($resources)): ?>
-          <tr><td colspan="7" class="px-5 py-16 text-center"><div class="flex flex-col items-center"><div class="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center mb-4"><i class="fa-solid fa-folder-open text-2xl text-slate-300"></i></div><p class="text-slate-400 text-sm font-medium mb-1">No reports found</p><a href="resource-edit.php" class="mt-3 inline-flex items-center gap-2 bg-brandRed text-white px-4 py-2 rounded-xl text-xs font-semibold hover:bg-red-700 transition-colors"><i class="fa-solid fa-plus text-[10px]"></i> Add Report</a></div></td></tr>
+          <tr><td colspan="7" class="px-5 py-16 text-center"><div class="flex flex-col items-center"><div class="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center mb-4"><i class="fa-solid fa-folder-open text-2xl text-slate-300"></i></div><p class="text-slate-400 text-sm font-medium mb-1">No reports found</p><a href="resource-edit.php?type=<?= urlencode($filter !== 'all' ? $filter : 'annual_report') ?>" class="mt-3 inline-flex items-center gap-2 bg-brandRed text-white px-4 py-2 rounded-xl text-xs font-semibold hover:bg-red-700 transition-colors"><i class="fa-solid fa-plus text-[10px]"></i> Add <?= $filter === 'all' ? 'Report' : $typeLabels[$filter] ?></a></div></td></tr>
           <?php else: ?>
           <?php foreach ($resources as $i => $r): ?>
           <tr class="border-b border-slate-100 hover:bg-slate-50 transition-colors <?= $i % 2 !== 0 ? 'bg-slate-50/50' : '' ?> <?= !$r['is_active'] ? 'opacity-60' : '' ?>">
@@ -310,10 +310,10 @@ include __DIR__ . '/includes/header.php';
             <td class="px-5 py-3"><div class="font-semibold text-slate-900 max-w-xs truncate"><?= htmlspecialchars($r['title']) ?></div><?php if (!empty($r['description'])): ?><div class="text-[11px] text-slate-400 truncate max-w-xs mt-0.5"><?= htmlspecialchars(mb_substr($r['description'], 0, 60)) ?>...</div><?php endif; ?></td>
             <td class="px-5 py-3"><?php $tc = $r['resource_type'] === 'annual_report' ? 'bg-blue-50 text-blue-600 border-blue-200' : ($r['resource_type'] === 'financial_report' ? 'bg-emerald-50 text-emerald-600 border-emerald-200' : 'bg-amber-50 text-amber-600 border-amber-200'); ?><span class="inline-flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wider px-2.5 py-1 rounded-full <?= $tc ?> border"><i class="fa-solid <?= $typeIcons[$r['resource_type']] ?? 'fa-file' ?> text-[10px]"></i> <?= $typeLabels[$r['resource_type']] ?? $r['resource_type'] ?></span></td>
             <td class="px-5 py-3 text-slate-700 font-semibold text-xs"><?= $r['year'] ?: '-' ?></td>
-            <td class="px-5 py-3"><span class="inline-flex items-center gap-1 text-[11px] font-bold uppercase px-2 py-0.5 rounded bg-slate-100 text-slate-500"><i class="fa-solid fa-file-pdf text-[10px]"></i> <?= strtoupper($r['file_type'] ?? 'PDF') ?></span></td>
+            <td class="px-5 py-3"><div class="flex items-center gap-1.5"><span class="inline-flex items-center gap-1 text-[11px] font-bold uppercase px-2 py-0.5 rounded bg-slate-100 text-slate-500"><i class="fa-solid fa-file-pdf text-[10px]"></i> <?= strtoupper($r['file_type'] ?? 'PDF') ?></span><?php if (empty($r['file_path'])): ?><span class="inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full bg-amber-50 text-amber-600 border border-amber-200" title="No file uploaded yet — the website shows this report as PDF coming soon"><i class="fa-solid fa-triangle-exclamation text-[9px]"></i> No file</span><?php endif; ?></div></td>
             <td class="px-5 py-3"><?= $r['is_active'] ? '<span class="inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded-full bg-green-50 text-green-600 border border-green-200"><span class="w-1.5 h-1.5 rounded-full bg-green-500"></span> Active</span>' : '<span class="inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded-full bg-red-50 text-red-600 border border-red-200"><span class="w-1.5 h-1.5 rounded-full bg-red-500"></span> Inactive</span>' ?></td>
             <td class="px-5 py-3 text-right"><div class="flex items-center justify-end gap-1.5">
-              <?php if (!empty($r['file_path'])): ?><a href="/<?= htmlspecialchars($r['file_path']) ?>" target="_blank" class="text-slate-400 hover:text-emerald-500 transition-colors p-1.5 rounded-lg hover:bg-emerald-50" title="Download"><i class="fa-solid fa-download text-xs"></i></a><?php endif; ?>
+              <?php if (!empty($r['file_path'])): ?><a href="<?= htmlspecialchars(siteUrl($r['file_path'])) ?>" target="_blank" rel="noopener noreferrer" class="text-slate-400 hover:text-emerald-500 transition-colors p-1.5 rounded-lg hover:bg-emerald-50" title="Open file"><i class="fa-solid fa-download text-xs"></i></a><?php endif; ?>
               <a href="resource-edit.php?id=<?= $r['id'] ?>" class="text-slate-400 hover:text-blue-500 transition-colors p-1.5 rounded-lg hover:bg-blue-50" title="Edit"><i class="fa-solid fa-pen-to-square text-xs"></i></a>
               <?php if ($r['is_active']): ?>
               <form method="POST" class="inline" onsubmit="return confirm('Deactivate?')"><input type="hidden" name="csrf_token" value="<?= generateCSRF() ?>"><input type="hidden" name="delete_report" value="<?= $r['id'] ?>"><button class="text-slate-400 hover:text-amber-500 p-1.5 rounded-lg hover:bg-amber-50"><i class="fa-solid fa-eye-slash text-xs"></i></button></form>

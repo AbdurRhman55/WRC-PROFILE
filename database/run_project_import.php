@@ -979,6 +979,11 @@ try {
     // Also marker-guarded, so dashboard edits survive future deployments.
     require_once __DIR__ . '/seed_about_sections.php';
 
+    // Annual Reports page: approved hero/introduction wording plus the six
+    // report editions from the Website Content document. Marker-guarded, so
+    // PDFs uploaded later from the dashboard survive every deployment.
+    require_once __DIR__ . '/seed_annual_reports.php';
+
     $reasons = $portfolioStatus();
     if ( !$reasons ) {
         echo 'Project portfolio already matches the ' . PORTFOLIO_SIZE . " approved Excel entries; no changes made.\n";

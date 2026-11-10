@@ -46,14 +46,18 @@ if (isPost()) {
             $stmt->execute([$title, $resource_type, $description, $file_path, $file_type, $year, $is_active, $sort_order]);
             setFlash('success', 'Resource created successfully.');
         }
-        redirect('resources.php');
+        redirect('resources.php?tab=reports&filter=' . urlencode($resource_type));
     }
 }
 
 $typeLabels = ['annual_report' => 'Annual Report', 'financial_report' => 'Financial Report', 'audit_report' => 'Audit Report'];
 $typeIcons = ['annual_report' => 'fa-chart-line', 'financial_report' => 'fa-coins', 'audit_report' => 'fa-magnifying-glass-chart'];
 $typeDescs = ['annual_report' => 'Yearly impact and program overview reports', 'financial_report' => 'Income, expenditure, and fund utilization statements', 'audit_report' => 'Independent external audit reports by certified firms'];
-$currentType = $resource['resource_type'] ?? 'annual_report';
+$currentType = $resource['resource_type'] ?? null;
+if ( !$currentType || !isset( $typeLabels[ $currentType ] ) ) {
+    $requestedType = $_GET['type'] ?? '';
+    $currentType = isset( $typeLabels[ $requestedType ] ) ? $requestedType : 'annual_report';
+}
 
 include __DIR__ . '/includes/header.php';
 ?>
@@ -108,6 +112,7 @@ include __DIR__ . '/includes/header.php';
       <div>
         <label class="block text-sm font-medium text-slate-700 mb-1">Year *</label>
         <input type="number" name="year" value="<?= htmlspecialchars($resource['year'] ?? date('Y')) ?>" min="2000" max="2099" required class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-brandRed/20 focus:border-brandRed">
+        <p class="text-[11px] text-slate-400 mt-1">Use the first year of the reporting period &mdash; e.g. 2024 for 2024-2025.</p>
       </div>
       <div>
         <label class="block text-sm font-medium text-slate-700 mb-1">File Format</label>
@@ -127,10 +132,38 @@ include __DIR__ . '/includes/header.php';
 
   <!-- File Upload -->
   <div class="bg-white rounded-2xl border border-slate-200 p-6">
-    <h2 class="text-sm font-bold text-slate-900 uppercase tracking-wider mb-4">File</h2>
+    <h2 class="text-sm font-bold text-slate-900 uppercase tracking-wider mb-4">Report File</h2>
+    <?php
+      $currentFile = trim((string) ($resource['file_path'] ?? ''));
+      $fileIsRemote = $currentFile !== '' && preg_match('~^(?:https?:)?//~i', $currentFile) === 1;
+      $fileExists = $currentFile !== '' && ($fileIsRemote || is_file(dirname(__DIR__) . '/' . ltrim($currentFile, '/\\')));
+    ?>
+    <?php if ($fileExists): ?>
+      <div class="mb-4 flex flex-wrap items-center gap-3 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3">
+        <i class="fa-solid fa-file-circle-check text-emerald-600"></i>
+        <span class="text-xs font-semibold text-emerald-800">A file is attached to this report &mdash; visitors can open and download it.</span>
+        <a href="<?= htmlspecialchars(siteUrl($currentFile)) ?>" target="_blank" rel="noopener noreferrer" class="ml-auto inline-flex items-center gap-1.5 rounded-lg bg-emerald-600 px-3 py-1.5 text-[11px] font-bold uppercase tracking-wider text-white transition-colors hover:bg-emerald-700">
+          Open current file <i class="fa-solid fa-arrow-up-right-from-square text-[9px]"></i>
+        </a>
+      </div>
+    <?php elseif ($isEdit): ?>
+      <div class="mb-4 flex items-start gap-3 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3">
+        <i class="fa-solid fa-circle-exclamation mt-0.5 text-amber-500"></i>
+        <span class="text-xs leading-relaxed text-amber-800">No file is attached yet, so the website shows this report as <strong>&ldquo;PDF coming soon&rdquo;</strong>. Upload the PDF below to make it available to visitors.</span>
+      </div>
+    <?php elseif (!empty($currentFile)): ?>
+      <div class="mb-4 flex items-start gap-3 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3">
+        <i class="fa-solid fa-circle-exclamation mt-0.5 text-amber-500"></i>
+        <span class="text-xs leading-relaxed text-amber-800">The file path below could not be found on the server. Upload the file again to make sure it opens correctly.</span>
+      </div>
+    <?php endif; ?>
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
       <div class="md:col-span-2">
-        <?php uploadWidget('file_path', 'Report File (PDF, DOC, XLS)', $resource['file_path'] ?? '', 'file', 'file_path_input'); ?>
+        <?php uploadWidget('file_path', 'Upload or replace the PDF', $resource['file_path'] ?? '', 'file', 'file_path_input'); ?>
+        <p class="text-[11px] text-slate-400 mt-2">
+          <i class="fa-solid fa-circle-info mr-1"></i>
+          PDF is recommended. Maximum upload size is 20&nbsp;MB. Uploading a new file replaces the current one; leave the field empty to publish the report without a file.
+        </p>
       </div>
     </div>
   </div>
@@ -155,7 +188,7 @@ include __DIR__ . '/includes/header.php';
 
   <!-- Actions -->
   <div class="flex items-center justify-end gap-3">
-    <a href="resources.php" class="px-5 py-2.5 rounded-xl border border-slate-200 text-sm font-medium text-slate-600 hover:bg-slate-50 transition-colors">Cancel</a>
+    <a href="resources.php?tab=reports&amp;filter=<?= urlencode($currentType) ?>" class="px-5 py-2.5 rounded-xl border border-slate-200 text-sm font-medium text-slate-600 hover:bg-slate-50 transition-colors">Cancel</a>
     <button type="submit" class="px-6 py-2.5 rounded-xl bg-brandRed text-white text-sm font-semibold hover:bg-red-700 transition-colors shadow-sm">
       <i class="fa-solid fa-check text-xs mr-1"></i> <?= $isEdit ? 'Update Report' : 'Create Report' ?>
     </button>
