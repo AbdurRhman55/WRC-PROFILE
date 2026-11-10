@@ -3,8 +3,8 @@ require_once dirname(__DIR__) . '/includes/config.php';
 require_once dirname(__DIR__) . '/includes/functions.php';
 
 $base = siteBaseUrl();
-$pageTitle = 'Contact Us | WRC';
-$metaDescription = 'Get in touch with Welfare & Relief Committee for inquiries, volunteer applications, partnerships, or emergency aid requests.';
+$pageTitle = 'Contact Us | Welfare & Relief Committee (WRC)';
+$metaDescription = 'Contact the Welfare & Relief Committee for inquiries, partnerships, programme information, feedback, or confidential reporting.';
 
 // Fetch hero & content from dedicated tables
 $heroRow = getRow('contact_hero');
@@ -17,6 +17,23 @@ $contactInfo  = $contentData['contact_info'] ?? [];
 $feedbackData = $contentData['feedback'] ?? [];
 $whistleData  = $contentData['whistleblower'] ?? [];
 $mapEmbed     = $contentData['map_embed'] ?? '';
+
+// Introduction copy (dashboard-managed, approved wording as the fallback).
+$introEyebrow = trim((string) ($contentData['intro_eyebrow'] ?? '')) ?: 'Get in Touch';
+$introTitle   = trim((string) ($contentData['intro_title'] ?? '')) ?: "We're Here to Help";
+$introOne     = trim((string) ($contentData['intro1'] ?? '')) ?: "We welcome communication from individuals, communities, government institutions, development partners, donors, and organizations interested in working with WRC.";
+$introTwo     = trim((string) ($contentData['intro2'] ?? '')) ?: "Whether you have an inquiry, wish to explore a partnership, need information about our programmes, or would like to share feedback, our team is here to assist you.";
+$introThree   = trim((string) ($contentData['intro3'] ?? '')) ?: 'We value open communication and aim to respond to all inquiries timely.';
+
+$heroTitle    = trim((string) ($heroRow['section_title'] ?? '')) ?: 'Contact Us';
+$heroSubtitle = trim((string) ($heroRow['section_subtitle'] ?? '')) ?: "Let's Connect and Make a Difference";
+$emailAddress = 'info@wrc.org.pk';
+foreach ($contactInfo as $infoItem) {
+    if (strtolower((string) ($infoItem['label'] ?? '')) === 'email' && !empty($infoItem['value'])) {
+        $emailAddress = $infoItem['value'];
+        break;
+    }
+}
 
 // Handle form submissions
 $contactSuccess = false;
@@ -126,7 +143,7 @@ include dirname(__DIR__) . '/includes/header.php';
           $heroImg = 'assets/images/' . $heroImg;
       }
     ?>
-    <img src="<?= $base ?><?= $heroImg ?>" alt="Contact Us" class="absolute inset-0 w-full h-full object-cover">
+    <img src="<?= $base ?><?= $heroImg ?>" alt="Contact Welfare &amp; Relief Committee" class="absolute inset-0 w-full h-full object-cover">
     <div class="absolute inset-0 bg-gradient-to-br from-slate-950/70 via-slate-900/50 to-brandRed/20"></div>
   </div>
   <div class="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-20 lg:py-24">
@@ -140,10 +157,10 @@ include dirname(__DIR__) . '/includes/header.php';
         <i class="fa-solid fa-envelope text-white text-xs"></i> <?= sanitize($heroRow['badge'] ?? 'Get In Touch') ?>
       </div>
       <h1 class="text-4xl md:text-5xl lg:text-6xl font-extrabold leading-tight mb-6" style="font-family:'Fraunces',serif;">
-        <?= sanitize($heroRow['section_title'] ?? 'Contact Us') ?>
+        <?= sanitize($heroTitle) ?>
       </h1>
       <p class="text-lg md:text-xl text-white/70 leading-relaxed mb-10 max-w-2xl mx-auto">
-        <?= sanitize($heroRow['section_subtitle'] ?? '') ?>
+        <?= sanitize($heroSubtitle) ?>
       </p>
       <div class="flex flex-wrap justify-center gap-4">
         <a href="#offices" class="bg-white text-slate-900 hover:bg-slate-100 font-bold text-sm px-8 py-4 rounded-xl shadow-lg transition-all flex items-center gap-2 transform hover:-translate-y-0.5">
@@ -158,6 +175,58 @@ include dirname(__DIR__) . '/includes/header.php';
 </section>
 
 
+<!-- INTRODUCTION -->
+<section class="py-16 lg:py-20 bg-slate-50">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="grid grid-cols-1 gap-12 lg:grid-cols-12 lg:gap-16 lg:items-start">
+      <div class="lg:col-span-7">
+        <span class="text-brandRed text-xs font-bold uppercase tracking-[0.22em]"><?= sanitize($introEyebrow) ?></span>
+        <h2 class="mt-3 text-3xl md:text-4xl font-extrabold text-slate-900" style="font-family:'Fraunces',serif;"><?= sanitize($introTitle) ?></h2>
+        <div class="mt-6 space-y-4 text-base leading-8 text-slate-600">
+          <p><?= sanitize($introOne) ?></p>
+          <p><?= sanitize($introTwo) ?></p>
+          <p><?= sanitize($introThree) ?></p>
+        </div>
+      </div>
+      <div class="lg:col-span-5">
+        <div class="rounded-3xl border border-slate-200 bg-white p-7 sm:p-8 shadow-sm">
+          <p class="text-[11px] font-bold uppercase tracking-[0.2em] text-slate-400">Quick Links</p>
+          <div class="mt-4 space-y-2.5">
+            <a href="#contact" class="group flex items-start gap-4 rounded-2xl border border-slate-200 bg-slate-50/60 p-4 transition-all hover:-translate-y-0.5 hover:border-brandRed/30 hover:bg-white hover:shadow-md">
+              <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brandRed/10 text-brandRed"><i class="fa-solid fa-paper-plane"></i></span>
+              <span>
+                <span class="block text-sm font-bold text-slate-900 transition-colors group-hover:text-brandRed">Send a Message</span>
+                <span class="mt-0.5 block text-xs leading-relaxed text-slate-500">General inquiries and programme information</span>
+              </span>
+            </a>
+            <a href="#feedback" class="group flex items-start gap-4 rounded-2xl border border-slate-200 bg-slate-50/60 p-4 transition-all hover:-translate-y-0.5 hover:border-brandRed/30 hover:bg-white hover:shadow-md">
+              <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brandRed/10 text-brandRed"><i class="fa-solid fa-comment-dots"></i></span>
+              <span>
+                <span class="block text-sm font-bold text-slate-900 transition-colors group-hover:text-brandRed">Share Feedback</span>
+                <span class="mt-0.5 block text-xs leading-relaxed text-slate-500">Tell us how we can serve communities better</span>
+              </span>
+            </a>
+            <a href="#whistleblower" class="group flex items-start gap-4 rounded-2xl border border-slate-200 bg-slate-50/60 p-4 transition-all hover:-translate-y-0.5 hover:border-brandRed/30 hover:bg-white hover:shadow-md">
+              <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brandRed/10 text-brandRed"><i class="fa-solid fa-shield-halved"></i></span>
+              <span>
+                <span class="block text-sm font-bold text-slate-900 transition-colors group-hover:text-brandRed">Report a Concern</span>
+                <span class="mt-0.5 block text-xs leading-relaxed text-slate-500">Confidential channel for ethical concerns</span>
+              </span>
+            </a>
+          </div>
+          <div class="mt-6 border-t border-slate-200 pt-5">
+            <p class="text-xs text-slate-500">Prefer email?</p>
+            <a href="mailto:<?= sanitize($emailAddress) ?>" class="mt-1 inline-flex items-center gap-2 text-sm font-bold text-slate-900 transition-colors hover:text-brandRed">
+              <i class="fa-solid fa-envelope text-brandRed text-xs"></i> <?= sanitize($emailAddress) ?>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
 <!-- OFFICE LOCATION + MAP -->
 <section id="offices" class="py-20 bg-white">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -166,30 +235,46 @@ include dirname(__DIR__) . '/includes/header.php';
       <h2 class="text-3xl md:text-4xl font-extrabold text-slate-900 mt-2" style="font-family:'Fraunces',serif;"><?= sanitize($contentData['offices_title'] ?? 'Office Locations') ?></h2>
       <p class="mt-3 text-slate-500 text-sm max-w-xl mx-auto"><?= sanitize($contentData['offices_description'] ?? '') ?></p>
     </div>
-    <div class="grid lg:grid-cols-2 gap-8 items-stretch">
-      <!-- Head Office Card -->
-      <div class="bg-slate-50 rounded-2xl p-8 border border-slate-200 hover:shadow-xl hover:border-brandRed/20 transition-all">
-        <div class="w-14 h-14 rounded-xl bg-brandRed text-white flex items-center justify-center mb-5">
-          <i class="fa-solid fa-building text-2xl"></i>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 items-stretch">
+      <?php if (!empty($offices)): ?>
+      <?php foreach ($offices as $office): ?>
+      <div class="bg-slate-50 rounded-2xl p-7 border border-slate-200 hover:shadow-xl hover:border-brandRed/20 transition-all flex flex-col">
+        <div class="w-12 h-12 rounded-xl bg-brandRed text-white flex items-center justify-center mb-5">
+          <i class="fa-solid <?= sanitize($office['icon'] ?? 'fa-building') ?> text-xl"></i>
         </div>
-        <div class="flex items-center gap-2 mb-3">
-          <h3 class="text-xl font-bold text-slate-900"><?= sanitize($offices[0]['name'] ?? 'Head Office') ?></h3>
-          <span class="text-[10px] bg-brandRed text-white px-2.5 py-0.5 rounded-full font-bold"><?= sanitize($offices[0]['badge'] ?? 'Main') ?></span>
+        <div class="flex flex-wrap items-center gap-2 mb-3">
+          <h3 class="text-lg font-bold text-slate-900"><?= sanitize($office['name'] ?? 'Office') ?></h3>
+          <?php if (!empty($office['badge'])): ?>
+          <span class="text-[10px] bg-brandRed text-white px-2.5 py-0.5 rounded-full font-bold"><?= sanitize($office['badge']) ?></span>
+          <?php endif; ?>
         </div>
-        <p class="text-sm text-slate-600 mb-6 leading-relaxed"><?= sanitize($offices[0]['address'] ?? '') ?></p>
-        <div class="space-y-3 text-sm text-slate-500 mb-6">
-          <div class="flex items-center gap-3"><i class="fa-solid fa-phone text-brandRed text-xs w-4"></i> <?= sanitize($offices[0]['phone'] ?? '') ?></div>
-          <div class="flex items-center gap-3"><i class="fa-solid fa-envelope text-brandRed text-xs w-4"></i> <?= sanitize($offices[0]['email'] ?? '') ?></div>
-          <div class="flex items-center gap-3"><i class="fa-solid fa-clock text-brandRed text-xs w-4"></i> <?= sanitize($offices[0]['hours'] ?? '') ?></div>
+        <p class="text-sm text-slate-600 mb-5 leading-relaxed flex-1"><?= sanitize($office['address'] ?? '') ?></p>
+        <div class="space-y-2.5 text-sm text-slate-500 mb-5">
+          <?php if (!empty($office['phone'])): ?>
+          <div class="flex items-center gap-3"><i class="fa-solid fa-phone text-brandRed text-xs w-4"></i> <?= sanitize($office['phone']) ?></div>
+          <?php endif; ?>
+          <?php if (!empty($office['email'])): ?>
+          <div class="flex items-center gap-3"><i class="fa-solid fa-envelope text-brandRed text-xs w-4"></i> <a href="mailto:<?= sanitize($office['email']) ?>" class="transition-colors hover:text-brandRed"><?= sanitize($office['email']) ?></a></div>
+          <?php endif; ?>
+          <?php if (!empty($office['hours'])): ?>
+          <div class="flex items-center gap-3"><i class="fa-solid fa-clock text-brandRed text-xs w-4"></i> <?= sanitize($office['hours']) ?></div>
+          <?php endif; ?>
         </div>
-        <a href="https://www.google.com/maps/place/Marbella+Cave+Wedding+Hall/@34.0232965,71.5421574,17z" target="_blank" class="inline-flex items-center gap-2 bg-brandRed text-white text-xs font-bold px-5 py-2.5 rounded-lg hover:bg-brandRed-hover transition-all">
+        <a href="https://www.google.com/maps/search/?api=1&amp;query=<?= rawurlencode($office['address'] ?? ($office['name'] ?? 'WRC')) ?>" target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center gap-2 bg-brandRed text-white text-xs font-bold px-5 py-2.5 rounded-lg hover:bg-brandRed-hover transition-all mt-auto">
           <i class="fa-solid fa-directions"></i> Get Directions
         </a>
       </div>
-      <!-- Map -->
-      <div class="rounded-2xl overflow-hidden border border-slate-200 min-h-[400px]">
-        <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3319.47!2d71.5421574!3d34.0232965!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x38d9173ab0306c9f:0x652720dbab04c8e6!2sMarbella+Cave+Wedding+Hall!5e0!3m2!1sen!2s!4v1725000000000!5m2!1sen!2s" class="w-full h-full border-0" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+      <?php endforeach; ?>
+      <?php else: ?>
+      <div class="md:col-span-3 rounded-2xl border border-dashed border-slate-300 bg-slate-50 px-6 py-12 text-center text-sm text-slate-500">
+        Our office details are being updated. Please use the contact form below or email us at
+        <a href="mailto:<?= sanitize($emailAddress) ?>" class="font-semibold text-brandRed hover:underline"><?= sanitize($emailAddress) ?></a>.
       </div>
+      <?php endif; ?>
+    </div>
+    <!-- Map -->
+    <div class="mt-8 rounded-2xl overflow-hidden border border-slate-200 min-h-[380px]">
+      <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3319.47!2d71.5421574!3d34.0232965!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x38d9173ab0306c9f:0x652720dbab04c8e6!2sMarbella+Cave+Wedding+Hall!5e0!3m2!1sen!2s!4v1725000000000!5m2!1sen!2s" class="w-full h-full border-0 min-h-[380px]" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade" title="WRC head office location"></iframe>
     </div>
   </div>
 </section>

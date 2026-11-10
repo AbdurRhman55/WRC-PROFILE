@@ -984,6 +984,11 @@ try {
     // PDFs uploaded later from the dashboard survive every deployment.
     require_once __DIR__ . '/seed_annual_reports.php';
 
+    // Contact page: approved tagline and introduction. Merged into the
+    // existing contact content, so offices, phone numbers, the map, and the
+    // form settings are preserved.
+    require_once __DIR__ . '/seed_contact_page.php';
+
     $reasons = $portfolioStatus();
     if ( !$reasons ) {
         echo 'Project portfolio already matches the ' . PORTFOLIO_SIZE . " approved Excel entries; no changes made.\n";

@@ -627,7 +627,18 @@ if ( isPost() && isset( $_POST[ 'save_sections' ] ) ) {
     function saveGenericContent( $sectionKey, $data ) {
         $content = $data[ 'content' ] ?? [];
         $exists = getRow( $sectionKey );
-        $jsonContent = json_encode( $content, JSON_UNESCAPED_UNICODE );
+
+        // Preserve any stored keys the current form does not expose (offices,
+        // map, whistleblower text, report archive, etc.). Inputs still win.
+        $merged = $content;
+        if ( $exists && !empty( $exists[ 'content' ] ) ) {
+            $stored = json_decode( $exists[ 'content' ], true );
+            if ( is_array( $stored ) ) {
+                $merged = array_merge( $stored, $content );
+            }
+        }
+
+        $jsonContent = json_encode( $merged, JSON_UNESCAPED_UNICODE );
         $updateData = [ 'section_title' => $data[ 'section_title' ] ?? '', 'section_subtitle' => $data[ 'section_subtitle' ] ?? '', 'content' => $jsonContent ];
         if ( $exists ) {
             updateRow( $sectionKey, $updateData, [ 'id' => $exists[ 'id' ] ] );
@@ -1111,7 +1122,7 @@ $pages = [
         'label' => 'Contact Us',
         'sections' => [
             'contact_hero' => 'Hero Section',
-            'contact_content' => 'Contact Information',
+            'contact_content' => 'Introduction & Contact Info',
         ]
     ],
     'impact' => [
@@ -2541,6 +2552,39 @@ include __DIR__ . '/includes/header.php';
                                                                     <div class = 'field-group'>
                                                                     <label>Introduction &mdash; Paragraph 2</label>
                                                                     <textarea data-field = 'content.intro2' rows = '3'><?= htmlspecialchars( $content[ 'intro2' ] ?? '' ) ?></textarea>
+                                                                    </div>
+
+                                                                    <?php
+                                                                    // ===  == CONTACT INTRODUCTION ===  ==
+                                                                    elseif ( $sKey === 'contact_content' ):
+                                                                    ?>
+                                                                    <div style = 'margin-bottom:1rem;padding:0.85rem 1rem;background:#eff6ff;border:1px solid #bfdbfe;border-radius:0.75rem;font-size:0.78rem;color:#1e40af;display:flex;gap:0.6rem;align-items:flex-start;'>
+                                                                    <i class = 'fa-solid fa-circle-info' style = 'margin-top:0.15rem;'></i>
+                                                                    <div>
+                                                                    These paragraphs appear directly below the Contact hero. The page title and tagline are edited in the <strong>Hero Section</strong> above; office addresses, phone numbers, the map, and form labels are stored with this section and stay unchanged.
+                                                                    </div>
+                                                                    </div>
+                                                                    <div class = 'field-row'>
+                                                                    <div class = 'field-group'>
+                                                                    <label>Small Heading (eyebrow)</label>
+                                                                    <input type = 'text' data-field = 'content.intro_eyebrow' value = "<?= htmlspecialchars( $content[ 'intro_eyebrow' ] ?? '' ) ?>" placeholder = 'Get in Touch'>
+                                                                    </div>
+                                                                    <div class = 'field-group'>
+                                                                    <label>Section Heading</label>
+                                                                    <input type = 'text' data-field = 'content.intro_title' value = "<?= htmlspecialchars( $content[ 'intro_title' ] ?? '' ) ?>" placeholder = "We're Here to Help">
+                                                                    </div>
+                                                                    </div>
+                                                                    <div class = 'field-group'>
+                                                                    <label>Introduction &mdash; Paragraph 1</label>
+                                                                    <textarea data-field = 'content.intro1' rows = '3' placeholder = 'Who WRC welcomes communication from...'><?= htmlspecialchars( $content[ 'intro1' ] ?? '' ) ?></textarea>
+                                                                    </div>
+                                                                    <div class = 'field-group'>
+                                                                    <label>Introduction &mdash; Paragraph 2</label>
+                                                                    <textarea data-field = 'content.intro2' rows = '3'><?= htmlspecialchars( $content[ 'intro2' ] ?? '' ) ?></textarea>
+                                                                    </div>
+                                                                    <div class = 'field-group'>
+                                                                    <label>Introduction &mdash; Paragraph 3</label>
+                                                                    <textarea data-field = 'content.intro3' rows = '2'><?= htmlspecialchars( $content[ 'intro3' ] ?? '' ) ?></textarea>
                                                                     </div>
 
                                                                     <?php
