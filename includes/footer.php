@@ -62,7 +62,7 @@ if ( !isset( $logoV ) ) $logoV = @filemtime( dirname( __DIR__ ) . '/assets/image
 </li>
 <li class = 'flex items-center gap-3'>
 <i class = 'fa-solid fa-phone text-brandRed'></i>
-<a href = "tel:<?= str_replace(' ', '', getSetting('phone')) ?>" class = 'hover:text-white transition'><?= getSetting( 'phone' ) ?></a>
+<a href = "tel:<?= htmlspecialchars( phoneHref( getSetting( 'phone' ) ) ) ?>" class = 'hover:text-white transition'><?= getSetting( 'phone' ) ?></a>
 </li>
 <li class = 'flex items-center gap-3'>
 <i class = 'fa-solid fa-envelope text-brandRed'></i>

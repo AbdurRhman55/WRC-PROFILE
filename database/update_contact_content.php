@@ -9,7 +9,7 @@ $content = [
             'name' => 'Head Office',
             'badge' => 'Main',
             'address' => 'Flat#1, 3rd Floor, Shami Flats near Marbella Wedding Hall, Warsak Road, Peshawar, Pakistan',
-            'phone' => '+92-91-1234567',
+            'phone' => '+92 (091) 9222780',
             'email' => 'info@wrc.org.pk',
             'hours' => 'Mon-Fri: 9:00 AM - 5:00 PM'
         ],
@@ -35,7 +35,7 @@ $content = [
     'subjects' => ['General Inquiry', 'Partnership Proposal', 'Donation Inquiry', 'Media Request', 'Program Information', 'Other'],
     'map_embed' => '<iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3319.4678854446416!2d71.5818228152063!3d34.02264878069695!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x38dfbfd07891722f%3A0x6059515c3bdb02b6!2sPeshawar%2C%20Khyber%20Pakhtunkhwa%2C%20Pakistan!5e0!3m2!1sen!2s!4v1683058882431!5m2!1sen!2s" class="w-full h-full border-0" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>',
     'contact_info' => [
-        ['icon' => 'fa-phone', 'label' => 'Phone', 'value' => '+92-91-1234567'],
+        ['icon' => 'fa-phone', 'label' => 'Phone', 'value' => '+92 (091) 9222780'],
         ['icon' => 'fa-envelope', 'label' => 'Email', 'value' => 'info@wrc.org.pk'],
         ['icon' => 'fa-location-dot', 'label' => 'Head Office', 'value' => 'Flat#1, 3rd Floor, Shami Flats, Warsak Road, Peshawar']
     ],

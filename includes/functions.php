@@ -746,6 +746,28 @@ function redirect( string $url ): void {
     exit;
 }
 
+/**
+ * Builds an international tel: value from a display number.
+ *
+ * "+92 (091) 9222780" becomes "+92919222780": separators are dropped and the
+ * domestic trunk 0 after the country code is removed so the link dials from
+ * any country.
+ */
+function phoneHref( ?string $phone ): string {
+    $digits = preg_replace( '/\D+/', '', (string) $phone );
+    if ( $digits === '' ) {
+        return '';
+    }
+    if ( strpos( $digits, '0092' ) === 0 ) {
+        $digits = substr( $digits, 2 );
+    } elseif ( strpos( $digits, '920' ) === 0 ) {
+        $digits = '92' . substr( $digits, 3 );
+    } elseif ( $digits[ 0 ] === '0' ) {
+        $digits = '92' . substr( $digits, 1 );
+    }
+    return '+' . $digits;
+}
+
 function isPost(): bool {
     return $_SERVER[ 'REQUEST_METHOD' ] === 'POST';
 }

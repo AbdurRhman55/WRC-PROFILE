@@ -6,6 +6,8 @@
  *      and the three introduction paragraphs that now live inside the hero.
  *  v2  Sets the contact form wording ("Send Us a Message"), the Inquiry Type
  *      options, and trims Our Offices down to the head office.
+ *  v3  Sets the official head office phone number on the office card and the
+ *      contact info list.
  *
  * Both passes merge into the existing contact_content JSON, so phone numbers,
  * the map, feedback categories, and whistleblower text are preserved. Each
@@ -13,7 +15,7 @@
  * survive every deployment.
  *
  * Standalone:  php database/seed_contact_page.php
- * Re-run:      DELETE FROM site_settings WHERE setting_key IN ('contact_page_v1','contact_page_v2');
+ * Re-run:      DELETE FROM site_settings WHERE setting_key IN ('contact_page_v1','contact_page_v2','contact_page_v3');
  */
 
 if ( !isset( $pdo ) || !( $pdo instanceof PDO ) ) {
@@ -22,6 +24,7 @@ if ( !isset( $pdo ) || !( $pdo instanceof PDO ) ) {
 
 const WRC_CONTACT_MARKER_V1 = 'contact_page_v1';
 const WRC_CONTACT_MARKER_V2 = 'contact_page_v2';
+const WRC_CONTACT_MARKER_V3 = 'contact_page_v3';
 
 /** Create the tables and any missing columns without disturbing stored data. */
 function wrc_contact_ensure_schema( PDO $pdo ): void {
@@ -230,6 +233,55 @@ if ( !wrc_contact_done( $pdo, WRC_CONTACT_MARKER_V2 ) ) {
         wrc_contact_mark( $pdo, WRC_CONTACT_MARKER_V2 );
         $pdo->commit();
         $applied[] = 'contact form wording, inquiry types, and head office';
+    } catch ( Throwable $error ) {
+        if ( $pdo->inTransaction() ) {
+            $pdo->rollBack();
+        }
+        throw $error;
+    }
+}
+
+// ---------------------------------------------------------------- pass v3 --
+if ( !wrc_contact_done( $pdo, WRC_CONTACT_MARKER_V3 ) ) {
+    $officialPhone = '+92 (091) 9222780';
+
+    try {
+        $pdo->beginTransaction();
+
+        $stored = wrc_contact_read( $pdo );
+        $data   = $stored[ 'data' ];
+
+        // Head office card.
+        $offices = array_values( array_filter( (array) ( $data[ 'offices' ] ?? [] ), 'is_array' ) );
+        foreach ( $offices as $index => $office ) {
+            $name  = strtolower( (string) ( $office[ 'name' ] ?? '' ) );
+            $badge = strtolower( (string) ( $office[ 'badge' ] ?? '' ) );
+            if ( $index === 0 || strpos( $name, 'head' ) !== false || $badge === 'main' ) {
+                $offices[ $index ][ 'phone' ] = $officialPhone;
+            }
+        }
+        if ( !empty( $offices ) ) {
+            $data[ 'offices' ] = $offices;
+        }
+
+        // Phone row in the contact information list.
+        $info = array_values( array_filter( (array) ( $data[ 'contact_info' ] ?? [] ), 'is_array' ) );
+        foreach ( $info as $index => $item ) {
+            $label = strtolower( (string) ( $item[ 'label' ] ?? '' ) );
+            $icon  = (string) ( $item[ 'icon' ] ?? '' );
+            if ( $label === 'phone' || strpos( $icon, 'phone' ) !== false ) {
+                $info[ $index ][ 'value' ] = $officialPhone;
+            }
+        }
+        if ( !empty( $info ) ) {
+            $data[ 'contact_info' ] = $info;
+        }
+
+        wrc_contact_write( $pdo, $stored[ 'id' ], $data );
+
+        wrc_contact_mark( $pdo, WRC_CONTACT_MARKER_V3 );
+        $pdo->commit();
+        $applied[] = 'official head office phone number';
     } catch ( Throwable $error ) {
         if ( $pdo->inTransaction() ) {
             $pdo->rollBack();

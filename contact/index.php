@@ -63,6 +63,8 @@ foreach ($contactInfo as $infoItem) {
     }
 }
 
+// Phone numbers display in full and dial via phoneHref() from functions.php.
+
 // Handle form submissions
 $contactSuccess = false;
 $feedbackSuccess = false;
@@ -259,9 +261,10 @@ include dirname(__DIR__) . '/includes/header.php';
           </div>
           <div class="space-y-3">
             <?php if (!empty($office['phone'])): ?>
-            <div class="flex items-center gap-3 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-600">
+            <?php $officeTel = phoneHref((string) $office['phone']); ?>
+            <a href="tel:<?= sanitize($officeTel) ?>" class="flex items-center gap-3 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-600 transition-colors hover:border-brandRed/30 hover:text-brandRed">
               <i class="fa-solid fa-phone text-brandRed text-xs w-4"></i> <?= sanitize($office['phone']) ?>
-            </div>
+            </a>
             <?php endif; ?>
             <?php if (!empty($office['email'])): ?>
             <div class="flex items-center gap-3 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-600">
@@ -295,7 +298,7 @@ include dirname(__DIR__) . '/includes/header.php';
         <p class="text-sm text-slate-600 mb-5 leading-relaxed flex-1"><?= sanitize($office['address'] ?? '') ?></p>
         <div class="space-y-2.5 text-sm text-slate-500 mb-5">
           <?php if (!empty($office['phone'])): ?>
-          <div class="flex items-center gap-3"><i class="fa-solid fa-phone text-brandRed text-xs w-4"></i> <?= sanitize($office['phone']) ?></div>
+          <div class="flex items-center gap-3"><i class="fa-solid fa-phone text-brandRed text-xs w-4"></i> <a href="tel:<?= sanitize(phoneHref((string) $office['phone'])) ?>" class="transition-colors hover:text-brandRed"><?= sanitize($office['phone']) ?></a></div>
           <?php endif; ?>
           <?php if (!empty($office['email'])): ?>
           <div class="flex items-center gap-3"><i class="fa-solid fa-envelope text-brandRed text-xs w-4"></i> <a href="mailto:<?= sanitize($office['email']) ?>" class="transition-colors hover:text-brandRed"><?= sanitize($office['email']) ?></a></div>
@@ -342,9 +345,24 @@ include dirname(__DIR__) . '/includes/header.php';
         </div>
         <div class="space-y-3">
           <?php foreach ($contactInfo as $info): ?>
+          <?php
+            $infoValue = trim((string) ($info['value'] ?? ''));
+            $infoIcon  = (string) ($info['icon'] ?? 'fa-phone');
+            $infoTel   = strpos($infoIcon, 'phone') !== false ? phoneHref($infoValue) : '';
+            $infoMail  = (strpos($infoIcon, 'envelope') !== false && filter_var($infoValue, FILTER_VALIDATE_EMAIL)) ? $infoValue : '';
+          ?>
           <div class="flex items-center gap-4 p-4 bg-white rounded-xl border border-slate-200 hover:shadow-md transition-all">
-            <div class="w-10 h-10 rounded-lg bg-brandRed/10 flex items-center justify-center shrink-0"><i class="fa-solid <?= sanitize($info['icon'] ?? 'fa-phone') ?> text-brandRed"></i></div>
-            <div><p class="text-[11px] text-slate-400 font-semibold uppercase tracking-wider"><?= sanitize($info['label'] ?? '') ?></p><p class="text-sm font-bold text-slate-900"><?= sanitize($info['value'] ?? '') ?></p></div>
+            <div class="w-10 h-10 rounded-lg bg-brandRed/10 flex items-center justify-center shrink-0"><i class="fa-solid <?= sanitize($infoIcon) ?> text-brandRed"></i></div>
+            <div>
+              <p class="text-[11px] text-slate-400 font-semibold uppercase tracking-wider"><?= sanitize($info['label'] ?? '') ?></p>
+              <?php if ($infoTel !== ''): ?>
+              <a href="tel:<?= sanitize($infoTel) ?>" class="text-sm font-bold text-slate-900 transition-colors hover:text-brandRed"><?= sanitize($infoValue) ?></a>
+              <?php elseif ($infoMail !== ''): ?>
+              <a href="mailto:<?= sanitize($infoMail) ?>" class="text-sm font-bold text-slate-900 transition-colors hover:text-brandRed"><?= sanitize($infoMail) ?></a>
+              <?php else: ?>
+              <p class="text-sm font-bold text-slate-900"><?= sanitize($infoValue) ?></p>
+              <?php endif; ?>
+            </div>
           </div>
           <?php endforeach; ?>
         </div>
@@ -365,7 +383,7 @@ include dirname(__DIR__) . '/includes/header.php';
               <div><label for="contact-email" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Email Address <span class="text-brandRed">*</span></label><input type="email" id="contact-email" name="email" required class="w-full bg-slate-50 border border-slate-200 px-4 py-3 rounded-xl text-sm focus:bg-white focus:ring-2 focus:ring-brandRed focus:border-brandRed outline-none transition-all" placeholder="you@example.com"></div>
             </div>
             <div class="grid sm:grid-cols-2 gap-4">
-              <div><label for="contact-phone" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Phone Number</label><input type="tel" id="contact-phone" name="phone" class="w-full bg-slate-50 border border-slate-200 px-4 py-3 rounded-xl text-sm focus:bg-white focus:ring-2 focus:ring-brandRed focus:border-brandRed outline-none transition-all" placeholder="+92 300 1234567"></div>
+              <div><label for="contact-phone" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Phone Number</label><input type="tel" id="contact-phone" name="phone" class="w-full bg-slate-50 border border-slate-200 px-4 py-3 rounded-xl text-sm focus:bg-white focus:ring-2 focus:ring-brandRed focus:border-brandRed outline-none transition-all" placeholder="+92 3XX XXXXXXX"></div>
               <div><label for="contact-organization" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Organization</label><input type="text" id="contact-organization" name="organization" class="w-full bg-slate-50 border border-slate-200 px-4 py-3 rounded-xl text-sm focus:bg-white focus:ring-2 focus:ring-brandRed focus:border-brandRed outline-none transition-all" placeholder="Your organization (optional)"></div>
             </div>
             <div class="grid sm:grid-cols-2 gap-4">
