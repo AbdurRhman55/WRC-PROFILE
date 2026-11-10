@@ -111,6 +111,18 @@ $portfolioIntro2  = trim((string) ($heroData['intro2'] ?? '')) ?: "Our portfolio
 // gold accent; a headline without a comma stays on one line.
 $portfolioTitleParts = array_map('trim', explode(',', $portfolioTitle, 2));
 
+// Version the hero photo by its content hash so a replaced file is never
+// served from a stale CDN/browser cache, while an unchanged file keeps its URL.
+$heroImagePath = trim((string) ($heroData['hero_image'] ?? '')) ?: 'assets/images/hero/projects-hero.jpg';
+$heroImageUrl  = $base . $heroImagePath;
+if (strpos($heroImagePath, 'http') !== 0) {
+    $heroImageFile = dirname(__DIR__) . '/' . ltrim($heroImagePath, '/');
+    if (is_file($heroImageFile)) {
+        $heroVersion = @md5_file($heroImageFile);
+        $heroImageUrl .= '?v=' . ($heroVersion ? substr($heroVersion, 0, 10) : filemtime($heroImageFile));
+    }
+}
+
 $quickStats = [
     ['icon' => 'fa-solid fa-folder-open', 'tone' => 'text-brandRed bg-brandRed/10', 'value' => $totalProjects, 'label' => 'Total Projects'],
     ['icon' => 'fa-solid fa-circle-check', 'tone' => 'text-teal-600 bg-teal-50', 'value' => $totalCompleted, 'label' => 'Completed'],
@@ -140,7 +152,7 @@ include dirname(__DIR__) . '/includes/header.php';
   <!-- HERO SECTION -->
   <section class="relative w-full min-h-[520px] md:min-h-[580px] lg:min-h-[640px] flex items-center overflow-hidden bg-ink-900">
     <div class="absolute inset-0">
-      <img src="<?= $base ?><?= $heroData['hero_image'] ?? 'assets/images/hero/projects-hero.jpg' ?>" alt="<?= sanitize($heroData['hero_alt'] ?? 'WRC project portfolio') ?>" class="w-full h-full object-cover" />
+      <img src="<?= $heroImageUrl ?>" alt="<?= sanitize($heroData['hero_alt'] ?? 'WRC project portfolio') ?>" class="w-full h-full object-cover" />
       <div class="absolute inset-0 bg-gradient-to-r from-ink-900/90 via-ink-900/65 to-ink-900/20"></div>
       <div class="absolute inset-0 bg-gradient-to-t from-ink-900/85 via-transparent to-ink-900/30"></div>
     </div>
