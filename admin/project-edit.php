@@ -115,6 +115,14 @@ if (isPost()) {
             $stmt->execute([$slug, $title, $status, $category, $province_id, $district, $start_date, $end_date, $budget_amount, $budget_currency, $beneficiaries_count, $progress_percent, $description, $overview, $location_details, $hero_image, $overview_image, $objectives_json, $target_groups_json, $timeline_json, $gallery_images_json, $related_projects_json, $is_active, $show_in_history, $sort_order]);
             setFlash('success', 'Project created successfully.');
         }
+
+        // Keep every published beneficiary figure in step with this project.
+        try {
+            wrcSyncBeneficiaryStats($pdo);
+        } catch (Throwable $error) {
+            // A stats refresh must never block a saved project.
+        }
+
         redirect('projects.php');
     }
 }
@@ -172,7 +180,7 @@ include __DIR__ . '/includes/header.php';
         <select name="category" required class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-brandRed/20 focus:border-brandRed">
           <option value="">-- Select Category --</option>
           <?php
-          $categories = ['Health', 'Education', 'WASH', 'Food Security', 'Emergency Response', 'Child Protection', 'Shelter', 'Gender Equality', 'Climate Resilience', 'General'];
+          $categories = ['Health', 'Education', 'Livelihood', 'WASH', 'Food Security', 'Emergency Response', 'Child Protection', 'Shelter', 'Gender Equality', 'Climate Resilience', 'General'];
           foreach ($categories as $cat):
           ?>
           <option value="<?= $cat ?>" <?= ($project['category'] ?? '') === $cat ? 'selected' : '' ?>><?= $cat ?></option>

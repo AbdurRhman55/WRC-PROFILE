@@ -1,23 +1,20 @@
 <?php
 /**
- * WRC - Canonical beneficiary figures (one-off content pass).
+ * WRC - Canonical beneficiary figures.
  *
- * Publishes the approved "Beneficiaries Reached" breakdown everywhere it is
- * mentioned: the Impact page counters and SDG cards, homepage geographic
- * presence, the project dashboard, history, and partner pages.
+ * The `projects` table is the source of truth. Sector totals are derived from
+ * the project categories (Health + Emergency Response, Education + Livelihood,
+ * Food Security, WASH) and the headline total is every active project combined.
+ * Editing or adding a project in the dashboard therefore updates every page
+ * automatically.
  *
- *   HEALTH  1,035,830
- *   SKILLS      2,778
- *   FOOD        5,100
- *   WASH        2,500
- *   TOTAL   1,043,908
- *
- * The figures live in wrcBeneficiaryFigures() in includes/functions.php; this
- * seed copies them into the dashboard-managed tables once. A site_settings
- * marker means later dashboard edits are never overwritten.
+ * This script has two jobs:
+ *   1. A one-off content pass (marker-guarded) that makes sure the homepage
+ *      beneficiary strips and the Impact page baseline content exist.
+ *   2. An always-on sync that re-publishes the live project figures into every
+ *      dashboard-managed table (see wrcSyncBeneficiaryStats()).
  *
  * Standalone:  php database/seed_beneficiary_figures.php
- * Re-run:      DELETE FROM site_settings WHERE setting_key = 'beneficiary_figures_v1';
  */
 
 if ( !isset( $pdo ) || !( $pdo instanceof PDO ) ) {
@@ -45,10 +42,9 @@ function wrc_figures_mark( PDO $pdo, string $marker ): void {
     )->execute( [ $marker, 'done', 'system' ] );
 }
 
-if ( wrc_figures_done( $pdo, WRC_FIGURES_MARKER ) ) {
-    echo "Beneficiary figures already applied; left untouched.\n";
-    return;
-}
+$oneTimeSetupDone = wrc_figures_done( $pdo, WRC_FIGURES_MARKER );
+
+if ( ! $oneTimeSetupDone ) {
 
 $figures = wrcBeneficiaryFigures();
 $total   = number_format( $figures['total'] );
@@ -430,3 +426,12 @@ try {
     }
     throw $error;
 }
+}
+
+// Always refresh every dashboard-managed copy from the live projects table,
+// whether or not the one-time setup above was needed.
+$syncApplied = wrcSyncBeneficiaryStats( $pdo );
+
+echo 'Beneficiary figures published: '
+    . ( $syncApplied ? implode( '; ', $syncApplied ) : 'already up to date' )
+    . ".\n";

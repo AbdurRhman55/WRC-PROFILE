@@ -78,6 +78,34 @@ $stats = $contentData['stats'] ?? [
     ['icon' => 'fa-map-location-dot', 'color' => 'teal', 'target' => '4', 'label' => 'Provinces Covered', 'sub' => 'Nationwide coverage'],
 ];
 
+// The projects table is the source of truth. Override every beneficiary
+// counter at render time so a dashboard edit shows up immediately, even if a
+// stored copy in impact_content has not been refreshed yet.
+$beneficiaryStatLabels = [
+    'beneficiaries reached' => 'total',
+    'total beneficiaries'   => 'total',
+    'lives impacted'        => 'total',
+    'people reached'        => 'total',
+    'health'                => 'health',
+    'health beneficiaries'  => 'health',
+    'skills'                => 'skills',
+    'skills beneficiaries'  => 'skills',
+    'food'                  => 'food',
+    'food beneficiaries'    => 'food',
+    'wash'                  => 'wash',
+    'wash beneficiaries'    => 'wash',
+];
+foreach ($stats as &$stat) {
+    if (!is_array($stat)) {
+        continue;
+    }
+    $statLabel = strtolower(trim((string) ($stat['label'] ?? '')));
+    if (isset($beneficiaryStatLabels[$statLabel])) {
+        $stat['target'] = (string) $beneficiaries[$beneficiaryStatLabels[$statLabel]];
+    }
+}
+unset($stat);
+
 // M&E framework
 $mneIntro = trim((string) ($contentData['mne_intro'] ?? ''))
     ?: 'WRC recognizes that effective programme delivery requires continuous monitoring, transparent reporting, and meaningful accountability. Our monitoring and evaluation approach focuses on tracking implementation progress, assessing programme performance, identifying challenges, and documenting results.';

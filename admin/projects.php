@@ -15,6 +15,14 @@ if (isPost()) {
         $id = (int) $_POST['delete_id'];
         $stmt = $pdo->prepare("DELETE FROM projects WHERE id = ?");
         $stmt->execute([$id]);
+
+        // Recalculate every published beneficiary figure after a deletion.
+        try {
+            wrcSyncBeneficiaryStats($pdo);
+        } catch (Throwable $error) {
+            // A stats refresh must never block the deletion.
+        }
+
         setFlash('success', 'Project deleted successfully.');
         redirect('projects.php');
     }

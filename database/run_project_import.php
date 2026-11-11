@@ -1095,6 +1095,11 @@ try {
         throw $error;
     }
 
+    // The project rows just changed, so re-publish every beneficiary figure
+    // from the new portfolio.
+    require_once dirname( __DIR__ ) . '/includes/functions.php';
+    wrcSyncBeneficiaryStats( $pdo );
+
     $pruned = $pruneBackups();
 
     $stored   = (int) $pdo->query( 'SELECT COUNT(*) FROM projects' )->fetchColumn();

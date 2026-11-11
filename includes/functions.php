@@ -370,23 +370,103 @@ function getImpactStatsByPage( string $page ): array {
 }
 
 /**
+ * Maps a project category (projects.category) onto the four published
+ * programme sectors. Keys are lowercase so stored categories match regardless
+ * of capitalisation.
+ *
+ * Health  = Health + Emergency Response
+ * Skills  = Education + Livelihood
+ * Food    = Food Security
+ * WASH    = WASH / Water
+ *
+ * @return array<string,string>
+ */
+function wrcBeneficiarySectorMap(): array {
+    return [
+        'health'              => 'health',
+        'emergency response'  => 'health',
+        'emergency'           => 'health',
+        'education'           => 'skills',
+        'livelihood'          => 'skills',
+        'livelihoods'         => 'skills',
+        'skills'              => 'skills',
+        'food security'       => 'food',
+        'food'                => 'food',
+        'wash'                => 'wash',
+        'water'               => 'wash',
+        'water & sanitation'  => 'wash',
+    ];
+}
+
+/**
  * Canonical beneficiary figures published across the website.
  *
- * Every page reads these numbers from one place so the homepage, Impact page,
- * projects, geographic coverage, history, and partner pages can never show
- * conflicting totals again. The four sectors use the approved programme
- * mapping (Health includes emergency response; Skills includes education).
+ * The `projects` table is the single source of truth: every active project
+ * carries its own beneficiaries_count, and adding or editing a project in the
+ * dashboard changes these figures automatically. Sector totals follow the
+ * approved programme mapping; the total is every active project combined.
+ *
+ * Results are cached for the rest of the request. Pass $refresh = true after
+ * changing projects (the sync below does this).
  *
  * @return array{health:int,skills:int,food:int,wash:int,total:int}
  */
-function wrcBeneficiaryFigures(): array {
-    return [
+function wrcBeneficiaryFigures( bool $refresh = false ): array {
+    static $cached = null;
+
+    if ( is_array( $cached ) && !$refresh ) {
+        return $cached;
+    }
+
+    // Safety net for a fresh install whose projects have not been imported yet.
+    $known = [
         'health' => 1035830,
         'skills' => 2778,
         'food'   => 5100,
         'wash'   => 2500,
-        'total'  => 1043908,
+        'total'  => 1046208,
     ];
+
+    $figures = [ 'health' => 0, 'skills' => 0, 'food' => 0, 'wash' => 0, 'total' => 0 ];
+
+    try {
+        $pdo = $GLOBALS['pdo'] ?? null;
+        if ( !( $pdo instanceof PDO ) ) {
+            return $cached = $known;
+        }
+
+        $projectCount = (int) $pdo->query( 'SELECT COUNT(*) FROM projects WHERE is_active = 1' )->fetchColumn();
+        if ( $projectCount === 0 ) {
+            return $cached = $known;
+        }
+
+        $rows = $pdo->query(
+            'SELECT category, SUM(beneficiaries_count) AS total
+               FROM projects
+              WHERE is_active = 1 AND beneficiaries_count > 0
+              GROUP BY category'
+        )->fetchAll( PDO::FETCH_ASSOC );
+
+        $sectorMap = wrcBeneficiarySectorMap();
+
+        foreach ( $rows as $row ) {
+            $count = (int) ( $row['total'] ?? 0 );
+            if ( $count <= 0 ) {
+                continue;
+            }
+
+            $figures['total'] += $count;
+
+            $category = strtolower( trim( (string) ( $row['category'] ?? '' ) ) );
+            if ( isset( $sectorMap[ $category ] ) ) {
+                $figures[ $sectorMap[ $category ] ] += $count;
+            }
+        }
+    } catch ( Throwable $error ) {
+        return $cached = $known;
+    }
+
+    return $cached = $figures;
 }
 
 /** The published headline number of beneficiaries reached. */
@@ -394,9 +474,452 @@ function wrcBeneficiaryTotal(): int {
     return wrcBeneficiaryFigures()[ 'total' ];
 }
 
-/** Format a beneficiary count consistently: 1,043,908. */
+/** Format a beneficiary count consistently: 1,046,208. */
 function wrcFormatBeneficiaries( int $number ): string {
     return number_format( $number );
+}
+
+/**
+ * Resolve a stat label to one of the beneficiary figures.
+ *
+ * Returns the integer figure so callers can choose their own formatting
+ * (counter targets must stay as raw digits, table values are comma-formatted).
+ */
+function wrcBeneficiaryFigureForLabel( string $label, array $figures ): ?int {
+    $key = strtolower( preg_replace( '/\s+/', ' ', trim( $label ) ) );
+
+    $map = [
+        'beneficiaries reached'     => 'total',
+        'beneficiaries'             => 'total',
+        'total beneficiaries'       => 'total',
+        'lives impacted'            => 'total',
+        'people reached'            => 'total',
+        'people impacted'           => 'total',
+        'health'                    => 'health',
+        'health beneficiaries'      => 'health',
+        'healthcare visits'         => 'health',
+        'healthcare'                => 'health',
+        'skills'                    => 'skills',
+        'skills beneficiaries'      => 'skills',
+        'education'                 => 'skills',
+        'education beneficiaries'   => 'skills',
+        'children enrolled'         => 'skills',
+        'vocational training'       => 'skills',
+        'food'                      => 'food',
+        'food beneficiaries'        => 'food',
+        'food packages distributed' => 'food',
+        'food security'             => 'food',
+        'wash'                      => 'wash',
+        'wash beneficiaries'        => 'wash',
+        'water wells installed'     => 'wash',
+        'clean water'               => 'wash',
+        'water & sanitation'        => 'wash',
+    ];
+
+    if ( !isset( $map[ $key ] ) ) {
+        return null;
+    }
+
+    return (int) $figures[ $map[ $key ] ];
+}
+
+/**
+ * Apply the live figures to a single stats entry (array) in any stored shape.
+ * Existing value keys are rewritten; unknown labels are returned untouched.
+ */
+function wrcBeneficiaryApplyStatEntry( array $entry, array $figures ): array {
+    $label = (string) ( $entry['label'] ?? $entry['stat_label'] ?? $entry['metric_label'] ?? '' );
+    if ( $label === '' ) {
+        return $entry;
+    }
+
+    $figure = wrcBeneficiaryFigureForLabel( $label, $figures );
+    if ( $figure === null ) {
+        return $entry;
+    }
+
+    foreach ( [ 'value', 'stat_value', 'metric_value', 'target' ] as $key ) {
+        if ( !array_key_exists( $key, $entry ) ) {
+            continue;
+        }
+        // Impact counters run parseInt() on data-target, so they stay raw digits.
+        $entry[ $key ] = $key === 'target' ? (string) $figure : number_format( $figure );
+    }
+
+    return $entry;
+}
+
+/**
+ * Walk a decoded JSON document (Impact content, homepage sections, geographic
+ * content) and refresh every stats entry plus "over N people" prose.
+ */
+function wrcBeneficiaryApplyToTree( $node, array $figures ) {
+    if ( is_string( $node ) ) {
+        return preg_replace(
+            '/over\s+[\d,]+\s+(?:people|lives)/i',
+            'over ' . number_format( $figures['total'] ) . ' people',
+            $node
+        );
+    }
+
+    if ( !is_array( $node ) ) {
+        return $node;
+    }
+
+    if ( isset( $node['label'] ) || isset( $node['stat_label'] ) || isset( $node['metric_label'] ) ) {
+        $node = wrcBeneficiaryApplyStatEntry( $node, $figures );
+    }
+
+    foreach ( $node as $key => $child ) {
+        if ( is_array( $child ) || is_string( $child ) ) {
+            $node[ $key ] = wrcBeneficiaryApplyToTree( $child, $figures );
+        }
+    }
+
+    return $node;
+}
+
+/**
+ * Split the published total across the province cards.
+ *
+ * Projects that name a province contribute directly to it. Any remainder
+ * (projects with no province set, or projects not yet imported) is shared in
+ * proportion to the existing card values, so the cards always add up to the
+ * published total exactly.
+ *
+ * @return array<int,int> province id => beneficiary count
+ */
+function wrcBeneficiaryProvinceSplit( PDO $pdo, int $total ): array {
+    $provinces = $pdo->query(
+        'SELECT id, beneficiaries_count FROM provinces ORDER BY sort_order ASC, id ASC'
+    )->fetchAll( PDO::FETCH_ASSOC );
+
+    if ( !$provinces ) {
+        return [];
+    }
+
+    $assigned    = [];
+    $assignedSum = 0;
+
+    $rows = $pdo->query(
+        'SELECT province_id, SUM(beneficiaries_count) AS total
+           FROM projects
+          WHERE is_active = 1 AND province_id IS NOT NULL AND beneficiaries_count > 0
+          GROUP BY province_id'
+    )->fetchAll( PDO::FETCH_ASSOC );
+
+    foreach ( $rows as $row ) {
+        $id = (int) $row['province_id'];
+        $assigned[ $id ] = (int) $row['total'];
+        $assignedSum += (int) $row['total'];
+    }
+
+    $remaining = max( 0, $total - $assignedSum );
+
+    // Share the remainder across provinces that have no projects of their own.
+    // If every province already has projects, spread it across all of them.
+    $pool = [];
+    foreach ( $provinces as $province ) {
+        if ( !isset( $assigned[ (int) $province['id'] ] ) ) {
+            $pool[] = $province;
+        }
+    }
+    if ( !$pool ) {
+        $pool = $provinces;
+    }
+
+    $weights   = [];
+    $weightSum = 0;
+
+    foreach ( $provinces as $province ) {
+        $weights[ (int) $province['id'] ] = max( 0, (int) $province['beneficiaries_count'] );
+    }
+    foreach ( $pool as $province ) {
+        $weightSum += $weights[ (int) $province['id'] ];
+    }
+
+    $targets = [];
+    $allocated = 0;
+    $poolIds = [];
+    foreach ( $pool as $province ) {
+        $poolIds[ (int) $province['id'] ] = true;
+    }
+    $lastPoolId = (int) $pool[ count( $pool ) - 1 ]['id'];
+
+    foreach ( $provinces as $province ) {
+        $id   = (int) $province['id'];
+        $share = 0;
+
+        if ( $remaining > 0 && isset( $poolIds[ $id ] ) ) {
+            if ( $id === $lastPoolId ) {
+                $share = $remaining - $allocated;
+            } elseif ( $weightSum > 0 ) {
+                $share = (int) round( $remaining * $weights[ $id ] / $weightSum );
+            } else {
+                $share = (int) round( $remaining / count( $pool ) );
+            }
+            $allocated += $share;
+        }
+
+        $targets[ $id ] = ( $assigned[ $id ] ?? 0 ) + $share;
+    }
+
+    return $targets;
+}
+
+/**
+ * Re-publish the project-derived beneficiary figures into every
+ * dashboard-managed table that stores a copy.
+ *
+ * Runs after a project is created, edited or deleted, and on every deployment.
+ * Only beneficiary-labelled values are rewritten, so budgets, partner counts,
+ * districts and other metrics are never touched. Failures are reported but
+ * never interrupt the caller.
+ *
+ * @return array<int,string> list of what was updated
+ */
+function wrcSyncBeneficiaryStats( PDO $pdo ): array {
+    $figures = wrcBeneficiaryFigures( true );
+    $total   = number_format( $figures['total'] );
+    $applied = [];
+
+    $tableExists = static function ( string $table ) use ( $pdo ): bool {
+        static $cache = [];
+        if ( !isset( $cache[ $table ] ) ) {
+            try {
+                $statement = $pdo->prepare(
+                    'SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = DATABASE() AND table_name = ?'
+                );
+                $statement->execute( [ $table ] );
+                $cache[ $table ] = (int) $statement->fetchColumn() > 0;
+            } catch ( Throwable $error ) {
+                $cache[ $table ] = false;
+            }
+        }
+        return $cache[ $table ];
+    };
+
+    $updateLabelRows = static function ( string $table, string $labelColumn, string $valueColumn ) use ( $pdo, $figures, $tableExists ): int {
+        if ( !$tableExists( $table ) ) {
+            return 0;
+        }
+
+        $rows   = $pdo->query( "SELECT id, `{$labelColumn}` AS label FROM `{$table}`" )->fetchAll( PDO::FETCH_ASSOC );
+        $update = $pdo->prepare( "UPDATE `{$table}` SET `{$valueColumn}` = ? WHERE id = ?" );
+        $count  = 0;
+
+        foreach ( $rows as $row ) {
+            $figure = wrcBeneficiaryFigureForLabel( (string) $row['label'], $figures );
+            if ( $figure === null ) {
+                continue;
+            }
+            $update->execute( [ number_format( $figure ), $row['id'] ] );
+            $count += $update->rowCount();
+        }
+
+        return $count;
+    };
+
+    // ---------------------------------------------------- Impact page JSON --
+    if ( $tableExists( 'impact_content' ) ) {
+        try {
+            $row = $pdo->query( 'SELECT id, content FROM impact_content ORDER BY id LIMIT 1' )->fetch( PDO::FETCH_ASSOC );
+            if ( $row && trim( (string) $row['content'] ) !== '' ) {
+                $decoded = json_decode( (string) $row['content'], true );
+                if ( is_array( $decoded ) ) {
+                    $updated = wrcBeneficiaryApplyToTree( $decoded, $figures );
+                    if ( $updated !== $decoded ) {
+                        $pdo->prepare( 'UPDATE impact_content SET content = ? WHERE id = ?' )
+                            ->execute( [ json_encode( $updated, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES ), $row['id'] ] );
+                        $applied[] = 'Impact page counters';
+                    }
+                }
+            }
+        } catch ( Throwable $error ) {
+            // Keep going: a broken content row must not block the other pages.
+        }
+    }
+
+    // ------------------------------------------- impact_stats (all pages) ---
+    if ( $updateLabelRows( 'impact_stats', 'stat_label', 'stat_value' ) ) {
+        $applied[] = 'impact stat tables';
+    }
+
+    // ------------------------------------------------ single-metric strips --
+    $labelTables = [
+        [ 'geographic_presence_stats', 'stat_label', 'stat_value' ],
+        [ 'history_stats_items', 'stat_label', 'stat_value' ],
+        [ 'contribute_why_stats', 'stat_label', 'stat_value' ],
+        [ 'about_transparency_stats', 'stat_label', 'stat_value' ],
+        [ 'projects_dashboard_metrics', 'metric_label', 'metric_value' ],
+    ];
+
+    foreach ( $labelTables as [ $table, $labelColumn, $valueColumn ] ) {
+        try {
+            if ( $updateLabelRows( $table, $labelColumn, $valueColumn ) ) {
+                $applied[] = $table;
+            }
+        } catch ( Throwable $error ) {
+            // Table may not exist on an older install; skip it.
+        }
+    }
+
+    // ------------------------------------------ homepage / JSON sections ----
+    if ( $tableExists( 'homepage_sections' ) ) {
+        try {
+            $sections = $pdo->query(
+                'SELECT id, section_key, section_subtitle, content FROM homepage_sections'
+            )->fetchAll( PDO::FETCH_ASSOC );
+
+            $updateSection = $pdo->prepare(
+                'UPDATE homepage_sections SET section_subtitle = ?, content = ? WHERE id = ?'
+            );
+
+            foreach ( $sections as $section ) {
+                $subtitle = (string) ( $section['section_subtitle'] ?? '' );
+                $content  = (string) ( $section['content'] ?? '' );
+                $changed  = false;
+
+                $newSubtitle = preg_replace(
+                    '/over\s+[\d,]+\s+(?:people|lives)/i',
+                    'over ' . $total . ' people',
+                    $subtitle
+                );
+                if ( $newSubtitle !== null && $newSubtitle !== $subtitle ) {
+                    $subtitle = $newSubtitle;
+                    $changed  = true;
+                }
+
+                if ( trim( $content ) !== '' ) {
+                    $decoded = json_decode( $content, true );
+                    if ( is_array( $decoded ) ) {
+                        $updated = wrcBeneficiaryApplyToTree( $decoded, $figures );
+                        if ( $updated !== $decoded ) {
+                            $content = json_encode( $updated, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES );
+                            $changed = true;
+                        }
+                    }
+                }
+
+                if ( $changed ) {
+                    $updateSection->execute( [ $subtitle, $content, $section['id'] ] );
+                    $applied[] = 'homepage section: ' . ( $section['section_key'] ?? $section['id'] );
+                }
+            }
+        } catch ( Throwable $error ) {
+            // Non-fatal.
+        }
+    }
+
+    // --------------------------------------------- where-we-work content -----
+    if ( $tableExists( 'where_we_work_content' ) ) {
+        try {
+            $row = $pdo->query( 'SELECT id, content FROM where_we_work_content ORDER BY id LIMIT 1' )->fetch( PDO::FETCH_ASSOC );
+            if ( $row && trim( (string) $row['content'] ) !== '' ) {
+                $decoded = json_decode( (string) $row['content'], true );
+                if ( is_array( $decoded ) ) {
+                    $updated = wrcBeneficiaryApplyToTree( $decoded, $figures );
+                    if ( $updated !== $decoded ) {
+                        $pdo->prepare( 'UPDATE where_we_work_content SET content = ? WHERE id = ?' )
+                            ->execute( [ json_encode( $updated, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES ), $row['id'] ] );
+                        $applied[] = 'where-we-work content';
+                    }
+                }
+            }
+        } catch ( Throwable $error ) {
+            // Non-fatal.
+        }
+    }
+
+    // ---------------------------------------------------------- provinces ---
+    try {
+        $targets = wrcBeneficiaryProvinceSplit( $pdo, $figures['total'] );
+        if ( $targets ) {
+            $existing = [];
+            foreach ( $pdo->query( 'SELECT id, beneficiaries_count FROM provinces' )->fetchAll( PDO::FETCH_ASSOC ) as $province ) {
+                $existing[ (int) $province['id'] ] = (int) $province['beneficiaries_count'];
+            }
+
+            $updateProvince = $pdo->prepare( 'UPDATE provinces SET beneficiaries_count = ? WHERE id = ?' );
+            $changed = 0;
+
+            foreach ( $targets as $id => $count ) {
+                if ( ( $existing[ $id ] ?? null ) === (int) $count ) {
+                    continue;
+                }
+                $updateProvince->execute( [ $count, $id ] );
+                $changed++;
+            }
+
+            if ( $changed ) {
+                $applied[] = 'province beneficiary split';
+            }
+        }
+    } catch ( Throwable $error ) {
+        // Non-fatal.
+    }
+
+    // ------------------------------------------------ legacy SDG copy -------
+    if ( $tableExists( 'sdg_contributions' ) ) {
+        try {
+            $sdgCopy = [
+                3 => number_format( $figures['health'] ) . ' health beneficiaries reached through free medical camps, clinical services and emergency care across 4 provinces.',
+                4 => number_format( $figures['skills'] ) . ' skills beneficiaries trained through education, vocational and livelihood programmes.',
+                5 => number_format( $figures['wash'] ) . ' WASH beneficiaries reached with clean water, sanitation and hygiene support.',
+                2 => number_format( $figures['food'] ) . ' food beneficiaries reached through emergency food relief and nutrition support.',
+            ];
+
+            $current = [];
+            foreach ( $pdo->query( 'SELECT sdg_goal_id, contribution_text FROM sdg_contributions' )->fetchAll( PDO::FETCH_ASSOC ) as $row ) {
+                $current[ (int) $row['sdg_goal_id'] ] = (string) $row['contribution_text'];
+            }
+
+            $updateSdg = $pdo->prepare( 'UPDATE sdg_contributions SET contribution_text = ? WHERE sdg_goal_id = ?' );
+            $changed   = 0;
+
+            foreach ( $sdgCopy as $goalId => $text ) {
+                if ( ( $current[ $goalId ] ?? null ) === $text ) {
+                    continue;
+                }
+                $updateSdg->execute( [ $text, $goalId ] );
+                $changed++;
+            }
+
+            if ( $changed ) {
+                $applied[] = 'SDG contribution copy';
+            }
+        } catch ( Throwable $error ) {
+            // Non-fatal.
+        }
+    }
+
+    // ------------------------------------------------ annual impact news ----
+    if ( $tableExists( 'news_articles' ) ) {
+        try {
+            $article = $pdo->query( 'SELECT id, title, content FROM news_articles WHERE id = 8 LIMIT 1' )->fetch( PDO::FETCH_ASSOC );
+            if ( $article && strpos( (string) $article['title'], 'Beneficiaries Reached' ) !== false ) {
+                $newTitle = 'WRC Releases 2025 Annual Impact Report: ' . $total . ' Beneficiaries Reached';
+                $newBody  = '<p>WRC\'s annual impact report for 2025 confirms that <strong>' . $total . ' beneficiaries</strong> were reached through integrated development interventions across Pakistan.</p>'
+                    . '<h2>Key Highlights</h2><ul>'
+                    . '<li>' . $total . ' beneficiaries reached across all programme sectors</li>'
+                    . '<li>Health programmes serving ' . number_format( $figures['health'] ) . ' beneficiaries</li>'
+                    . '<li>Skills and livelihood initiatives reaching ' . number_format( $figures['skills'] ) . ' beneficiaries</li>'
+                    . '<li>Food security assistance reaching ' . number_format( $figures['food'] ) . ' beneficiaries</li>'
+                    . '<li>WASH projects reaching ' . number_format( $figures['wash'] ) . ' beneficiaries</li>'
+                    . '</ul><p>The report demonstrates WRC\'s commitment to transparency and accountability, with detailed financial breakdowns and programme outcome measurements. Independent evaluations confirm the effectiveness of our integrated approach to community development.</p>';
+
+                if ( $newTitle !== (string) $article['title'] || $newBody !== (string) $article['content'] ) {
+                    $pdo->prepare( 'UPDATE news_articles SET title = ?, content = ? WHERE id = ?' )
+                        ->execute( [ $newTitle, $newBody, $article['id'] ] );
+                    $applied[] = 'annual impact article';
+                }
+            }
+        } catch ( Throwable $error ) {
+            // Non-fatal.
+        }
+    }
+
+    return $applied;
 }
 
 /**

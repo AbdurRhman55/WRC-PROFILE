@@ -157,7 +157,7 @@ INSERT INTO history_milestones (year, title, description, is_current, sort_order
 (2020, 'COVID-19 Response', 'Rapid emergency response providing PPE, food packages, and hygiene kits to vulnerable communities during the global pandemic.', FALSE, 7),
 (2022, 'Flood Emergency', 'Major flood response reaching 50,000+ families with shelter, food, and clean water during Pakistan''s catastrophic flooding.', FALSE, 8),
 (2024, 'Climate Resilience Program', 'Launched green energy and environmental sustainability initiatives to build long-term climate resilience in vulnerable communities.', FALSE, 9),
-(2026, 'Serving Across Pakistan', 'Operating across 4 provinces with 9 humanitarian sectors and 1,043,908 beneficiaries reached. Our journey continues with renewed resolve and expanded reach.', TRUE, 10);
+(2026, 'Serving Across Pakistan', 'Operating across 4 provinces with 9 humanitarian sectors and 1,046,208 beneficiaries reached. Our journey continues with renewed resolve and expanded reach.', TRUE, 10);
 
 -- =============================================
 -- 7. TEAM MEMBERS
@@ -193,7 +193,7 @@ INSERT INTO organizational_structure (position_title, department, tier, parent_i
 
 INSERT INTO impact_stats (stat_value, stat_label, description, icon_class, color, display_page, sort_order) VALUES
 -- History stats
-('1,043,908', 'Beneficiaries Reached', 'All programme sectors combined', 'fa-solid fa-users', 'brandRed', 'history', 1),
+('1,046,208', 'Beneficiaries Reached', 'All programme sectors combined', 'fa-solid fa-users', 'brandRed', 'history', 1),
 ('1,035,830', 'Health Beneficiaries', 'Medical camps, clinics & emergency care', 'fa-solid fa-heart-pulse', 'green', 'history', 2),
 ('2,778', 'Skills Beneficiaries', 'Vocational & livelihood training', 'fa-solid fa-graduation-cap', 'purple', 'history', 3),
 ('5,100', 'Food Beneficiaries', 'Emergency food & nutrition support', 'fa-solid fa-bowl-food', 'amber', 'history', 4),
@@ -201,7 +201,7 @@ INSERT INTO impact_stats (stat_value, stat_label, description, icon_class, color
 ('4', 'Provinces Covered', 'Nationwide coverage', 'fa-solid fa-map-location-dot', 'teal', 'history', 6),
 
 -- Homepage stats
-('1,043,908', 'Beneficiaries Reached', NULL, 'fa-solid fa-users', 'brandRed', 'homepage', 10),
+('1,046,208', 'Beneficiaries Reached', NULL, 'fa-solid fa-users', 'brandRed', 'homepage', 10),
 ('1,035,830', 'Health Beneficiaries', NULL, 'fa-solid fa-heart-pulse', 'green', 'homepage', 11),
 ('2,778', 'Skills Beneficiaries', NULL, 'fa-solid fa-graduation-cap', 'purple', 'homepage', 12),
 ('5,100', 'Food Beneficiaries', NULL, 'fa-solid fa-bowl-food', 'amber', 'homepage', 13),
@@ -209,7 +209,7 @@ INSERT INTO impact_stats (stat_value, stat_label, description, icon_class, color
 ('4', 'Provinces Covered', NULL, 'fa-solid fa-map-location-dot', 'teal', 'homepage', 15),
 
 -- Impact page stats
-('1,043,908', 'Beneficiaries Reached', 'All programme sectors combined', 'fa-solid fa-users', 'brandRed', 'impact', 20),
+('1,046,208', 'Beneficiaries Reached', 'All programme sectors combined', 'fa-solid fa-users', 'brandRed', 'impact', 20),
 ('1,035,830', 'Health Beneficiaries', 'Medical camps, clinics & emergency care', 'fa-solid fa-heart-pulse', 'green', 'impact', 21),
 ('2,778', 'Skills Beneficiaries', 'Vocational & livelihood training', 'fa-solid fa-graduation-cap', 'purple', 'impact', 22),
 ('5,100', 'Food Beneficiaries', 'Emergency food & nutrition support', 'fa-solid fa-bowl-food', 'amber', 'impact', 23),
