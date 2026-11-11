@@ -168,12 +168,13 @@ $activeProvinces = array_keys($projectsByProvince);
 
 // Dynamic stats
 $totalDistricts = count($distinctDistricts);
-$totalBeneficiaries = 0;
-foreach ($projectsAll as $pr) { $totalBeneficiaries += (int) ($pr['beneficiaries_count'] ?? 0); }
+// Headline total uses the canonical published figure so this page, the Impact
+// page, the projects dashboard and the homepage never disagree.
+$totalBeneficiaries = wrcBeneficiaryTotal();
 $statItems = [
     ['label' => 'Provinces Covered', 'value' => (string) count($activeProvinces)],
     ['label' => 'Districts Reached', 'value' => (string) $totalDistricts],
-    ['label' => 'Total Beneficiaries', 'value' => $totalBeneficiaries > 0 ? number_format($totalBeneficiaries) : '0'],
+    ['label' => 'Beneficiaries Reached', 'value' => number_format($totalBeneficiaries)],
     ['label' => 'Total Projects', 'value' => (string) count($projectsAll)],
 ];
 

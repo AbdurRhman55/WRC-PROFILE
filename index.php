@@ -209,7 +209,7 @@ include __DIR__ . '/includes/header.php';
 <!-- IMPACT STATISTICS -->
 <section class="bg-white border-b border-slate-200 py-8 sm:py-10">
     <div class="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8">
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-center text-[10px] sm:text-[11px] md:text-sm">
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 text-center text-[10px] sm:text-[11px] md:text-sm">
             <?php foreach ($impactStats as $stat): ?>
             <div class="p-3 sm:p-4 border-r border-slate-100 last:border-0">
                 <div class="text-2xl sm:text-3xl md:text-4xl font-extrabold text-slate-900 mb-1 leading-none font-heading counter-val"
@@ -625,7 +625,7 @@ include __DIR__ . '/includes/header.php';
                     </div>
                     <?php endforeach; ?>
                 </div>
-                <a href="<?= $base ?>where-we-work/index.html"
+                <a href="<?= $base ?>where-we-work/index.php#map"
                     class="inline-flex items-center gap-2 bg-brandRed hover:bg-brandRed-hover text-white text-sm font-bold px-6 py-3 rounded-xl transition-all shadow-lg shadow-brandRed/20">Explore
                     Full Map <i class="fa-solid fa-arrow-right text-xs"></i></a>
             </div>
@@ -652,7 +652,7 @@ include __DIR__ . '/includes/header.php';
                             class="fa-solid fa-map-location-dot text-brandRed text-3xl"></i></div>
                     <h3 class="text-lg font-bold text-slate-900 mb-2">4 Provinces</h3>
                     <p class="text-slate-500 text-sm mb-1">46+ Districts Covered</p>
-                    <p class="text-slate-500 text-sm mb-4">150,000+ Lives Impacted</p>
+                    <p class="text-slate-500 text-sm mb-4"><?= wrcFormatBeneficiaries( wrcBeneficiaryTotal() ) ?>+ Beneficiaries Reached</p>
                     <?php endif; ?>
                     <a href="<?= $base ?>where-we-work/index.php#map"
                         class="inline-flex items-center gap-2 text-brandRed text-sm font-bold hover:underline">Interactive

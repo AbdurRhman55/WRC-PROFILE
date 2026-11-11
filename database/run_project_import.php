@@ -1003,6 +1003,10 @@ try {
     // behind a marker, so dashboard edits survive every deployment.
     require_once __DIR__ . '/seed_registration_page.php';
 
+    // Canonical beneficiary figures: one source of truth for the Impact page,
+    // homepage, projects, geographic coverage, history and partner pages.
+    require_once __DIR__ . '/seed_beneficiary_figures.php';
+
     $reasons = $portfolioStatus();
     if ( !$reasons ) {
         echo 'Project portfolio already matches the ' . PORTFOLIO_SIZE . " approved Excel entries; no changes made.\n";

@@ -54,7 +54,7 @@ CREATE TABLE IF NOT EXISTS video_gallery (
 -- GEOGRAPHIC STATS (for homepage Geographic Presence hardcoded text)
 -- =============================================
 INSERT IGNORE INTO homepage_sections (section_key, section_title, section_subtitle, content, sort_order, is_active) VALUES
-('geographic_presence', 'Serving Communities Across Pakistan', NULL, '{"stats":[{"value":"4","label":"Provinces"},{"value":"46+","label":"Districts Covered"},{"value":"150,000+","label":"Lives Impacted"}]}', 22, 1);
+('geographic_presence', 'Serving Communities Across Pakistan', NULL, '{"stats":[{"value":"4","label":"Provinces"},{"value":"46+","label":"Districts Covered"},{"value":"1,043,908","label":"Beneficiaries Reached"}]}', 22, 1);
 
 -- Seed: Insert sample events
 INSERT INTO events (title, description, event_date, event_time, location, icon_class, gradient_from, gradient_to, sort_order) VALUES

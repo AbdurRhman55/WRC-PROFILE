@@ -157,7 +157,7 @@ INSERT INTO history_milestones (year, title, description, is_current, sort_order
 (2020, 'COVID-19 Response', 'Rapid emergency response providing PPE, food packages, and hygiene kits to vulnerable communities during the global pandemic.', FALSE, 7),
 (2022, 'Flood Emergency', 'Major flood response reaching 50,000+ families with shelter, food, and clean water during Pakistan''s catastrophic flooding.', FALSE, 8),
 (2024, 'Climate Resilience Program', 'Launched green energy and environmental sustainability initiatives to build long-term climate resilience in vulnerable communities.', FALSE, 9),
-(2026, 'Serving Across Pakistan', 'Operating across 4 provinces with 9 humanitarian sectors and 150,000+ lives impacted. Our journey continues with renewed resolve and expanded reach.', TRUE, 10);
+(2026, 'Serving Across Pakistan', 'Operating across 4 provinces with 9 humanitarian sectors and 1,043,908 beneficiaries reached. Our journey continues with renewed resolve and expanded reach.', TRUE, 10);
 
 -- =============================================
 -- 7. TEAM MEMBERS
@@ -192,28 +192,29 @@ INSERT INTO organizational_structure (position_title, department, tier, parent_i
 -- =============================================
 
 INSERT INTO impact_stats (stat_value, stat_label, description, icon_class, color, display_page, sort_order) VALUES
-('150,000+', 'Lives Impacted', 'Across 4 provinces since inception', 'fa-solid fa-heart-pulse', 'brandRed', 'history', 1),
-('1,200+', 'Water Wells Installed', 'Clean water access for rural families', 'fa-solid fa-faucet-drip', 'blue', 'history', 2),
-('85,000+', 'Food Packages Distributed', 'Emergency food relief to families in need', 'fa-solid fa-bowl-food', 'amber', 'history', 3),
-('12,000', 'Healthcare Visits', 'Free medical camps & clinical services', 'fa-solid fa-stethoscope', 'green', 'history', 4),
-('45,000+', 'Children Enrolled', 'Schools & non-formal learning centers', 'fa-solid fa-graduation-cap', 'purple', 'history', 5),
-('200+', 'Communities Served', 'Rural & underserved regions reached', 'fa-solid fa-map-location-dot', 'teal', 'history', 6),
+-- History stats
+('1,043,908', 'Beneficiaries Reached', 'All programme sectors combined', 'fa-solid fa-users', 'brandRed', 'history', 1),
+('1,035,830', 'Health Beneficiaries', 'Medical camps, clinics & emergency care', 'fa-solid fa-heart-pulse', 'green', 'history', 2),
+('2,778', 'Skills Beneficiaries', 'Vocational & livelihood training', 'fa-solid fa-graduation-cap', 'purple', 'history', 3),
+('5,100', 'Food Beneficiaries', 'Emergency food & nutrition support', 'fa-solid fa-bowl-food', 'amber', 'history', 4),
+('2,500', 'WASH Beneficiaries', 'Clean water, sanitation & hygiene', 'fa-solid fa-faucet-drip', 'blue', 'history', 5),
+('4', 'Provinces Covered', 'Nationwide coverage', 'fa-solid fa-map-location-dot', 'teal', 'history', 6),
 
 -- Homepage stats
-('150,000+', 'Lives Impacted', NULL, 'fa-solid fa-heart-pulse', 'brandRed', 'homepage', 10),
-('1,200+', 'Water Wells Installed', NULL, 'fa-solid fa-faucet-drip', 'blue', 'homepage', 11),
-('85,000+', 'Food Packages Distributed', NULL, 'fa-solid fa-bowl-food', 'amber', 'homepage', 12),
-('45,000+', 'Children Enrolled', NULL, 'fa-solid fa-graduation-cap', 'purple', 'homepage', 13),
-('9', 'Program Sectors', NULL, 'fa-solid fa-layer-group', 'teal', 'homepage', 14),
-('4', 'Provinces Covered', NULL, 'fa-solid fa-map-location-dot', 'brandRed', 'homepage', 15),
+('1,043,908', 'Beneficiaries Reached', NULL, 'fa-solid fa-users', 'brandRed', 'homepage', 10),
+('1,035,830', 'Health Beneficiaries', NULL, 'fa-solid fa-heart-pulse', 'green', 'homepage', 11),
+('2,778', 'Skills Beneficiaries', NULL, 'fa-solid fa-graduation-cap', 'purple', 'homepage', 12),
+('5,100', 'Food Beneficiaries', NULL, 'fa-solid fa-bowl-food', 'amber', 'homepage', 13),
+('2,500', 'WASH Beneficiaries', NULL, 'fa-solid fa-faucet-drip', 'blue', 'homepage', 14),
+('4', 'Provinces Covered', NULL, 'fa-solid fa-map-location-dot', 'teal', 'homepage', 15),
 
 -- Impact page stats
-('150,000', 'Lives Impacted', 'Across 4 provinces since inception', 'fa-solid fa-heart-pulse', 'brandRed', 'impact', 20),
-('1,200', 'Water Wells Installed', 'Clean water access for rural families', 'fa-solid fa-faucet-drip', 'blue', 'impact', 21),
-('85,000', 'Food Packages Distributed', 'Emergency food relief to families in need', 'fa-solid fa-bowl-food', 'amber', 'impact', 22),
-('12,000', 'Healthcare Visits', 'Free medical camps & clinical services', 'fa-solid fa-stethoscope', 'green', 'impact', 23),
-('45,000', 'Children Enrolled', 'Schools & non-formal learning centers', 'fa-solid fa-graduation-cap', 'purple', 'impact', 24),
-('200', 'Communities Served', 'Rural & underserved regions reached', 'fa-solid fa-map-location-dot', 'teal', 'impact', 25);
+('1,043,908', 'Beneficiaries Reached', 'All programme sectors combined', 'fa-solid fa-users', 'brandRed', 'impact', 20),
+('1,035,830', 'Health Beneficiaries', 'Medical camps, clinics & emergency care', 'fa-solid fa-heart-pulse', 'green', 'impact', 21),
+('2,778', 'Skills Beneficiaries', 'Vocational & livelihood training', 'fa-solid fa-graduation-cap', 'purple', 'impact', 22),
+('5,100', 'Food Beneficiaries', 'Emergency food & nutrition support', 'fa-solid fa-bowl-food', 'amber', 'impact', 23),
+('2,500', 'WASH Beneficiaries', 'Clean water, sanitation & hygiene', 'fa-solid fa-faucet-drip', 'blue', 'impact', 24),
+('4', 'Provinces Covered', 'Nationwide coverage', 'fa-solid fa-map-location-dot', 'teal', 'impact', 25);
 
 -- =============================================
 -- 10. PARTNERS
@@ -342,9 +343,9 @@ INSERT INTO sdg_goals (goal_number, title, description, color, sort_order) VALUE
 -- =============================================
 
 INSERT INTO sdg_contributions (sdg_goal_id, contribution_text, progress_percent, program_id) VALUES
-(3, '12,000+ healthcare visits through free medical camps and clinical services across 4 provinces.', 78, 1),
-(4, '45,000+ children enrolled in schools and non-formal learning centers in underserved communities.', 72, 2),
-(5, '1,200+ water wells installed providing clean water access to rural families.', 85, 3),
-(2, '85,000+ food packages distributed to food-insecure families during emergencies and seasonal crises.', 70, 4),
+(3, '1,035,830 health beneficiaries reached through free medical camps, clinical services and emergency care across 4 provinces.', 78, 1),
+(4, '2,778 skills beneficiaries trained through education, vocational and livelihood programmes.', 72, 2),
+(5, '2,500 WASH beneficiaries reached with clean water, sanitation and hygiene support.', 85, 3),
+(2, '5,100 food beneficiaries reached through emergency food relief and nutrition support.', 70, 4),
 (1, 'Livelihood programs supporting economic empowerment for vulnerable households through skills training.', 55, 6),
 (9, 'Climate resilience initiatives including renewable energy and climate-adaptive agriculture.', 40, 9);

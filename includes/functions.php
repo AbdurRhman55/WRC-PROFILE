@@ -370,6 +370,36 @@ function getImpactStatsByPage( string $page ): array {
 }
 
 /**
+ * Canonical beneficiary figures published across the website.
+ *
+ * Every page reads these numbers from one place so the homepage, Impact page,
+ * projects, geographic coverage, history, and partner pages can never show
+ * conflicting totals again. The four sectors use the approved programme
+ * mapping (Health includes emergency response; Skills includes education).
+ *
+ * @return array{health:int,skills:int,food:int,wash:int,total:int}
+ */
+function wrcBeneficiaryFigures(): array {
+    return [
+        'health' => 1035830,
+        'skills' => 2778,
+        'food'   => 5100,
+        'wash'   => 2500,
+        'total'  => 1043908,
+    ];
+}
+
+/** The published headline number of beneficiaries reached. */
+function wrcBeneficiaryTotal(): int {
+    return wrcBeneficiaryFigures()[ 'total' ];
+}
+
+/** Format a beneficiary count consistently: 1,043,908. */
+function wrcFormatBeneficiaries( int $number ): string {
+    return number_format( $number );
+}
+
+/**
 * Fetch active resources by type
 */
 

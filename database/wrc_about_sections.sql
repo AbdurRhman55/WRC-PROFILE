@@ -59,14 +59,14 @@ ON DUPLICATE KEY UPDATE section_title = VALUES(section_title), content = VALUES(
 -- HISTORY: Hero
 INSERT INTO homepage_sections (section_key, section_title, section_subtitle, content, sort_order, is_active) VALUES
 ('history_hero', 'Our Journey of Impact', NULL,
- '{"hero_image":"assets/images/hero.jpg","hero_alt":"WRC History","subtitle":"From humble beginnings to serving over 150,000 lives across Pakistan, WRC has grown into one of the most trusted humanitarian organizations in the region."}',
+ '{"hero_image":"assets/images/hero.jpg","hero_alt":"WRC History","subtitle":"From humble beginnings to serving over 1,043,908 people across Pakistan, WRC has grown into one of the most trusted humanitarian organizations in the region."}',
  48, 1)
 ON DUPLICATE KEY UPDATE section_title = VALUES(section_title), content = VALUES(content);
 
 -- HISTORY: Stats
 INSERT INTO homepage_sections (section_key, section_title, section_subtitle, content, sort_order, is_active) VALUES
 ('history_stats', 'Key Milestones', NULL,
- '{"stats":[{"value":"20+","label":"Years of Service","icon":"fa-solid fa-calendar-days","color":"brandRed"},{"value":"4","label":"Provinces Covered","icon":"fa-solid fa-map-location-dot","color":"teal-500"},{"value":"9","label":"Humanitarian Sectors","icon":"fa-solid fa-layer-group","color":"gold-400"},{"value":"150K+","label":"Lives Impacted","icon":"fa-solid fa-users","color":"brandRed"}]}',
+ '{"stats":[{"value":"20+","label":"Years of Service","icon":"fa-solid fa-calendar-days","color":"brandRed"},{"value":"4","label":"Provinces Covered","icon":"fa-solid fa-map-location-dot","color":"teal-500"},{"value":"9","label":"Humanitarian Sectors","icon":"fa-solid fa-layer-group","color":"gold-400"},{"value":"1,043,908","label":"Beneficiaries Reached","icon":"fa-solid fa-users","color":"brandRed"}]}',
  49, 1)
 ON DUPLICATE KEY UPDATE section_title = VALUES(section_title), content = VALUES(content);
 

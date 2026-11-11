@@ -66,14 +66,16 @@ $indicatorStyles = [
     ['icon' => 'bg-violet-50 text-violet-600', 'bar' => 'bg-violet-500'],
 ];
 
-// Dashboard stats
+// Dashboard stats. The fallback mirrors the canonical beneficiary figures so a
+// fresh install and the live database report exactly the same numbers.
+$beneficiaries = wrcBeneficiaryFigures();
 $stats = $contentData['stats'] ?? [
-    ['icon' => 'fa-heart-pulse', 'color' => 'brandRed', 'target' => '150000', 'label' => 'Lives Impacted', 'sub' => 'Across 4 provinces since inception'],
-    ['icon' => 'fa-faucet-drip', 'color' => 'blue', 'target' => '1200', 'label' => 'Water Wells Installed', 'sub' => 'Clean water access for rural families'],
-    ['icon' => 'fa-bowl-food', 'color' => 'amber', 'target' => '85000', 'label' => 'Food Packages Distributed', 'sub' => 'Emergency food relief to families in need'],
-    ['icon' => 'fa-stethoscope', 'color' => 'green', 'target' => '12000', 'label' => 'Healthcare Visits', 'sub' => 'Free medical camps & clinical services'],
-    ['icon' => 'fa-graduation-cap', 'color' => 'purple', 'target' => '45000', 'label' => 'Children Enrolled', 'sub' => 'Schools & non-formal learning centers'],
-    ['icon' => 'fa-map-location-dot', 'color' => 'teal', 'target' => '200', 'label' => 'Communities Served', 'sub' => 'Rural & underserved regions reached'],
+    ['icon' => 'fa-users', 'color' => 'brandRed', 'target' => (string) $beneficiaries['total'], 'label' => 'Beneficiaries Reached', 'sub' => 'All programme sectors combined'],
+    ['icon' => 'fa-heart-pulse', 'color' => 'green', 'target' => (string) $beneficiaries['health'], 'label' => 'Health', 'sub' => 'Medical camps, clinics & emergency care'],
+    ['icon' => 'fa-graduation-cap', 'color' => 'purple', 'target' => (string) $beneficiaries['skills'], 'label' => 'Skills', 'sub' => 'Vocational & livelihood training'],
+    ['icon' => 'fa-bowl-food', 'color' => 'amber', 'target' => (string) $beneficiaries['food'], 'label' => 'Food', 'sub' => 'Emergency food & nutrition support'],
+    ['icon' => 'fa-faucet-drip', 'color' => 'blue', 'target' => (string) $beneficiaries['wash'], 'label' => 'WASH', 'sub' => 'Clean water, sanitation & hygiene'],
+    ['icon' => 'fa-map-location-dot', 'color' => 'teal', 'target' => '4', 'label' => 'Provinces Covered', 'sub' => 'Nationwide coverage'],
 ];
 
 // M&E framework
@@ -91,19 +93,36 @@ if (empty($mneSteps)) {
     ];
 }
 
-// SDGs
+// SDGs. These are the four goals WRC reports against; each card reads its
+// headline beneficiary figure from the canonical figures above, never from a
+// separately typed number.
 $sdgs = $contentData['sdgs'] ?? [
-    ['number' => '3', 'title' => 'Good Health & Well-Being', 'desc' => 'WRC operates free medical camps, maternal health clinics, and emergency healthcare services reaching underserved populations across Pakistan.', 'color' => 'green-600', 'bg' => 'green', 'progress' => '78', 'tags' => ['12,000+ Healthcare Visits', '45 Medical Camps'], 'icon' => 'fa-heart-pulse'],
-    ['number' => '4', 'title' => 'Quality Education', 'desc' => 'Through schools, non-formal learning centers, and orphan education sponsorships, WRC ensures children access quality learning opportunities.', 'color' => 'red-600', 'bg' => 'red', 'progress' => '72', 'tags' => ['45,000+ Children Enrolled', '120 Learning Centers'], 'icon' => 'fa-graduation-cap'],
-    ['number' => '6', 'title' => 'Clean Water & Sanitation', 'desc' => 'WRC installs hand pumps, deep tube wells, and water purification systems, while training communities in hygiene practices and sanitation management.', 'color' => 'blue-600', 'bg' => 'blue', 'progress' => '85', 'tags' => ['1,200+ Water Wells', '180 WASH Committees'], 'icon' => 'fa-faucet-drip'],
-    ['number' => '13', 'title' => 'Climate Action', 'desc' => 'WRC integrates climate resilience into disaster preparedness, promotes renewable energy access, and supports reforestation and environmental restoration projects.', 'color' => 'emerald-700', 'bg' => 'emerald', 'progress' => '64', 'tags' => ['50,000 Trees Planted', '15 Solar Installations'], 'icon' => 'fa-leaf'],
+    ['key' => 'health', 'number' => '3', 'title' => 'Good Health & Well-Being', 'desc' => 'WRC runs free medical camps, maternal and child health services, emergency treatment and community health programmes that bring essential care closer to underserved families.', 'color' => 'green-600', 'bg' => 'green', 'tags' => ['Health & emergency care', '4 provinces covered'], 'icon' => 'fa-heart-pulse'],
+    ['key' => 'skills', 'number' => '8', 'title' => 'Decent Work & Economic Growth', 'desc' => 'Vocational training, enterprise support and livelihood opportunities help young people and women earn a stable income and build stronger local economies.', 'color' => 'red-600', 'bg' => 'red', 'tags' => ['Skills & vocational training', 'Women & youth livelihoods'], 'icon' => 'fa-briefcase'],
+    ['key' => 'food', 'number' => '2', 'title' => 'Zero Hunger', 'desc' => 'Emergency food distributions, nutrition support and food-security assistance protect families facing hunger, seasonal shortages and displacement.', 'color' => 'amber-600', 'bg' => 'amber', 'tags' => ['Emergency food relief', 'Nutrition support'], 'icon' => 'fa-bowl-food'],
+    ['key' => 'wash', 'number' => '6', 'title' => 'Clean Water & Sanitation', 'desc' => 'Clean water systems, sanitation improvements and hygiene promotion reduce waterborne disease and improve health in rural and disaster-affected communities.', 'color' => 'blue-600', 'bg' => 'blue', 'tags' => ['Clean water access', 'Sanitation & hygiene'], 'icon' => 'fa-faucet-drip'],
 ];
+
+$sdgBeneficiaryMap = [
+    'health' => [ 'value' => $beneficiaries['health'], 'label' => 'Health beneficiaries' ],
+    'skills' => [ 'value' => $beneficiaries['skills'], 'label' => 'Skills beneficiaries' ],
+    'food'   => [ 'value' => $beneficiaries['food'],   'label' => 'Food beneficiaries' ],
+    'wash'   => [ 'value' => $beneficiaries['wash'],   'label' => 'WASH beneficiaries' ],
+];
+foreach ( $sdgs as &$sdg ) {
+    $key = $sdg['key'] ?? '';
+    if ( isset( $sdgBeneficiaryMap[ $key ] ) ) {
+        $sdg['metric'] = number_format( $sdgBeneficiaryMap[ $key ]['value'] );
+        $sdg['metric_label'] = $sdgBeneficiaryMap[ $key ]['label'];
+    }
+}
+unset( $sdg );
 
 // SDG section copy (dashboard-managed, approved wording as the fallback).
 $sdgEyebrow = trim((string) ($contentData['sdg_eyebrow'] ?? '')) ?: 'Global Goals Alignment';
 $sdgTitle   = trim((string) ($contentData['sdg_title'] ?? '')) ?: 'Contributing to the United Nations Sustainable Development Goals (SDGs)';
 $sdgIntro1  = trim((string) ($contentData['sdg_intro1'] ?? ''))
-    ?: "WRC seeks to align its humanitarian and development initiatives with relevant United Nations Sustainable Development Goals (SDGs). Through programmes addressing healthcare, education, livelihoods, women's empowerment, clean water, and humanitarian needs, we aim to contribute to inclusive and sustainable development.";
+    ?: "WRC aligns its humanitarian and development initiatives with the United Nations Sustainable Development Goals (SDGs). Our programmes contribute directly to SDG 3 (Good Health & Well-Being), SDG 8 (Decent Work & Economic Growth), SDG 2 (Zero Hunger) and SDG 6 (Clean Water & Sanitation), with every beneficiary counted once across these four sectors.";
 $sdgIntro2  = trim((string) ($contentData['sdg_intro2'] ?? ''))
     ?: 'Our programme activities are mapped against relevant SDG targets to demonstrate their contribution and identify opportunities for greater impact.';
 
@@ -209,7 +228,7 @@ include dirname(__DIR__) . '/includes/header.php';
         <p class="text-xs font-semibold uppercase tracking-[0.35em] text-gold-400">Our Reach</p>
         <h2 class="mt-3 text-2xl font-display font-bold text-white sm:text-3xl">Impact in Numbers</h2>
       </div>
-      <p class="max-w-md text-sm leading-relaxed text-white/55">Live delivery figures from programme reports across Pakistan.</p>
+      <p class="max-w-md text-sm leading-relaxed text-white/55">Beneficiaries reached are reported once across our four programme sectors, so the total reflects people, not service contacts.</p>
     </div>
 
     <div class="mt-10 grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-6">
@@ -231,6 +250,9 @@ include dirname(__DIR__) . '/includes/header.php';
         </span>
         <div class="counter-val text-2xl font-display font-bold leading-none text-white sm:text-3xl" data-target="<?= sanitize($stat['target'] ?? '0') ?>">0</div>
         <p class="mt-2 text-[11px] font-semibold uppercase tracking-[0.1em] text-white/70"><?= sanitize($stat['label'] ?? '') ?></p>
+        <?php if (!empty($stat['sub'])): ?>
+        <p class="mt-1 text-[10px] leading-4 text-white/40"><?= sanitize($stat['sub']) ?></p>
+        <?php endif; ?>
       </div>
       <?php endforeach; ?>
     </div>
@@ -315,15 +337,18 @@ include dirname(__DIR__) . '/includes/header.php';
             <h3 class="text-lg font-bold leading-snug text-ink-900"><?= sanitize($sdg['title']) ?></h3>
             <p class="mt-2 text-sm leading-6 text-slate-600"><?= sanitize($sdg['desc']) ?></p>
 
-            <div class="mt-5">
-              <div class="flex items-center justify-between text-xs">
-                <span class="font-medium text-slate-500">Progress toward target</span>
-                <span class="font-semibold text-<?= $sdg['color'] ?>"><?= sanitize($sdg['progress']) ?>%</span>
+            <?php if (!empty($sdg['metric'])): ?>
+            <div class="mt-5 flex items-end justify-between gap-4 rounded-xl border border-slate-100 bg-slate-50 px-4 py-3">
+              <div>
+                <p class="text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-400">Beneficiaries reached</p>
+                <p class="mt-0.5 font-display text-2xl font-bold leading-none text-ink-900"><?= sanitize($sdg['metric']) ?></p>
+                <p class="mt-1 text-[11px] font-medium text-slate-500"><?= sanitize($sdg['metric_label'] ?? 'Programme beneficiaries') ?></p>
               </div>
-              <div class="mt-2 h-2 w-full overflow-hidden rounded-full bg-slate-100">
-                <div class="h-full rounded-full bg-gradient-to-r from-<?= $sdg['bg'] ?>-400 to-<?= $sdg['bg'] ?>-600" style="width: <?= (int) $sdg['progress'] ?>%;"></div>
-              </div>
+              <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-white text-xs font-bold text-<?= $sdg['color'] ?> ring-1 ring-slate-100">
+                <?= sanitize($sdg['number']) ?>
+              </span>
             </div>
+            <?php endif; ?>
 
             <div class="mt-4 flex flex-wrap gap-2">
               <?php foreach ($sdg['tags'] as $tag): ?>

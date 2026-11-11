@@ -355,7 +355,7 @@ include __DIR__ . '/../includes/header.php';
           $defaultStats = [
             ['value' => '45+', 'label' => 'Projects Completed'],
             ['value' => '8+', 'label' => 'Active Partners'],
-            ['value' => '150K+', 'label' => 'Lives Impacted'],
+            ['value' => wrcFormatBeneficiaries(wrcBeneficiaryTotal()), 'label' => 'Beneficiaries Reached'],
             ['value' => '4', 'label' => 'Provinces Covered'],
           ];
           $statItems = $whyData['stats'] ?? $defaultStats;
@@ -432,7 +432,7 @@ include __DIR__ . '/../includes/header.php';
 
         <div class="flex items-center gap-3 mb-6">
           <input type="checkbox" id="privacy" required class="w-4 h-4 text-brandRed rounded border-slate-300 focus:ring-brandRed">
-          <label for="privacy" class="text-xs text-slate-500">I agree to the <a href="<?= $base ?>about/policies-compliance.html" class="text-brandRed hover:underline">Privacy Policy</a> and consent to being contacted regarding this collaboration inquiry.</label>
+          <label for="privacy" class="text-xs text-slate-500">I agree to the <a href="<?= $base ?>about/policies-compliance.php" class="text-brandRed hover:underline">Privacy Policy</a> and consent to being contacted regarding this collaboration inquiry.</label>
         </div>
 
         <button type="submit" class="w-full bg-slate-900 hover:bg-brandRed text-white font-bold py-4 rounded-xl transition-colors shadow-md text-sm uppercase tracking-wider">

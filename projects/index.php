@@ -28,7 +28,7 @@ if ($dashRow) {
     $partnerCount = (int) $pdo->query("SELECT COUNT(DISTINCT d.donor_name) FROM project_donors d INNER JOIN projects p ON p.id = d.project_id WHERE p.is_active = 1")->fetchColumn();
     $metrics = [
       ['icon' => 'fa-solid fa-folder-open', 'color' => 'brandRed', 'label' => 'Portfolio Projects', 'value' => number_format((int) ($projectSummary['project_count'] ?? 0))],
-      ['icon' => 'fa-solid fa-users', 'color' => 'teal-500', 'label' => 'Beneficiaries Reached', 'value' => number_format((int) ($projectSummary['beneficiary_count'] ?? 0))],
+      ['icon' => 'fa-solid fa-users', 'color' => 'teal-500', 'label' => 'Beneficiaries Reached', 'value' => wrcFormatBeneficiaries(wrcBeneficiaryTotal())],
       ['icon' => 'fa-solid fa-handshake', 'color' => 'blue-400', 'label' => 'Project Partners', 'value' => number_format($partnerCount)],
       ['icon' => 'fa-solid fa-location-dot', 'color' => 'gold-400', 'label' => 'Project Locations', 'value' => number_format((int) ($projectSummary['location_count'] ?? 0))],
     ];
