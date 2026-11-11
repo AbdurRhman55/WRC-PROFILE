@@ -17,30 +17,15 @@ if (isPost() && isset($_POST['save_hero'])) {
     $tagline = getPost('tagline');
     $title = getPost('title');
     $subtitle = getPost('subtitle');
-    $button1_text = getPost('button1_text');
-    $button1_link = getPost('button1_link');
-    $button2_text = getPost('button2_text');
-    $button2_link = getPost('button2_link');
-    $cert_heading = getPost('cert_heading');
-    $cert_intro = getPost('cert_intro');
 
-    // Keep every stored key the form does not expose (and the stat icons).
+    // Keep every stored key the form does not expose, but drop the certificate,
+    // stat, and button keys left over from the old resources layout.
     $existing = getRow('resources_hero');
     $existingContent = json_decode($existing['content'] ?? '{}', true);
     if (!is_array($existingContent)) { $existingContent = []; }
 
-    $stats = [];
-    $statLabels = $_POST['stat_label'] ?? [];
-    $statValues = $_POST['stat_value'] ?? [];
-    $statIcons = array_column($existingContent['stats'] ?? [], 'icon');
-    foreach ($statLabels as $i => $label) {
-        if (!empty($label) || !empty($statValues[$i])) {
-            $stats[] = [
-                'label' => $label,
-                'value' => $statValues[$i] ?? '',
-                'icon' => $statIcons[$i] ?? 'fa-circle-check',
-            ];
-        }
+    foreach (['stats', 'cert_heading', 'cert_intro', 'button1_text', 'button1_link', 'button2_text', 'button2_link'] as $legacyKey) {
+        unset($existingContent[$legacyKey]);
     }
 
     $content = json_encode(array_merge($existingContent, [
@@ -48,13 +33,6 @@ if (isPost() && isset($_POST['save_hero'])) {
         'tagline' => $tagline,
         'title' => $title,
         'subtitle' => $subtitle,
-        'button1_text' => $button1_text,
-        'button1_link' => $button1_link,
-        'button2_text' => $button2_text,
-        'button2_link' => $button2_link,
-        'cert_heading' => $cert_heading,
-        'cert_intro' => $cert_intro,
-        'stats' => $stats,
     ]), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
 
     $updateData = ['section_title' => $section_title, 'section_subtitle' => $section_subtitle, 'hero_image' => $hero_image, 'content' => $content];
@@ -216,48 +194,6 @@ include __DIR__ . '/includes/header.php';
           <textarea name="subtitle" rows="2" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-brandRed/20 focus:border-brandRed"><?= htmlspecialchars($heroContent['subtitle'] ?? '') ?></textarea>
         </div>
       </div>
-    </div>
-
-    <div class="bg-white rounded-2xl border border-slate-200 p-6 mb-6">
-      <h2 class="text-sm font-bold text-slate-900 uppercase tracking-wider mb-4">Registration Certificates</h2>
-      <div class="grid grid-cols-1 gap-4">
-        <div>
-          <label class="block text-sm font-medium text-slate-700 mb-1">Certificates Heading</label>
-          <input type="text" name="cert_heading" value="<?= htmlspecialchars($heroContent['cert_heading'] ?? '') ?>" placeholder="Registration Certificates" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-brandRed/20 focus:border-brandRed">
-        </div>
-        <div>
-          <label class="block text-sm font-medium text-slate-700 mb-1">Certificates Introduction</label>
-          <textarea name="cert_intro" rows="2" placeholder="Download WRC’s official registration certificates and regulatory documents..." class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-brandRed/20 focus:border-brandRed"><?= htmlspecialchars($heroContent['cert_intro'] ?? '') ?></textarea>
-        </div>
-      </div>
-    </div>
-
-    <div class="bg-white rounded-2xl border border-slate-200 p-6 mb-6">
-      <h2 class="text-sm font-bold text-slate-900 uppercase tracking-wider mb-4">Buttons</h2>
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div>
-          <label class="block text-sm font-medium text-slate-700 mb-1">Button 1 Text</label>
-          <input type="text" name="button1_text" value="<?= htmlspecialchars($heroContent['button1_text'] ?? '') ?>" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-brandRed/20 focus:border-brandRed">
-        </div>
-        <div>
-          <label class="block text-sm font-medium text-slate-700 mb-1">Button 1 Link</label>
-          <input type="text" name="button1_link" value="<?= htmlspecialchars($heroContent['button1_link'] ?? '') ?>" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-brandRed/20 focus:border-brandRed">
-        </div>
-        <div>
-          <label class="block text-sm font-medium text-slate-700 mb-1">Button 2 Text</label>
-          <input type="text" name="button2_text" value="<?= htmlspecialchars($heroContent['button2_text'] ?? '') ?>" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-brandRed/20 focus:border-brandRed">
-        </div>
-        <div>
-          <label class="block text-sm font-medium text-slate-700 mb-1">Button 2 Link</label>
-          <input type="text" name="button2_link" value="<?= htmlspecialchars($heroContent['button2_link'] ?? '') ?>" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-brandRed/20 focus:border-brandRed">
-        </div>
-      </div>
-    </div>
-
-    <div class="bg-white rounded-2xl border border-slate-200 p-6 mb-6">
-      <h2 class="text-sm font-bold text-slate-900 uppercase tracking-wider mb-4">Stats</h2>
-      <div id="heroStatsList" class="space-y-3"></div>
-      <button type="button" onclick="addHeroStat()" class="inline-flex items-center gap-2 text-brandRed text-xs font-semibold mt-3 hover:underline"><i class="fa-solid fa-plus text-[10px]"></i> Add Stat</button>
     </div>
 
     <div class="flex justify-end">
@@ -448,17 +384,6 @@ include __DIR__ . '/includes/header.php';
 
 <script>
 function switchTab(tab) { window.location.href = 'resources.php?tab=' + tab; }
-
-var heroStatsArr = <?= json_encode($heroContent['stats'] ?? [], JSON_HEX_TAG) ?>;
-function renderHeroStats() {
-  var el = document.getElementById('heroStatsList');
-  if (!el) return; el.innerHTML = '';
-  heroStatsArr.forEach(function(s, i) {
-    el.innerHTML += '<div class="flex items-center gap-3 dynamic-item"><button type="button" class="remove-btn" onclick="heroStatsArr.splice('+i+',1);renderHeroStats()"><i class="fa-solid fa-xmark"></i></button><div class="flex-1"><div class="flex gap-3"><input value="'+(s.label||'').replace(/"/g,'&quot;')+'" onchange="heroStatsArr['+i+'].label=this.value" placeholder="Label" class="flex-1 px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-brandRed/20 focus:border-brandRed"><input value="'+(s.value||'').replace(/"/g,'&quot;')+'" onchange="heroStatsArr['+i+'].value=this.value" placeholder="Value" class="w-32 px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-brandRed/20 focus:border-brandRed"></div></div></div>';
-  });
-}
-function addHeroStat() { heroStatsArr.push({label:'',value:''}); renderHeroStats(); }
-renderHeroStats();
 
 document.getElementById('reportSearch')?.addEventListener('input', function() {
   var q = this.value.toLowerCase();
