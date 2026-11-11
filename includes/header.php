@@ -111,7 +111,6 @@ if ( $currentDir === 'about' || $currentFile === 'about' ) $navActive = 'about';
 elseif ( $currentDir === 'our-work' || $currentDir === 'projects' ) $navActive = 'our-work';
 elseif ( $currentDir === 'where-we-work' ) $navActive = 'where-we-work';
 elseif ( $currentDir === 'impact' ) $navActive = 'impact';
-elseif ( $currentDir === 'resources' ) $navActive = 'resources';
 elseif ( $currentDir === 'news' ) $navActive = 'news';
 elseif ( $currentDir === 'get-involved' ) $navActive = 'get-involved';
 elseif ( $currentDir === 'contact' ) $navActive = 'contact';
@@ -332,19 +331,7 @@ tailwind.config = {
             </div>
             </div>
 
-            <!-- 7. RESOURCES -->
-            <div class = 'nav-item-dropdown'>
-            <a href = "<?= $base ?>resources/index.php" class = "nav-link-item px-2.5 py-2 rounded-lg <?= $navActive === 'resources' ? 'text-brandRed font-semibold' : 'hover:text-white hover:bg-slate-800/60' ?> transition-all flex items-center gap-1">
-            RESOURCES <i class = 'fa-solid fa-chevron-down text-[8px] opacity-60'></i>
-            </a>
-            <div class = 'dropdown-menu absolute top-full right-0 w-56 bg-white border border-gray-100 rounded-2xl shadow-xl p-2 text-slate-600 text-xs'>
-            <a href = "<?= $base ?>resources/index.php#annual-reports" class = 'block px-3 py-2 rounded-xl hover:bg-slate-800 hover:text-white transition-colors'><i class = 'fa-solid fa-file-pdf mr-2 text-slate-400'></i> Annual Reports</a>
-            <a href = "<?= $base ?>resources/index.php#financial-reports" class = 'block px-3 py-2 rounded-xl hover:bg-slate-800 hover:text-white transition-colors'><i class = 'fa-solid fa-coins mr-2 text-slate-400'></i> Financial Reports</a>
-            <a href = "<?= $base ?>resources/index.php#registration" class = 'block px-3 py-2 rounded-xl hover:bg-slate-800 hover:text-white transition-colors'><i class = 'fa-solid fa-stamp mr-2 text-slate-400'></i> Registration</a>
-            </div>
-            </div>
-
-            <!-- 8. NEWS & MEDIA -->
+            <!-- 7. NEWS & MEDIA -->
             <div class = 'nav-item-dropdown'>
             <a href = "<?= $base ?>news/index.php" class = "nav-link-item px-2.5 py-2 rounded-lg <?= $navActive === 'news' ? 'text-brandRed font-semibold' : 'hover:text-white hover:bg-slate-800/60' ?> transition-all flex items-center gap-1">
             NEWS & MEDIA <i class = 'fa-solid fa-chevron-down text-[8px] opacity-60'></i>
@@ -356,7 +343,7 @@ tailwind.config = {
             </div>
             </div>
 
-            <!-- 9. GET INVOLVED -->
+            <!-- 8. GET INVOLVED -->
             <div class = 'nav-item-dropdown'>
             <a href = "<?= $base ?>get-involved/index.php" class = "nav-link-item px-2.5 py-2 rounded-lg <?= $navActive === 'get-involved' ? 'text-brandRed font-semibold' : 'hover:text-white hover:bg-slate-800/60' ?> transition-all flex items-center gap-1">
             GET INVOLVED <i class = 'fa-solid fa-chevron-down text-[8px] opacity-60'></i>
@@ -370,7 +357,7 @@ tailwind.config = {
             </div>
             </div>
 
-            <!-- 10. CONTACT -->
+            <!-- 9. CONTACT -->
             <div class = 'nav-item-dropdown'>
             <a href = "<?= $base ?>contact/index.php" class = "nav-link-item px-2.5 py-2 rounded-lg <?= $navActive === 'contact' ? 'text-brandRed font-semibold' : 'hover:text-white hover:bg-slate-800/60' ?> transition-all flex items-center gap-1">
             CONTACT <i class = 'fa-solid fa-chevron-down text-[8px] opacity-60'></i>
@@ -543,16 +530,6 @@ tailwind.config = {
             </div></div>
 
             <button class = 'mobile-tray-accordion-btn' data-delay = '0.35'>
-            <span>RESOURCES</span>
-            <i class = 'acc-icon fa-solid fa-chevron-down'></i>
-            </button>
-            <div class = 'mobile-tray-submenu'><div>
-            <a href = "<?= $base ?>resources/index.php#annual-reports">Annual Reports</a>
-            <a href = "<?= $base ?>resources/index.php#financial-reports">Financial Reports</a>
-            <a href = "<?= $base ?>resources/index.php#registration">Registration</a>
-            </div></div>
-
-            <button class = 'mobile-tray-accordion-btn' data-delay = '0.40'>
             <span>NEWS & MEDIA</span>
             <i class = 'acc-icon fa-solid fa-chevron-down'></i>
             </button>
@@ -562,7 +539,7 @@ tailwind.config = {
             <a href = "<?= $base ?>news/index.php#videos">Video Gallery</a>
             </div></div>
 
-            <button class = 'mobile-tray-accordion-btn' data-delay = '0.45'>
+            <button class = 'mobile-tray-accordion-btn' data-delay = '0.40'>
             <span>GET INVOLVED</span>
             <i class = 'acc-icon fa-solid fa-chevron-down'></i>
             </button>
@@ -574,7 +551,7 @@ tailwind.config = {
             <a href = "<?= $base ?>get-involved/index.php#membership">Membership</a>
             </div></div>
 
-            <button class = 'mobile-tray-accordion-btn' data-delay = '0.50'>
+            <button class = 'mobile-tray-accordion-btn' data-delay = '0.45'>
             <span>CONTACT</span>
             <i class = 'acc-icon fa-solid fa-chevron-down'></i>
             </button>

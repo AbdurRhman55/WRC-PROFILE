@@ -76,7 +76,11 @@ if ( !isset( $logoV ) ) $logoV = @filemtime( dirname( __DIR__ ) . '/assets/image
 <div class = 'border-t border-slate-800/70 mt-10 pt-6 flex flex-col gap-4 md:flex-row md:items-center md:justify-between text-slate-500 text-xs'>
 <p>&copy;
 <?= date( 'Y' ) ?> <?= getSetting( 'copyright' ) ?></p>
-<div class = 'flex flex-wrap items-center gap-3 justify-center md:justify-end text-slate-400'>
+<div class = 'flex flex-wrap items-center gap-x-3 gap-y-2 justify-center md:justify-end text-slate-400'>
+<a href = "<?= $base ?>resources/index.php#registration" class = 'inline-flex items-center gap-1.5 rounded-full border border-slate-700 bg-slate-900/60 px-3 py-1 text-[11px] font-semibold text-slate-200 hover:border-brandRed/60 hover:text-white transition-colors'>
+<i class = 'fa-solid fa-stamp text-[10px] text-brandRed'></i> Registration
+</a>
+<span class = 'hidden sm:inline-block h-3 w-px bg-slate-800'></span>
 <a href = "<?= $base ?>privacy.php" class = 'hover:text-white transition'>Privacy Policy</a>
 <a href = "<?= $base ?>terms.php" class = 'hover:text-white transition'>Terms of Use</a>
 <a href = "<?= $base ?>contact/index.php" class = 'hover:text-white transition'>Support</a>
