@@ -998,6 +998,11 @@ try {
     // already stored are preserved.
     require_once __DIR__ . '/seed_impact_page.php';
 
+    // Registration page: the Resources page now carries registration only. The
+    // hero copy, registration stats, and certificate headings are applied once
+    // behind a marker, so dashboard edits survive every deployment.
+    require_once __DIR__ . '/seed_registration_page.php';
+
     $reasons = $portfolioStatus();
     if ( !$reasons ) {
         echo 'Project portfolio already matches the ' . PORTFOLIO_SIZE . " approved Excel entries; no changes made.\n";

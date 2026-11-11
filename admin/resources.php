@@ -21,17 +21,29 @@ if (isPost() && isset($_POST['save_hero'])) {
     $button1_link = getPost('button1_link');
     $button2_text = getPost('button2_text');
     $button2_link = getPost('button2_link');
+    $cert_heading = getPost('cert_heading');
+    $cert_intro = getPost('cert_intro');
+
+    // Keep every stored key the form does not expose (and the stat icons).
+    $existing = getRow('resources_hero');
+    $existingContent = json_decode($existing['content'] ?? '{}', true);
+    if (!is_array($existingContent)) { $existingContent = []; }
 
     $stats = [];
     $statLabels = $_POST['stat_label'] ?? [];
     $statValues = $_POST['stat_value'] ?? [];
+    $statIcons = array_column($existingContent['stats'] ?? [], 'icon');
     foreach ($statLabels as $i => $label) {
         if (!empty($label) || !empty($statValues[$i])) {
-            $stats[] = ['label' => $label, 'value' => $statValues[$i] ?? ''];
+            $stats[] = [
+                'label' => $label,
+                'value' => $statValues[$i] ?? '',
+                'icon' => $statIcons[$i] ?? 'fa-circle-check',
+            ];
         }
     }
 
-    $content = json_encode([
+    $content = json_encode(array_merge($existingContent, [
         'hero_image' => $hero_image,
         'tagline' => $tagline,
         'title' => $title,
@@ -40,12 +52,13 @@ if (isPost() && isset($_POST['save_hero'])) {
         'button1_link' => $button1_link,
         'button2_text' => $button2_text,
         'button2_link' => $button2_link,
+        'cert_heading' => $cert_heading,
+        'cert_intro' => $cert_intro,
         'stats' => $stats,
-    ], JSON_UNESCAPED_UNICODE);
+    ]), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
 
-    $exists = getRow('resources_hero');
     $updateData = ['section_title' => $section_title, 'section_subtitle' => $section_subtitle, 'hero_image' => $hero_image, 'content' => $content];
-    if ($exists) { updateRow('resources_hero', $updateData, ['id' => $exists['id']]); } else { insertRow('resources_hero', $updateData); }
+    if ($existing) { updateRow('resources_hero', $updateData, ['id' => $existing['id']]); } else { insertRow('resources_hero', $updateData); }
     setFlash('success', 'Hero section saved successfully.');
     redirect('resources.php?tab=hero');
 }
@@ -187,7 +200,7 @@ include __DIR__ . '/includes/header.php';
       <div class="grid grid-cols-1 gap-4">
         <div>
           <label class="block text-sm font-medium text-slate-700 mb-1">Section Title (DB)</label>
-          <input type="text" name="section_title" value="<?= htmlspecialchars($heroRow['section_title'] ?? '') ?>" placeholder="Resources & Documents" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-brandRed/20 focus:border-brandRed">
+          <input type="text" name="section_title" value="<?= htmlspecialchars($heroRow['section_title'] ?? '') ?>" placeholder="Organizational Registration" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-brandRed/20 focus:border-brandRed">
           <p class="text-[11px] text-slate-400 mt-1">Overrides JSON title below if set</p>
         </div>
         <div>
@@ -196,11 +209,25 @@ include __DIR__ . '/includes/header.php';
         </div>
         <div>
           <label class="block text-sm font-medium text-slate-700 mb-1">Title (JSON)</label>
-          <input type="text" name="title" value="<?= htmlspecialchars($heroContent['title'] ?? '') ?>" placeholder="Resources & Documents" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-brandRed/20 focus:border-brandRed">
+          <input type="text" name="title" value="<?= htmlspecialchars($heroContent['title'] ?? '') ?>" placeholder="Organizational Registration" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-brandRed/20 focus:border-brandRed">
         </div>
         <div>
           <label class="block text-sm font-medium text-slate-700 mb-1">Subtitle (JSON)</label>
           <textarea name="subtitle" rows="2" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-brandRed/20 focus:border-brandRed"><?= htmlspecialchars($heroContent['subtitle'] ?? '') ?></textarea>
+        </div>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-2xl border border-slate-200 p-6 mb-6">
+      <h2 class="text-sm font-bold text-slate-900 uppercase tracking-wider mb-4">Registration Certificates</h2>
+      <div class="grid grid-cols-1 gap-4">
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-1">Certificates Heading</label>
+          <input type="text" name="cert_heading" value="<?= htmlspecialchars($heroContent['cert_heading'] ?? '') ?>" placeholder="Registration Certificates" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-brandRed/20 focus:border-brandRed">
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-1">Certificates Introduction</label>
+          <textarea name="cert_intro" rows="2" placeholder="Download WRC’s official registration certificates and regulatory documents..." class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-brandRed/20 focus:border-brandRed"><?= htmlspecialchars($heroContent['cert_intro'] ?? '') ?></textarea>
         </div>
       </div>
     </div>

@@ -111,6 +111,7 @@ if ( $currentDir === 'about' || $currentFile === 'about' ) $navActive = 'about';
 elseif ( $currentDir === 'our-work' || $currentDir === 'projects' ) $navActive = 'our-work';
 elseif ( $currentDir === 'where-we-work' ) $navActive = 'where-we-work';
 elseif ( $currentDir === 'impact' ) $navActive = 'impact';
+elseif ( $currentDir === 'resources' ) $navActive = '';
 elseif ( $currentDir === 'news' ) $navActive = 'news';
 elseif ( $currentDir === 'get-involved' ) $navActive = 'get-involved';
 elseif ( $currentDir === 'contact' ) $navActive = 'contact';
