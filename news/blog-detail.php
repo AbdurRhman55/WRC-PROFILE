@@ -43,20 +43,63 @@ foreach ( preg_split( '/\s+/', $authorName ) as $word ) {
     }
 }
 
-// Keep long body copy readable: when the editor has not inserted a photograph
-// into the body, show the featured image after the opening paragraph.
+// Give every section heading a stable anchor and collect the outline used by
+// the sidebar "On this page" navigation. The callback edits headings in place,
+// so the rest of the editor's HTML is never rebuilt or re-encoded.
+$toc      = [];
 $bodyHtml = (string) ( $post[ 'content' ] ?? '' );
-if ( stripos( $bodyHtml, '<img' ) === false ) {
-    $figureHtml = "\n<figure class = 'ab-figure'>"
-                . "\n<img src = \"" . htmlspecialchars( $postImage, ENT_QUOTES, 'UTF-8' ) . "\" alt = \"" . sanitize( $post[ 'title' ] ?? '' ) . "\" loading = 'lazy' decoding = 'async'>"
-                . "\n</figure>\n";
-    $firstClose = stripos( $bodyHtml, '</p>' );
-    if ( $firstClose !== false ) {
-        $bodyHtml = substr( $bodyHtml, 0, $firstClose + 4 ) . $figureHtml . substr( $bodyHtml, $firstClose + 4 );
-    } else {
-        $bodyHtml = $figureHtml . $bodyHtml;
-    }
-}
+$bodyHtml = preg_replace_callback(
+    '/<h([23])([^>]*)>(.*?)<\/h\1>/is',
+    static function ( array $match ) use ( &$toc ): string {
+        $level = (int) $match[ 1 ];
+        $attrs = (string) $match[ 2 ];
+        $inner = (string) $match[ 3 ];
+        $text  = trim( preg_replace( '/\s+/', ' ', html_entity_decode( strip_tags( $inner ), ENT_QUOTES, 'UTF-8' ) ) );
+
+        if ( $text === '' ) {
+            return $match[ 0 ];
+        }
+
+        if ( preg_match( '/\sid\s*=\s*(["\'])(.*?)\1/i', $attrs, $existing ) ) {
+            $id    = trim( $existing[ 2 ] );
+            $hasId = true;
+        } else {
+            $id    = createSlug( $text );
+            $hasId = false;
+        }
+        if ( $id === '' ) {
+            $id = 'section';
+        }
+
+        $used   = array_column( $toc, 'id' );
+        $base   = $id;
+        $suffix = 2;
+        while ( in_array( $id, $used, true ) ) {
+            $id = $base . '-' . $suffix++;
+        }
+
+        if ( $hasId ) {
+            // A duplicate hand-written id must be rewritten in the heading too,
+            // otherwise the sidebar link would point at nothing.
+            if ( $id !== $existing[ 2 ] ) {
+                $attrs = preg_replace(
+                    '/\sid\s*=\s*(["\'])(.*?)\1/i',
+                    ' id="' . htmlspecialchars( $id, ENT_QUOTES, 'UTF-8' ) . '"',
+                    $attrs,
+                    1
+                );
+            }
+        } else {
+            $attrs .= ' id="' . htmlspecialchars( $id, ENT_QUOTES, 'UTF-8' ) . '"';
+        }
+
+        $toc[] = [ 'id' => $id, 'level' => $level, 'text' => $text ];
+
+        return '<h' . $match[ 1 ] . $attrs . '>' . $inner . '</h' . $match[ 1 ] . '>';
+    },
+    $bodyHtml
+);
+$bodyHtml = $bodyHtml ?? (string) ( $post[ 'content' ] ?? '' );
 
 $publishedOn = (string) ( $post[ 'published_at' ] ?? date( 'Y-m-d' ) );
 
@@ -131,82 +174,87 @@ include dirname( __DIR__ ) . '/includes/header.php';
 <main class="flex-grow">
 
 <!-- POST HERO -->
-<section class="relative flex min-h-[540px] items-end overflow-hidden bg-ink-900 text-white">
+<section class="relative isolate flex min-h-[520px] items-end overflow-hidden bg-ink-900 text-white">
     <div class="absolute inset-0 z-0">
-        <div class="absolute inset-0 bg-cover bg-center opacity-35" style="background-image: url('<?= htmlspecialchars( $postImage, ENT_QUOTES, 'UTF-8' ) ?>');"></div>
-        <div class="absolute inset-0 bg-gradient-to-t from-ink-900 via-ink-900/85 to-ink-900/40"></div>
+        <div class="absolute inset-0 bg-cover bg-center opacity-25" style="background-image: url('<?= htmlspecialchars( $postImage, ENT_QUOTES, 'UTF-8' ) ?>');"></div>
+        <div class="absolute inset-0 bg-gradient-to-b from-ink-900/75 via-ink-900/90 to-ink-900"></div>
+        <div class="absolute inset-0 opacity-[0.05]" style="background-image: linear-gradient(rgba(255,255,255,.4) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.4) 1px, transparent 1px); background-size: 56px 56px;"></div>
     </div>
 
-    <div class="relative z-10 w-full max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pb-14 pt-32">
-        <nav class="mb-6 flex flex-wrap items-center gap-2 text-xs text-white/55" aria-label="Breadcrumb">
+    <div class="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16 pt-32 sm:pb-20">
+        <nav class="mb-8 flex flex-wrap items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-white/45" aria-label="Breadcrumb">
             <a href="<?= $base ?>index.php" class="hover:text-white transition-colors">Home</a>
-            <i class="fa-solid fa-chevron-right text-[8px] text-white/35"></i>
+            <i class="fa-solid fa-chevron-right text-[7px] text-white/30"></i>
             <a href="<?= $base ?>news/index.php" class="hover:text-white transition-colors">News &amp; Media</a>
-            <i class="fa-solid fa-chevron-right text-[8px] text-white/35"></i>
+            <i class="fa-solid fa-chevron-right text-[7px] text-white/30"></i>
             <a href="<?= $base ?>news/blog.php" class="hover:text-white transition-colors">Blog</a>
-            <i class="fa-solid fa-chevron-right text-[8px] text-white/35"></i>
-            <span class="text-brandRed font-semibold">Story</span>
+            <i class="fa-solid fa-chevron-right text-[7px] text-white/30"></i>
+            <span class="text-white/75">Story</span>
         </nav>
 
-        <?php if ( $postTags ): ?>
-        <div class="mb-4 flex flex-wrap gap-2">
-            <?php foreach ( $postTags as $postTag ): ?>
-            <a href="<?= $base ?>news/blog.php?tag=<?= rawurlencode( $postTag ) ?>" class="rounded-full border border-white/15 bg-white/10 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-white/85 backdrop-blur hover:border-brandRed hover:bg-brandRed transition-colors"><?= sanitize( $postTag ) ?></a>
-            <?php endforeach; ?>
-        </div>
-        <?php endif; ?>
+        <div class="mx-auto w-full max-w-[47rem] lg:mx-0">
+            <div class="mb-5 flex flex-wrap items-center gap-2">
+                <a href="<?= $base ?>news/blog.php" class="inline-flex items-center gap-2 rounded-full bg-brandRed px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.16em] text-white shadow-lg shadow-brandRed/20">
+                    <i class="fa-solid fa-pen-nib text-[9px]"></i> Blog
+                </a>
+                <?php foreach ( $postTags as $postTag ): ?>
+                <a href="<?= $base ?>news/blog.php?tag=<?= rawurlencode( $postTag ) ?>" class="rounded-full border border-white/15 bg-white/5 px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.14em] text-white/70 backdrop-blur transition-colors hover:border-brandRed hover:bg-brandRed hover:text-white"><?= sanitize( $postTag ) ?></a>
+                <?php endforeach; ?>
+            </div>
 
-        <h1 class="max-w-4xl text-3xl font-display font-bold leading-[1.12] sm:text-4xl lg:text-5xl"><?= sanitize( $post[ 'title' ] ?? '' ) ?></h1>
+            <h1 class="font-display text-[2.1rem] font-semibold leading-[1.12] tracking-[-0.02em] sm:text-[2.6rem] lg:text-[3.15rem]"><?= sanitize( $post[ 'title' ] ?? '' ) ?></h1>
 
-        <p class="mt-5 max-w-3xl text-base leading-relaxed text-white/70 sm:text-lg"><?= sanitize( $summaryLead ) ?></p>
+            <p class="mt-6 max-w-2xl text-base leading-relaxed text-white/65 sm:text-lg"><?= sanitize( $summaryLead ) ?></p>
 
-        <div class="mt-7 flex flex-wrap items-center gap-x-6 gap-y-3 text-sm text-white/60">
-            <span class="flex items-center gap-2"><i class="fa-solid fa-user-pen text-brandRed/70"></i> <?= sanitize( $authorName ) ?></span>
-            <span class="flex items-center gap-2"><i class="fa-solid fa-calendar-days text-brandRed/70"></i> <?= formatDate( $publishedOn ) ?></span>
-            <span class="flex items-center gap-2"><i class="fa-solid fa-clock text-brandRed/70"></i> <?= $readingTime ?> min read</span>
+            <div class="mt-8 flex flex-wrap items-center gap-x-5 gap-y-4">
+                <div class="flex items-center gap-3">
+                    <span class="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-white/15 bg-white/10 font-display text-sm font-semibold tracking-wide text-white backdrop-blur"><?= sanitize( $initials ?: 'WR' ) ?></span>
+                    <div>
+                        <p class="text-[9px] font-bold uppercase tracking-[0.18em] text-white/40">Written by</p>
+                        <p class="mt-0.5 text-sm font-semibold text-white"><?= sanitize( $authorName ) ?></p>
+                    </div>
+                </div>
+                <span class="hidden h-9 w-px bg-white/15 sm:block"></span>
+                <div class="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs font-medium text-white/55">
+                    <span class="inline-flex items-center gap-1.5"><i class="fa-solid fa-calendar-days text-brandRed/70"></i><?= formatDate( $publishedOn ) ?></span>
+                    <span class="h-1 w-1 rounded-full bg-white/30"></span>
+                    <span class="inline-flex items-center gap-1.5"><i class="fa-solid fa-clock text-brandRed/70"></i><?= $readingTime ?> min read</span>
+                </div>
+            </div>
         </div>
     </div>
 </section>
 
 <!-- POST BODY -->
-<section class="bg-white py-12 sm:py-16">
+<section class="bg-white pb-16 pt-10 sm:pb-20 sm:pt-12">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="grid gap-10 lg:grid-cols-[minmax(0,1fr)_300px] lg:gap-14">
+        <div class="grid gap-12 lg:grid-cols-[minmax(0,47rem)_minmax(250px,300px)] lg:justify-between lg:gap-14">
 
-            <article class="min-w-0">
-                <!-- At a glance -->
-                <dl class="mb-10 grid grid-cols-2 gap-px overflow-hidden rounded-2xl border border-slate-200 bg-slate-100 sm:grid-cols-4">
-                    <div class="bg-white px-4 py-4">
-                        <dt class="text-[10px] font-bold uppercase tracking-[0.14em] text-slate-400">Published</dt>
-                        <dd class="mt-1 text-sm font-semibold text-ink-900"><?= formatDate( $publishedOn ) ?></dd>
+            <article class="mx-auto w-full min-w-0 max-w-[47rem] lg:mx-0">
+                <!-- Cover -->
+                <figure class="mb-10">
+                    <div class="overflow-hidden rounded-2xl border border-slate-200 bg-slate-100 shadow-[0_30px_70px_-42px_rgba(15,23,42,0.65)] sm:rounded-3xl">
+                        <img src="<?= htmlspecialchars( $postImage, ENT_QUOTES, 'UTF-8' ) ?>" alt="<?= sanitize( $post[ 'title' ] ?? 'Blog story' ) ?>" class="aspect-[16/9] w-full object-cover" fetchpriority="high">
                     </div>
-                    <div class="bg-white px-4 py-4">
-                        <dt class="text-[10px] font-bold uppercase tracking-[0.14em] text-slate-400">Author</dt>
-                        <dd class="mt-1 text-sm font-semibold text-ink-900"><?= sanitize( $authorName ) ?></dd>
-                    </div>
-                    <div class="bg-white px-4 py-4">
-                        <dt class="text-[10px] font-bold uppercase tracking-[0.14em] text-slate-400">Reading time</dt>
-                        <dd class="mt-1 text-sm font-semibold text-ink-900"><?= $readingTime ?> min</dd>
-                    </div>
-                    <div class="bg-white px-4 py-4">
-                        <dt class="text-[10px] font-bold uppercase tracking-[0.14em] text-slate-400">Topics</dt>
-                        <dd class="mt-1 truncate text-sm font-semibold text-ink-900"><?= $postTags ? sanitize( implode( ', ', $postTags ) ) : 'Field notes' ?></dd>
-                    </div>
-                </dl>
+                    <figcaption class="mt-3 flex flex-wrap items-center justify-between gap-2 text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-400">
+                        <span><i class="fa-solid fa-camera-retro mr-1.5 text-brandRed/70"></i>WRC field documentation</span>
+                        <span><?= formatDate( $publishedOn ) ?></span>
+                    </figcaption>
+                </figure>
 
-                <div class="article-body">
+                <div class="article-body blog-article-body">
                     <?= $bodyHtml ?>
                 </div>
 
                 <!-- Tags + share -->
-                <div class="mt-10 border-t border-slate-200 pt-8">
-                    <div class="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+                <div class="mt-12 border-t border-slate-200 pt-8">
+                    <div class="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
                         <div>
-                            <p class="text-[10px] font-bold uppercase tracking-[0.18em] text-slate-400 mb-2">Filed under</p>
+                            <p class="mb-2 text-[10px] font-bold uppercase tracking-[0.18em] text-slate-400">Filed under</p>
                             <div class="flex flex-wrap gap-2">
                                 <?php if ( $postTags ): ?>
                                 <?php foreach ( $postTags as $postTag ): ?>
-                                <a href="<?= $base ?>news/blog.php?tag=<?= rawurlencode( $postTag ) ?>" class="rounded-full bg-slate-100 px-3 py-1.5 text-xs font-semibold text-slate-600 hover:bg-brandRed hover:text-white transition-colors"><?= sanitize( $postTag ) ?></a>
+                                <a href="<?= $base ?>news/blog.php?tag=<?= rawurlencode( $postTag ) ?>" class="rounded-full bg-slate-100 px-3 py-1.5 text-xs font-semibold text-slate-600 transition-colors hover:bg-brandRed hover:text-white"><?= sanitize( $postTag ) ?></a>
                                 <?php endforeach; ?>
                                 <?php else: ?>
                                 <span class="rounded-full bg-slate-100 px-3 py-1.5 text-xs font-semibold text-slate-500">Field notes</span>
@@ -214,9 +262,9 @@ include dirname( __DIR__ ) . '/includes/header.php';
                             </div>
                         </div>
 
-                        <div>
-                            <p class="text-[10px] font-bold uppercase tracking-[0.18em] text-slate-400 mb-2 sm:text-right">Share this story</p>
-                            <div class="flex flex-wrap items-center gap-2">
+                        <div class="sm:text-right">
+                            <p class="mb-2 text-[10px] font-bold uppercase tracking-[0.18em] text-slate-400">Share this story</p>
+                            <div class="flex flex-wrap items-center gap-2 sm:justify-end">
                                 <a href="https://www.facebook.com/sharer/sharer.php?u=<?= $shareUrlEnc ?>" target="_blank" rel="noopener noreferrer" class="flex h-10 w-10 items-center justify-center rounded-full bg-slate-100 text-slate-500 transition-all hover:bg-[#1877F2] hover:text-white" aria-label="Share on Facebook" title="Share on Facebook"><i class="fa-brands fa-facebook-f text-sm"></i></a>
                                 <a href="https://x.com/intent/tweet?url=<?= $shareUrlEnc ?>&text=<?= $shareTitleEnc ?>" target="_blank" rel="noopener noreferrer" class="flex h-10 w-10 items-center justify-center rounded-full bg-slate-100 text-slate-500 transition-all hover:bg-slate-900 hover:text-white" aria-label="Share on X" title="Share on X"><i class="fa-brands fa-x-twitter text-sm"></i></a>
                                 <a href="https://www.linkedin.com/shareArticle?mini=true&url=<?= $shareUrlEnc ?>&title=<?= $shareTitleEnc ?>" target="_blank" rel="noopener noreferrer" class="flex h-10 w-10 items-center justify-center rounded-full bg-slate-100 text-slate-500 transition-all hover:bg-[#0A66C2] hover:text-white" aria-label="Share on LinkedIn" title="Share on LinkedIn"><i class="fa-brands fa-linkedin-in text-sm"></i></a>
@@ -269,7 +317,28 @@ include dirname( __DIR__ ) . '/includes/header.php';
             </article>
 
             <!-- SIDEBAR -->
-            <aside class="space-y-5 self-start lg:sticky lg:top-32">
+            <aside class="mx-auto w-full max-w-[47rem] space-y-5 self-start lg:mx-0 lg:sticky lg:top-32">
+                <?php if ( count( $toc ) >= 2 ): ?>
+                <div class="rounded-2xl border border-slate-200 bg-white p-5">
+                    <div class="flex items-center justify-between gap-3">
+                        <p class="text-[10px] font-bold uppercase tracking-[0.18em] text-slate-400">On this page</p>
+                        <span class="text-[10px] font-semibold text-slate-400"><?= count( $toc ) ?> sections</span>
+                    </div>
+                    <nav class="mt-3" aria-label="On this page">
+                        <?php foreach ( $toc as $item ): ?>
+                        <a href="#<?= htmlspecialchars( $item[ 'id' ], ENT_QUOTES, 'UTF-8' ) ?>" data-toc-link class="toc-link<?= $item[ 'level' ] === 3 ? ' toc-link-sub' : '' ?>">
+                            <span class="toc-dot"></span>
+                            <span><?= sanitize( $item[ 'text' ] ) ?></span>
+                        </a>
+                        <?php endforeach; ?>
+                    </nav>
+                    <div class="mt-4 flex flex-wrap items-center gap-3 border-t border-slate-100 pt-4 text-[11px] font-semibold text-slate-400">
+                        <span><i class="fa-solid fa-calendar-days mr-1 text-brandRed/70"></i><?= formatDate( $publishedOn ) ?></span>
+                        <span class="h-1 w-1 rounded-full bg-slate-300"></span>
+                        <span><i class="fa-solid fa-clock mr-1 text-brandRed/70"></i><?= $readingTime ?> min read</span>
+                    </div>
+                </div>
+                <?php else: ?>
                 <div class="rounded-2xl border border-slate-200 bg-white p-5">
                     <p class="text-[10px] font-bold uppercase tracking-[0.18em] text-slate-400">In this story</p>
                     <div class="mt-4 space-y-3">
@@ -287,6 +356,7 @@ include dirname( __DIR__ ) . '/includes/header.php';
                         </div>
                     </div>
                 </div>
+                <?php endif; ?>
 
                 <div class="rounded-2xl bg-ink-900 p-5 text-white">
                     <div class="flex items-center gap-2">
@@ -380,6 +450,45 @@ include dirname( __DIR__ ) . '/includes/header.php';
       window.prompt('Copy this link:', url);
     }
   });
+})();
+
+(function () {
+  var links = Array.prototype.slice.call(document.querySelectorAll('[data-toc-link]'));
+  if (!links.length) return;
+
+  var items = links.map(function (link) {
+    var id = link.getAttribute('href').replace(/^#/, '');
+    return { link: link, el: document.getElementById(id) };
+  }).filter(function (item) { return item.el; });
+  if (!items.length) return;
+
+  var current = null;
+
+  function setActive(item) {
+    if (item === current) return;
+    current = item;
+    links.forEach(function (link) { link.classList.remove('active'); });
+    if (item) item.link.classList.add('active');
+  }
+
+  function update() {
+    var active = items[0];
+    items.forEach(function (item) {
+      if (item.el.getBoundingClientRect().top <= 150) active = item;
+    });
+    if (window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 2) {
+      active = items[items.length - 1];
+    }
+    setActive(active);
+  }
+
+  function onScroll() {
+    update();
+  }
+
+  window.addEventListener('scroll', onScroll, { passive: true });
+  window.addEventListener('resize', onScroll);
+  update();
 })();
 </script>
 

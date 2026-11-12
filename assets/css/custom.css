@@ -944,7 +944,7 @@ html {
   line-height: 1.7;
   font-weight: 500;
   color: #0e1f27;
-  padding-left: 1.05rem;
+  padding-left: 1rem;
   border-left: 4px solid #ca0000;
 }
 
@@ -957,7 +957,7 @@ html {
   color: #0e1f27;
   line-height: 1.35;
   letter-spacing: -0.01em;
-  padding-left: 0.95rem;
+  padding-left: 1rem;
   border-left: 4px solid #ca0000;
 }
 
@@ -1108,6 +1108,64 @@ html {
     padding: 1.1rem 1.15rem;
     border-radius: 14px;
   }
+}
+
+/* ============================================================
+   BLOG DETAIL
+   The blog column already sets the reading measure, so the shared
+   news typesetting must not re-centre the body. This keeps the
+   cover, article text, share row and author box on one set of
+   left and right edges.
+   ============================================================ */
+.blog-article-body.article-body {
+  max-width: none;
+  margin-inline: 0;
+}
+
+/* Sticky header: jumping to a section must not land underneath it. */
+.blog-article-body > h2,
+.blog-article-body > h3 {
+  scroll-margin-top: 7.5rem;
+}
+
+.toc-link {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  padding: 0.4rem 0;
+  font-size: 0.8rem;
+  line-height: 1.5;
+  color: #64748b;
+  transition: color 0.18s ease;
+}
+
+.toc-link:hover {
+  color: #0e1f27;
+}
+
+.toc-link .toc-dot {
+  flex-shrink: 0;
+  width: 0.4rem;
+  height: 0.4rem;
+  margin-top: 0.42rem;
+  border-radius: 9999px;
+  background: #cbd5e1;
+  transition: background 0.18s ease, transform 0.18s ease;
+}
+
+.toc-link.toc-link-sub {
+  padding-left: 1rem;
+  font-size: 0.75rem;
+}
+
+.toc-link.active {
+  color: #ca0000;
+  font-weight: 600;
+}
+
+.toc-link.active .toc-dot {
+  background: #ca0000;
+  transform: scale(1.15);
 }
 
 /* ============================================================
