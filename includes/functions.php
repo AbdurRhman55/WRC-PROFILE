@@ -1755,6 +1755,30 @@ function formatDate( string $date, string $format = 'M d, Y' ): string {
 // ===  ===  ===  ===  ===  ===  ===  ===  ===  ===  ===  ===  ===  ===  ===
 
 /**
+ * Split a stored image path from its optional focus point.
+ *
+ * The dashboard can save "path#x-y" so a wide or tall photo keeps its subject
+ * in frame. The fragment is not part of the filename: it must never reach the
+ * filesystem check or the image request, or the browser asks for a file that
+ * cannot exist and the photo silently falls back to a placeholder.
+ *
+ * @return array{path:string,x:int,y:int}
+ */
+function splitImageFocus( string $path ): array {
+    $path = trim( $path );
+
+    if ( $path !== '' && preg_match( '/^(.*)#(\d{1,3})-(\d{1,3})$/', $path, $m ) && $m[ 1 ] !== '' ) {
+        return [
+            'path' => $m[ 1 ],
+            'x'    => max( 0, min( 100, (int) $m[ 2 ] ) ),
+            'y'    => max( 0, min( 100, (int) $m[ 3 ] ) ),
+        ];
+    }
+
+    return [ 'path' => $path, 'x' => 50, 'y' => 50 ];
+}
+
+/**
  * Whether a stored image path still resolves to a file on disk.
  *
  * Admin uploads used to live inside the deploy tree, so every pipeline sync
@@ -1779,7 +1803,9 @@ function imageExists( string $path ): bool {
         return $memo[ $path ];
     }
 
-    $relative = ltrim( str_replace( '\\', '/', $path ), '/' );
+    // The dashboard stores an optional focus point as "path#x-y". That suffix
+    // is metadata, not part of the filename, so it must not be checked on disk.
+    $relative = ltrim( str_replace( '\\', '/', splitImageFocus( $path )[ 'path' ] ), '/' );
 
     // functions.php lives in includes/, so the project root is one level up.
     return $memo[ $path ] = is_file( dirname( __DIR__ ) . '/' . $relative );
@@ -1799,6 +1825,10 @@ function getImageUrl( string $path, string $fallback = 'assets/images/hero.jpg' 
     if ( preg_match( '~^(?:https?:)?//|^(?:data|blob):~i', $path ) ) {
         return $path;
     }
+
+    // Drop the dashboard's focus-point suffix before building the URL. It is
+    // not part of the file and would otherwise 404 for every focused image.
+    $path = splitImageFocus( $path )[ 'path' ];
 
     if ( strpos( $path, 'assets/' ) !== 0 && strpos( $path, 'uploads/' ) !== 0 ) {
         $path = 'assets/images/' . ltrim( $path, '/' );

@@ -289,6 +289,7 @@ include __DIR__ . '/includes/header.php';
 <!-- CHAIRMAN'S MESSAGE -->
 <?php $chairman = $homepageMap['chairman_message'] ?? null; $chairmanData = $chairman ? json_decode($chairman['content'], true) : []; ?>
 <?php $chairmanImagePath = !empty($chairmanData['image_path']) ? $chairmanData['image_path'] : ($chairmanData['hero_image'] ?? 'assets/images/hero.jpg'); ?>
+<?php $chairmanFocus = splitImageFocus((string) $chairmanImagePath); ?>
 <section class="bg-slate-50 py-10 lg:py-12">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="mb-8 text-center ">
@@ -304,7 +305,8 @@ include __DIR__ . '/includes/header.php';
             class="grid gap-5 lg:grid-cols-[0.95fr_0.9fr] items-stretch bg-white border border-slate-200 rounded-[2rem] shadow-xl overflow-hidden">
             <div class="relative overflow-hidden min-h-[300px]">
                 <img src="<?= sanitize(getImageUrl($chairmanImagePath, 'assets/images/chairman.svg')) ?>"
-                    alt="Chairman of WRC" class="absolute inset-0 w-full h-full object-cover" />
+                    alt="Chairman of WRC" class="absolute inset-0 w-full h-full object-cover"
+                    style="object-position: <?= (int) $chairmanFocus['x'] ?>% <?= (int) $chairmanFocus['y'] ?>%" />
                 <div class="absolute inset-0  mix-blend-multiply"></div>
                 <div class="absolute bottom-4 left-4 right-4 text-white">
                     <p class="text-[11px] uppercase tracking-[0.3em] text-white/80 mb-2">Message from the Chairman</p>

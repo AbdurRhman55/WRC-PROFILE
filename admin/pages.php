@@ -27,13 +27,27 @@ if ( isPost() && isset( $_POST[ 'save_sections' ] ) ) {
         global $pdo;
         $content = $data[ 'content' ] ?? [];
         $exists = getRow( $sectionKey );
+
+        // The chairman card writes the portrait to image_path, but older saves
+        // (when the editor still showed a generic "hero image" field) wrote it
+        // to hero_image. The homepage reads image_path first and falls back to
+        // hero_image, so keep both columns identical and never blank one while
+        // the other holds the photo.
+        $chairmanImage = '';
+        if ( $sectionKey === 'chairman_message' ) {
+            $chairmanImage = trim( (string) ( $content[ 'image_path' ] ?? '' ) );
+            if ( $chairmanImage === '' ) {
+                $chairmanImage = trim( (string) ( $content[ 'hero_image' ] ?? '' ) );
+            }
+        }
+
         $updateData = [
-            'hero_image' => $content[ 'hero_image' ] ?? '',
+            'hero_image' => $sectionKey === 'chairman_message' ? $chairmanImage : ( $content[ 'hero_image' ] ?? '' ),
             'subtitle' => $content[ 'subtitle' ] ?? ( $data[ 'section_subtitle' ] ?? '' ),
         ];
         // chairman_message has extra fields
         if ( $sectionKey === 'chairman_message' ) {
-            $updateData[ 'image_path' ] = $content[ 'image_path' ] ?? $content[ 'hero_image' ] ?? '';
+            $updateData[ 'image_path' ] = $chairmanImage;
             $updateData[ 'overlay_title' ] = $content[ 'overlay_title' ] ?? '';
             $updateData[ 'note_label' ] = $content[ 'note_label' ] ?? '';
             $updateData[ 'paragraph1' ] = $content[ 'paragraph1' ] ?? '';
@@ -1814,6 +1828,9 @@ include __DIR__ . '/includes/header.php';
                                                                     $content = $sData[ 'content' ];
 
                                                                     // ===  == HERO SECTIONS ===  ==
+                                                                    // chairman_message shares the section heading/subtitle
+                                                                    // fields, but uses its own portrait uploader below, so
+                                                                    // this block never double-renders a "hero image" for it.
                                                                     if ( ( preg_match( '/_hero$/', $sKey ) && $sKey !== 'annual_reports_hero' ) || $sKey === 'chairman_message' ):
                                                                     ?>
                                                                     <div class = 'field-group'>
@@ -1825,6 +1842,7 @@ include __DIR__ . '/includes/header.php';
                                                                     <input type = 'text' data-field = 'section_subtitle' value = "<?= htmlspecialchars($sData['section_subtitle'] ?? '') ?>" placeholder = 'Section subtitle text'>
                                                                     </div>
                                                                     <div class = 'field-row'>
+                                                                    <?php if ( $sKey !== 'chairman_message' ): ?>
                                                                     <div class = 'field-group'>
                                                                     <label>Hero Image</label>
                                                                     <?php
@@ -1845,6 +1863,7 @@ include __DIR__ . '/includes/header.php';
                                                                     </div>
                                                                     </div>
                                                                     </div>
+                                                                    <?php endif; ?>
                                                                     <div class = 'field-group'>
                                                                     <label>Subtitle</label>
                                                                     <input type = 'text' data-field = 'content.subtitle' value = "<?= htmlspecialchars($content['subtitle'] ?? $content['hero_alt'] ?? '') ?>" placeholder = 'Section subtitle'>
@@ -1918,7 +1937,7 @@ include __DIR__ . '/includes/header.php';
                                                                     <div class = 'form-group'>
                                                                     <label style = 'display:block;font-weight:600;color:#334155;font-size:0.875rem;margin-bottom:0.375rem'>Hero Image</label>
                                                                     <input type = 'text' data-field = 'content.image_path' id = 'chairman_image_path'
-                                                                    value = "<?= htmlspecialchars($content['image_path'] ?? $content['hero_image'] ?? '') ?>"
+                                                                    value = "<?= htmlspecialchars(!empty($content['image_path']) ? $content['image_path'] : ($content['hero_image'] ?? '')) ?>"
 
                                                                     class = 'w-full px-4 py-2.5 rounded-xl border border-slate-300 bg-slate-50 text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-brandRed/30 focus:border-brandRed transition-all upload-path-input'
                                                                     placeholder = 'Path or upload an image'>
