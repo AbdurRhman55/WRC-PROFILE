@@ -404,7 +404,10 @@ include __DIR__ . '/includes/header.php';
 
             <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
                 <?php 
-          $fundingPartners = array_filter($partners, fn($p) => $p['partner_type'] === 'funding');
+          // The homepage partner wall is a logo strip. Donor records that are
+          // maintained for the gallery but have no logo should not appear as
+          // empty text-only cards.
+          $fundingPartners = array_filter($partners, fn($p) => $p['partner_type'] === 'funding' && imageExists($p['logo_path'] ?? ''));
           foreach ($fundingPartners as $partner): ?>
                 <div
                     class="partner-card group flex flex-col items-center justify-center gap-3 text-center bg-white border border-slate-200 rounded-xl px-6 py-8">
@@ -430,7 +433,7 @@ include __DIR__ . '/includes/header.php';
 
             <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
                 <?php 
-          $govPartners = array_filter($partners, fn($p) => $p['partner_type'] === 'government');
+          $govPartners = array_filter($partners, fn($p) => $p['partner_type'] === 'government' && imageExists($p['logo_path'] ?? ''));
           foreach ($govPartners as $partner): ?>
                 <div
                     class="partner-card group flex flex-col items-center justify-center gap-3 text-center bg-white border border-slate-200 rounded-xl px-6 py-8">
