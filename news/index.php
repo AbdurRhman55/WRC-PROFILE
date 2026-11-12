@@ -14,8 +14,13 @@ if (empty($heroSlides)) {
     $heroSlides = [['title' => 'News & Media Center', 'subtitle' => 'Stay updated with the latest stories, reports, and media from our field operations.', 'image_path' => 'assets/images/hero/hero-slider-1.jpg', 'badge' => 'News & Media', 'cta_text' => 'Latest News', 'cta_link' => '#news']];
 }
 
-// Fetch all active news articles
-$news = getRows('news_articles', 'is_published = 1 ORDER BY published_at DESC');
+// Fetch active news articles. Blog posts have their own section below, so they
+// are deliberately kept out of the news grid to avoid showing the same story twice.
+$news = getRows('news_articles', "is_published = 1 AND category <> 'blog' ORDER BY published_at DESC");
+
+// Latest blog stories for the preview strip below the news grid.
+$blogSettings = getBlogSettings();
+$blogPreview  = getBlogPosts(3);
 
 // Fetch photos from DB
 $photos = getRows('photo_gallery', ['is_active' => 1], 'sort_order ASC');
@@ -231,6 +236,9 @@ include dirname(__DIR__) . '/includes/header.php';
         if (strpos($newsImage, 'assets/') !== 0 && strpos($newsImage, 'http') !== 0) {
             $newsImage = 'assets/images/' . $newsImage;
         }
+        $itemUrl = $cat === 'blog'
+            ? $base . 'news/blog-detail.php?slug=' . rawurlencode((string) ($item['slug'] ?? ''))
+            : $base . 'news/detail.php?slug=' . rawurlencode((string) ($item['slug'] ?? ''));
       ?>
       <article class="bg-slate-50 rounded-2xl overflow-hidden border border-slate-100 hover:border-brandRed/20 hover:shadow-xl transition-all group program-card-hover">
         <div class="relative h-52 overflow-hidden">
@@ -251,7 +259,7 @@ include dirname(__DIR__) . '/includes/header.php';
           </div>
           <h3 class="text-lg font-bold text-ink-900 leading-snug mb-2 group-hover:text-brandRed transition-colors line-clamp-2"><?= sanitize($item['title'] ?? '') ?></h3>
           <p class="text-sm text-slate-500 leading-relaxed mb-4 line-clamp-3"><?= sanitize($item['excerpt'] ?? '') ?></p>
-          <a href="<?= $base ?>news/detail.php?slug=<?= sanitize($item['slug'] ?? '#') ?>" class="text-brandRed text-sm font-semibold hover:underline flex items-center gap-1">Read More <i class="fa-solid fa-arrow-right text-[10px]"></i></a>
+          <a href="<?= htmlspecialchars($itemUrl, ENT_QUOTES, 'UTF-8') ?>" class="text-brandRed text-sm font-semibold hover:underline flex items-center gap-1">Read More <i class="fa-solid fa-arrow-right text-[10px]"></i></a>
         </div>
       </article>
       <?php endforeach; ?>
@@ -259,6 +267,57 @@ include dirname(__DIR__) . '/includes/header.php';
     <?php endif; ?>
   </div>
 </section>
+
+<?php if (!empty($blogPreview)): ?>
+<!-- FROM THE BLOG -->
+<section id="blog" class="py-20 bg-slate-50">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between mb-10">
+      <div class="max-w-2xl">
+        <span class="text-brandRed text-xs font-bold uppercase tracking-widest"><?= sanitize($blogSettings['intro_eyebrow'] ?: 'The WRC Blog') ?></span>
+        <h2 class="text-3xl sm:text-4xl font-display font-bold text-ink-900 mt-2">From the <span class="text-brandRed">Blog</span></h2>
+        <p class="text-slate-500 mt-3"><?= sanitize(mb_substr((string) ($blogSettings['intro_text'] ?? ''), 0, 170)) ?></p>
+      </div>
+      <a href="<?= $base ?>news/blog.php" class="inline-flex shrink-0 items-center gap-2 bg-ink-900 hover:bg-brandRed text-white text-sm font-semibold px-5 py-2.5 rounded-xl transition-colors">
+        Visit the blog <i class="fa-solid fa-arrow-right text-[10px]"></i>
+      </a>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <?php foreach ($blogPreview as $blogPost): ?>
+      <?php
+        $blogPostImage   = getImageUrl((string) ($blogPost['featured_image'] ?? ''), 'assets/images/hero/news-hero.jpg');
+        $blogPostTags    = getBlogTagList($blogPost['tags'] ?? '');
+        $blogPostRead    = getBlogReadingTime((string) ($blogPost['content'] ?? ''));
+        $blogPostExcerpt = getBlogExcerpt($blogPost, 140);
+        $blogPostUrl     = getBlogPostUrl($blogPost);
+      ?>
+      <article class="group overflow-hidden rounded-2xl border border-slate-200 bg-white transition-all duration-300 hover:-translate-y-0.5 hover:border-brandRed/30 hover:shadow-xl">
+        <a href="<?= $blogPostUrl ?>" class="relative block aspect-[16/10] overflow-hidden bg-ink-900">
+          <img src="<?= htmlspecialchars($blogPostImage, ENT_QUOTES, 'UTF-8') ?>" alt="<?= sanitize($blogPost['title'] ?? 'Blog story') ?>" class="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" loading="lazy">
+          <div class="absolute inset-0 bg-gradient-to-t from-ink-900/60 via-transparent to-transparent"></div>
+          <?php if (!empty($blogPostTags)): ?>
+          <span class="absolute left-4 top-4 rounded-full bg-white/95 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.12em] text-ink-900 backdrop-blur"><?= sanitize($blogPostTags[0]) ?></span>
+          <?php endif; ?>
+          <span class="absolute bottom-4 right-4 rounded-full bg-ink-900/80 px-2.5 py-1 text-[10px] font-semibold text-white backdrop-blur"><?= $blogPostRead ?> min</span>
+        </a>
+        <div class="p-5">
+          <div class="flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-slate-400">
+            <span><i class="fa-solid fa-calendar-days mr-1 text-brandRed/60"></i><?= formatDate($blogPost['published_at'] ?? date('Y-m-d')) ?></span>
+            <?php if (!empty($blogPost['author'])): ?>
+            <span><i class="fa-solid fa-user-pen mr-1 text-brandRed/60"></i><?= sanitize($blogPost['author']) ?></span>
+            <?php endif; ?>
+          </div>
+          <h3 class="mt-2 text-base font-bold text-ink-900 leading-snug group-hover:text-brandRed transition-colors line-clamp-2"><a href="<?= $blogPostUrl ?>"><?= sanitize($blogPost['title'] ?? '') ?></a></h3>
+          <p class="mt-2 text-sm text-slate-500 leading-relaxed line-clamp-2"><?= sanitize($blogPostExcerpt) ?></p>
+          <a href="<?= $blogPostUrl ?>" class="mt-4 inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-[0.1em] text-brandRed hover:gap-2.5 transition-all">Read story <i class="fa-solid fa-arrow-right text-[9px]"></i></a>
+        </div>
+      </article>
+      <?php endforeach; ?>
+    </div>
+  </div>
+</section>
+<?php endif; ?>
 
 
 <!-- PARTNER PHOTO GALLERIES -->

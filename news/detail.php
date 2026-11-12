@@ -23,6 +23,13 @@ if ( !$article ) {
     exit;
 }
 
+// Blog posts have their own long-form reading experience. Old or shared links
+// to the news template still land on the right page.
+if ( ( $article[ 'category' ] ?? '' ) === 'blog' ) {
+    header( 'Location: ' . $base . 'news/blog-detail.php?slug=' . rawurlencode( (string) $article[ 'slug' ] ) );
+    exit;
+}
+
 $cat = $article[ 'category' ] ?? 'story';
 $catLabels = [
     'press_release' => 'Press Release',

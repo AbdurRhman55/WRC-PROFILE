@@ -337,6 +337,257 @@ function getNewsByCategory( string $category, int $limit = 0 ): array {
     return getRows( 'news_articles', [ 'is_published' => 1, 'category' => $category ], 'published_at DESC', $limit );
 }
 
+// ===  ===  ===  ===  ===  ===  ===  ===  ===  ===  ===  ===  ===  ===  ===
+// BLOG
+// ===  ===  ===  ===  ===  ===  ===  ===  ===  ===  ===  ===  ===  ===  ===
+
+/**
+* Blog landing-page copy managed from the dashboard.
+*
+* A missing table (first deploy before the migration has run) must not break
+* the public site, so the defaults below are always a complete, usable page.
+*
+* @return array<string,mixed>
+*/
+function getBlogSettings(): array {
+    static $settings = null;
+    if ( $settings !== null ) {
+        return $settings;
+    }
+
+    $defaults = [
+        'hero_badge'     => 'Insights & Field Notes',
+        'hero_title'     => 'Stories and ideas from the field',
+        'hero_subtitle'  => 'Practical lessons, programme insight and human stories from WRC teams working across Pakistan.',
+        'hero_image'     => 'assets/images/hero/news-hero.jpg',
+        'intro_eyebrow'  => 'The WRC Blog',
+        'intro_title'    => 'What we are learning, as we learn it',
+        'intro_text'     => 'Long-form reflections from our programme, monitoring and emergency teams. Written for partners, practitioners and anyone who wants to understand how lasting change is built.',
+        'cta_text'       => 'Partner with WRC',
+        'cta_link'       => 'get-involved/contribute-with-us.php',
+        'posts_per_page' => 6,
+    ];
+
+    $settings = $defaults;
+
+    if ( isset( $GLOBALS[ 'pdo' ] ) && $GLOBALS[ 'pdo' ] instanceof PDO ) {
+        try {
+            $row = $GLOBALS[ 'pdo' ]->query( 'SELECT * FROM blog_settings ORDER BY id ASC LIMIT 1' )->fetch( PDO::FETCH_ASSOC );
+            if ( $row ) {
+                // Keep every stored value, including an intentionally empty one,
+                // so clearing a dashboard field is honoured on the public page.
+                $settings = array_merge( $defaults, $row );
+            }
+        } catch ( Throwable $error ) {
+            $settings = $defaults;
+        }
+    }
+
+    return $settings;
+}
+
+/**
+* Split a stored comma-separated tag list into clean, unique labels.
+*
+* @return list<string>
+*/
+function getBlogTagList( ?string $tags ): array {
+    $clean = [];
+    foreach ( explode( ',', (string) $tags ) as $tag ) {
+        $tag = trim( preg_replace( '/\s+/', ' ', $tag ) );
+        if ( $tag === '' ) {
+            continue;
+        }
+        $key = strtolower( $tag );
+        if ( !isset( $clean[ $key ] ) ) {
+            $clean[ $key ] = $tag;
+        }
+    }
+    return array_values( $clean );
+}
+
+/**
+* Estimated reading time in minutes (220 words per minute, minimum 1).
+*/
+function getBlogReadingTime( string $content ): int {
+    $text  = trim( strip_tags( $content ) );
+    $words = $text === '' ? [] : preg_split( '/\s+/', $text );
+    return max( 1, (int) ceil( count( $words ) / 220 ) );
+}
+
+/**
+* A safe fallback summary when an editor leaves the excerpt blank.
+*/
+function getBlogExcerpt( array $post, int $limit = 180 ): string {
+    $excerpt = trim( (string) ( $post[ 'excerpt' ] ?? '' ) );
+    if ( $excerpt === '' ) {
+        $excerpt = trim( strip_tags( (string) ( $post[ 'content' ] ?? '' ) ) );
+    }
+    if ( mb_strlen( $excerpt ) > $limit ) {
+        $excerpt = mb_substr( $excerpt, 0, $limit );
+        $excerpt = rtrim( $excerpt, " \t\n\r.,;:" ) . '…';
+    }
+    return $excerpt;
+}
+
+/**
+* Fetch published blog posts with optional topic/search filters and paging.
+*
+* @return list<array<string,mixed>>
+*/
+function getBlogPosts( int $limit = 0, int $offset = 0, string $tag = '', string $search = '', int $excludeId = 0 ): array {
+    global $pdo;
+
+    $where  = [ "category = 'blog'", 'is_published = 1', 'slug IS NOT NULL', "slug <> ''" ];
+    $params = [];
+
+    if ( $tag !== '' ) {
+        $where[]  = 'FIND_IN_SET(?, tags)';
+        $params[] = $tag;
+    }
+    if ( $search !== '' ) {
+        $where[]  = '(title LIKE ? OR excerpt LIKE ? OR content LIKE ? OR author LIKE ?)';
+        $needle   = '%' . $search . '%';
+        $params[] = $needle;
+        $params[] = $needle;
+        $params[] = $needle;
+        $params[] = $needle;
+    }
+    if ( $excludeId > 0 ) {
+        $where[]  = 'id <> ?';
+        $params[] = $excludeId;
+    }
+
+    $sql = 'SELECT * FROM news_articles WHERE ' . implode( ' AND ', $where )
+         . ' ORDER BY is_featured DESC, published_at DESC, id DESC';
+
+    if ( $limit > 0 ) {
+        $sql .= ' LIMIT ' . (int) $limit . ' OFFSET ' . max( 0, $offset );
+    }
+
+    $stmt = $pdo->prepare( $sql );
+    $stmt->execute( $params );
+    return $stmt->fetchAll( PDO::FETCH_ASSOC );
+}
+
+/**
+* Count published blog posts for the same filters used by getBlogPosts().
+*/
+function countBlogPosts( string $tag = '', string $search = '', int $excludeId = 0 ): int {
+    global $pdo;
+
+    $where  = [ "category = 'blog'", 'is_published = 1', 'slug IS NOT NULL', "slug <> ''" ];
+    $params = [];
+
+    if ( $tag !== '' ) {
+        $where[]  = 'FIND_IN_SET(?, tags)';
+        $params[] = $tag;
+    }
+    if ( $search !== '' ) {
+        $where[]  = '(title LIKE ? OR excerpt LIKE ? OR content LIKE ? OR author LIKE ?)';
+        $needle   = '%' . $search . '%';
+        $params[] = $needle;
+        $params[] = $needle;
+        $params[] = $needle;
+        $params[] = $needle;
+    }
+    if ( $excludeId > 0 ) {
+        $where[]  = 'id <> ?';
+        $params[] = $excludeId;
+    }
+
+    $stmt = $pdo->prepare( 'SELECT COUNT(*) FROM news_articles WHERE ' . implode( ' AND ', $where ) );
+    $stmt->execute( $params );
+    return (int) $stmt->fetchColumn();
+}
+
+/**
+* The post pinned to the top of the blog. Falls back to the newest post when
+* no editor has marked one as featured yet.
+*/
+function getFeaturedBlogPost(): ?array {
+    global $pdo;
+
+    try {
+        $stmt = $pdo->query(
+            "SELECT * FROM news_articles
+              WHERE category = 'blog' AND is_published = 1
+                AND slug IS NOT NULL AND slug <> ''
+              ORDER BY is_featured DESC, published_at DESC, id DESC
+              LIMIT 1"
+        );
+        $post = $stmt ? $stmt->fetch( PDO::FETCH_ASSOC ) : false;
+        return $post ?: null;
+    } catch ( Throwable $error ) {
+        return null;
+    }
+}
+
+/**
+* Topic counts across all published blog posts, ordered by popularity.
+*
+* @return array<string,int>
+*/
+function getBlogTags(): array {
+    $counts = [];
+    foreach ( getBlogPosts() as $post ) {
+        foreach ( getBlogTagList( $post[ 'tags' ] ?? '' ) as $tag ) {
+            $counts[ $tag ] = ( $counts[ $tag ] ?? 0 ) + 1;
+        }
+    }
+
+    uksort( $counts, static function ( $a, $b ) use ( $counts ) {
+        if ( $counts[ $a ] !== $counts[ $b ] ) {
+            return $counts[ $b ] <=> $counts[ $a ];
+        }
+        return strcasecmp( $a, $b );
+    } );
+
+    return $counts;
+}
+
+/**
+* Fetch one published blog post by slug.
+*/
+function getBlogPostBySlug( string $slug ): ?array {
+    global $pdo;
+
+    $stmt = $pdo->prepare(
+        "SELECT * FROM news_articles
+          WHERE slug = ? AND category = 'blog' AND is_published = 1
+          LIMIT 1"
+    );
+    $stmt->execute( [ $slug ] );
+    $post = $stmt->fetch( PDO::FETCH_ASSOC );
+    return $post ?: null;
+}
+
+/**
+* Related posts for the blog detail page.
+*
+* @return list<array<string,mixed>>
+*/
+function getRelatedBlogPosts( int $excludeId, int $limit = 3 ): array {
+    global $pdo;
+
+    $stmt = $pdo->prepare(
+        "SELECT * FROM news_articles
+          WHERE category = 'blog' AND is_published = 1 AND id <> ?
+            AND slug IS NOT NULL AND slug <> ''
+          ORDER BY is_featured DESC, published_at DESC, id DESC
+          LIMIT " . max( 1, $limit )
+    );
+    $stmt->execute( [ $excludeId ] );
+    return $stmt->fetchAll( PDO::FETCH_ASSOC );
+}
+
+/**
+* Canonical URL for a blog post.
+*/
+function getBlogPostUrl( array $post ): string {
+    return siteBaseUrl() . 'news/blog-detail.php?slug=' . rawurlencode( (string) ( $post[ 'slug' ] ?? '' ) );
+}
+
 /**
 * Fetch active campaigns
 */

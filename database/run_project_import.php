@@ -1012,6 +1012,11 @@ try {
     // run every deploy and after the Excel import.
     require_once __DIR__ . '/seed_media_gallery.php';
 
+    // Blog: additive news_articles columns, the editable blog_settings row and
+    // starter posts. The starter posts are marker-guarded, so dashboard edits
+    // and deliberate deletions survive every deploy.
+    require_once __DIR__ . '/seed_blog.php';
+
     $reasons = $portfolioStatus();
     if ( !$reasons ) {
         echo 'Project portfolio already matches the ' . PORTFOLIO_SIZE . " approved Excel entries; no changes made.\n";

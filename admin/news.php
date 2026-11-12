@@ -20,7 +20,9 @@ if (isPost()) {
     }
 }
 
-$articles = getRows('news_articles', [], 'created_at DESC');
+// Blog posts are managed from the dedicated Blog screen, so this list stays
+// focused on news, reports, press releases, stories and events.
+$articles = getRows('news_articles', "category <> 'blog' ORDER BY created_at DESC");
 
 include __DIR__ . '/includes/header.php';
 ?>
@@ -30,9 +32,14 @@ include __DIR__ . '/includes/header.php';
     <h1 class="text-2xl font-bold text-slate-900 font-heading">News</h1>
     <p class="text-slate-500 text-sm mt-1">Manage news articles and press releases.</p>
   </div>
-  <a href="news-edit.php" class="inline-flex items-center gap-2 bg-brandRed text-white px-5 py-2.5 rounded-xl text-sm font-semibold hover:bg-brandRed-hover transition-colors shadow-sm">
-    <i class="fa-solid fa-plus text-xs"></i> Add New Article
-  </a>
+  <div class="flex flex-wrap items-center gap-2">
+    <a href="blog.php" class="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-600 hover:bg-slate-50 transition-colors">
+      <i class="fa-solid fa-pen-nib text-xs text-slate-400"></i> Blog Manager
+    </a>
+    <a href="news-edit.php" class="inline-flex items-center gap-2 bg-brandRed text-white px-5 py-2.5 rounded-xl text-sm font-semibold hover:bg-brandRed-hover transition-colors shadow-sm">
+      <i class="fa-solid fa-plus text-xs"></i> Add New Article
+    </a>
+  </div>
 </div>
 
 <!-- Search -->

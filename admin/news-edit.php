@@ -48,8 +48,15 @@ if (isPost()) {
         } else {
             $stmt = $pdo->prepare("INSERT INTO news_articles (slug, title, category, author, published_at, featured_image, excerpt, content, is_published, sort_order) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
             $stmt->execute([$slug, $title, $category, $author, $published_date, $hero_image, $excerpt, $content, $is_published, $sort_order]);
-            setFlash('success', 'Article created successfully.');
+            setFlash('success', $category === 'blog' ? 'Blog post created. Manage it from the Blog screen.' : 'Article created successfully.');
         }
+
+        // Blog posts live on their own screen so editors keep the tags, featured
+        // flag and blog-specific preview controls that this form does not show.
+        if ($category === 'blog') {
+            redirect('blog.php');
+        }
+
         redirect('news.php');
     }
 }
@@ -95,7 +102,13 @@ include __DIR__ . '/includes/header.php';
         <label class="block text-sm font-medium text-slate-700 mb-1">Category *</label>
         <select name="category" required class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-brandRed/20 focus:border-brandRed">
           <?php
-          $cats = ['press_release' => 'Press Release', 'report' => 'Report', 'story' => 'Story', 'blog' => 'Blog', 'event' => 'Event'];
+          $cats = ['press_release' => 'Press Release', 'report' => 'Report', 'story' => 'Story', 'event' => 'Event'];
+          // Blog is edited on its own screen; keep the option only when this
+          // record already is a blog post so a direct edit cannot silently
+          // convert it to another category.
+          if (($article['category'] ?? '') === 'blog') {
+              $cats['blog'] = 'Blog (use Blog Manager)';
+          }
           foreach ($cats as $val => $label):
           ?>
           <option value="<?= $val ?>" <?= ($article['category'] ?? '') === $val ? 'selected' : '' ?>><?= $label ?></option>

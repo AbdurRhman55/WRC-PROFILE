@@ -339,6 +339,7 @@ tailwind.config = {
             </a>
             <div class = 'dropdown-menu absolute top-full right-0 w-56 bg-white border border-gray-100 rounded-2xl shadow-xl p-2 text-slate-600 text-xs'>
             <a href = "<?= $base ?>news/index.php#news" class = 'block px-3 py-2 rounded-xl hover:bg-slate-800 hover:text-white transition-colors'><i class = 'fa-solid fa-newspaper mr-2 text-slate-400'></i> Latest News</a>
+            <a href = "<?= $base ?>news/blog.php" class = 'block px-3 py-2 rounded-xl hover:bg-slate-800 hover:text-white transition-colors'><i class = 'fa-solid fa-pen-nib mr-2 text-slate-400'></i> Blog</a>
             <a href = "<?= $base ?>news/gallery.php" class = 'block px-3 py-2 rounded-xl hover:bg-slate-800 hover:text-white transition-colors'><i class = 'fa-solid fa-images mr-2 text-slate-400'></i> Photo Gallery</a>
             <a href = "<?= $base ?>news/index.php#videos" class = 'block px-3 py-2 rounded-xl hover:bg-slate-800 hover:text-white transition-colors'><i class = 'fa-solid fa-video mr-2 text-slate-400'></i> Video Gallery</a>
             </div>
@@ -429,7 +430,7 @@ tailwind.config = {
             <div class = 'news-ticker-track items-center h-full'>
             <?php foreach ( [ 0, 1 ] as $tickerCopy ): ?>
             <?php foreach ( $newsTicker as $tickerItem ): ?>
-            <a href = "<?= $base ?>news/detail.php?slug=<?= rawurlencode( $tickerItem[ 'slug' ] ) ?>"
+            <a href = "<?= $base ?><?= ( $tickerItem[ 'category' ] ?? '' ) === 'blog' ? 'news/blog-detail.php?slug=' : 'news/detail.php?slug=' ?><?= rawurlencode( $tickerItem[ 'slug' ] ) ?>"
             class = 'news-ticker-item inline-flex items-center gap-2 shrink-0 h-full px-3 sm:px-4 text-[11px] sm:text-xs text-white/90 hover:text-white transition-colors group'
             <?= $tickerCopy === 1 ? 'aria-hidden="true" tabindex="-1"' : '' ?>>
             <span class = 'w-1 h-1 rounded-full bg-white/55 group-hover:bg-white shrink-0'></span>
@@ -536,6 +537,7 @@ tailwind.config = {
             </button>
             <div class = 'mobile-tray-submenu'><div>
             <a href = "<?= $base ?>news/index.php">Latest News</a>
+            <a href = "<?= $base ?>news/blog.php">Blog</a>
             <a href = "<?= $base ?>news/gallery.php">Photo Gallery</a>
             <a href = "<?= $base ?>news/index.php#videos">Video Gallery</a>
             </div></div>

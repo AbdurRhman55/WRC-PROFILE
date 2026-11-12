@@ -10,6 +10,7 @@ $navGroups = [
     ['label' => 'Content', 'items' => [
         ['file' => 'projects.php', 'label' => 'Projects', 'icon' => 'fa-folder-open'],
         ['file' => 'news.php', 'label' => 'News & Media', 'icon' => 'fa-newspaper'],
+        ['file' => 'blog.php', 'label' => 'Blog', 'icon' => 'fa-pen-nib'],
         ['file' => 'success-stories.php', 'label' => 'Success Stories', 'icon' => 'fa-quote-left'],
         ['file' => 'resources.php', 'label' => 'Resources', 'icon' => 'fa-folder-open'],
         ['file' => 'hero-sliders.php', 'label' => 'Hero Sliders', 'icon' => 'fa-images'],
@@ -90,6 +91,9 @@ $pagesList = [
         <?php
           $active = ($activeFile === $item['file']);
           if ($item['file'] === 'gallery.php' && in_array($activeFile, ['gallery.php', 'project-media.php'], true)) {
+              $active = true;
+          }
+          if ($item['file'] === 'blog.php' && in_array($activeFile, ['blog.php', 'blog-edit.php', 'blog-settings.php'], true)) {
               $active = true;
           }
         ?>

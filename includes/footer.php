@@ -40,6 +40,7 @@ if ( !isset( $logoV ) ) $logoV = @filemtime( dirname( __DIR__ ) . '/assets/image
 <li><a href = "<?= $base ?>our-work/index.php" class = 'hover:text-white transition'>Our Work</a></li>
 <li><a href = "<?= $base ?>projects/index.php" class = 'hover:text-white transition'>Projects</a></li>
 <li><a href = "<?= $base ?>news/index.php" class = 'hover:text-white transition'>News</a></li>
+<li><a href = "<?= $base ?>news/blog.php" class = 'hover:text-white transition'>Blog</a></li>
 <li><a href = "<?= $base ?>news/gallery.php" class = 'hover:text-white transition'>Photo Galleries</a></li>
 </ul>
 </div>
@@ -149,7 +150,7 @@ if ( $popupArticle ) {
     // sub-directory pages: a bare relative "assets/..." resolved against
     // "/about/" to "/about/assets/..." and 404'd even when the file existed.
     $popupImage = getImageUrl( (string) ( $popupArticle[ 'featured_image' ] ?? '' ), 'assets/images/hero.jpg' );
-    $popupHref  = $base . 'news/detail.php?slug=' . rawurlencode( $popupArticle[ 'slug' ] );
+    $popupHref  = $base . ( ( $popupArticle[ 'category' ] ?? '' ) === 'blog' ? 'news/blog-detail.php?slug=' : 'news/detail.php?slug=' ) . rawurlencode( $popupArticle[ 'slug' ] );
     $popupLabel = $popupLabels[ $popupArticle[ 'category' ] ] ?? ucfirst( str_replace( '_', ' ', (string) $popupArticle[ 'category' ] ) );
     $popupOnNews = strpos( $_SERVER[ 'SCRIPT_NAME' ] ?? '', '/news/' ) !== false;
 }
