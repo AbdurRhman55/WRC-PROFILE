@@ -462,6 +462,25 @@ function wrcMediaUrl( string $path, string $fallback = 'assets/images/hero/hero-
 }
 
 /**
+ * Comparison key that folds spelling variants of the same organisation.
+ * Punctuation, casing and a few known legacy names are normalised away.
+ */
+function wrcPartnerAliasKey( string $name ): string {
+    $key = strtolower( trim( $name ) );
+    $key = preg_replace( '/&(?:amp;)?/i', 'and', $key );
+    $key = preg_replace( '/[^a-z0-9]+/', '', (string) $key );
+
+    $aliases = [
+        'healthdepartment' => 'departmentofhealth',
+        'thefederallyadministeredtribalareasdevelopmentauthority' => 'fatadevelopmentauthority',
+        'fatada' => 'fatadevelopmentauthority',
+        'zakatfoundationofamericazfa' => 'zakatfoundationofamerica',
+    ];
+
+    return $aliases[ $key ] ?? (string) $key;
+}
+
+/**
  * All public partner cards, with the counts the gallery landing page needs.
  * Partners that have neither a logo, a cover, nor a linked project are hidden
  * so placeholder rows never reach the public site.
@@ -526,7 +545,35 @@ function wrcGalleryPartners(): array {
         $visible[] = $partner;
     }
 
-    return $visible;
+    // Older deployments accumulated the same organisation more than once
+    // (for example a logo-only "Health Department" beside the donor-linked
+    // record, or "Smart Aid" beside "SmartAID"). Fold those into the record
+    // that actually has a gallery so visitors never see duplicate cards.
+    $unique = [];
+    foreach ( $visible as $partner ) {
+        $key = wrcPartnerAliasKey( (string) $partner['name'] );
+
+        if ( !isset( $unique[ $key ] ) ) {
+            $unique[ $key ] = $partner;
+            continue;
+        }
+
+        $score = static function ( array $row ): array {
+            return [
+                (int) $row['project_count'],
+                (int) $row['photo_count'],
+                trim( (string) ( $row['cover_image'] ?? '' ) ) !== '' ? 1 : 0,
+                trim( (string) ( $row['logo_path'] ?? '' ) ) !== '' ? 1 : 0,
+                -(int) $row['id'],
+            ];
+        };
+
+        if ( $score( $partner ) > $score( $unique[ $key ] ) ) {
+            $unique[ $key ] = $partner;
+        }
+    }
+
+    return array_values( $unique );
 }
 
 /** One active partner with project/photo counts. */
