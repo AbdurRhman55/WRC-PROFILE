@@ -81,6 +81,20 @@ $photoSectionIcon = static function (string $section) use ($photoSectionIcons): 
     return $photoSectionIcons[$section] ?? 'fa-layer-group';
 };
 
+// Partner-driven gallery preview. The full directory lives on news/gallery.php,
+// but a short strip here keeps the News & Media landing page visually current.
+$galleryPartners = wrcGalleryPartners();
+$galleryPartnerPreview = [];
+foreach ($galleryPartners as $galleryPartner) {
+    if ((int) $galleryPartner['project_count'] < 1) {
+        continue;
+    }
+    $galleryPartnerPreview[] = $galleryPartner;
+    if (count($galleryPartnerPreview) >= 6) {
+        break;
+    }
+}
+
 // Fetch videos from DB
 $videos = getRows('video_gallery', ['is_active' => 1], 'sort_order ASC');
 
@@ -162,7 +176,7 @@ include dirname(__DIR__) . '/includes/header.php';
                     <a href="<?= $base ?><?= $firstSlide['cta_link'] ?? '#news' ?>" class="bg-brandRed hover:bg-brandRed-hover text-white font-bold text-sm px-8 py-4 rounded-xl shadow-lg shadow-brandRed/30 transition-all flex items-center gap-2 transform hover:-translate-y-0.5">
                         <?= sanitize($firstSlide['cta_text'] ?? 'Latest News') ?> <i class="fa-solid fa-arrow-right text-xs"></i>
                     </a>
-                    <a href="#photos" class="bg-white/15 hover:bg-white/25 backdrop-blur-sm text-white font-bold text-sm px-8 py-4 rounded-xl border border-white/25 transition-all flex items-center gap-2 transform hover:-translate-y-0.5">
+                    <a href="<?= $base ?>news/gallery.php" class="bg-white/15 hover:bg-white/25 backdrop-blur-sm text-white font-bold text-sm px-8 py-4 rounded-xl border border-white/25 transition-all flex items-center gap-2 transform hover:-translate-y-0.5">
                         Photo Gallery <i class="fa-solid fa-images text-xs"></i>
                     </a>
                 </div>
@@ -247,13 +261,88 @@ include dirname(__DIR__) . '/includes/header.php';
 </section>
 
 
-<!-- PHOTO GALLERY -->
-<section id="photos" class="py-20 bg-slate-50">
+<!-- PARTNER PHOTO GALLERIES -->
+<section id="photos" class="py-20 bg-white">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-10">
+      <div>
+        <span class="text-brandRed text-xs font-bold uppercase tracking-widest">Visual Stories</span>
+        <h2 class="text-3xl sm:text-4xl font-display font-bold text-ink-900 mt-2">Partner <span class="text-brandRed">Photo Galleries</span></h2>
+        <p class="text-slate-500 mt-3 max-w-2xl">Choose a partner or donor to explore the projects they supported, then open any project to see its photographs with full context.</p>
+      </div>
+      <a href="<?= $base ?>news/gallery.php" class="inline-flex items-center gap-2 bg-ink-900 hover:bg-brandRed text-white text-sm font-semibold px-5 py-2.5 rounded-xl transition-colors shrink-0">
+        Explore all galleries <i class="fa-solid fa-arrow-right text-[10px]"></i>
+      </a>
+    </div>
+
+    <?php if (!empty($galleryPartnerPreview)): ?>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <?php foreach ($galleryPartnerPreview as $galleryPartner): ?>
+      <?php
+        $partnerCover = (string) ($galleryPartner['cover_path'] ?? '');
+        $partnerLogo  = trim((string) ($galleryPartner['logo_path'] ?? ''));
+        $partnerType  = (string) ($galleryPartner['partner_type'] ?? 'collaborator');
+        $partnerInfo  = $galleryPartner['type_info'];
+      ?>
+      <a href="<?= $base ?>news/partner.php?slug=<?= rawurlencode((string) $galleryPartner['slug']) ?>" class="group bg-white rounded-2xl border border-slate-200 overflow-hidden hover:border-brandRed/30 hover:shadow-xl transition-all duration-300 flex flex-col">
+        <div class="relative aspect-[16/10] bg-ink-900 overflow-hidden">
+          <?php if ($partnerCover !== '' && imageExists($partnerCover)): ?>
+          <img src="<?= $base ?><?= htmlspecialchars($partnerCover, ENT_QUOTES, 'UTF-8') ?>" alt="<?= sanitize($galleryPartner['name']) ?>" class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" loading="lazy">
+          <?php else: ?>
+          <div class="absolute inset-0 bg-gradient-to-br from-ink-800 to-black"></div>
+          <span class="absolute inset-0 flex items-center justify-center font-display font-semibold text-6xl text-white/10"><?= sanitize($galleryPartner['initials']) ?></span>
+          <?php endif; ?>
+          <div class="absolute inset-0 bg-gradient-to-t from-ink-900/90 via-ink-900/15 to-transparent"></div>
+          <span class="absolute top-3 left-3 inline-flex items-center gap-1.5 rounded-full bg-white/95 backdrop-blur px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-ink-900 shadow-sm">
+            <i class="fa-solid <?= htmlspecialchars($partnerInfo['icon']) ?> text-brandRed text-[9px]"></i><?= htmlspecialchars($partnerInfo['short']) ?>
+          </span>
+          <div class="absolute left-4 right-4 bottom-4 flex items-end justify-between gap-3">
+            <div class="flex items-center gap-3 min-w-0">
+              <span class="w-10 h-10 rounded-xl bg-white shadow-lg p-1.5 flex items-center justify-center overflow-hidden shrink-0">
+                <?php if ($partnerLogo !== '' && imageExists($partnerLogo)): ?>
+                <img src="<?= $base ?><?= htmlspecialchars($partnerLogo, ENT_QUOTES, 'UTF-8') ?>" alt="" class="w-full h-full object-contain">
+                <?php else: ?>
+                <span class="font-display font-semibold text-xs text-ink-900"><?= sanitize($galleryPartner['initials']) ?></span>
+                <?php endif; ?>
+              </span>
+              <div class="min-w-0">
+                <p class="text-[9px] font-bold uppercase tracking-[0.16em] text-white/60 mb-0.5">Partner</p>
+                <h3 class="text-white font-display font-semibold text-base leading-tight truncate"><?= sanitize($galleryPartner['name']) ?></h3>
+              </div>
+            </div>
+            <span class="w-8 h-8 rounded-full bg-white/15 border border-white/20 flex items-center justify-center text-white shrink-0 group-hover:bg-brandRed group-hover:border-brandRed transition-colors">
+              <i class="fa-solid fa-arrow-right text-[10px]"></i>
+            </span>
+          </div>
+        </div>
+        <div class="p-5 flex-1 flex flex-col">
+          <p class="text-sm text-slate-500 leading-relaxed line-clamp-2"><?= sanitize($galleryPartner['description'] ?? 'A valued WRC partner supporting humanitarian work across Pakistan.') ?></p>
+          <div class="mt-auto pt-4 flex items-center justify-between text-[11px] font-semibold text-slate-400 border-t border-slate-100 mt-4">
+            <span><strong class="text-ink-900"><?= (int) $galleryPartner['project_count'] ?></strong> project<?= (int) $galleryPartner['project_count'] === 1 ? '' : 's' ?></span>
+            <span><strong class="text-ink-900"><?= (int) $galleryPartner['photo_count'] ?></strong> photo<?= (int) $galleryPartner['photo_count'] === 1 ? '' : 's' ?></span>
+          </div>
+        </div>
+      </a>
+      <?php endforeach; ?>
+    </div>
+    <?php else: ?>
+    <div class="text-center py-14 bg-slate-50 rounded-2xl border border-slate-200">
+      <i class="fa-solid fa-images text-4xl text-slate-300 mb-4 block"></i>
+      <h3 class="text-lg font-bold text-slate-700 mb-2">Partner galleries are being prepared</h3>
+      <p class="text-sm text-slate-400">Project photographs will appear here as soon as they are published.</p>
+    </div>
+    <?php endif; ?>
+  </div>
+</section>
+
+
+<!-- FIELD PHOTO ARCHIVE -->
+<section id="field-photos" class="py-20 bg-slate-50">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-12">
       <div>
-        <span class="text-brandRed text-xs font-bold uppercase tracking-widest">Visual Stories</span>
-        <h2 class="text-3xl sm:text-4xl font-display font-bold text-ink-900 mt-2">Photo <span class="text-brandRed">Gallery</span></h2>
+        <span class="text-brandRed text-xs font-bold uppercase tracking-widest">General Collection</span>
+        <h2 class="text-3xl sm:text-4xl font-display font-bold text-ink-900 mt-2">Field <span class="text-brandRed">Photo Archive</span></h2>
         <p class="text-slate-500 mt-3">Moments captured from our field operations and community events.</p>
       </div>
       <?php if (!empty($photoCategories)): ?>
@@ -323,6 +412,7 @@ include dirname(__DIR__) . '/includes/header.php';
     <?php endif; ?>
   </div>
 </section>
+
 
 
 <!-- VIDEO GALLERY -->
@@ -455,7 +545,7 @@ include dirname(__DIR__) . '/includes/header.php';
                   <a href="<?= $base ?>${s.cta_link}" class="bg-brandRed hover:bg-brandRed-hover text-white font-bold text-sm px-8 py-4 rounded-xl shadow-lg shadow-brandRed/30 transition-all flex items-center gap-2 transform hover:-translate-y-0.5">
                       ${s.cta_text} <i class="fa-solid fa-arrow-right text-xs"></i>
                   </a>
-                  <a href="#photos" class="bg-white/15 hover:bg-white/25 backdrop-blur-sm text-white font-bold text-sm px-8 py-4 rounded-xl border border-white/25 transition-all flex items-center gap-2 transform hover:-translate-y-0.5">
+                  <a href="<?= $base ?>news/gallery.php" class="bg-white/15 hover:bg-white/25 backdrop-blur-sm text-white font-bold text-sm px-8 py-4 rounded-xl border border-white/25 transition-all flex items-center gap-2 transform hover:-translate-y-0.5">
                       Photo Gallery <i class="fa-solid fa-images text-xs"></i>
                   </a>
               </div>

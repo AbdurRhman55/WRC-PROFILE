@@ -137,6 +137,9 @@ include __DIR__ . '/includes/header.php';
               <a href="../projects/project-name.php?slug=<?= htmlspecialchars($project['slug']) ?>" target="_blank" class="text-slate-400 hover:text-teal-500 transition-colors p-1.5 rounded-lg hover:bg-teal-50" title="View Public Page">
                 <i class="fa-solid fa-eye text-xs"></i>
               </a>
+              <a href="project-media.php?slug=<?= rawurlencode((string) $project['slug']) ?>" class="text-slate-400 hover:text-brandRed transition-colors p-1.5 rounded-lg hover:bg-brandRed/5" title="Manage Gallery Photos">
+                <i class="fa-solid fa-images text-xs"></i>
+              </a>
               <a href="project-edit.php?id=<?= $project['id'] ?>" class="text-slate-400 hover:text-blue-500 transition-colors p-1.5 rounded-lg hover:bg-blue-50" title="Edit">
                 <i class="fa-solid fa-pen-to-square text-xs"></i>
               </a>

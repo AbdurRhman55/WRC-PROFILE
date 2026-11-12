@@ -15,7 +15,8 @@ $navGroups = [
         ['file' => 'hero-sliders.php', 'label' => 'Hero Sliders', 'icon' => 'fa-images'],
     ]],
     ['label' => 'Media', 'items' => [
-        ['file' => 'photos.php', 'label' => 'Photo Gallery', 'icon' => 'fa-camera-retro'],
+        ['file' => 'gallery.php', 'label' => 'Project Galleries', 'icon' => 'fa-images'],
+        ['file' => 'photos.php', 'label' => 'Field Photos', 'icon' => 'fa-camera-retro'],
         ['file' => 'videos.php', 'label' => 'Video Gallery', 'icon' => 'fa-video'],
     ]],
     ['label' => 'People', 'items' => [
@@ -86,7 +87,12 @@ $pagesList = [
       <?php endif; ?>
       <div class="space-y-0.5">
         <?php foreach ($group['items'] as $item): ?>
-        <?php $active = ($activeFile === $item['file']); ?>
+        <?php
+          $active = ($activeFile === $item['file']);
+          if ($item['file'] === 'gallery.php' && in_array($activeFile, ['gallery.php', 'project-media.php'], true)) {
+              $active = true;
+          }
+        ?>
         <a href="<?= $item['file'] ?>"
            class="flex items-center gap-3 px-3 py-2 rounded-lg text-[13px] font-medium transition-all <?= $active ? 'bg-brandRed text-white shadow-md shadow-brandRed/20' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900' ?>">
           <i class="fa-solid <?= $item['icon'] ?> w-4 text-center text-[12px] <?= $active ? 'text-white' : 'text-slate-400' ?>"></i>

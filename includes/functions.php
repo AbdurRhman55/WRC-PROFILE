@@ -361,6 +361,384 @@ function getActivePartners(): array {
     return getRows( 'partners', [ 'is_active' => 1 ], 'sort_order ASC' );
 }
 
+// ===  ===  ===  ===  ===  ===  ===  ===  ===  ===  ===  ===  ===  ===  ===
+// PARTNER-DRIVEN PROJECT GALLERIES
+// ===  ===  ===  ===  ===  ===  ===  ===  ===  ===  ===  ===  ===  ===  ===
+
+/**
+ * Partner categories used by the public gallery and the dashboard. Adding a
+ * new type here makes it available in the partner editor automatically.
+ *
+ * @return array<string,array<string,string>>
+ */
+function wrcPartnerTypeMap(): array {
+    return [
+        'funding' => [
+            'label' => 'Funding Partners',
+            'short' => 'Funding',
+            'icon'  => 'fa-hand-holding-dollar',
+            'blurb' => 'Donors, foundations and development agencies that finance WRC programmes.',
+        ],
+        'government' => [
+            'label' => 'Government Partners',
+            'short' => 'Government',
+            'icon'  => 'fa-building-columns',
+            'blurb' => 'Federal, provincial and district institutions that co-deliver public services.',
+        ],
+        'implementation' => [
+            'label' => 'Implementation Partners',
+            'short' => 'Implementation',
+            'icon'  => 'fa-people-carry-box',
+            'blurb' => 'Local and international organisations that deliver projects alongside WRC teams.',
+        ],
+        'collaborator' => [
+            'label' => 'Collaborators',
+            'short' => 'Collaborator',
+            'icon'  => 'fa-handshake',
+            'blurb' => 'Civil society, academic and community partners supporting our mission.',
+        ],
+    ];
+}
+
+function wrcPartnerTypeInfo( string $type ): array {
+    $types = wrcPartnerTypeMap();
+
+    return $types[ $type ] ?? [
+        'label' => ucfirst( str_replace( '_', ' ', $type ) ),
+        'short' => ucfirst( $type ),
+        'icon'  => 'fa-handshake',
+        'blurb' => 'Organisations working with WRC to serve communities.',
+    ];
+}
+
+/** Two-letter monogram used when a partner has no usable logo or cover. */
+function wrcPartnerInitials( string $name ): string {
+    $words = preg_split( '/\s+/', trim( preg_replace( '/[^\p{L}\p{N}\s]/u', ' ', $name ) ) );
+    $words = array_values( array_filter( (array) $words ) );
+
+    if ( !$words ) {
+        return 'WR';
+    }
+
+    $first = mb_substr( $words[ 0 ], 0, 1 );
+    $last  = count( $words ) > 1 ? mb_substr( $words[ count( $words ) - 1 ], 0, 1 ) : mb_substr( $words[ 0 ], 1, 1 );
+
+    return mb_strtoupper( $first . $last );
+}
+
+/** Cached SHOW TABLES check so a half-deployed database never fatals a page. */
+function wrcTableExists( string $table ): bool {
+    global $pdo;
+    static $cache = [];
+
+    if ( array_key_exists( $table, $cache ) ) {
+        return $cache[ $table ];
+    }
+
+    try {
+        $statement = $pdo->prepare(
+            'SELECT COUNT(*) FROM information_schema.TABLES
+              WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ?'
+        );
+        $statement->execute( [ $table ] );
+        return $cache[ $table ] = (int) $statement->fetchColumn() > 0;
+    } catch ( Throwable $error ) {
+        return $cache[ $table ] = false;
+    }
+}
+
+/**
+ * Resolve a gallery image path to a URL. Bare filenames are treated as admin
+ * uploads, while assets/ and uploads/ paths are passed through unchanged.
+ */
+function wrcMediaUrl( string $path, string $fallback = 'assets/images/hero/hero-slider-1.jpg' ): string {
+    $path = trim( $path );
+
+    if ( $path !== '' && !preg_match( '~^(?:https?:)?//|^(?:data|blob):|^(?:assets|uploads)/~i', $path ) ) {
+        $path = 'uploads/images/' . ltrim( $path, '/' );
+    }
+
+    return getImageUrl( $path, $fallback );
+}
+
+/**
+ * All public partner cards, with the counts the gallery landing page needs.
+ * Partners that have neither a logo, a cover, nor a linked project are hidden
+ * so placeholder rows never reach the public site.
+ */
+function wrcGalleryPartners(): array {
+    global $pdo;
+
+    if ( !wrcTableExists( 'partners' ) ) {
+        return [];
+    }
+
+    $hasLinks = wrcTableExists( 'partner_projects' );
+    $hasMedia = wrcTableExists( 'project_media' );
+
+    if ( $hasLinks ) {
+        $projectCount = '(SELECT COUNT(*) FROM partner_projects pp JOIN projects pr ON pr.slug = pp.project_slug AND pr.is_active = 1 WHERE pp.partner_id = p.id)';
+        $photoCount   = $hasMedia
+            ? '(SELECT COUNT(*) FROM project_media pm WHERE pm.is_active = 1 AND pm.project_slug IN (SELECT pp2.project_slug FROM partner_projects pp2 WHERE pp2.partner_id = p.id))'
+            : '0';
+        $sql = "SELECT p.*, {$projectCount} AS project_count, {$photoCount} AS photo_count
+                  FROM partners p
+                 WHERE p.is_active = 1
+                 ORDER BY project_count DESC, p.sort_order ASC, p.name ASC";
+    } else {
+        $sql = 'SELECT p.*, 0 AS project_count, 0 AS photo_count
+                  FROM partners p
+                 WHERE p.is_active = 1
+                 ORDER BY p.sort_order ASC, p.name ASC';
+    }
+
+    $partners = $pdo->query( $sql )->fetchAll( PDO::FETCH_ASSOC );
+
+    if ( $hasLinks ) {
+        $coverStatement = $pdo->prepare(
+            "SELECT pr.hero_image
+               FROM partner_projects pp
+               JOIN projects pr ON pr.slug = pp.project_slug
+              WHERE pp.partner_id = ? AND pr.is_active = 1 AND pr.hero_image IS NOT NULL AND pr.hero_image <> ''
+              ORDER BY pp.sort_order ASC, pr.sort_order ASC
+              LIMIT 1"
+        );
+    }
+
+    $visible = [];
+    foreach ( $partners as $partner ) {
+        $projectCount = (int) $partner['project_count'];
+        $logo         = trim( (string) ( $partner['logo_path'] ?? '' ) );
+
+        if ( $projectCount === 0 && $logo === '' && trim( (string) ( $partner['cover_image'] ?? '' ) ) === '' ) {
+            continue;
+        }
+
+        $cover = trim( (string) ( $partner['cover_image'] ?? '' ) );
+        if ( $cover === '' && $hasLinks && isset( $coverStatement ) ) {
+            $coverStatement->execute( [ (int) $partner['id'] ] );
+            $cover = (string) ( $coverStatement->fetchColumn() ?: '' );
+        }
+
+        $partner['cover_path']  = $cover;
+        $partner['type_info']   = wrcPartnerTypeInfo( (string) ( $partner['partner_type'] ?? 'collaborator' ) );
+        $partner['initials']    = wrcPartnerInitials( (string) $partner['name'] );
+        $visible[] = $partner;
+    }
+
+    return $visible;
+}
+
+/** One active partner with project/photo counts. */
+function wrcPartnerBySlug( string $slug ): ?array {
+    global $pdo;
+
+    if ( $slug === '' || !wrcTableExists( 'partners' ) ) {
+        return null;
+    }
+
+    $statement = $pdo->prepare( 'SELECT * FROM partners WHERE slug = ? AND is_active = 1 LIMIT 1' );
+    $statement->execute( [ $slug ] );
+    $partner = $statement->fetch( PDO::FETCH_ASSOC );
+
+    if ( !$partner ) {
+        return null;
+    }
+
+    $hasLinks = wrcTableExists( 'partner_projects' );
+    $hasMedia = wrcTableExists( 'project_media' );
+
+    $projectCount = 0;
+    $photoCount   = 0;
+
+    if ( $hasLinks ) {
+        $count = $pdo->prepare(
+            'SELECT COUNT(*) FROM partner_projects pp JOIN projects pr ON pr.slug = pp.project_slug AND pr.is_active = 1 WHERE pp.partner_id = ?'
+        );
+        $count->execute( [ (int) $partner['id'] ] );
+        $projectCount = (int) $count->fetchColumn();
+
+        if ( $hasMedia ) {
+            $count = $pdo->prepare(
+                'SELECT COUNT(*) FROM project_media pm
+                  WHERE pm.is_active = 1 AND pm.project_slug IN (
+                        SELECT pp2.project_slug FROM partner_projects pp2 WHERE pp2.partner_id = ?
+                  )'
+            );
+            $count->execute( [ (int) $partner['id'] ] );
+            $photoCount = (int) $count->fetchColumn();
+        }
+    }
+
+    $partner['project_count'] = $projectCount;
+    $partner['photo_count']   = $photoCount;
+    $partner['type_info']     = wrcPartnerTypeInfo( (string) ( $partner['partner_type'] ?? 'collaborator' ) );
+    $partner['initials']      = wrcPartnerInitials( (string) $partner['name'] );
+
+    return $partner;
+}
+
+/** Projects linked to one partner, ready to render as gallery cards. */
+function wrcPartnerProjects( int $partnerId ): array {
+    global $pdo;
+
+    if ( $partnerId < 1 || !wrcTableExists( 'partner_projects' ) ) {
+        return [];
+    }
+
+    $hasMedia = wrcTableExists( 'project_media' );
+    $mediaSql = $hasMedia
+        ? '(SELECT COUNT(*) FROM project_media pm WHERE pm.project_slug = pr.slug AND pm.is_active = 1)'
+        : '0';
+
+    $statement = $pdo->prepare(
+        "SELECT pr.*, {$mediaSql} AS media_count
+           FROM partner_projects pp
+           JOIN projects pr ON pr.slug = pp.project_slug
+          WHERE pp.partner_id = ? AND pr.is_active = 1
+          ORDER BY pp.sort_order ASC, pr.sort_order ASC, pr.id ASC"
+    );
+    $statement->execute( [ $partnerId ] );
+
+    return $statement->fetchAll( PDO::FETCH_ASSOC );
+}
+
+/**
+ * Partner records for a project. Falls back to the donor sub-table so a project
+ * imported without partner links still shows who supported it.
+ */
+function wrcProjectPartners( string $projectSlug ): array {
+    global $pdo;
+
+    if ( $projectSlug === '' ) {
+        return [];
+    }
+
+    if ( wrcTableExists( 'partner_projects' ) ) {
+        $statement = $pdo->prepare(
+            'SELECT p.*
+               FROM partner_projects pp
+               JOIN partners p ON p.id = pp.partner_id
+              WHERE pp.project_slug = ? AND p.is_active = 1
+              ORDER BY p.sort_order ASC, p.name ASC'
+        );
+        $statement->execute( [ $projectSlug ] );
+        $rows = $statement->fetchAll( PDO::FETCH_ASSOC );
+
+        if ( $rows ) {
+            foreach ( $rows as &$row ) {
+                $row['type_info'] = wrcPartnerTypeInfo( (string) ( $row['partner_type'] ?? 'collaborator' ) );
+                $row['initials']  = wrcPartnerInitials( (string) $row['name'] );
+            }
+            unset( $row );
+
+            return $rows;
+        }
+    }
+
+    if ( !wrcTableExists( 'project_donors' ) ) {
+        return [];
+    }
+
+    $statement = $pdo->prepare(
+        'SELECT DISTINCT pd.donor_name
+           FROM project_donors pd
+           JOIN projects pr ON pr.id = pd.project_id
+          WHERE pr.slug = ?
+          ORDER BY pd.sort_order ASC, pd.donor_name ASC'
+    );
+    $statement->execute( [ $projectSlug ] );
+
+    $fallback = [];
+    foreach ( $statement->fetchAll( PDO::FETCH_COLUMN ) as $name ) {
+        $name = trim( (string) $name );
+        if ( $name === '' ) {
+            continue;
+        }
+        $fallback[] = [
+            'id'           => 0,
+            'name'         => $name,
+            'slug'         => '',
+            'partner_type' => 'funding',
+            'cover_image'  => '',
+            'logo_path'    => '',
+            'initials'     => wrcPartnerInitials( $name ),
+            'type_info'    => wrcPartnerTypeInfo( 'funding' ),
+        ];
+    }
+
+    return $fallback;
+}
+
+/** Active gallery rows for a project, newest ordering preserved. */
+function wrcProjectMedia( string $projectSlug ): array {
+    global $pdo;
+
+    if ( $projectSlug === '' || !wrcTableExists( 'project_media' ) ) {
+        return [];
+    }
+
+    $statement = $pdo->prepare(
+        'SELECT * FROM project_media
+          WHERE project_slug = ? AND is_active = 1
+          ORDER BY sort_order ASC, id ASC'
+    );
+    $statement->execute( [ $projectSlug ] );
+
+    $media = [];
+    foreach ( $statement->fetchAll( PDO::FETCH_ASSOC ) as $row ) {
+        $path = trim( (string) ( $row['image_path'] ?? '' ) );
+        if ( $path === '' || !imageExists( $path ) ) {
+            continue;
+        }
+        $row['image_path'] = $path;
+        $media[] = $row;
+    }
+
+    return $media;
+}
+
+/** Best available cover: uploaded cover, first project photo, then logo. */
+function wrcPartnerCoverPath( array $partner, array $projects = [] ): string {
+    $cover = trim( (string) ( $partner['cover_image'] ?? '' ) );
+    if ( $cover !== '' && imageExists( $cover ) ) {
+        return $cover;
+    }
+
+    foreach ( $projects as $project ) {
+        $hero = trim( (string) ( $project['hero_image'] ?? '' ) );
+        if ( $hero !== '' && imageExists( $hero ) ) {
+            return $hero;
+        }
+    }
+
+    return '';
+}
+
+/** Human year label from a project row: "2023" or "2021–2023". */
+function wrcProjectYearLabel( array $project ): string {
+    $start = !empty( $project['start_date'] ) ? (int) substr( (string) $project['start_date'], 0, 4 ) : 0;
+    $end   = !empty( $project['end_date'] ) ? (int) substr( (string) $project['end_date'], 0, 4 ) : 0;
+
+    if ( $start && $end ) {
+        return $start === $end ? (string) $start : $start . '–' . $end;
+    }
+
+    return (string) ( $start ?: $end );
+}
+
+/** Status badge metadata shared by the partner and project gallery pages. */
+function wrcProjectStatusMeta( string $status ): array {
+    $map = [
+        'active'    => [ 'label' => 'Ongoing', 'classes' => 'bg-blue-50 text-blue-700 border-blue-200', 'dot' => 'bg-blue-500' ],
+        'completed' => [ 'label' => 'Completed', 'classes' => 'bg-emerald-50 text-emerald-700 border-emerald-200', 'dot' => 'bg-emerald-500' ],
+        'upcoming'  => [ 'label' => 'Upcoming', 'classes' => 'bg-amber-50 text-amber-700 border-amber-200', 'dot' => 'bg-amber-500' ],
+    ];
+
+    return $map[ $status ] ?? [ 'label' => ucfirst( $status ), 'classes' => 'bg-slate-50 text-slate-600 border-slate-200', 'dot' => 'bg-slate-400' ];
+}
+
+
 /**
 * Fetch impact stats by page
 */

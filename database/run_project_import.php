@@ -1007,6 +1007,11 @@ try {
     // homepage, projects, geographic coverage, history and partner pages.
     require_once __DIR__ . '/seed_beneficiary_figures.php';
 
+    // Partner-driven photo galleries: schema, partner slugs, donor partners,
+    // project links and one meaningful cover photograph per project. Safe to
+    // run every deploy and after the Excel import.
+    require_once __DIR__ . '/seed_media_gallery.php';
+
     $reasons = $portfolioStatus();
     if ( !$reasons ) {
         echo 'Project portfolio already matches the ' . PORTFOLIO_SIZE . " approved Excel entries; no changes made.\n";
@@ -1096,9 +1101,14 @@ try {
     }
 
     // The project rows just changed, so re-publish every beneficiary figure
-    // from the new portfolio.
+    // from the new portfolio. The same pass re-links the new project slugs to
+    // their partners and seeds a cover photograph for any new project.
     require_once dirname( __DIR__ ) . '/includes/functions.php';
     wrcSyncBeneficiaryStats( $pdo );
+    if ( function_exists( 'wrcSetupMediaGallery' ) ) {
+        $mediaResult = wrcSetupMediaGallery( $pdo );
+        echo 'Partner galleries: ' . $mediaResult['links'] . ' new project link(s), ' . $mediaResult['media'] . " new photograph(s) seeded.\n";
+    }
 
     $pruned = $pruneBackups();
 

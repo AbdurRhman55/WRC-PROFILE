@@ -339,7 +339,7 @@ tailwind.config = {
             </a>
             <div class = 'dropdown-menu absolute top-full right-0 w-56 bg-white border border-gray-100 rounded-2xl shadow-xl p-2 text-slate-600 text-xs'>
             <a href = "<?= $base ?>news/index.php#news" class = 'block px-3 py-2 rounded-xl hover:bg-slate-800 hover:text-white transition-colors'><i class = 'fa-solid fa-newspaper mr-2 text-slate-400'></i> Latest News</a>
-            <a href = "<?= $base ?>news/index.php#photos" class = 'block px-3 py-2 rounded-xl hover:bg-slate-800 hover:text-white transition-colors'><i class = 'fa-solid fa-images mr-2 text-slate-400'></i> Photo Gallery</a>
+            <a href = "<?= $base ?>news/gallery.php" class = 'block px-3 py-2 rounded-xl hover:bg-slate-800 hover:text-white transition-colors'><i class = 'fa-solid fa-images mr-2 text-slate-400'></i> Photo Gallery</a>
             <a href = "<?= $base ?>news/index.php#videos" class = 'block px-3 py-2 rounded-xl hover:bg-slate-800 hover:text-white transition-colors'><i class = 'fa-solid fa-video mr-2 text-slate-400'></i> Video Gallery</a>
             </div>
             </div>
@@ -536,7 +536,7 @@ tailwind.config = {
             </button>
             <div class = 'mobile-tray-submenu'><div>
             <a href = "<?= $base ?>news/index.php">Latest News</a>
-            <a href = "<?= $base ?>news/index.php#photos">Photo Gallery</a>
+            <a href = "<?= $base ?>news/gallery.php">Photo Gallery</a>
             <a href = "<?= $base ?>news/index.php#videos">Video Gallery</a>
             </div></div>
 

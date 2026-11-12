@@ -40,6 +40,7 @@ if ( !isset( $logoV ) ) $logoV = @filemtime( dirname( __DIR__ ) . '/assets/image
 <li><a href = "<?= $base ?>our-work/index.php" class = 'hover:text-white transition'>Our Work</a></li>
 <li><a href = "<?= $base ?>projects/index.php" class = 'hover:text-white transition'>Projects</a></li>
 <li><a href = "<?= $base ?>news/index.php" class = 'hover:text-white transition'>News</a></li>
+<li><a href = "<?= $base ?>news/gallery.php" class = 'hover:text-white transition'>Photo Galleries</a></li>
 </ul>
 </div>
 
