@@ -18,6 +18,12 @@ if ( !$partner ) {
 }
 
 $projects = wrcPartnerProjects( (int) $partner['id'] );
+if ( empty( $projects ) ) {
+    // A partner with no linked project has no gallery to show. Hidden gallery
+    // cards must not leave an empty page reachable by a direct URL.
+    header( 'Location: ' . $base . 'news/gallery.php' );
+    exit;
+}
 $cover    = wrcPartnerCoverPath( $partner, $projects );
 $info     = wrcPartnerTypeInfo( (string) ( $partner['partner_type'] ?? 'collaborator' ) );
 

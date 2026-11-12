@@ -733,8 +733,9 @@ function wrcPartnerAliasKey( string $name ): string {
 
 /**
  * All public partner cards, with the counts the gallery landing page needs.
- * Partners that have neither a logo, a cover, nor a linked project are hidden
- * so placeholder rows never reach the public site.
+ * A partner is only listed when it leads to at least one project or
+ * photograph; logo-only records would render empty "0 projects / 0 photos"
+ * cards on the public gallery.
  */
 function wrcGalleryPartners(): array {
     global $pdo;
@@ -778,9 +779,12 @@ function wrcGalleryPartners(): array {
     $visible = [];
     foreach ( $partners as $partner ) {
         $projectCount = (int) $partner['project_count'];
-        $logo         = trim( (string) ( $partner['logo_path'] ?? '' ) );
+        $photoCount   = (int) $partner['photo_count'];
 
-        if ( $projectCount === 0 && $logo === '' && trim( (string) ( $partner['cover_image'] ?? '' ) ) === '' ) {
+        // Hide partners that would show an empty card. This is evaluated from
+        // the live counts, so deactivating a project removes its partner card
+        // automatically without any extra dashboard work.
+        if ( $projectCount === 0 && $photoCount === 0 ) {
             continue;
         }
 
