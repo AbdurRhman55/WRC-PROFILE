@@ -11,11 +11,68 @@ $metaDescription = 'Welfare & Relief Committee (WRC) is a non-profit humanitaria
 
 // Fetch dynamic data
 $heroSlides = getRows('hero_sliders', ['page' => 'homepage', 'is_active' => 1], 'sort_order ASC');
-$impactStats = getRows('impact_stats', "display_page = 'home_hero' ORDER BY sort_order ASC");
 $partners = getRows('partners', 'is_active = 1 ORDER BY sort_order ASC');
 $activeProjects = getRows('projects', "status = 'active' ORDER BY start_date DESC LIMIT 3");
 $provinces = getRows('provinces', 'is_active = 1 ORDER BY sort_order ASC');
 $kpStats = getRows('impact_stats', "display_page = 'home_kpi' ORDER BY sort_order ASC");
+
+// Hero figures are calculated from the live projects table, never typed in.
+$impactSummary = wrcProjectImpactSummary();
+$heroStats = [
+    [
+        'icon'  => 'fa-solid fa-diagram-project',
+        'value' => (int) $impactSummary[ 'projects' ],
+        'label' => 'Projects Delivered',
+        'note'  => 'Active and completed',
+    ],
+    [
+        'icon'  => 'fa-solid fa-users',
+        'value' => (int) $impactSummary[ 'beneficiaries' ],
+        'label' => 'Beneficiaries Reached',
+        'note'  => 'Lives directly impacted',
+    ],
+    [
+        'icon'  => 'fa-solid fa-map-location-dot',
+        'value' => (int) $impactSummary[ 'districts' ],
+        'label' => 'Districts Covered',
+        'note'  => 'Across our field areas',
+    ],
+    [
+        'icon'  => 'fa-solid fa-handshake-angle',
+        'value' => (int) $impactSummary[ 'partners' ],
+        'label' => 'Partner Organisations',
+        'note'  => 'Donors and implementers',
+    ],
+    [
+        'icon'  => 'fa-solid fa-layer-group',
+        'value' => (int) $impactSummary[ 'sectors' ],
+        'label' => 'Programme Sectors',
+        'note'  => 'Health, WASH, food and more',
+    ],
+];
+
+// Keep the KPI dashboard honest too: the four project metrics are rebuilt from
+// the live tables so an import or a project edit never leaves a stale number.
+$kpiLiveFigures = [
+    'beneficiaries reached' => (int) $impactSummary[ 'beneficiaries' ],
+    'total beneficiaries'   => (int) $impactSummary[ 'beneficiaries' ],
+    'lives impacted'        => (int) $impactSummary[ 'beneficiaries' ],
+    'projects delivered'    => (int) $impactSummary[ 'projects' ],
+    'total projects'        => (int) $impactSummary[ 'projects' ],
+    'projects completed'    => (int) $impactSummary[ 'projects' ],
+    'provinces covered'     => count( $provinces ),
+    'programme sectors'     => (int) $impactSummary[ 'sectors' ],
+    'program sectors'       => (int) $impactSummary[ 'sectors' ],
+    'sectors covered'       => (int) $impactSummary[ 'sectors' ],
+];
+foreach ( $kpStats as &$kpiStat ) {
+    $kpiLabel = strtolower( trim( (string) ( $kpiStat[ 'stat_label' ] ?? '' ) ) );
+    if ( isset( $kpiLiveFigures[ $kpiLabel ] ) ) {
+        $kpiStat[ 'stat_value' ] = number_format( $kpiLiveFigures[ $kpiLabel ] );
+    }
+}
+unset( $kpiStat );
+
 $processSteps = getRows('process_steps', 'is_active = 1 ORDER BY sort_order ASC');
 if (empty($processSteps)) {
     $processSteps = [
@@ -206,16 +263,22 @@ include __DIR__ . '/includes/header.php';
     </div>
 </section>
 
-<!-- IMPACT STATISTICS -->
-<section class="bg-white border-b border-slate-200 py-8 sm:py-10">
-    <div class="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8">
-        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 text-center text-[10px] sm:text-[11px] md:text-sm">
-            <?php foreach ($impactStats as $stat): ?>
-            <div class="p-3 sm:p-4 border-r border-slate-100 last:border-0">
-                <div class="text-2xl sm:text-3xl md:text-4xl font-extrabold text-slate-900 mb-1 leading-none font-heading counter-val"
-                    data-target="<?= $stat['stat_value'] ?>"><?= $stat['stat_value'] ?></div>
-                <p class="text-slate-600 text-[10px] sm:text-[11px] md:text-sm font-medium leading-snug">
-                    <?= $stat['stat_label'] ?></p>
+<!-- IMPACT STATISTICS (live from the projects table) -->
+<section class="relative z-20 border-b border-slate-200 bg-white" aria-label="WRC impact at a glance">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid grid-cols-2 gap-x-4 gap-y-6 py-6 sm:grid-cols-3 sm:py-7 lg:grid-cols-5 lg:gap-0 lg:divide-x lg:divide-slate-100 lg:py-8">
+            <?php foreach ($heroStats as $stat): ?>
+            <div class="flex flex-col items-center justify-center gap-2 text-center lg:px-5">
+                <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brandRed/10 text-brandRed ring-1 ring-inset ring-brandRed/10 sm:h-11 sm:w-11">
+                    <i class="<?= $stat['icon'] ?> text-[15px] sm:text-base"></i>
+                </span>
+                <div class="min-w-0">
+                    <div class="counter-val font-display text-2xl font-extrabold leading-none tracking-tight text-ink-900 sm:text-3xl"
+                        data-target="<?= (int) $stat['value'] ?>"><?= number_format((int) $stat['value']) ?></div>
+                    <p class="mt-1.5 text-[10px] font-bold uppercase leading-tight tracking-[0.12em] text-slate-500 sm:text-[11px]">
+                        <?= sanitize($stat['label']) ?></p>
+                    <p class="mt-0.5 hidden text-[10px] leading-tight text-slate-400 sm:block"><?= sanitize($stat['note']) ?></p>
+                </div>
             </div>
             <?php endforeach; ?>
         </div>
@@ -815,5 +878,49 @@ if (heroSection) {
         passive: true
     });
 }
-</script>
+
+// Animated impact counters. The final values are already in the HTML, so the
+// page reads correctly without JavaScript; this only animates them into view.
+(function() {
+    var counters = document.querySelectorAll('.counter-val[data-target]');
+    if (!counters.length) return;
+
+    var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduceMotion || !('IntersectionObserver' in window)) return;
+
+    function animate(el) {
+        var target = parseInt(el.getAttribute('data-target'), 10) || 0;
+        var duration = 1500;
+        var startTime = null;
+
+        function frame(now) {
+            if (startTime === null) startTime = now;
+            var progress = Math.min((now - startTime) / duration, 1);
+            var eased = 1 - Math.pow(1 - progress, 4);
+            el.textContent = Math.round(target * eased).toLocaleString('en-US');
+            if (progress < 1) {
+                window.requestAnimationFrame(frame);
+            } else {
+                el.textContent = target.toLocaleString('en-US');
+            }
+        }
+
+        el.textContent = '0';
+        window.requestAnimationFrame(frame);
+    }
+
+    var observer = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+            if (!entry.isIntersecting) return;
+            observer.unobserve(entry.target);
+            animate(entry.target);
+        });
+    }, {
+        threshold: 0.4
+    });
+
+    counters.forEach(function(counter) {
+        observer.observe(counter);
+    });
+})();
 </script>

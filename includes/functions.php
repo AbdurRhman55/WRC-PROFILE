@@ -1154,6 +1154,83 @@ function wrcBeneficiaryTotal(): int {
     return wrcBeneficiaryFigures()[ 'total' ];
 }
 
+/**
+ * Project-derived headline figures for the homepage hero strip.
+ *
+ * Every number is calculated from the live projects table, so publishing,
+ * completing or deactivating a project updates the homepage automatically.
+ * Beneficiaries come from the canonical figures so the whole site agrees.
+ *
+ * @return array{projects:int,beneficiaries:int,districts:int,partners:int,sectors:int,provinces:int}
+ */
+function wrcProjectImpactSummary( bool $refresh = false ): array {
+    static $cached = null;
+
+    if ( is_array( $cached ) && !$refresh ) {
+        return $cached;
+    }
+
+    $figures = wrcBeneficiaryFigures( $refresh );
+
+    $summary = [
+        'projects'      => 0,
+        'beneficiaries' => (int) $figures[ 'total' ],
+        'districts'     => 0,
+        'partners'      => 0,
+        'sectors'       => 0,
+        'provinces'     => 0,
+    ];
+
+    $pdo = $GLOBALS[ 'pdo' ] ?? null;
+    if ( !( $pdo instanceof PDO ) ) {
+        return $cached = $summary;
+    }
+
+    try {
+        $row = $pdo->query(
+            "SELECT COUNT(*) AS projects,
+                    COUNT(DISTINCT NULLIF(category, '')) AS sectors,
+                    COUNT(DISTINCT NULLIF(province_id, 0)) AS provinces
+               FROM projects
+              WHERE is_active = 1"
+        )->fetch( PDO::FETCH_ASSOC );
+
+        $summary[ 'projects' ]  = (int) ( $row[ 'projects' ] ?? 0 );
+        $summary[ 'sectors' ]   = (int) ( $row[ 'sectors' ] ?? 0 );
+        $summary[ 'provinces' ] = (int) ( $row[ 'provinces' ] ?? 0 );
+
+        // A single district field can hold several places, e.g.
+        // "Buner, Swabi & Nowshera" or "Malakand & Swat". Split before counting.
+        $locations = $pdo->query(
+            "SELECT district FROM projects
+              WHERE is_active = 1 AND district IS NOT NULL AND district <> ''"
+        )->fetchAll( PDO::FETCH_COLUMN );
+
+        $districts = [];
+        foreach ( $locations as $location ) {
+            $parts = preg_split( '/\s*(?:,|&|\band\b|\/)\s*/i', (string) $location );
+            foreach ( (array) $parts as $part ) {
+                $part = trim( $part );
+                if ( $part !== '' ) {
+                    $districts[ strtolower( $part ) ] = true;
+                }
+            }
+        }
+        $summary[ 'districts' ] = count( $districts );
+
+        $summary[ 'partners' ] = (int) $pdo->query(
+            "SELECT COUNT(DISTINCT pp.partner_id)
+               FROM partner_projects pp
+               INNER JOIN projects p ON p.slug = pp.project_slug
+              WHERE p.is_active = 1"
+        )->fetchColumn();
+    } catch ( Throwable $error ) {
+        return $cached = $summary;
+    }
+
+    return $cached = $summary;
+}
+
 /** Format a beneficiary count consistently: 1,046,208. */
 function wrcFormatBeneficiaries( int $number ): string {
     return number_format( $number );
