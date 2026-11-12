@@ -1218,12 +1218,21 @@ function wrcProjectImpactSummary( bool $refresh = false ): array {
         }
         $summary[ 'districts' ] = count( $districts );
 
-        $summary[ 'partners' ] = (int) $pdo->query(
-            "SELECT COUNT(DISTINCT pp.partner_id)
-               FROM partner_projects pp
-               INNER JOIN projects p ON p.slug = pp.project_slug
+        $partnerRows = $pdo->query(
+            "SELECT DISTINCT p.id, p.name
+               FROM partners p
+               INNER JOIN partner_projects pp ON pp.partner_id = p.id
+               INNER JOIN projects pr ON pr.slug = pp.project_slug AND pr.is_active = 1
               WHERE p.is_active = 1"
-        )->fetchColumn();
+        )->fetchAll( PDO::FETCH_ASSOC );
+
+        // Fold spelling variants exactly as the public gallery does, so the
+        // headline count matches the cards visitors can actually see.
+        $partnerKeys = [];
+        foreach ( $partnerRows as $partnerRow ) {
+            $partnerKeys[ wrcPartnerAliasKey( (string) $partnerRow[ 'name' ] ) ] = true;
+        }
+        $summary[ 'partners' ] = count( $partnerKeys );
     } catch ( Throwable $error ) {
         return $cached = $summary;
     }
