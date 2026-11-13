@@ -50,7 +50,7 @@ if ( !isset( $pdo ) || ! ( $pdo instanceof PDO ) ) {
 }
 
 /** Number of projects the approved portfolio must contain. */
-const PORTFOLIO_SIZE = 20;
+const PORTFOLIO_SIZE = 21;
 
 /** Backup tables are named: <table>_excel_backup_<YYYYMMDD_HHMMSS>. */
 const BACKUP_SUFFIX = '_excel_backup_';
@@ -79,6 +79,7 @@ $expectedSlugs = [
     'phhsa-nfi-kits-di-khan-2022',
     'islamic-relief-vocational-skills-islamabad-rawalpindi-2025',
     'zfa-ramadan-food-packs-buner-swabi-nowshera-2026',
+    'smart-aid-solarization-cat-d-hospital-totakan-malakand-2023-2024',
 ];
 sort( $expectedSlugs );
 

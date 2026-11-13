@@ -38,49 +38,88 @@ foreach ($allCoords as $c) {
 $distinctDistricts = [];
 $projectsByProvince = [];
 foreach ($projectsAll as $proj) {
-    $provId = (int) ($proj['province_id'] ?? 0);
-    $dist   = trim($proj['district'] ?? '');
-    if ($dist === '') { continue; }
+    $rawDist = trim($proj['district'] ?? '');
+    if ($rawDist === '') { continue; }
 
-    $provKey = $provIdToKey[$provId] ?? 'kp';
-    $provName = $provinceById[$provId]['name'] ?? 'Khyber Pakhtunkhwa';
-    $key = $dist . '|' . $provKey;
-
-    if (!isset($distinctDistricts[$key])) {
-        $coord = $coordsByName[strtolower($dist)] ?? null;
-        $distinctDistricts[$key] = [
-            'district' => $dist,
-            'province' => $provName,
-            'province_key' => $provKey,
-            'svg_x' => $coord ? (int)$coord['svg_x'] : 310,
-            'svg_y' => $coord ? (int)$coord['svg_y'] : 350,
-            'programs' => [],
-            'projects_list' => [],
-            'beneficiaries_count' => 0,
-            'year' => $proj['start_date'] ? date('Y', strtotime($proj['start_date'])) : '',
-        ];
+    $parts = preg_split('/\s*(?:,|&|\band\b|\/)\s*/u', $rawDist, -1, PREG_SPLIT_NO_EMPTY);
+    if (empty($parts)) {
+        $parts = [$rawDist];
     }
+
+    $provId = (int) ($proj['province_id'] ?? 1);
+    $defaultProvKey = $provIdToKey[$provId] ?? 'kp';
+    $defaultProvName = $provinceById[$provId]['name'] ?? 'Khyber Pakhtunkhwa';
     $cat = trim($proj['category'] ?? 'General');
-    if (!in_array($cat, $distinctDistricts[$key]['programs'])) { $distinctDistricts[$key]['programs'][] = $cat; }
-    $distinctDistricts[$key]['projects_list'][] = ['title' => $proj['title'], 'category' => $cat, 'status' => $proj['status'] ?? 'active', 'beneficiaries' => (int)($proj['beneficiaries_count'] ?? 0)];
-    $distinctDistricts[$key]['beneficiaries_count'] += (int) ($proj['beneficiaries_count'] ?? 0);
-    if (empty($distinctDistricts[$key]['year']) && $proj['start_date']) { $distinctDistricts[$key]['year'] = date('Y', strtotime($proj['start_date'])); }
 
-    if (!isset($projectsByProvince[$provKey])) {
-        $projectsByProvince[$provKey] = ['name' => $provName, 'districts' => [], 'categories' => [], 'project_count' => 0, 'beneficiaries' => 0];
-    }
-    if (!isset($projectsByProvince[$provKey]['districts'][$dist])) {
-        $projectsByProvince[$provKey]['districts'][$dist] = [
-            'name' => $dist, 'projects' => [], 'beneficiaries' => 0,
-            'year' => $distinctDistricts[$key]['year'], 'svg_x' => $distinctDistricts[$key]['svg_x'], 'svg_y' => $distinctDistricts[$key]['svg_y'],
+    foreach ($parts as $dist) {
+        $dist = trim($dist);
+        if ($dist === '') { continue; }
+
+        if (strcasecmp($dist, 'Islamabad') === 0) {
+            $provKey = 'punjab';
+            $provName = 'Punjab / ICT';
+        } else {
+            $provKey = $defaultProvKey;
+            $provName = $defaultProvName;
+        }
+
+        $key = strtolower($dist) . '|' . $provKey;
+
+        if (!isset($distinctDistricts[$key])) {
+            $coordKey = strtolower($dist);
+            if ($coordKey === 'di khan' || $coordKey === 'd.i. khan') {
+                $coord = $coordsByName['d.i. khan'] ?? $coordsByName['di khan'] ?? $coordsByName['dera ismail khan'] ?? null;
+            } else {
+                $coord = $coordsByName[$coordKey] ?? null;
+            }
+
+            $distinctDistricts[$key] = [
+                'district' => $dist,
+                'province' => $provName,
+                'province_key' => $provKey,
+                'svg_x' => $coord ? (int)$coord['svg_x'] : 310,
+                'svg_y' => $coord ? (int)$coord['svg_y'] : 350,
+                'programs' => [],
+                'projects_list' => [],
+                'beneficiaries_count' => 0,
+                'year' => $proj['start_date'] ? date('Y', strtotime($proj['start_date'])) : '',
+            ];
+        }
+
+        if (!in_array($cat, $distinctDistricts[$key]['programs'])) {
+            $distinctDistricts[$key]['programs'][] = $cat;
+        }
+        $distinctDistricts[$key]['projects_list'][] = [
+            'title' => $proj['title'],
+            'category' => $cat,
+            'status' => $proj['status'] ?? 'active',
+            'beneficiaries' => (int)($proj['beneficiaries_count'] ?? 0)
         ];
-    }
-    $projectsByProvince[$provKey]['districts'][$dist]['projects'][] = $proj['title'];
-    $projectsByProvince[$provKey]['districts'][$dist]['beneficiaries'] += (int)($proj['beneficiaries_count'] ?? 0);
-    $projectsByProvince[$provKey]['project_count']++;
-    $projectsByProvince[$provKey]['beneficiaries'] += (int)($proj['beneficiaries_count'] ?? 0);
-    if (!in_array($cat, $projectsByProvince[$provKey]['categories'])) {
-        $projectsByProvince[$provKey]['categories'][] = $cat;
+        $distinctDistricts[$key]['beneficiaries_count'] += (int) ($proj['beneficiaries_count'] ?? 0);
+        if (empty($distinctDistricts[$key]['year']) && $proj['start_date']) {
+            $distinctDistricts[$key]['year'] = date('Y', strtotime($proj['start_date']));
+        }
+
+        if (!isset($projectsByProvince[$provKey])) {
+            $projectsByProvince[$provKey] = ['name' => $provName, 'districts' => [], 'categories' => [], 'project_count' => 0, 'beneficiaries' => 0];
+        }
+        if (!isset($projectsByProvince[$provKey]['districts'][$dist])) {
+            $projectsByProvince[$provKey]['districts'][$dist] = [
+                'name' => $dist,
+                'projects' => [],
+                'beneficiaries' => 0,
+                'year' => $distinctDistricts[$key]['year'],
+                'svg_x' => $distinctDistricts[$key]['svg_x'],
+                'svg_y' => $distinctDistricts[$key]['svg_y'],
+            ];
+        }
+        $projectsByProvince[$provKey]['districts'][$dist]['projects'][] = $proj['title'];
+        $projectsByProvince[$provKey]['districts'][$dist]['beneficiaries'] += (int)($proj['beneficiaries_count'] ?? 0);
+        $projectsByProvince[$provKey]['project_count']++;
+        $projectsByProvince[$provKey]['beneficiaries'] += (int)($proj['beneficiaries_count'] ?? 0);
+        if (!in_array($cat, $projectsByProvince[$provKey]['categories'])) {
+            $projectsByProvince[$provKey]['categories'][] = $cat;
+        }
     }
 }
 
@@ -119,9 +158,33 @@ $configProvinces = $contentData['provinces'] ?? [];
 $provinceSections = [];
 $provOrder = ['kp', 'punjab', 'sindh', 'balochistan'];
 foreach ($provOrder as $pIdx => $pKey) {
-    if (!isset($projectsByProvince[$pKey])) { continue; }
-    $pd = $projectsByProvince[$pKey];
     $cfg = $configProvinces[$pIdx] ?? [];
+    if (!isset($projectsByProvince[$pKey])) {
+        // Fallback to configured provincial focus areas to retain nationwide presence
+        if (!empty($cfg)) {
+            $provinceSections[] = [
+                'id'            => $pKey,
+                'name'          => $cfg['name'] ?? $provKeyToName[$pKey],
+                'icon'          => $cfg['icon'] ?? ($provKeyToIcon[$pKey] ?? 'fa-map'),
+                'bg'            => $cfg['bg'] ?? ($pIdx % 2 === 0 ? 'white' : 'slate-50'),
+                'description'   => $cfg['description'] ?? ('WRC has operational presence and community networks across ' . ($cfg['name'] ?? $provKeyToName[$pKey]) . '.'),
+                'focus_areas'   => $cfg['focus_areas'] ?? [],
+                'project_count' => count($cfg['districts'] ?? []),
+                'beneficiaries' => 'Historical Presence',
+                'districts'     => array_map(function($d) {
+                    return [
+                        'name' => $d['name'] ?? '',
+                        'beneficiaries' => $d['beneficiaries'] ?? 'Historical',
+                        'year' => $d['year'] ?? '',
+                        'project_count' => 1,
+                        'projects' => [$d['program'] ?? 'Community Program'],
+                    ];
+                }, $cfg['districts'] ?? []),
+            ];
+        }
+        continue;
+    }
+    $pd = $projectsByProvince[$pKey];
 
     // Build focus areas from project categories
     $focusAreas = [];
@@ -163,8 +226,8 @@ foreach ($provOrder as $pIdx => $pKey) {
     ];
 }
 
-// Active provinces for map highlighting
-$activeProvinces = array_keys($projectsByProvince);
+// Active provinces for map highlighting (all 4 operational provinces)
+$activeProvinces = ['kp', 'punjab', 'sindh', 'balochistan'];
 
 // Dynamic stats
 $totalDistricts = count($distinctDistricts);
@@ -172,32 +235,33 @@ $totalDistricts = count($distinctDistricts);
 // page, the projects dashboard and the homepage never disagree.
 $totalBeneficiaries = wrcBeneficiaryTotal();
 $statItems = [
-    ['label' => 'Provinces Covered', 'value' => (string) count($activeProvinces)],
+    ['label' => 'Provinces Covered', 'value' => (string) count($provinceSections)],
     ['label' => 'Districts Reached', 'value' => (string) $totalDistricts],
     ['label' => 'Beneficiaries Reached', 'value' => number_format($totalBeneficiaries)],
     ['label' => 'Total Projects', 'value' => (string) count($projectsAll)],
 ];
 
-// Dynamic quick links (from provinces with projects)
+// Dynamic quick links (from all available province sections)
 $quickLinks = [];
-foreach ($projectsByProvince as $pKey => $pd) {
+foreach ($provinceSections as $ps) {
     $quickLinks[] = [
-        'id'   => $pKey,
-        'name' => $pd['name'],
-        'icon' => $provKeyToIcon[$pKey] ?? 'fa-map',
-        'desc' => $pd['project_count'] . ' project' . ($pd['project_count'] !== 1 ? 's' : '') . ' · ' . number_format($pd['beneficiaries']) . ' beneficiaries',
+        'id'   => $ps['id'],
+        'name' => $ps['name'],
+        'icon' => $ps['icon'] ?? 'fa-map',
+        'desc' => is_numeric(str_replace(',', '', $ps['beneficiaries']))
+            ? $ps['project_count'] . ' project' . ($ps['project_count'] !== 1 ? 's' : '') . ' · ' . $ps['beneficiaries'] . ' beneficiaries'
+            : $ps['project_count'] . ' districts · ' . $ps['beneficiaries'],
     ];
 }
 // Add districts table link
 $quickLinks[] = ['id' => 'districts', 'name' => 'District Coverage', 'icon' => 'fa-layer-group', 'desc' => 'Full breakdown by district & program'];
 
-// Dynamic filter tabs (only provinces that have projects)
+// Dynamic filter tabs
 $filterTabs = [];
-foreach ($projectsByProvince as $pKey => $pd) {
-    $filterTabs[] = ['key' => $pKey, 'name' => $pd['name'], 'short' => strtoupper(substr($pd['name'], 0, 2))];
-    if ($pKey === 'kp') { $filterTabs[count($filterTabs)-1]['short'] = 'KPK'; }
+foreach ($provinceSections as $ps) {
+    $filterTabs[] = ['key' => $ps['id'], 'name' => $ps['name'], 'short' => strtoupper(substr($ps['name'], 0, 2))];
+    if ($ps['id'] === 'kp') { $filterTabs[count($filterTabs)-1]['short'] = 'KPK'; }
 }
-
 include dirname(__DIR__) . '/includes/header.php';
 ?>
 
