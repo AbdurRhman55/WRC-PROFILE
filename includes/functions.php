@@ -1100,11 +1100,11 @@ function wrcBeneficiaryFigures( bool $refresh = false ): array {
 
     // Safety net for a fresh install whose projects have not been imported yet.
     $known = [
-        'health' => 1035830,
+        'health' => 1035831,
         'skills' => 2778,
         'food'   => 5100,
         'wash'   => 2500,
-        'total'  => 1046208,
+        'total'  => 1046209,
     ];
 
     $figures = [ 'health' => 0, 'skills' => 0, 'food' => 0, 'wash' => 0, 'total' => 0 ];
