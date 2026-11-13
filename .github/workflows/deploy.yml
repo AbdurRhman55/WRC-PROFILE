@@ -220,8 +220,8 @@ jobs:
             fi
 
             case "$result" in
-              *"Imported and verified all 20 WRC Excel projects."* | \
-              *"Project portfolio already matches the 20 approved Excel entries; no changes made."*)
+              *"Imported and verified all 21 WRC Excel projects."* | \
+              *"Project portfolio already matches the 21 approved Excel entries; no changes made."*)
                 echo "SUCCESS: Project import verified."
                 ;;
               *)

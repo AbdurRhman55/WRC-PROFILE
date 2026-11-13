@@ -1018,6 +1018,26 @@ try {
     // and deliberate deletions survive every deploy.
     require_once __DIR__ . '/seed_blog.php';
 
+    // Correct the solarization project beneficiary count (was 85000, should be 1).
+    // This runs on every deployment in the maintenance section so the live DB
+    // is corrected even when the portfolio slugs already match and the full
+    // re-import is skipped.
+    try {
+        $fixBeneficiary = $pdo->prepare(
+            "UPDATE projects SET beneficiaries_count = 1 WHERE slug = ? AND beneficiaries_count != 1"
+        );
+        $fixBeneficiary->execute( [ 'smart-aid-solarization-cat-d-hospital-totakan-malakand-2023-2024' ] );
+        if ( $fixBeneficiary->rowCount() > 0 ) {
+            echo "Corrected solarization project beneficiary count to 1.\n";
+            // Re-sync beneficiary stats after the correction.
+            require_once dirname( __DIR__ ) . '/includes/functions.php';
+            wrcSyncBeneficiaryStats( $pdo );
+            echo "Beneficiary stats re-synced after correction.\n";
+        }
+    } catch ( Throwable $e ) {
+        fwrite( STDERR, 'WARNING: could not correct solarization beneficiary count: ' . $e->getMessage() . "\n" );
+    }
+
     $reasons = $portfolioStatus();
     if ( !$reasons ) {
         echo 'Project portfolio already matches the ' . PORTFOLIO_SIZE . " approved Excel entries; no changes made.\n";
