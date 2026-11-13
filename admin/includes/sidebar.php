@@ -17,7 +17,6 @@ $navGroups = [
     ]],
     ['label' => 'Media', 'items' => [
         ['file' => 'gallery.php', 'label' => 'Project Galleries', 'icon' => 'fa-images'],
-        ['file' => 'photos.php', 'label' => 'Field Photos', 'icon' => 'fa-camera-retro'],
         ['file' => 'videos.php', 'label' => 'Video Gallery', 'icon' => 'fa-video'],
     ]],
     ['label' => 'People', 'items' => [

@@ -140,7 +140,7 @@ include dirname( __DIR__ ) . '/includes/header.php';
           <span class="w-16 h-16 mx-auto rounded-2xl bg-slate-100 text-slate-400 flex items-center justify-center mb-5"><i class="fa-solid fa-images text-xl"></i></span>
           <h2 class="font-display text-2xl font-semibold text-ink-900 mb-2">Galleries are being prepared</h2>
           <p class="text-sm text-slate-500 mb-6">Partner projects and photographs will appear here as soon as they are published from the dashboard.</p>
-          <a href="<?= $base ?>news/index.php#field-photos" class="inline-flex items-center gap-2 bg-brandRed text-white text-sm font-semibold px-5 py-2.5 rounded-xl hover:bg-brandRed-hover transition-colors">Browse field photos <i class="fa-solid fa-arrow-right text-[10px]"></i></a>
+          <a href="<?= $base ?>news/index.php" class="inline-flex items-center gap-2 bg-brandRed text-white text-sm font-semibold px-5 py-2.5 rounded-xl hover:bg-brandRed-hover transition-colors">News &amp; Media <i class="fa-solid fa-arrow-right text-[10px]"></i></a>
         </div>
       <?php else: ?>
 
@@ -232,24 +232,10 @@ include dirname( __DIR__ ) . '/includes/header.php';
     </div>
   </section>
 
-  <!-- GENERAL FIELD PHOTOS -->
+  <!-- BACK TO NEWS -->
   <section class="pb-16">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="relative overflow-hidden rounded-3xl bg-ink-900 px-6 py-10 sm:px-10 sm:py-12">
-        <span class="absolute -right-8 -top-10 font-display text-[10rem] leading-none text-white/[0.04] select-none">WRC</span>
-        <div class="relative flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
-          <div class="max-w-xl">
-            <span class="text-[10px] font-bold uppercase tracking-[0.2em] text-brandRed">Also available</span>
-            <h2 class="font-display text-2xl sm:text-3xl font-semibold text-white mt-2">General field photo archive</h2>
-            <p class="text-sm text-white/60 mt-2">Browse photographs from medical camps, distributions, training sessions and community events across our programme areas.</p>
-          </div>
-          <a href="<?= $base ?>news/index.php#field-photos" class="inline-flex items-center justify-center gap-2 bg-white text-ink-900 text-sm font-semibold px-6 py-3 rounded-xl hover:bg-brandRed hover:text-white transition-colors shrink-0">
-            Open field photos <i class="fa-solid fa-arrow-right text-[10px]"></i>
-          </a>
-        </div>
-      </div>
-
-      <div class="mt-8 text-center">
+      <div class="text-center">
         <a href="<?= $base ?>news/index.php" class="inline-flex items-center gap-2 text-sm font-semibold text-slate-500 hover:text-brandRed transition-colors">
           <i class="fa-solid fa-arrow-left text-[10px]"></i> Back to News &amp; Media
         </a>

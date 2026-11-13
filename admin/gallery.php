@@ -124,9 +124,6 @@ include __DIR__ . '/includes/header.php';
     <p class="text-slate-500 text-sm mt-1"><?= $selectedPartner ? 'Open a project to upload and edit its photographs.' : 'Choose a partner, then a project, to manage its photographs and context.' ?></p>
   </div>
   <div class="flex items-center gap-3 shrink-0">
-    <a href="photos.php" class="inline-flex items-center gap-2 text-slate-500 hover:text-brandRed text-sm font-medium transition-colors">
-      <i class="fa-solid fa-camera-retro text-xs"></i> Field photos
-    </a>
     <a href="../news/gallery.php" target="_blank" class="inline-flex items-center gap-2 bg-ink-900 text-white text-sm font-semibold px-4 py-2.5 rounded-xl hover:bg-brandRed transition-colors">
       <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i> Public gallery
     </a>
