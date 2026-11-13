@@ -1112,7 +1112,7 @@ try {
     wrcSyncBeneficiaryStats( $pdo );
     if ( function_exists( 'wrcSetupMediaGallery' ) ) {
         $mediaResult = wrcSetupMediaGallery( $pdo );
-        echo 'Partner galleries: ' . $mediaResult['links'] . ' new project link(s), ' . $mediaResult['media'] . " new photograph(s) seeded.\n";
+        echo 'Partner galleries: ' . $mediaResult['links'] . ' new project link(s), ' . $mediaResult['media'] . ' new photograph(s) seeded, ' . $mediaResult['merged'] . " duplicate partner record(s) merged.\n";
     }
 
     $pruned = $pruneBackups();

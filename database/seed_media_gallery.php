@@ -94,6 +94,124 @@ if ( !function_exists( 'wrcMediaPartnerTypeFor' ) ) {
     }
 }
 
+if ( !function_exists( 'wrcMergeDuplicatePartners' ) ) {
+    /**
+     * Fold partner records that describe the same organisation into one row.
+     *
+     * Older deployments created a second "Health Department" beside
+     * "Department of Health" (and "Smart Aid" beside "SmartAID") because donor
+     * promotion only compared exact names. The dashboard then showed two cards
+     * for one organisation and its project links were split between them.
+     *
+     * Each alias group keeps the record that already owns the gallery, adopts
+     * any profile detail it is missing, moves the duplicate's project links
+     * across, and deletes the duplicate. Idempotent: a clean database returns 0.
+     */
+    function wrcMergeDuplicatePartners( PDO $pdo ): int {
+        if ( !function_exists( 'wrcPartnerAliasKey' ) ) {
+            return 0;
+        }
+
+        $rows = $pdo->query( 'SELECT * FROM partners ORDER BY id ASC' )->fetchAll( PDO::FETCH_ASSOC );
+        if ( count( $rows ) < 2 ) {
+            return 0;
+        }
+
+        $hasLinks = wrcTableExists( 'partner_projects' );
+        $linkCounts = [];
+        if ( $hasLinks ) {
+            foreach ( $pdo->query( 'SELECT partner_id, COUNT(*) AS c FROM partner_projects GROUP BY partner_id' ) as $row ) {
+                $linkCounts[ (int) $row['partner_id'] ] = (int) $row['c'];
+            }
+        }
+
+        $groups = [];
+        foreach ( $rows as $row ) {
+            $key = wrcPartnerAliasKey( (string) ( $row['name'] ?? '' ) );
+            if ( $key === '' ) {
+                continue;
+            }
+            $groups[ $key ][] = $row;
+        }
+
+        $placeholder = 'WRC collaborator on documented humanitarian projects.';
+        $score = static function ( array $row ) use ( $linkCounts ): array {
+            return [
+                $linkCounts[ (int) $row['id'] ] ?? 0,
+                trim( (string) ( $row['cover_image'] ?? '' ) ) !== '' ? 1 : 0,
+                trim( (string) ( $row['logo_path'] ?? '' ) ) !== '' ? 1 : 0,
+                trim( (string) ( $row['description'] ?? '' ) ) !== '' ? 1 : 0,
+                (int) ( $row['is_active'] ?? 0 ),
+                -(int) $row['id'],
+            ];
+        };
+
+        $profileColumns = [];
+        foreach ( [ 'logo_path', 'website_url', 'description', 'cover_image' ] as $column ) {
+            if ( wrcMediaColumnExists( $pdo, 'partners', $column ) ) {
+                $profileColumns[] = $column;
+            }
+        }
+
+        $moveLinks   = $hasLinks ? $pdo->prepare( 'INSERT IGNORE INTO partner_projects (partner_id, project_slug, sort_order) SELECT ?, project_slug, sort_order FROM partner_projects WHERE partner_id = ?' ) : null;
+        $dropLinks   = $hasLinks ? $pdo->prepare( 'DELETE FROM partner_projects WHERE partner_id = ?' ) : null;
+        $dropPartner = $pdo->prepare( 'DELETE FROM partners WHERE id = ?' );
+
+        $merged = 0;
+
+        foreach ( $groups as $group ) {
+            if ( count( $group ) < 2 ) {
+                continue;
+            }
+
+            usort( $group, static function ( $a, $b ) use ( $score ) {
+                return $score( $b ) <=> $score( $a );
+            } );
+            $canonical = array_shift( $group );
+
+            // Keep the best profile detail from any spelling of the organisation.
+            $fill = [];
+            foreach ( $profileColumns as $column ) {
+                $current = trim( (string) ( $canonical[ $column ] ?? '' ) );
+                $needsValue = $current === '' || ( $column === 'description' && $current === $placeholder );
+                if ( !$needsValue ) {
+                    continue;
+                }
+                foreach ( $group as $duplicate ) {
+                    $value = trim( (string) ( $duplicate[ $column ] ?? '' ) );
+                    if ( $value === '' || ( $column === 'description' && $value === $placeholder ) ) {
+                        continue;
+                    }
+                    $fill[ $column ] = $value;
+                    break;
+                }
+            }
+            if ( $fill ) {
+                $set = implode( ', ', array_map( static function ( $column ) {
+                    return '`' . $column . '` = ?';
+                }, array_keys( $fill ) ) );
+                $statement = $pdo->prepare( 'UPDATE partners SET ' . $set . ' WHERE id = ?' );
+                $statement->execute( array_merge( array_values( $fill ), [ (int) $canonical['id'] ] ) );
+            }
+
+            foreach ( $group as $duplicate ) {
+                $duplicateId = (int) $duplicate['id'];
+                if ( $duplicateId < 1 || $duplicateId === (int) $canonical['id'] ) {
+                    continue;
+                }
+                if ( $moveLinks && $dropLinks ) {
+                    $moveLinks->execute( [ (int) $canonical['id'], $duplicateId ] );
+                    $dropLinks->execute( [ $duplicateId ] );
+                }
+                $dropPartner->execute( [ $duplicateId ] );
+                $merged++;
+            }
+        }
+
+        return $merged;
+    }
+}
+
 if ( !function_exists( 'wrcSetupMediaGallery' ) ) {
     /**
      * @return array<string,int> Counters for the deployment log.
@@ -104,6 +222,7 @@ if ( !function_exists( 'wrcSetupMediaGallery' ) ) {
             'partners' => 0,
             'links'    => 0,
             'media'    => 0,
+            'merged'   => 0,
         ];
 
         // ---------------------------------------------------------------------
@@ -408,6 +527,13 @@ if ( !function_exists( 'wrcSetupMediaGallery' ) ) {
             $result['media']++;
         }
 
+        // ---------------------------------------------------------------------
+        // 7. One card per organisation
+        // ---------------------------------------------------------------------
+        // Runs last so it can see every link created above. The dashboard and
+        // the public gallery both read this table, so merging here fixes both.
+        $result['merged'] = wrcMergeDuplicatePartners( $pdo );
+
         return $result;
     }
 }
@@ -428,6 +554,7 @@ if ( !defined( 'WRC_MEDIA_SETUP_AUTO_RAN' ) && isset( $pdo ) && $pdo instanceof 
             echo 'Partner slugs/profiles created: ' . $mediaStats['partners'] . "\n";
             echo 'Project links added: ' . $mediaStats['links'] . "\n";
             echo 'Project photographs seeded: ' . $mediaStats['media'] . "\n";
+            echo 'Duplicate partner records merged: ' . $mediaStats['merged'] . "\n";
         }
     } catch ( Throwable $error ) {
         if ( PHP_SAPI === 'cli' ) {

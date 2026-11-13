@@ -64,6 +64,25 @@ if (isPost()) {
     if (!empty($website_url) && !filter_var($website_url, FILTER_VALIDATE_URL)) $errors[] = 'Invalid website URL.';
     if ($slug !== '' && !checkSlugUnique('partners', $slug, $partner['id'] ?? 0)) $errors[] = 'That slug is already used by another partner.';
 
+    // Two records for one organisation split its project gallery in two, so a
+    // new partner may not reuse a name that already exists under another
+    // spelling ("Health Department" vs "Department of Health").
+    if ($name !== '' && function_exists('wrcPartnerAliasKey')) {
+        global $pdo;
+        $aliasKey = wrcPartnerAliasKey($name);
+        $existingPartners = $pdo->query('SELECT id, name FROM partners ORDER BY id ASC')->fetchAll(PDO::FETCH_ASSOC);
+        foreach ($existingPartners as $existingPartner) {
+            if ((int) $existingPartner['id'] === (int) ($partner['id'] ?? 0)) {
+                continue;
+            }
+            if (wrcPartnerAliasKey((string) $existingPartner['name']) === $aliasKey) {
+                $errors[] = 'This organisation already exists as "' . $existingPartner['name'] . '". Edit that partner instead of creating a duplicate.';
+                break;
+            }
+        }
+    }
+
+
     if (empty($errors)) {
         global $pdo;
 
