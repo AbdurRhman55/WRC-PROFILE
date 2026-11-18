@@ -1075,6 +1075,9 @@ function wrcBeneficiarySectorMap(): array {
         'wash'                => 'wash',
         'water'               => 'wash',
         'water & sanitation'  => 'wash',
+        // Facility solarization (clean energy for hospital wards) is reported
+        // under the health programme, not as a separate headline sector.
+        'climate resilience'  => 'health',
     ];
 }
 
@@ -1445,9 +1448,39 @@ function wrcBeneficiaryProvinceSplit( PDO $pdo, int $total ): array {
  * @return array<int,string> list of what was updated
  */
 function wrcSyncBeneficiaryStats( PDO $pdo ): array {
+    $applied = [];
+
+    // ------------------------------------- portfolio sector definitions -----
+    // The Health Department portfolio is three facilities (RHC Peshawar,
+    // Category-D Hospital Malakand and RHC Swabi). The NMD paramedic courses
+    // are KP-TEVTA / FATA skills training, and the Totakan solarization is
+    // facility infrastructure delivered with Smart Aid, so neither belongs in
+    // the Health sector count.
+    try {
+        $sectorDefinitions = [
+            'kp-tevta-pc1-paramedic-training-nmd-2021'                    => 'Education',
+            'kp-tevta-nmd-paramedic-training-2021'                        => 'Education',
+            'kp-tevta-nmd-paramedic-training-2022'                        => 'Education',
+            'fata-da-paramedic-training-nmd-2016-2017'                    => 'Education',
+            'fata-da-paramedic-training-nmd-2016-2018'                    => 'Education',
+            'fata-da-paramedic-training-nmd-2018-2021'                    => 'Education',
+            'smart-aid-solarization-cat-d-hospital-totakan-malakand-2023-2024' => 'Climate Resilience',
+        ];
+        $sectorUpdate = $pdo->prepare( 'UPDATE projects SET category = ? WHERE slug = ? AND category <> ?' );
+        $sectorChanges = 0;
+        foreach ( $sectorDefinitions as $sectorSlug => $sectorName ) {
+            $sectorUpdate->execute( [ $sectorName, $sectorSlug, $sectorName ] );
+            $sectorChanges += $sectorUpdate->rowCount();
+        }
+        if ( $sectorChanges ) {
+            $applied[] = 'project sectors';
+        }
+    } catch ( Throwable $error ) {
+        // Non-fatal.
+    }
+
     $figures = wrcBeneficiaryFigures( true );
     $total   = number_format( $figures['total'] );
-    $applied = [];
 
     $tableExists = static function ( string $table ) use ( $pdo ): bool {
         static $cache = [];
