@@ -1158,6 +1158,67 @@ function wrcBeneficiaryTotal(): int {
 }
 
 /**
+ * Canonical district coverage for the portfolio's free-text project areas.
+ *
+ * "NMD" is reported as the six merged districts WRC works in (Bajaur, Mohmand,
+ * Khyber, Kurram, North Waziristan, South Waziristan), so it expands into those
+ * names instead of counting as a single place. Every other area is split on
+ * commas, ampersands and "and"; the result is keyed by a lower-case name so a
+ * district that appears in two projects ("Khyber" inside NMD and as its own
+ * area, "Swabi" alone and inside "Buner, Swabi & Nowshera") is counted once.
+ *
+ * @return array<string,string> lower-case district key => display name
+ */
+function wrcPortfolioAreaDistricts( string $area ): array {
+    static $nmdDistricts = [
+        'Bajaur',
+        'Mohmand',
+        'Khyber',
+        'Kurram',
+        'North Waziristan',
+        'South Waziristan',
+    ];
+
+    $aliases = [
+        'nmd'                    => null, // expands to the merged districts
+        'nmds'                   => null,
+        'newly merged districts' => null,
+        'di khan'                => 'D.I. Khan',
+        'd.i. khan'              => 'D.I. Khan',
+        'dera ismail khan'       => 'D.I. Khan',
+    ];
+
+    $parts = preg_split( '/\s*(?:,|&|\band\b|\/)\s*/i', trim( $area ) );
+    $districts = [];
+
+    foreach ( (array) $parts as $part ) {
+        // Labels may carry a parenthetical explanation, e.g.
+        // "NMD (Newly Merged Districts)"; the alias check below wants "nmd".
+        $part = trim( (string) preg_replace( '/\s*\([^)]*\)\s*/', ' ', $part ) );
+        $part = trim( (string) preg_replace( '/\s+/', ' ', $part ) );
+        if ( $part === '' ) {
+            continue;
+        }
+
+        $key = strtolower( $part );
+        if ( array_key_exists( $key, $aliases ) ) {
+            if ( $aliases[ $key ] === null ) {
+                foreach ( $nmdDistricts as $nmdDistrict ) {
+                    $districts[ strtolower( $nmdDistrict ) ] = $nmdDistrict;
+                }
+                continue;
+            }
+            $districts[ strtolower( $aliases[ $key ] ) ] = $aliases[ $key ];
+            continue;
+        }
+
+        $districts[ $key ] = $part;
+    }
+
+    return $districts;
+}
+
+/**
  * Project-derived headline figures for the homepage hero strip.
  *
  * Every number is calculated from the live projects table, so publishing,
@@ -1203,7 +1264,8 @@ function wrcProjectImpactSummary( bool $refresh = false ): array {
         $summary[ 'provinces' ] = (int) ( $row[ 'provinces' ] ?? 0 );
 
         // A single district field can hold several places, e.g.
-        // "Buner, Swabi & Nowshera" or "Malakand & Swat". Split before counting.
+        // "Buner, Swabi & Nowshera", and "NMD" covers the six merged
+        // districts. Expand and de-duplicate before counting.
         $locations = $pdo->query(
             "SELECT district FROM projects
               WHERE is_active = 1 AND district IS NOT NULL AND district <> ''"
@@ -1211,12 +1273,8 @@ function wrcProjectImpactSummary( bool $refresh = false ): array {
 
         $districts = [];
         foreach ( $locations as $location ) {
-            $parts = preg_split( '/\s*(?:,|&|\band\b|\/)\s*/i', (string) $location );
-            foreach ( (array) $parts as $part ) {
-                $part = trim( $part );
-                if ( $part !== '' ) {
-                    $districts[ strtolower( $part ) ] = true;
-                }
+            foreach ( wrcPortfolioAreaDistricts( (string) $location ) as $districtKey => $districtName ) {
+                $districts[ $districtKey ] = $districtName;
             }
         }
         $summary[ 'districts' ] = count( $districts );

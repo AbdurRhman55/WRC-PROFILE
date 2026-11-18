@@ -121,6 +121,7 @@ $findCoordinate = static function (string $areaLabel) use ($coordsByName, $coord
 $distinctDistricts = [];
 $projectsByProvince = [];
 $coveredDistricts = [];
+$provinceDistrictSets = [];
 foreach ($projectsAll as $proj) {
     $rawDist = trim((string) ($proj['district'] ?? ''));
     if ($rawDist === '') { continue; }
@@ -128,10 +129,13 @@ foreach ($projectsAll as $proj) {
     $area = $parseProjectArea($rawDist);
     if ($area['key'] === '') { continue; }
 
-    // Count the districts behind the areas (a combined area covers several),
-    // so the headline "Districts Reached" figure stays factual.
-    foreach ($area['parts'] as $partName) {
-        $coveredDistricts[strtolower(trim($partName))] = true;
+    // Count the districts behind the areas (a combined area covers several and
+    // NMD covers six merged districts), so the headline "Districts Reached"
+    // figure stays factual. The helper de-duplicates shared names such as
+    // Khyber and Swabi.
+    $areaDistricts = wrcPortfolioAreaDistricts($rawDist);
+    foreach ($areaDistricts as $districtKey => $districtName) {
+        $coveredDistricts[$districtKey] = $districtName;
     }
 
     $provId = (int) ($proj['province_id'] ?? 1);
@@ -158,13 +162,22 @@ foreach ($projectsAll as $proj) {
         $provName = $defaultProvName;
     }
 
+    // Track the distinct districts per province so the spotlight cards count
+    // each place once, exactly like the headline figure.
+    if (!isset($provinceDistrictSets[$provKey])) {
+        $provinceDistrictSets[$provKey] = [];
+    }
+    foreach ($areaDistricts as $districtKey => $districtName) {
+        $provinceDistrictSets[$provKey][$districtKey] = $districtName;
+    }
+
     $key = $area['key'] . '|' . $provKey;
 
     if (!isset($distinctDistricts[$key])) {
         $coord = $findCoordinate($area['label']);
         $distinctDistricts[$key] = [
             'district' => $area['label'],
-            'district_count' => count($area['parts']),
+            'district_count' => count($areaDistricts),
             'province' => $provName,
             'province_key' => $provKey,
             'svg_x' => $coord ? (int) $coord['svg_x'] : 0,
@@ -245,8 +258,13 @@ unset($provinceData);
 // Serialize districts for table
 $districts = [];
 foreach ($distinctDistricts as $row) {
+    $areaDistrictNames = [];
+    if (stripos((string) $row['district'], 'newly merged') !== false) {
+        $areaDistrictNames = array_values(wrcPortfolioAreaDistricts((string) $row['district']));
+    }
     $districts[] = [
         'district'     => $row['district'],
+        'district_names' => $areaDistrictNames,
         'province'     => $row['province'],
         'province_key' => $row['province_key'],
         'svg_x'        => $row['svg_x'],
@@ -293,11 +311,18 @@ foreach ($provOrder as $pIdx => $pKey) {
     }
 
     $provinceAreaCards = array_map(function($d) {
+        $areaDistrictNames = [];
+        if (stripos((string) $d['name'], 'newly merged') !== false) {
+            // Spell out the six merged districts so visitors know what "NMD"
+            // covers; the headline count already treats them individually.
+            $areaDistrictNames = array_values(wrcPortfolioAreaDistricts((string) $d['name']));
+        }
         return [
             'name' => $d['name'],
             // A combined area ("Islamabad & Rawalpindi") covers several
             // districts; the province total should still count them all.
             'district_count' => (int) ($d['district_count'] ?? 1),
+            'district_names' => $areaDistrictNames,
             'beneficiaries' => number_format($d['beneficiaries']),
             'year' => $d['year'],
             'project_count' => count($d['projects']),
@@ -315,6 +340,7 @@ foreach ($provOrder as $pIdx => $pKey) {
         'description' => $cfg['description'] ?? ('WRC is actively working in ' . $pd['name'] . ', delivering life-saving and sustainable development programs.'),
         'focus_areas' => $focusAreas,
         'project_count' => $pd['project_count'],
+        'district_total' => count($provinceDistrictSets[$pKey] ?? []),
         'beneficiaries' => number_format($pd['beneficiaries']),
         'districts' => $provinceAreaCards,
     ];
@@ -562,7 +588,7 @@ include dirname(__DIR__) . '/includes/header.php';
       </div>
       <div class="bg-white rounded-xl px-5 py-3 border border-slate-200 flex items-center gap-3">
         <div class="w-8 h-8 rounded-lg bg-brandRed/10 flex items-center justify-center"><i class="fa-solid fa-location-dot text-brandRed text-xs"></i></div>
-        <div><span class="font-bold text-slate-900 text-sm"><?= array_sum(array_column($prov['districts'], 'district_count')) ?></span> <span class="text-xs text-slate-500">Districts</span></div>
+        <div><span class="font-bold text-slate-900 text-sm"><?= (int) ($prov['district_total'] ?? 0) ?></span> <span class="text-xs text-slate-500">Districts</span></div>
       </div>
       <div class="bg-white rounded-xl px-5 py-3 border border-slate-200 flex items-center gap-3">
         <div class="w-8 h-8 rounded-lg bg-brandRed/10 flex items-center justify-center"><i class="fa-solid fa-users text-brandRed text-xs"></i></div>
@@ -594,6 +620,9 @@ include dirname(__DIR__) . '/includes/header.php';
           <div class="w-8 h-8 rounded-lg bg-brandRed/10 flex items-center justify-center"><i class="fa-solid fa-location-dot text-brandRed text-xs"></i></div>
           <span class="font-bold text-slate-900 text-sm"><?= sanitize($district['name'] ?? '') ?></span>
         </div>
+        <?php if (!empty($district['district_names'])): ?>
+        <p class="text-[11px] text-slate-500 leading-relaxed mb-2"><?= sanitize(implode(', ', $district['district_names'])) ?></p>
+        <?php endif; ?>
         <div class="space-y-2 text-xs text-slate-500">
           <div class="flex justify-between"><span><?= $district['project_count'] ?> <?= $district['project_count'] == 1 ? 'Project' : 'Projects' ?></span><span class="font-semibold text-slate-700">Active</span></div>
           <div class="flex justify-between"><span>Beneficiaries</span><span class="font-semibold text-slate-700"><?= sanitize($district['beneficiaries'] ?? '') ?></span></div>
@@ -665,6 +694,9 @@ include dirname(__DIR__) . '/includes/header.php';
                   <span class="w-2 h-2 rounded-full bg-brandRed shrink-0"></span>
                   <?= sanitize($row['district'] ?? '') ?>
                 </div>
+                <?php if (!empty($row['district_names'])): ?>
+                <p class="mt-1 pl-4 text-[11px] font-normal text-slate-400 leading-relaxed"><?= sanitize(implode(', ', $row['district_names'])) ?></p>
+                <?php endif; ?>
               </td>
               <td class="px-6 py-4 text-slate-600"><?= sanitize($row['province'] ?? '') ?></td>
               <td class="px-6 py-4"><span class="inline-block bg-brandRed/10 text-brandRed text-xs font-semibold px-2.5 py-1 rounded-lg"><?= sanitize($row['programs'] ?? '') ?></span></td>
