@@ -74,6 +74,24 @@ $findCoordinate = static function (string $district) use ($coordsByName, $coordK
     if ($key === 'dikhan' || $key === 'deraismailkhan') {
         return $coordsByName['dikhan'] ?? $coordsByName['deraismailkhan'] ?? null;
     }
+    // A combined coverage area such as "Islamabad & Rawalpindi" has no row of
+    // its own; place its marker between the districts it joins.
+    if (strpos($district, '&') !== false) {
+        $xs = [];
+        $ys = [];
+        foreach (explode('&', $district) as $part) {
+            $partKey = $coordKey($part);
+            if (!isset($coordsByName[$partKey])) { return null; }
+            $xs[] = (int) $coordsByName[$partKey]['svg_x'];
+            $ys[] = (int) $coordsByName[$partKey]['svg_y'];
+        }
+        if (!empty($xs)) {
+            return [
+                'svg_x' => (int) round(array_sum($xs) / count($xs)),
+                'svg_y' => (int) round(array_sum($ys) / count($ys)),
+            ];
+        }
+    }
     return null;
 };
 
@@ -82,12 +100,40 @@ $findCoordinate = static function (string $district) use ($coordsByName, $coordK
 // there, so stale page copy can never invent coverage.
 $distinctDistricts = [];
 $projectsByProvince = [];
+$coveredDistricts = [];
 foreach ($projectsAll as $proj) {
     $rawDist = trim((string) ($proj['district'] ?? ''));
     if ($rawDist === '') { continue; }
 
     $locations = $parseProjectLocations($rawDist);
     if (empty($locations)) { continue; }
+
+    // Count the districts themselves before any display grouping below, so the
+    // headline "Districts Reached" figure stays factual.
+    foreach ($locations as $locationName) {
+        foreach (preg_split('/\s*&\s*/', $locationName) as $piece) {
+            $piece = trim($piece);
+            if ($piece !== '') { $coveredDistricts[strtolower($piece)] = true; }
+        }
+    }
+
+    // The portfolio treats Islamabad and Rawalpindi as one project area. A
+    // project covering both must count once under that combined area, otherwise
+    // three Punjab projects read as six across the table and the cards.
+    $lowerLocations = array_map('strtolower', $locations);
+    if (in_array('islamabad', $lowerLocations, true) && in_array('rawalpindi', $lowerLocations, true)) {
+        $combinedLocations = [];
+        foreach ($locations as $locationName) {
+            if (in_array(strtolower($locationName), ['islamabad', 'rawalpindi'], true)) {
+                if (!in_array('Islamabad & Rawalpindi', $combinedLocations, true)) {
+                    $combinedLocations[] = 'Islamabad & Rawalpindi';
+                }
+                continue;
+            }
+            $combinedLocations[] = $locationName;
+        }
+        $locations = $combinedLocations;
+    }
 
     $provId = (int) ($proj['province_id'] ?? 1);
     $defaultProvKey = $provIdToKey[$provId] ?? 'kp';
@@ -107,7 +153,7 @@ foreach ($projectsAll as $proj) {
     foreach ($locations as $index => $dist) {
         $distBeneficiaries = $baseShare + ($index < $remainder ? 1 : 0);
 
-        if (strcasecmp($dist, 'Islamabad') === 0) {
+        if (strcasecmp($dist, 'Islamabad') === 0 || $dist === 'Islamabad & Rawalpindi') {
             $provKey = 'punjab';
             $provName = 'Punjab / ICT';
         } else {
@@ -158,7 +204,7 @@ foreach ($projectsAll as $proj) {
                 'has_ict' => false,
             ];
         }
-        if ($provKey === 'punjab' && strcasecmp($dist, 'Islamabad') === 0) {
+        if ($provKey === 'punjab' && (strcasecmp($dist, 'Islamabad') === 0 || $dist === 'Islamabad & Rawalpindi')) {
             $projectsByProvince[$provKey]['has_ict'] = true;
         }
         if (!isset($projectsByProvince[$provKey]['districts'][$dist])) {
@@ -260,6 +306,9 @@ foreach ($provOrder as $pIdx => $pKey) {
         'districts' => array_map(function($d) {
             return [
                 'name' => $d['name'],
+                // "Islamabad & Rawalpindi" is one coverage area covering two
+                // districts; the province total should still count both.
+                'district_count' => max(1, count(preg_split('/\s*(?:,|&)\s*/', (string) $d['name'], -1, PREG_SPLIT_NO_EMPTY))),
                 'beneficiaries' => number_format($d['beneficiaries']),
                 'year' => $d['year'],
                 'project_count' => count($d['projects']),
@@ -273,7 +322,7 @@ foreach ($provOrder as $pIdx => $pKey) {
 $activeProvinces = array_keys($projectsByProvince);
 
 // Dynamic stats
-$totalDistricts = count($distinctDistricts);
+$totalDistricts = count($coveredDistricts);
 // Headline total uses the canonical published figure so this page, the Impact
 // page, the projects dashboard and the homepage never disagree.
 $totalBeneficiaries = wrcBeneficiaryTotal();
@@ -492,7 +541,7 @@ include dirname(__DIR__) . '/includes/header.php';
       </div>
       <div class="bg-white rounded-xl px-5 py-3 border border-slate-200 flex items-center gap-3">
         <div class="w-8 h-8 rounded-lg bg-brandRed/10 flex items-center justify-center"><i class="fa-solid fa-location-dot text-brandRed text-xs"></i></div>
-        <div><span class="font-bold text-slate-900 text-sm"><?= count($prov['districts']) ?></span> <span class="text-xs text-slate-500">Districts</span></div>
+        <div><span class="font-bold text-slate-900 text-sm"><?= array_sum(array_column($prov['districts'], 'district_count')) ?></span> <span class="text-xs text-slate-500">Districts</span></div>
       </div>
       <div class="bg-white rounded-xl px-5 py-3 border border-slate-200 flex items-center gap-3">
         <div class="w-8 h-8 rounded-lg bg-brandRed/10 flex items-center justify-center"><i class="fa-solid fa-users text-brandRed text-xs"></i></div>
@@ -611,7 +660,7 @@ include dirname(__DIR__) . '/includes/header.php';
         No districts match your search. Try a different keyword.
       </div>
       <div class="bg-slate-50 px-6 py-4 border-t border-slate-200 flex flex-wrap items-center justify-between gap-4 text-xs text-slate-500">
-        <span id="table-count">Showing <?= count($districts) ?> districts</span>
+        <span id="table-count">Showing <?= count($districts) ?> coverage areas</span>
         <div class="flex items-center gap-2">
           <span>Total Beneficiaries:</span>
           <span class="font-bold text-brandRed"><?= $statItems[2]['value'] ?></span>
@@ -717,7 +766,7 @@ include dirname(__DIR__) . '/includes/header.php';
       }
     });
     noResults.classList.toggle('hidden', visible > 0);
-    tableCount.textContent = 'Showing ' + visible + ' district' + (visible !== 1 ? 's' : '');
+    tableCount.textContent = 'Showing ' + visible + ' coverage area' + (visible !== 1 ? 's' : '');
   }
 
   tabs.forEach(function(tab) {
