@@ -34,28 +34,34 @@ if ($dashRow) {
       ['icon' => 'fa-solid fa-location-dot', 'color' => 'gold-400', 'label' => 'Districts Covered', 'value' => number_format((int) $coverageStats['districts'])],
     ];
 
-    // Dynamic category data from projects table
+    // Dynamic sector data: dashboard categories fold into the four programme
+    // sectors WRC reports against (Health, WASH, Food & Relief Distribution,
+    // Skill Development).
     global $pdo;
-    $catColors = [
-        'Health' => '#ef4444', 'Education' => '#3b82f6', 'WASH' => '#06b6d4',
-        'Food Security' => '#f59e0b', 'Emergency Response' => '#dc2626',
-        'Child Protection' => '#a855f7', 'Shelter' => '#f97316',
-        'Gender Equality' => '#ec4899', 'Climate Resilience' => '#10b981',
-        'General' => '#64748b',
+    $sectorColors = [
+        'Health'                     => '#ef4444',
+        'WASH'                       => '#06b6d4',
+        'Food & Relief Distribution' => '#f59e0b',
+        'Skill Development'          => '#8b5cf6',
     ];
-    $catStmt = $pdo->query("SELECT category, COUNT(*) as cnt FROM projects WHERE is_active = 1 AND category != '' GROUP BY category ORDER BY cnt DESC");
+    $catStmt = $pdo->query("SELECT category, COUNT(*) as cnt FROM projects WHERE is_active = 1 AND category != '' GROUP BY category");
     $catRows = $catStmt->fetchAll(PDO::FETCH_ASSOC);
-    $totalCatProjects = array_sum(array_column($catRows, 'cnt'));
-    $sectors = array_map(function($r) use ($catColors, $totalCatProjects) {
-        $cat = $r['category'];
-        $percent = $totalCatProjects > 0 ? round(($r['cnt'] / $totalCatProjects) * 100) : 0;
-        return [
-            'name' => $cat,
-            'color' => $catColors[$cat] ?? '#64748b',
-            'count' => $r['cnt'],
-            'percent' => $percent,
+    $sectorCounts = [];
+    foreach ($catRows as $catRow) {
+        $sectorName = wrcProgrammeSector((string) $catRow['category']);
+        $sectorCounts[$sectorName] = ($sectorCounts[$sectorName] ?? 0) + (int) $catRow['cnt'];
+    }
+    arsort($sectorCounts);
+    $totalCatProjects = array_sum($sectorCounts);
+    $sectors = [];
+    foreach ($sectorCounts as $sectorName => $sectorCount) {
+        $sectors[] = [
+            'name' => $sectorName,
+            'color' => $sectorColors[$sectorName] ?? '#64748b',
+            'count' => $sectorCount,
+            'percent' => $totalCatProjects > 0 ? round(($sectorCount / $totalCatProjects) * 100) : 0,
         ];
-    }, $catRows);
+    }
 
     $projSections['projects_dashboard'] = ['section_key' => 'projects_dashboard', 'section_title' => $dashRow['section_title'], 'section_subtitle' => $dashRow['subtitle'] ?? '', 'content' => json_encode(['subtitle' => $dashRow['subtitle'], 'metrics' => $metrics, 'sectors' => $sectors])];
 }
@@ -72,10 +78,19 @@ $ctaData = isset($projSections['projects_cta']) ? json_decode($projSections['pro
 $activeProjects = getRows('projects', ['status' => 'active', 'is_active' => 1], 'sort_order ASC');
 $completedProjects = getRows('projects', ['status' => 'completed', 'is_active' => 1], 'sort_order ASC');
 
-// Fetch unique categories from DB
+// Fetch unique sectors from the portfolio (dashboard categories fold into the
+// four programme sectors used across the site).
 global $pdo;
 $catStmt = $pdo->query("SELECT DISTINCT category FROM projects WHERE is_active = 1 AND category != '' ORDER BY category ASC");
-$projectCategories = $catStmt->fetchAll(PDO::FETCH_COLUMN);
+$projectCategories = [];
+foreach ($catStmt->fetchAll(PDO::FETCH_COLUMN) as $rawCategory) {
+    $sectorName = wrcProgrammeSector((string) $rawCategory);
+    if ($sectorName !== '') {
+        $projectCategories[$sectorName] = $sectorName;
+    }
+}
+$projectCategories = array_values($projectCategories);
+sort($projectCategories);
 
 // Flat, lowercase search index backing the projects search box: title, sector,
 // status, location and summary all matched by a single keyword.
@@ -83,6 +98,7 @@ $projectSearchIndex = static function (array $project): string {
     $haystack = implode(' ', [
         $project['title'] ?? '',
         $project['category'] ?? '',
+        wrcProgrammeSector((string) ($project['category'] ?? '')),
         $project['status'] ?? '',
         $project['location_details'] ?? '',
         $project['district'] ?? '',
@@ -107,7 +123,7 @@ $successStories = getRows('success_stories', ['is_active' => 1], 'sort_order ASC
 $portfolioEyebrow = trim((string) ($heroData['eyebrow'] ?? '')) ?: 'Our Portfolio';
 $portfolioTitle   = trim((string) ($heroData['section_title'] ?? '')) ?: 'Delivering Projects, Creating Lasting Impact';
 $portfolioIntro1  = trim((string) ($heroData['intro1'] ?? '')) ?: "Explore WRC's portfolio of humanitarian and development initiatives implemented across Pakistan in collaboration with government departments, institutional partners, and development organizations.";
-$portfolioIntro2  = trim((string) ($heroData['intro2'] ?? '')) ?: "Our portfolio highlights our experience in healthcare service delivery, education and skills development, women's empowerment, humanitarian assistance, community development, and emergency response. Each project reflects our commitment to addressing community needs through practical interventions, effective coordination, and responsible implementation.";
+$portfolioIntro2  = trim((string) ($heroData['intro2'] ?? '')) ?: "Our portfolio highlights our experience in health, WASH, food and relief distribution, and skill development. Each project reflects our commitment to addressing community needs through practical interventions, effective coordination, and responsible implementation.";
 
 // Split the headline at the first comma so the closing clause can carry the
 // gold accent; a headline without a comma stays on one line.
@@ -133,7 +149,7 @@ $quickStats = [
 ];
 
 $pageTitle = 'Our Portfolio | Welfare & Relief Committee (WRC)';
-$metaDescription = "Explore WRC's portfolio of humanitarian and development initiatives across Pakistan — healthcare, education and skills, women's empowerment, community development, and emergency response.";
+$metaDescription = "Explore WRC's portfolio of humanitarian and development initiatives across Pakistan — health, WASH, food and relief distribution, and skill development.";
 
 include dirname(__DIR__) . '/includes/header.php';
 ?>
@@ -254,7 +270,7 @@ include dirname(__DIR__) . '/includes/header.php';
 
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         <?php foreach ($activeProjects as $project): ?>
-        <a href="<?= $base ?>projects/project-name.php?slug=<?= urlencode($project['slug']) ?>" class="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 hover:shadow-lg transition-all duration-300 group flex flex-col" data-category="active" data-project-category="<?= htmlspecialchars($project['category'] ?? 'General') ?>" data-search="<?= htmlspecialchars($projectSearchIndex($project)) ?>">
+        <a href="<?= $base ?>projects/project-name.php?slug=<?= urlencode($project['slug']) ?>" class="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 hover:shadow-lg transition-all duration-300 group flex flex-col" data-category="active" data-project-category="<?= htmlspecialchars(wrcProgrammeSector((string) ($project['category'] ?? 'General'))) ?>" data-search="<?= htmlspecialchars($projectSearchIndex($project)) ?>">
           <div class="relative h-48 overflow-hidden flex-shrink-0">
             <img src="<?= $base ?><?= $project['hero_image'] ?>" alt="<?= sanitize($project['title']) ?>" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
             <div class="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
@@ -265,7 +281,7 @@ include dirname(__DIR__) . '/includes/header.php';
               <i class="fa-solid fa-location-dot mr-1"></i><?= sanitize($project['location_details']) ?>
             </span>
             <span class="absolute bottom-3 left-3 bg-white/90 backdrop-blur-sm text-slate-700 text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full flex items-center gap-1">
-              <i class="fa-solid fa-folder text-[8px] text-brandRed"></i> <?= sanitize($project['category'] ?? 'General') ?>
+              <i class="fa-solid fa-folder text-[8px] text-brandRed"></i> <?= sanitize(wrcProgrammeSector((string) ($project['category'] ?? 'General'))) ?>
             </span>
           </div>
           <div class="p-5 flex flex-col flex-1">
@@ -302,7 +318,7 @@ include dirname(__DIR__) . '/includes/header.php';
 
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         <?php foreach ($completedProjects as $project): ?>
-        <a href="<?= $base ?>projects/project-name.php?slug=<?= urlencode($project['slug']) ?>" class="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 hover:shadow-lg transition-all duration-300 group flex flex-col" data-category="completed" data-project-category="<?= htmlspecialchars($project['category'] ?? 'General') ?>" data-search="<?= htmlspecialchars($projectSearchIndex($project)) ?>">
+        <a href="<?= $base ?>projects/project-name.php?slug=<?= urlencode($project['slug']) ?>" class="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 hover:shadow-lg transition-all duration-300 group flex flex-col" data-category="completed" data-project-category="<?= htmlspecialchars(wrcProgrammeSector((string) ($project['category'] ?? 'General'))) ?>" data-search="<?= htmlspecialchars($projectSearchIndex($project)) ?>">
           <div class="relative h-48 overflow-hidden flex-shrink-0">
             <img src="<?= $base ?><?= $project['hero_image'] ?>" alt="<?= sanitize($project['title']) ?>" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
             <div class="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
@@ -313,7 +329,7 @@ include dirname(__DIR__) . '/includes/header.php';
               <i class="fa-solid fa-location-dot mr-1"></i><?= sanitize($project['location_details']) ?>
             </span>
             <span class="absolute bottom-3 left-3 bg-white/90 backdrop-blur-sm text-slate-700 text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full flex items-center gap-1">
-              <i class="fa-solid fa-folder text-[8px] text-brandRed"></i> <?= sanitize($project['category'] ?? 'General') ?>
+              <i class="fa-solid fa-folder text-[8px] text-brandRed"></i> <?= sanitize(wrcProgrammeSector((string) ($project['category'] ?? 'General'))) ?>
             </span>
           </div>
           <div class="p-5 flex flex-col flex-1">

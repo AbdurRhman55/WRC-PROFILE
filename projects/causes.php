@@ -38,7 +38,7 @@ $campaigns = getRows('campaigns', 'is_active = 1 ORDER BY sort_order ASC');
 $bankAccounts = getRows('bank_accounts', 'is_active = 1 ORDER BY sort_order ASC');
 
 $pageTitle = 'Let’s Work Together | WRC Campaigns';
-$metaDescription = 'Support WRC campaigns to bring clean water, food security, and education to communities in need.';
+$metaDescription = 'Support WRC campaigns to bring clean water, food and relief, and skill development to communities in need.';
 
 include dirname(__DIR__) . '/includes/header.php';
 ?>
@@ -88,7 +88,7 @@ include dirname(__DIR__) . '/includes/header.php';
       <div class="text-center mb-14">
         <span class="inline-block text-brandRed text-xs font-bold uppercase tracking-widest mb-3">Fundraising</span>
         <h2 class="text-3xl sm:text-4xl font-display font-bold text-slate-900 mb-4">Active Campaigns</h2>
-        <p class="text-slate-500 max-w-2xl mx-auto">Support our ongoing campaigns to bring clean water, food security, and education to communities in need.</p>
+        <p class="text-slate-500 max-w-2xl mx-auto">Support our ongoing campaigns to bring clean water, food and relief, and skill development to communities in need.</p>
       </div>
 
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">

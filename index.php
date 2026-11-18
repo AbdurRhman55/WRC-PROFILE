@@ -7,7 +7,7 @@ require_once __DIR__ . '/includes/functions.php';
 
 $base = siteBaseUrl();
 $pageTitle = 'Welfare & Relief Committee (WRC) - Official NGO Portal';
-$metaDescription = 'Welfare & Relief Committee (WRC) is a non-profit humanitarian organization delivering health, education, WASH, food security, and emergency disaster relief globally.';
+$metaDescription = 'Welfare & Relief Committee (WRC) is a non-profit humanitarian organization delivering health, WASH, food and relief distribution, and skill development programmes across Pakistan.';
 
 // Fetch dynamic data
 $heroSlides = getRows('hero_sliders', ['page' => 'homepage', 'is_active' => 1], 'sort_order ASC');
@@ -58,7 +58,7 @@ $heroStats = [
         'icon'  => 'fa-solid fa-layer-group',
         'value' => (int) $impactSummary[ 'sectors' ],
         'label' => 'Programme Sectors',
-        'note'  => 'Health, WASH, food and more',
+        'note'  => 'Health, WASH, food & relief, skills',
     ],
 ];
 
@@ -404,7 +404,7 @@ include __DIR__ . '/includes/header.php';
             <h2 class="text-3xl sm:text-4xl font-extrabold text-slate-900">Our Projects</h2>
             <p class="mt-4 mx-auto max-w-2xl text-slate-600 text-sm sm:text-base leading-7">Delivering real results
                 through
-                humanitarian projects across health, education, WASH, food security, and emergency response.</p>
+                humanitarian projects across health, WASH, food and relief distribution, and skill development.</p>
         </div>
         <div class="text-center"><a href="<?= $base ?>projects/index.php"
                 class="inline-flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-white text-sm font-bold px-6 py-3 rounded-xl transition-all">View
@@ -708,7 +708,7 @@ include __DIR__ . '/includes/header.php';
                 <h2 class="text-3xl sm:text-4xl font-extrabold text-slate-900 mb-4">Serving Communities Across Pakistan
                 </h2>
                 <p class="text-slate-600 text-sm leading-relaxed mb-6">From the mountainous districts of Khyber Pakhtunkhwa to the twin cities of
-                    Islamabad and Rawalpindi, WRC delivers health, education, WASH, food security and emergency relief where
+                    Islamabad and Rawalpindi, WRC delivers health, WASH, food and relief distribution, and skill development where
                     the need is greatest.</p>
                 <div class="grid grid-cols-2 gap-4 mb-6">
                     <?php foreach ($provinces as $province): ?>

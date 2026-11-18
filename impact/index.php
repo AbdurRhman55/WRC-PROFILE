@@ -74,8 +74,8 @@ $coverage = wrcProjectImpactSummary();
 $stats = $contentData['stats'] ?? [
     ['icon' => 'fa-users', 'color' => 'brandRed', 'target' => (string) $beneficiaries['total'], 'label' => 'Beneficiaries Reached', 'sub' => 'All programme sectors combined'],
     ['icon' => 'fa-heart-pulse', 'color' => 'green', 'target' => (string) $beneficiaries['health'], 'label' => 'Health', 'sub' => 'Medical camps, clinics & emergency care'],
-    ['icon' => 'fa-graduation-cap', 'color' => 'purple', 'target' => (string) $beneficiaries['skills'], 'label' => 'Skills', 'sub' => 'Vocational & livelihood training'],
-    ['icon' => 'fa-bowl-food', 'color' => 'amber', 'target' => (string) $beneficiaries['food'], 'label' => 'Food', 'sub' => 'Emergency food & nutrition support'],
+    ['icon' => 'fa-graduation-cap', 'color' => 'purple', 'target' => (string) $beneficiaries['skills'], 'label' => 'Skill Development', 'sub' => 'Vocational, technical & paramedic training'],
+    ['icon' => 'fa-bowl-food', 'color' => 'amber', 'target' => (string) $beneficiaries['food'], 'label' => 'Food & Relief Distribution', 'sub' => 'Food packages, emergency kits & relief supplies'],
     ['icon' => 'fa-faucet-drip', 'color' => 'blue', 'target' => (string) $beneficiaries['wash'], 'label' => 'WASH', 'sub' => 'Clean water, sanitation & hygiene'],
     ['icon' => 'fa-map-location-dot', 'color' => 'teal', 'target' => (string) $coverage['provinces'], 'label' => 'Provinces Covered', 'sub' => 'Across our project areas'],
 ];
@@ -116,6 +116,28 @@ foreach ($stats as &$stat) {
 }
 unset($stat);
 
+// Stored content may still carry the older short sector names ("Skills",
+// "Food"); render them with the four approved programme sector names.
+$sectorStatLabels = [
+    'skills'             => ['Skill Development', 'Vocational, technical & paramedic training'],
+    'skill development'  => ['Skill Development', 'Vocational, technical & paramedic training'],
+    'food'               => ['Food & Relief Distribution', 'Food packages, emergency kits & relief supplies'],
+    'food security'      => ['Food & Relief Distribution', 'Food packages, emergency kits & relief supplies'],
+    'emergency response' => ['Food & Relief Distribution', 'Food packages, emergency kits & relief supplies'],
+];
+foreach ($stats as &$stat) {
+    if (!is_array($stat)) {
+        continue;
+    }
+    $statLabel = strtolower(trim((string) ($stat['label'] ?? '')));
+    if (isset($sectorStatLabels[$statLabel])) {
+        [$sectorLabel, $sectorSub] = $sectorStatLabels[$statLabel];
+        $stat['label'] = $sectorLabel;
+        $stat['sub']   = $sectorSub;
+    }
+}
+unset($stat);
+
 // M&E framework
 $mneIntro = trim((string) ($contentData['mne_intro'] ?? ''))
     ?: 'WRC recognizes that effective programme delivery requires continuous monitoring, transparent reporting, and meaningful accountability. Our monitoring and evaluation approach focuses on tracking implementation progress, assessing programme performance, identifying challenges, and documenting results.';
@@ -143,8 +165,8 @@ $sdgs = $contentData['sdgs'] ?? [
 
 $sdgBeneficiaryMap = [
     'health' => [ 'value' => $beneficiaries['health'], 'label' => 'Health beneficiaries' ],
-    'skills' => [ 'value' => $beneficiaries['skills'], 'label' => 'Skills beneficiaries' ],
-    'food'   => [ 'value' => $beneficiaries['food'],   'label' => 'Food beneficiaries' ],
+    'skills' => [ 'value' => $beneficiaries['skills'], 'label' => 'Skill Development beneficiaries' ],
+    'food'   => [ 'value' => $beneficiaries['food'],   'label' => 'Food & Relief beneficiaries' ],
     'wash'   => [ 'value' => $beneficiaries['wash'],   'label' => 'WASH beneficiaries' ],
 ];
 foreach ( $sdgs as &$sdg ) {

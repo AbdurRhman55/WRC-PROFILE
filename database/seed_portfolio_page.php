@@ -76,7 +76,7 @@ $copy = [
     'eyebrow'       => 'Our Portfolio',
     'section_title' => 'Delivering Projects, Creating Lasting Impact',
     'intro1'        => "Explore WRC's portfolio of humanitarian and development initiatives implemented across Pakistan in collaboration with government departments, institutional partners, and development organizations.",
-    'intro2'        => "Our portfolio highlights our experience in healthcare service delivery, education and skills development, women's empowerment, humanitarian assistance, community development, and emergency response. Each project reflects our commitment to addressing community needs through practical interventions, effective coordination, and responsible implementation.",
+    'intro2'        => "Our portfolio highlights our experience in health, WASH, food and relief distribution, and skill development. Each project reflects our commitment to addressing community needs through practical interventions, effective coordination, and responsible implementation.",
 ];
 
 try {

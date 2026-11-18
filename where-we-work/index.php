@@ -141,7 +141,8 @@ foreach ($projectsAll as $proj) {
     $provId = (int) ($proj['province_id'] ?? 1);
     $defaultProvKey = $provIdToKey[$provId] ?? 'kp';
     $defaultProvName = $provinceById[$provId]['name'] ?? ($provKeyToName[$defaultProvKey] ?? 'Khyber Pakhtunkhwa');
-    $cat = trim((string) ($proj['category'] ?? 'General'));
+    // Report every project under one of the four programme sectors.
+    $cat = wrcProgrammeSector((string) ($proj['category'] ?? 'General'));
     $projectKey = (string) ($proj['slug'] ?? $proj['id'] ?? $proj['title'] ?? '');
     $beneficiaries = (int) ($proj['beneficiaries_count'] ?? 0);
     $projectYear = !empty($proj['start_date']) ? date('Y', strtotime((string) $proj['start_date'])) : '';
@@ -221,7 +222,7 @@ foreach ($projectsAll as $proj) {
     if (!isset($projectsByProvince[$provKey]['districts'][$area['key']])) {
         $projectsByProvince[$provKey]['districts'][$area['key']] = [
             'name' => $area['label'],
-            'district_count' => count($area['parts']),
+            'district_count' => count($areaDistricts),
             'projects' => [],
             'beneficiaries' => 0,
             'year' => $projectYear,
@@ -291,19 +292,13 @@ foreach ($provOrder as $pIdx => $pKey) {
     $cfg = $configProvinces[$pIdx] ?? [];
     $pd = $projectsByProvince[$pKey];
 
-    // Build focus areas from project categories
+    // Build focus areas from the four programme sectors present in this province.
     $focusAreas = [];
     $catIcons = [
-        'Health' => ['icon' => 'fa-stethoscope', 'title' => 'Healthcare', 'desc' => 'Medical facilities, health camps, and disease prevention programs.'],
-        'Education' => ['icon' => 'fa-graduation-cap', 'title' => 'Education', 'desc' => 'Schools, literacy programs, and technical education initiatives.'],
-        'WASH' => ['icon' => 'fa-faucet-drip', 'title' => 'Water & Sanitation', 'desc' => 'Clean water access, sanitation facilities, and hygiene promotion.'],
-        'Food Security' => ['icon' => 'fa-bowl-food', 'title' => 'Food Security', 'desc' => 'Emergency food distributions and agricultural support programs.'],
-        'Emergency Response' => ['icon' => 'fa-truck-medical', 'title' => 'Emergency Response', 'desc' => 'Rapid deployment of relief supplies and disaster response.'],
-        'Agriculture' => ['icon' => 'fa-seedling', 'title' => 'Agriculture', 'desc' => 'Farming support, livestock care, and agribusiness development.'],
-        'Shelter' => ['icon' => 'fa-house', 'title' => 'Shelter', 'desc' => 'Emergency shelter and housing reconstruction programs.'],
-        'Child Protection' => ['icon' => 'fa-child', 'title' => 'Child Protection', 'desc' => 'Safeguarding children and providing safe spaces.'],
-        'Gender Equality' => ['icon' => 'fa-venus', 'title' => 'Gender Equality', 'desc' => "Women's empowerment and gender-based violence prevention."],
-        'Climate Resilience' => ['icon' => 'fa-cloud-sun', 'title' => 'Climate Resilience', 'desc' => 'Adaptation programs for climate-vulnerable communities.'],
+        'Health' => ['icon' => 'fa-stethoscope', 'title' => 'Health', 'desc' => 'Medical facilities, health camps, and disease prevention programs.'],
+        'WASH' => ['icon' => 'fa-faucet-drip', 'title' => 'WASH', 'desc' => 'Clean water access, sanitation facilities, and hygiene promotion.'],
+        'Food & Relief Distribution' => ['icon' => 'fa-bowl-food', 'title' => 'Food & Relief Distribution', 'desc' => 'Food packages, emergency kits and relief supplies for crisis-affected families.'],
+        'Skill Development' => ['icon' => 'fa-graduation-cap', 'title' => 'Skill Development', 'desc' => 'Vocational, technical and paramedic training for employable livelihoods.'],
     ];
     foreach ($pd['categories'] as $cat) {
         $ci = $catIcons[$cat] ?? ['icon' => 'fa-circle-info', 'title' => $cat, 'desc' => $cat . ' programs across the province.'];

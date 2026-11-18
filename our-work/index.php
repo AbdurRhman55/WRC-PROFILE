@@ -68,7 +68,7 @@ $ctaData = isset( $owSections[ 'our_work_cta' ] ) ? json_decode( $owSections[ 'o
 $featuredProjects = getRows( 'projects', "is_active = 1 AND status = 'active' ORDER BY start_date DESC LIMIT 3" );
 
 $pageTitle = 'Our Work & Core Programs | Welfare & Relief Committee (WRC)';
-$metaDescription = "Explore WRC's 9 core humanitarian sectors across Health, Education, WASH, Food Security, Nutrition, Livelihood, Emergency Response, DRR, and Climate Resilience.";
+$metaDescription = "Explore WRC's four programme sectors: Health, WASH, Food & Relief Distribution and Skill Development, delivered across Khyber Pakhtunkhwa and Punjab.";
 
 include dirname( __DIR__ ) . '/includes/header.php';
 ?>
@@ -125,7 +125,7 @@ include dirname( __DIR__ ) . '/includes/header.php';
 <div class = 'text-center max-w-3xl mx-auto mb-16'>
 <span class = 'text-brandRed font-bold text-xs uppercase tracking-widest mb-2 block'>Our Portfolio</span>
 <h2 class = 'text-3xl md:text-4xl font-extrabold font-heading text-slate-900 mb-4'>Active & Completed Projects</h2>
-<p class = 'text-slate-600 text-sm leading-relaxed'>Delivering real results through humanitarian projects across health, education, WASH, food security, and emergency response.</p>
+<p class = 'text-slate-600 text-sm leading-relaxed'>Delivering real results through humanitarian projects across health, WASH, food and relief distribution, and skill development.</p>
 </div>
 
 <div class = 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8'>

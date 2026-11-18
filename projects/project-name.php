@@ -125,20 +125,24 @@ $projectReference = 'WRC-PRJ-' . str_pad(
 );
 
 // Sector totals, computed live from the portfolio so they can never drift
-// out of date. These describe the whole sector, never just this project.
-$sectorName          = trim((string) ($project['category'] ?? ''));
+// out of date. These describe the whole sector group, never just this project.
+$sectorName          = wrcProgrammeSector((string) ($project['category'] ?? ''));
 $sectorProjectCount  = 0;
 $sectorBeneficiaries = 0;
 if ($sectorName !== '') {
-    $sectorStmt = $pdo->prepare(
-        'SELECT COUNT(*) AS projects, COALESCE(SUM(beneficiaries_count), 0) AS people
+    $sectorRows = $pdo->query(
+        'SELECT category, COUNT(*) AS projects, COALESCE(SUM(beneficiaries_count), 0) AS people
            FROM projects
-          WHERE is_active = 1 AND category = ?'
-    );
-    $sectorStmt->execute([$sectorName]);
-    $sectorRow         = $sectorStmt->fetch(PDO::FETCH_ASSOC) ?: [];
-    $sectorProjectCount  = (int) ($sectorRow['projects'] ?? 0);
-    $sectorBeneficiaries = (int) ($sectorRow['people'] ?? 0);
+          WHERE is_active = 1
+          GROUP BY category'
+    )->fetchAll(PDO::FETCH_ASSOC);
+    foreach ($sectorRows as $sectorRow) {
+        if (wrcProgrammeSector((string) ($sectorRow['category'] ?? '')) !== $sectorName) {
+            continue;
+        }
+        $sectorProjectCount  += (int) ($sectorRow['projects'] ?? 0);
+        $sectorBeneficiaries += (int) ($sectorRow['people'] ?? 0);
+    }
 }
 
 $pageTitle = sanitize($project['title']) . ' | WRC Projects';
@@ -190,7 +194,7 @@ include dirname(__DIR__) . '/includes/header.php';
                     <span
                         class="text-white/90 bg-brandRed/30 backdrop-blur-md border border-brandRed/40 font-medium text-[11px] uppercase tracking-wider px-4 py-1.5 rounded-full flex items-center gap-2">
                         <i class="fa-solid fa-folder text-[10px]"></i>
-                        <?= sanitize($project['category']) ?>
+                        <?= sanitize(wrcProgrammeSector((string) $project['category'])) ?>
                     </span>
                     <?php endif; ?>
                     <span
@@ -535,7 +539,7 @@ include dirname(__DIR__) . '/includes/header.php';
                                 <div class="flex items-start justify-between gap-4 py-3 border-b border-slate-100">
                                     <dt class="text-slate-500 shrink-0">Sector</dt>
                                     <dd class="font-semibold text-slate-900 text-right">
-                                        <?= sanitize($project['category'] ?? 'General') ?></dd>
+                                        <?= sanitize(wrcProgrammeSector((string) ($project['category'] ?? 'General'))) ?></dd>
                                 </div>
                                 <div class="flex items-start justify-between gap-4 py-3 border-b border-slate-100">
                                     <dt class="text-slate-500 shrink-0">Location</dt>

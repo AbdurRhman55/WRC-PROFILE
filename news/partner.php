@@ -33,7 +33,7 @@ $years     = [];
 $beneficiaries = 0;
 foreach ( $projects as $project ) {
     if ( !empty( $project['category'] ) ) {
-        $sectors[ (string) $project['category'] ] = true;
+        $sectors[ wrcProgrammeSector( (string) $project['category'] ) ] = true;
     }
     $place = trim( (string) ( $project['district'] ?? '' ) );
     if ( $place !== '' ) {
@@ -219,7 +219,7 @@ include dirname( __DIR__ ) . '/includes/header.php';
 
                 <div class="absolute top-4 left-4 flex flex-wrap gap-2">
                   <span class="inline-flex items-center gap-1.5 rounded-full bg-white/95 backdrop-blur px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-ink-900 shadow-sm">
-                    <i class="fa-solid fa-tag text-brandRed text-[9px]"></i><?= htmlspecialchars( (string) ( $project['category'] ?? 'Project' ) ) ?>
+                    <i class="fa-solid fa-tag text-brandRed text-[9px]"></i><?= htmlspecialchars( wrcProgrammeSector( (string) ( $project['category'] ?? 'Project' ) ) ) ?>
                   </span>
                   <span class="inline-flex items-center gap-1.5 rounded-full border <?= $status['classes'] ?> bg-white/95 backdrop-blur px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider shadow-sm">
                     <span class="w-1.5 h-1.5 rounded-full <?= $status['dot'] ?>"></span><?= htmlspecialchars( $status['label'] ) ?>

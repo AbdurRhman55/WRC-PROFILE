@@ -96,7 +96,7 @@ Policy
     <div class="prose-custom space-y-4 text-slate-600 text-sm leading-relaxed">
       <p>The personal information we collect is used for the following purposes:</p>
       <ul class="list-disc pl-6 space-y-2">
-        <li>Delivering and improving humanitarian programmes, including health, education, WASH, food security, and emergency response initiatives.</li>
+        <li>Delivering and improving humanitarian programmes, including health, WASH, food and relief distribution, and skill development initiatives.</li>
         <li>Processing donations and issuing tax-deductible receipts.</li>
         <li>Communicating programme updates, newsletters, and impact reports to supporters and stakeholders.</li>
         <li>Responding to enquiries, feedback, and volunteer or employment applications.</li>

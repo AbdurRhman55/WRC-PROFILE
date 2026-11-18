@@ -49,7 +49,7 @@ if ( $place === '' ) {
     $place = trim( (string) ( $project['location_details'] ?? '' ) );
 }
 $beneficiaries = (int) ( $project['beneficiaries_count'] ?? 0 );
-$category      = trim( (string) ( $project['category'] ?? '' ) );
+$category      = wrcProgrammeSector( trim( (string) ( $project['category'] ?? '' ) ) );
 $detailUrl     = $base . 'projects/project-name.php?slug=' . rawurlencode( (string) $project['slug'] );
 
 $pageTitle       = $project['title'] . ' — Photo Gallery | WRC';

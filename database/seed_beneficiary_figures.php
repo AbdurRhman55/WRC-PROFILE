@@ -53,8 +53,8 @@ $total   = number_format( $figures['total'] );
 $canonicalStats = [
     ['icon' => 'fa-solid fa-users', 'color' => 'brandRed', 'target' => (string) $figures['total'], 'label' => 'Beneficiaries Reached', 'sub' => 'All programme sectors combined'],
     [ 'icon' => 'fa-solid fa-heart-pulse', 'color' => 'green', 'target' => (string) $figures['health'], 'label' => 'Health', 'sub' => 'Medical camps, clinics & emergency care' ],
-    [ 'icon' => 'fa-solid fa-graduation-cap', 'color' => 'purple', 'target' => (string) $figures['skills'], 'label' => 'Skills', 'sub' => 'Vocational & livelihood training' ],
-    [ 'icon' => 'fa-solid fa-bowl-food', 'color' => 'amber', 'target' => (string) $figures['food'], 'label' => 'Food', 'sub' => 'Emergency food & nutrition support' ],
+    [ 'icon' => 'fa-solid fa-graduation-cap', 'color' => 'purple', 'target' => (string) $figures['skills'], 'label' => 'Skill Development', 'sub' => 'Vocational, technical & paramedic training' ],
+    [ 'icon' => 'fa-solid fa-bowl-food', 'color' => 'amber', 'target' => (string) $figures['food'], 'label' => 'Food & Relief Distribution', 'sub' => 'Food packages, emergency kits & relief supplies' ],
     [ 'icon' => 'fa-solid fa-faucet-drip', 'color' => 'blue', 'target' => (string) $figures['wash'], 'label' => 'WASH', 'sub' => 'Clean water, sanitation & hygiene' ],
     [ 'icon' => 'fa-solid fa-map-location-dot', 'color' => 'teal', 'target' => (string) $coverage['provinces'], 'label' => 'Provinces Covered', 'sub' => 'Across our project areas' ],
 ];
@@ -185,8 +185,8 @@ try {
         'people reached'            => [ number_format( $figures['total'] ), 'Beneficiaries Reached', 'All programme sectors combined', 'fa-solid fa-users', 'brandRed' ],
         'healthcare visits'         => [ number_format( $figures['health'] ), 'Health Beneficiaries', 'Medical camps, clinics & emergency care', 'fa-solid fa-heart-pulse', 'green' ],
         'water wells installed'     => [ number_format( $figures['wash'] ), 'WASH Beneficiaries', 'Clean water, sanitation & hygiene', 'fa-solid fa-faucet-drip', 'blue' ],
-        'food packages distributed' => [ number_format( $figures['food'] ), 'Food Beneficiaries', 'Emergency food & nutrition support', 'fa-solid fa-bowl-food', 'amber' ],
-        'children enrolled'         => [ number_format( $figures['skills'] ), 'Skills Beneficiaries', 'Vocational & livelihood training', 'fa-solid fa-graduation-cap', 'purple' ],
+        'food packages distributed' => [ number_format( $figures['food'] ), 'Food & Relief Distribution', 'Food packages, emergency kits & relief supplies', 'fa-solid fa-bowl-food', 'amber' ],
+        'children enrolled'         => [ number_format( $figures['skills'] ), 'Skill Development', 'Vocational, technical & paramedic training', 'fa-solid fa-graduation-cap', 'purple' ],
         'communities served'        => [ (string) $coverage['provinces'], 'Provinces Covered', 'Across our project areas', 'fa-solid fa-map-location-dot', 'teal' ],
     ];
 
@@ -391,7 +391,7 @@ try {
             [ number_format( $figures['total'] ), 'Beneficiaries Reached', 'Across all programme sectors',        'fa-solid fa-users',           'brandRed', 1 ],
             [ (string) $projectCount,             'Projects Delivered',    'Active and completed projects',       'fa-solid fa-diagram-project', 'teal',     2 ],
             [ (string) $provinceCount,            'Provinces Covered',     'Nationwide coverage',                 'fa-solid fa-map-location-dot','blue',     3 ],
-            [ (string) $sectorCount,              'Programme Sectors',     'Health, skills, food, WASH and more', 'fa-solid fa-layer-group',     'amber',    4 ],
+            [ (string) $sectorCount,              'Programme Sectors',     'Health, WASH, food & relief and skill development', 'fa-solid fa-layer-group',     'amber',    4 ],
         ];
         foreach ( $kpiRows as $row ) {
             $insertStat->execute( array_merge( $row, [ 'home_kpi' ] ) );

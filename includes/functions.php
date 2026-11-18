@@ -1158,6 +1158,35 @@ function wrcBeneficiaryTotal(): int {
 }
 
 /**
+ * Fold the dashboard's project categories into WRC's four programme sectors.
+ *
+ * The portfolio is reported under Health, WASH, Food & Relief Distribution and
+ * Skill Development. Everything else (emergency kits, food packs, trainings,
+ * facility solarization) belongs to one of those four.
+ */
+function wrcProgrammeSector( string $category ): string {
+    $key = strtolower( trim( $category ) );
+
+    $map = [
+        'health'             => 'Health',
+        'climate resilience' => 'Health', // facility solarization at a hospital
+        'wash'               => 'WASH',
+        'water'              => 'WASH',
+        'water & sanitation' => 'WASH',
+        'food security'      => 'Food & Relief Distribution',
+        'food'               => 'Food & Relief Distribution',
+        'emergency response' => 'Food & Relief Distribution',
+        'emergency'          => 'Food & Relief Distribution',
+        'education'          => 'Skill Development',
+        'livelihood'         => 'Skill Development',
+        'livelihoods'        => 'Skill Development',
+        'skills'             => 'Skill Development',
+    ];
+
+    return $map[ $key ] ?? trim( $category );
+}
+
+/**
  * Canonical district coverage for the portfolio's free-text project areas.
  *
  * "NMD" is reported as the six merged districts WRC works in (Bajaur, Mohmand,
@@ -1253,15 +1282,29 @@ function wrcProjectImpactSummary( bool $refresh = false ): array {
     try {
         $row = $pdo->query(
             "SELECT COUNT(*) AS projects,
-                    COUNT(DISTINCT NULLIF(category, '')) AS sectors,
                     COUNT(DISTINCT NULLIF(province_id, 0)) AS provinces
                FROM projects
               WHERE is_active = 1"
         )->fetch( PDO::FETCH_ASSOC );
 
         $summary[ 'projects' ]  = (int) ( $row[ 'projects' ] ?? 0 );
-        $summary[ 'sectors' ]   = (int) ( $row[ 'sectors' ] ?? 0 );
         $summary[ 'provinces' ] = (int) ( $row[ 'provinces' ] ?? 0 );
+
+        // Sector count folds categories into the four programme sectors the
+        // organisation reports against.
+        $categoryRows = $pdo->query(
+            "SELECT COUNT(*) AS projects, category
+               FROM projects
+              WHERE is_active = 1 AND category IS NOT NULL AND category <> ''
+              GROUP BY category"
+        )->fetchAll( PDO::FETCH_ASSOC );
+        $sectorNames = [];
+        foreach ( $categoryRows as $categoryRow ) {
+            if ( (int) $categoryRow[ 'projects' ] > 0 ) {
+                $sectorNames[ wrcProgrammeSector( (string) $categoryRow[ 'category' ] ) ] = true;
+            }
+        }
+        $summary[ 'sectors' ] = count( $sectorNames );
 
         // A single district field can hold several places, e.g.
         // "Buner, Swabi & Nowshera", and "NMD" covers the six merged
@@ -1328,12 +1371,16 @@ function wrcBeneficiaryFigureForLabel( string $label, array $figures ): ?int {
         'healthcare'                => 'health',
         'skills'                    => 'skills',
         'skills beneficiaries'      => 'skills',
+        'skill development'         => 'skills',
+        'skill development beneficiaries' => 'skills',
         'education'                 => 'skills',
         'education beneficiaries'   => 'skills',
         'children enrolled'         => 'skills',
         'vocational training'       => 'skills',
         'food'                      => 'food',
         'food beneficiaries'        => 'food',
+        'food & relief distribution' => 'food',
+        'food & relief distribution beneficiaries' => 'food',
         'food packages distributed' => 'food',
         'food security'             => 'food',
         'wash'                      => 'wash',
@@ -1556,6 +1603,46 @@ function wrcSyncBeneficiaryStats( PDO $pdo ): array {
         return $cache[ $table ];
     };
 
+    // ------------------------------------- programme sector copy ---------------
+    try {
+        $sectorCopy = [
+            "healthcare service delivery, education and skills development, women's empowerment, humanitarian assistance, community development, and emergency response" => 'health, WASH, food and relief distribution, and skill development',
+            'health, education, WASH, food security, and emergency response' => 'health, WASH, food and relief distribution, and skill development',
+            'health, education, WASH, food security and emergency relief'   => 'health, WASH, food and relief distribution, and skill development',
+            'health, education, WASH, food security, and emergency disaster relief' => 'health, WASH, food and relief distribution, and skill development',
+        ];
+
+        if ( $tableExists( 'projects_hero' ) ) {
+            $row = $pdo->query( 'SELECT id, intro2 FROM projects_hero ORDER BY id LIMIT 1' )->fetch( PDO::FETCH_ASSOC );
+            if ( $row ) {
+                $intro = str_replace( array_keys( $sectorCopy ), array_values( $sectorCopy ), (string) $row['intro2'] );
+                if ( $intro !== (string) $row['intro2'] ) {
+                    $pdo->prepare( 'UPDATE projects_hero SET intro2 = ? WHERE id = ?' )->execute( [ $intro, $row['id'] ] );
+                    $applied[] = 'portfolio intro copy';
+                }
+            }
+        }
+
+        // Old short sector names stored by the dashboard.
+        $sectorLabelCopy = [
+            'skills'              => 'Skill Development',
+            'skills beneficiaries' => 'Skill Development',
+            'food'                => 'Food & Relief Distribution',
+            'food beneficiaries'  => 'Food & Relief Distribution',
+        ];
+        if ( $tableExists( 'impact_stats' ) ) {
+            $relabel = $pdo->prepare( 'UPDATE impact_stats SET stat_label = ? WHERE LOWER(stat_label) = ?' );
+            foreach ( $sectorLabelCopy as $oldLabel => $newLabel ) {
+                $relabel->execute( [ $newLabel, $oldLabel ] );
+                if ( $relabel->rowCount() ) {
+                    $applied[] = 'impact sector labels';
+                }
+            }
+        }
+    } catch ( Throwable $error ) {
+        // Non-fatal.
+    }
+
     $updateLabelRows = static function ( string $table, string $labelColumn, string $valueColumn ) use ( $pdo, $figures, $tableExists ): int {
         if ( !$tableExists( $table ) ) {
             return 0;
@@ -1729,6 +1816,9 @@ function wrcSyncBeneficiaryStats( PDO $pdo ): array {
             'projects'            => (string) $coverage['projects'],
             'programs'            => (string) $coverage['projects'],
             'programmes'          => (string) $coverage['projects'],
+            'programme sectors'   => (string) $coverage['sectors'],
+            'program sectors'     => (string) $coverage['sectors'],
+            'sectors covered'     => (string) $coverage['sectors'],
             'beneficiaries reached' => $total,
         ];
 
