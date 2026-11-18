@@ -1013,6 +1013,11 @@ try {
     // run every deploy and after the Excel import.
     require_once __DIR__ . '/seed_media_gallery.php';
 
+    // Where We Work map: make sure every district a project can report against
+    // has a marker position. Only missing rows are inserted, so tuned
+    // coordinates always win and a migrated database cannot lose markers.
+    require_once __DIR__ . '/seed_district_coordinates.php';
+
     // Blog: additive news_articles columns, the editable blog_settings row and
     // starter posts. The starter posts are marker-guarded, so dashboard edits
     // and deliberate deletions survive every deploy.

@@ -29,9 +29,12 @@ $provKeyToIcon = ['kp' => 'fa-mountain', 'punjab' => 'fa-wheat-awn', 'sindh' => 
 
 // Load district coordinates from database
 $allCoords = getRows('district_coordinates', [], 'sort_order ASC');
+$coordKey = static function (string $name): string {
+    return (string) preg_replace('/[^a-z0-9]/', '', strtolower(trim($name)));
+};
 $coordsByName = [];
 foreach ($allCoords as $c) {
-    $coordsByName[strtolower(trim((string) ($c['district'] ?? '')))] = $c;
+    $coordsByName[$coordKey((string) ($c['district'] ?? ''))] = $c;
 }
 
 // Dashboard project areas are free text ("Buner, Swabi & Nowshera", "D.I.
@@ -58,14 +61,18 @@ $parseProjectLocations = static function (string $raw) use ($locationAliases): a
     return array_values($locations);
 };
 
-$findCoordinate = static function (string $district) use ($coordsByName): ?array {
-    $key = strtolower(trim($district));
+$findCoordinate = static function (string $district) use ($coordsByName, $coordKey): ?array {
+    $key = $coordKey($district);
     if (isset($coordsByName[$key])) {
         return $coordsByName[$key];
     }
     // The marker table stores the merged districts under the short name "NMD".
     if (strpos($key, 'nmd') === 0 && isset($coordsByName['nmd'])) {
         return $coordsByName['nmd'];
+    }
+    // "DI Khan", "D.I. Khan" and "Dera Ismail Khan" are one place.
+    if ($key === 'dikhan' || $key === 'deraismailkhan') {
+        return $coordsByName['dikhan'] ?? $coordsByName['deraismailkhan'] ?? null;
     }
     return null;
 };
