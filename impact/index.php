@@ -69,13 +69,15 @@ $indicatorStyles = [
 // Dashboard stats. The fallback mirrors the canonical beneficiary figures so a
 // fresh install and the live database report exactly the same numbers.
 $beneficiaries = wrcBeneficiaryFigures();
+// Coverage counters are derived from the live portfolio, never typed in.
+$coverage = wrcProjectImpactSummary();
 $stats = $contentData['stats'] ?? [
     ['icon' => 'fa-users', 'color' => 'brandRed', 'target' => (string) $beneficiaries['total'], 'label' => 'Beneficiaries Reached', 'sub' => 'All programme sectors combined'],
     ['icon' => 'fa-heart-pulse', 'color' => 'green', 'target' => (string) $beneficiaries['health'], 'label' => 'Health', 'sub' => 'Medical camps, clinics & emergency care'],
     ['icon' => 'fa-graduation-cap', 'color' => 'purple', 'target' => (string) $beneficiaries['skills'], 'label' => 'Skills', 'sub' => 'Vocational & livelihood training'],
     ['icon' => 'fa-bowl-food', 'color' => 'amber', 'target' => (string) $beneficiaries['food'], 'label' => 'Food', 'sub' => 'Emergency food & nutrition support'],
     ['icon' => 'fa-faucet-drip', 'color' => 'blue', 'target' => (string) $beneficiaries['wash'], 'label' => 'WASH', 'sub' => 'Clean water, sanitation & hygiene'],
-    ['icon' => 'fa-map-location-dot', 'color' => 'teal', 'target' => '4', 'label' => 'Provinces Covered', 'sub' => 'Nationwide coverage'],
+    ['icon' => 'fa-map-location-dot', 'color' => 'teal', 'target' => (string) $coverage['provinces'], 'label' => 'Provinces Covered', 'sub' => 'Across our project areas'],
 ];
 
 // The projects table is the source of truth. Override every beneficiary
@@ -102,6 +104,14 @@ foreach ($stats as &$stat) {
     $statLabel = strtolower(trim((string) ($stat['label'] ?? '')));
     if (isset($beneficiaryStatLabels[$statLabel])) {
         $stat['target'] = (string) $beneficiaries[$beneficiaryStatLabels[$statLabel]];
+    } elseif ($statLabel === 'provinces covered') {
+        $stat['target'] = (string) $coverage['provinces'];
+        // Coverage is project-based; "nationwide" would overstate it.
+        if (preg_match('/nationwide/i', (string) ($stat['sub'] ?? ''))) {
+            $stat['sub'] = 'Across our project areas';
+        }
+    } elseif ($statLabel === 'districts covered') {
+        $stat['target'] = (string) $coverage['districts'];
     }
 }
 unset($stat);
@@ -125,7 +135,7 @@ if (empty($mneSteps)) {
 // headline beneficiary figure from the canonical figures above, never from a
 // separately typed number.
 $sdgs = $contentData['sdgs'] ?? [
-    ['key' => 'health', 'number' => '3', 'title' => 'Good Health & Well-Being', 'desc' => 'WRC runs free medical camps, maternal and child health services, emergency treatment and community health programmes that bring essential care closer to underserved families.', 'color' => 'green-600', 'bg' => 'green', 'tags' => ['Health & emergency care', '4 provinces covered'], 'icon' => 'fa-heart-pulse'],
+    ['key' => 'health', 'number' => '3', 'title' => 'Good Health & Well-Being', 'desc' => 'WRC runs free medical camps, maternal and child health services, emergency treatment and community health programmes that bring essential care closer to underserved families.', 'color' => 'green-600', 'bg' => 'green', 'tags' => ['Health & emergency care', $coverage['provinces'] . ' provinces covered'], 'icon' => 'fa-heart-pulse'],
     ['key' => 'skills', 'number' => '8', 'title' => 'Decent Work & Economic Growth', 'desc' => 'Vocational training, enterprise support and livelihood opportunities help young people and women earn a stable income and build stronger local economies.', 'color' => 'red-600', 'bg' => 'red', 'tags' => ['Skills & vocational training', 'Women & youth livelihoods'], 'icon' => 'fa-briefcase'],
     ['key' => 'food', 'number' => '2', 'title' => 'Zero Hunger', 'desc' => 'Emergency food distributions, nutrition support and food-security assistance protect families facing hunger, seasonal shortages and displacement.', 'color' => 'amber-600', 'bg' => 'amber', 'tags' => ['Emergency food relief', 'Nutrition support'], 'icon' => 'fa-bowl-food'],
     ['key' => 'wash', 'number' => '6', 'title' => 'Clean Water & Sanitation', 'desc' => 'Clean water systems, sanitation improvements and hygiene promotion reduce waterborne disease and improve health in rural and disaster-affected communities.', 'color' => 'blue-600', 'bg' => 'blue', 'tags' => ['Clean water access', 'Sanitation & hygiene'], 'icon' => 'fa-faucet-drip'],
@@ -142,6 +152,15 @@ foreach ( $sdgs as &$sdg ) {
     if ( isset( $sdgBeneficiaryMap[ $key ] ) ) {
         $sdg['metric'] = number_format( $sdgBeneficiaryMap[ $key ]['value'] );
         $sdg['metric_label'] = $sdgBeneficiaryMap[ $key ]['label'];
+    }
+    // Legacy dashboard tags such as "4 provinces covered" are rewritten to the
+    // live coverage figure; every other tag is left exactly as written.
+    if ( isset( $sdg['tags'] ) && is_array( $sdg['tags'] ) ) {
+        foreach ( $sdg['tags'] as $tagIndex => $tagText ) {
+            if ( preg_match( '/^\s*\d+\s*\+?\s+provinces?\s+covered\s*$/i', (string) $tagText ) ) {
+                $sdg['tags'][ $tagIndex ] = $coverage['provinces'] . ' provinces covered';
+            }
+        }
     }
 }
 unset( $sdg );

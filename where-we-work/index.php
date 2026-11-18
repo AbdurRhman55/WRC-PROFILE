@@ -37,10 +37,12 @@ foreach ($allCoords as $c) {
     $coordsByName[$coordKey((string) ($c['district'] ?? ''))] = $c;
 }
 
-// Dashboard project areas are free text ("Buner, Swabi & Nowshera", "D.I.
-// Khan", "NMD"). Split them into single districts and normalise the known
-// spellings so the map, the province cards and the coverage table all speak
-// about the same place.
+// Dashboard project areas are free text and mirror the WRC portfolio sheet:
+// "NMD", "D.I. Khan", "Islamabad & Rawalpindi", "Buner, Swabi & Nowshera".
+// Every listed area is one coverage area — exactly how the portfolio reports
+// it — so a project's beneficiaries and its count are never split or counted
+// twice. Known spellings are normalised and the parts are rebuilt into one
+// consistent label.
 $locationAliases = [
     'nmd'                    => 'NMD (Newly Merged Districts)',
     'nmds'                   => 'NMD (Newly Merged Districts)',
@@ -50,19 +52,36 @@ $locationAliases = [
     'dera ismail khan'       => 'D.I. Khan',
 ];
 
-$parseProjectLocations = static function (string $raw) use ($locationAliases): array {
+$parseProjectArea = static function (string $raw) use ($locationAliases): array {
     $parts = preg_split('/\s*(?:,|&|\band\b|\/)\s*/u', trim($raw), -1, PREG_SPLIT_NO_EMPTY);
-    $locations = [];
+    $areas = [];
     foreach ((array) $parts as $part) {
         $part = trim((string) preg_replace('/\s+/', ' ', $part));
         if ($part === '') { continue; }
-        $locations[strtolower($locationAliases[strtolower($part)] ?? $part)] = $locationAliases[strtolower($part)] ?? $part;
+        $areas[strtolower($part)] = $locationAliases[strtolower($part)] ?? $part;
     }
-    return array_values($locations);
+    $areas = array_values($areas);
+    if (empty($areas)) {
+        return ['key' => '', 'label' => '', 'parts' => []];
+    }
+
+    $sorted = $areas;
+    sort($sorted, SORT_NATURAL | SORT_FLAG_CASE);
+
+    // "Buner, Swabi & Nowshera": commas between the first areas, "&" before the last.
+    $label = count($areas) === 1
+        ? $areas[0]
+        : implode(', ', array_slice($areas, 0, -1)) . ' & ' . end($areas);
+
+    return [
+        'key'   => implode('|', array_map('strtolower', $sorted)),
+        'label' => $label,
+        'parts' => $areas,
+    ];
 };
 
-$findCoordinate = static function (string $district) use ($coordsByName, $coordKey): ?array {
-    $key = $coordKey($district);
+$findCoordinate = static function (string $areaLabel) use ($coordsByName, $coordKey): ?array {
+    $key = $coordKey($areaLabel);
     if (isset($coordsByName[$key])) {
         return $coordsByName[$key];
     }
@@ -74,12 +93,13 @@ $findCoordinate = static function (string $district) use ($coordsByName, $coordK
     if ($key === 'dikhan' || $key === 'deraismailkhan') {
         return $coordsByName['dikhan'] ?? $coordsByName['deraismailkhan'] ?? null;
     }
-    // A combined coverage area such as "Islamabad & Rawalpindi" has no row of
-    // its own; place its marker between the districts it joins.
-    if (strpos($district, '&') !== false) {
+    // A combined area such as "Islamabad & Rawalpindi" or "Buner, Swabi &
+    // Nowshera" falls back to the centre of the districts it joins.
+    $parts = preg_split('/\s*(?:,|&|\band\b|\/)\s*/u', $areaLabel, -1, PREG_SPLIT_NO_EMPTY);
+    if (count((array) $parts) > 1) {
         $xs = [];
         $ys = [];
-        foreach (explode('&', $district) as $part) {
+        foreach ($parts as $part) {
             $partKey = $coordKey($part);
             if (!isset($coordsByName[$partKey])) { return null; }
             $xs[] = (int) $coordsByName[$partKey]['svg_x'];
@@ -95,9 +115,9 @@ $findCoordinate = static function (string $district) use ($coordsByName, $coordK
     return null;
 };
 
-// Build district data from projects. This is the only source for the page:
-// a province or district appears here only when a live project is located
-// there, so stale page copy can never invent coverage.
+// Build coverage areas from projects. This is the only source for the page: an
+// area appears here only when a live project is located there, so stale page
+// copy can never invent coverage.
 $distinctDistricts = [];
 $projectsByProvince = [];
 $coveredDistricts = [];
@@ -105,34 +125,13 @@ foreach ($projectsAll as $proj) {
     $rawDist = trim((string) ($proj['district'] ?? ''));
     if ($rawDist === '') { continue; }
 
-    $locations = $parseProjectLocations($rawDist);
-    if (empty($locations)) { continue; }
+    $area = $parseProjectArea($rawDist);
+    if ($area['key'] === '') { continue; }
 
-    // Count the districts themselves before any display grouping below, so the
-    // headline "Districts Reached" figure stays factual.
-    foreach ($locations as $locationName) {
-        foreach (preg_split('/\s*&\s*/', $locationName) as $piece) {
-            $piece = trim($piece);
-            if ($piece !== '') { $coveredDistricts[strtolower($piece)] = true; }
-        }
-    }
-
-    // The portfolio treats Islamabad and Rawalpindi as one project area. A
-    // project covering both must count once under that combined area, otherwise
-    // three Punjab projects read as six across the table and the cards.
-    $lowerLocations = array_map('strtolower', $locations);
-    if (in_array('islamabad', $lowerLocations, true) && in_array('rawalpindi', $lowerLocations, true)) {
-        $combinedLocations = [];
-        foreach ($locations as $locationName) {
-            if (in_array(strtolower($locationName), ['islamabad', 'rawalpindi'], true)) {
-                if (!in_array('Islamabad & Rawalpindi', $combinedLocations, true)) {
-                    $combinedLocations[] = 'Islamabad & Rawalpindi';
-                }
-                continue;
-            }
-            $combinedLocations[] = $locationName;
-        }
-        $locations = $combinedLocations;
+    // Count the districts behind the areas (a combined area covers several),
+    // so the headline "Districts Reached" figure stays factual.
+    foreach ($area['parts'] as $partName) {
+        $coveredDistricts[strtolower(trim($partName))] = true;
     }
 
     $provId = (int) ($proj['province_id'] ?? 1);
@@ -143,93 +142,92 @@ foreach ($projectsAll as $proj) {
     $beneficiaries = (int) ($proj['beneficiaries_count'] ?? 0);
     $projectYear = !empty($proj['start_date']) ? date('Y', strtotime((string) $proj['start_date'])) : '';
 
-    // Beneficiaries are reported once per project, so share them between the
-    // districts that project covers. Province and district totals then add up
-    // to the published figure instead of counting one project twice.
-    $locationCount = count($locations);
-    $baseShare = intdiv($beneficiaries, $locationCount);
-    $remainder = $beneficiaries % $locationCount;
-
-    foreach ($locations as $index => $dist) {
-        $distBeneficiaries = $baseShare + ($index < $remainder ? 1 : 0);
-
-        if (strcasecmp($dist, 'Islamabad') === 0 || $dist === 'Islamabad & Rawalpindi') {
-            $provKey = 'punjab';
-            $provName = 'Punjab / ICT';
-        } else {
-            $provKey = $defaultProvKey;
-            $provName = $defaultProvName;
+    // Islamabad and Rawalpindi belong to the federal capital group.
+    $isFederal = false;
+    foreach ($area['parts'] as $partName) {
+        if (in_array(strtolower(trim($partName)), ['islamabad', 'rawalpindi'], true)) {
+            $isFederal = true;
         }
+    }
 
-        $key = strtolower($dist) . '|' . $provKey;
+    if ($isFederal) {
+        $provKey = 'punjab';
+        $provName = 'Punjab / ICT';
+    } else {
+        $provKey = $defaultProvKey;
+        $provName = $defaultProvName;
+    }
 
-        if (!isset($distinctDistricts[$key])) {
-            $coord = $findCoordinate($dist);
-            $distinctDistricts[$key] = [
-                'district' => $dist,
-                'province' => $provName,
-                'province_key' => $provKey,
-                'svg_x' => $coord ? (int) $coord['svg_x'] : 0,
-                'svg_y' => $coord ? (int) $coord['svg_y'] : 0,
-                'has_coord' => (bool) $coord,
-                'programs' => [],
-                'projects_list' => [],
-                'beneficiaries_count' => 0,
-                'year' => $projectYear,
-            ];
-        }
+    $key = $area['key'] . '|' . $provKey;
 
-        if (!in_array($cat, $distinctDistricts[$key]['programs'], true)) {
-            $distinctDistricts[$key]['programs'][] = $cat;
-        }
-        $distinctDistricts[$key]['projects_list'][] = [
-            'title' => $proj['title'],
-            'category' => $cat,
-            'status' => $proj['status'] ?? 'active',
-            'beneficiaries' => $distBeneficiaries
+    if (!isset($distinctDistricts[$key])) {
+        $coord = $findCoordinate($area['label']);
+        $distinctDistricts[$key] = [
+            'district' => $area['label'],
+            'district_count' => count($area['parts']),
+            'province' => $provName,
+            'province_key' => $provKey,
+            'svg_x' => $coord ? (int) $coord['svg_x'] : 0,
+            'svg_y' => $coord ? (int) $coord['svg_y'] : 0,
+            'has_coord' => (bool) $coord,
+            'programs' => [],
+            'projects_list' => [],
+            'beneficiaries_count' => 0,
+            'year' => $projectYear,
         ];
-        $distinctDistricts[$key]['beneficiaries_count'] += $distBeneficiaries;
-        if ($projectYear !== '' && ($distinctDistricts[$key]['year'] === '' || (int) $projectYear < (int) $distinctDistricts[$key]['year'])) {
-            $distinctDistricts[$key]['year'] = $projectYear;
-        }
+    }
 
-        if (!isset($projectsByProvince[$provKey])) {
-            $projectsByProvince[$provKey] = [
-                'name' => $defaultProvName,
-                'districts' => [],
-                'categories' => [],
-                'project_count' => 0,
-                'beneficiaries' => 0,
-                'project_keys' => [],
-                'has_ict' => false,
-            ];
-        }
-        if ($provKey === 'punjab' && (strcasecmp($dist, 'Islamabad') === 0 || $dist === 'Islamabad & Rawalpindi')) {
-            $projectsByProvince[$provKey]['has_ict'] = true;
-        }
-        if (!isset($projectsByProvince[$provKey]['districts'][$dist])) {
-            $projectsByProvince[$provKey]['districts'][$dist] = [
-                'name' => $dist,
-                'projects' => [],
-                'beneficiaries' => 0,
-                'year' => $projectYear,
-                'svg_x' => $distinctDistricts[$key]['svg_x'],
-                'svg_y' => $distinctDistricts[$key]['svg_y'],
-            ];
-        }
-        if (!in_array($proj['title'], $projectsByProvince[$provKey]['districts'][$dist]['projects'], true)) {
-            $projectsByProvince[$provKey]['districts'][$dist]['projects'][] = $proj['title'];
-        }
-        $districtYear = (string) $projectsByProvince[$provKey]['districts'][$dist]['year'];
-        if ($projectYear !== '' && ($districtYear === '' || (int) $projectYear < (int) $districtYear)) {
-            $projectsByProvince[$provKey]['districts'][$dist]['year'] = $projectYear;
-        }
-        $projectsByProvince[$provKey]['districts'][$dist]['beneficiaries'] += $distBeneficiaries;
-        $projectsByProvince[$provKey]['project_keys'][$projectKey] = true;
-        $projectsByProvince[$provKey]['beneficiaries'] += $distBeneficiaries;
-        if (!in_array($cat, $projectsByProvince[$provKey]['categories'], true)) {
-            $projectsByProvince[$provKey]['categories'][] = $cat;
-        }
+    if (!in_array($cat, $distinctDistricts[$key]['programs'], true)) {
+        $distinctDistricts[$key]['programs'][] = $cat;
+    }
+    $distinctDistricts[$key]['projects_list'][] = [
+        'title' => $proj['title'],
+        'category' => $cat,
+        'status' => $proj['status'] ?? 'active',
+        'beneficiaries' => $beneficiaries
+    ];
+    $distinctDistricts[$key]['beneficiaries_count'] += $beneficiaries;
+    if ($projectYear !== '' && ($distinctDistricts[$key]['year'] === '' || (int) $projectYear < (int) $distinctDistricts[$key]['year'])) {
+        $distinctDistricts[$key]['year'] = $projectYear;
+    }
+
+    if (!isset($projectsByProvince[$provKey])) {
+        $projectsByProvince[$provKey] = [
+            'name' => $defaultProvName,
+            'districts' => [],
+            'categories' => [],
+            'project_count' => 0,
+            'beneficiaries' => 0,
+            'project_keys' => [],
+            'has_ict' => false,
+        ];
+    }
+    if ($isFederal) {
+        $projectsByProvince[$provKey]['has_ict'] = true;
+    }
+    if (!isset($projectsByProvince[$provKey]['districts'][$area['key']])) {
+        $projectsByProvince[$provKey]['districts'][$area['key']] = [
+            'name' => $area['label'],
+            'district_count' => count($area['parts']),
+            'projects' => [],
+            'beneficiaries' => 0,
+            'year' => $projectYear,
+            'svg_x' => $distinctDistricts[$key]['svg_x'],
+            'svg_y' => $distinctDistricts[$key]['svg_y'],
+        ];
+    }
+    if (!in_array($proj['title'], $projectsByProvince[$provKey]['districts'][$area['key']]['projects'], true)) {
+        $projectsByProvince[$provKey]['districts'][$area['key']]['projects'][] = $proj['title'];
+    }
+    $districtYear = (string) $projectsByProvince[$provKey]['districts'][$area['key']]['year'];
+    if ($projectYear !== '' && ($districtYear === '' || (int) $projectYear < (int) $districtYear)) {
+        $projectsByProvince[$provKey]['districts'][$area['key']]['year'] = $projectYear;
+    }
+    $projectsByProvince[$provKey]['districts'][$area['key']]['beneficiaries'] += $beneficiaries;
+    $projectsByProvince[$provKey]['project_keys'][$projectKey] = true;
+    $projectsByProvince[$provKey]['beneficiaries'] += $beneficiaries;
+    if (!in_array($cat, $projectsByProvince[$provKey]['categories'], true)) {
+        $projectsByProvince[$provKey]['categories'][] = $cat;
     }
 }
 
@@ -294,6 +292,21 @@ foreach ($provOrder as $pIdx => $pKey) {
         $focusAreas[] = $ci;
     }
 
+    $provinceAreaCards = array_map(function($d) {
+        return [
+            'name' => $d['name'],
+            // A combined area ("Islamabad & Rawalpindi") covers several
+            // districts; the province total should still count them all.
+            'district_count' => (int) ($d['district_count'] ?? 1),
+            'beneficiaries' => number_format($d['beneficiaries']),
+            'year' => $d['year'],
+            'project_count' => count($d['projects']),
+            'projects' => $d['projects'],
+        ];
+    }, array_values($pd['districts']));
+    // Biggest coverage areas first, so the card reads like the table.
+    usort($provinceAreaCards, fn($a, $b) => $b['project_count'] <=> $a['project_count'] ?: strcmp($a['name'], $b['name']));
+
     $provinceSections[] = [
         'id'   => $pKey,
         'name' => $pd['name'],
@@ -303,18 +316,7 @@ foreach ($provOrder as $pIdx => $pKey) {
         'focus_areas' => $focusAreas,
         'project_count' => $pd['project_count'],
         'beneficiaries' => number_format($pd['beneficiaries']),
-        'districts' => array_map(function($d) {
-            return [
-                'name' => $d['name'],
-                // "Islamabad & Rawalpindi" is one coverage area covering two
-                // districts; the province total should still count both.
-                'district_count' => max(1, count(preg_split('/\s*(?:,|&)\s*/', (string) $d['name'], -1, PREG_SPLIT_NO_EMPTY))),
-                'beneficiaries' => number_format($d['beneficiaries']),
-                'year' => $d['year'],
-                'project_count' => count($d['projects']),
-                'projects' => $d['projects'],
-            ];
-        }, array_values($pd['districts'])),
+        'districts' => $provinceAreaCards,
     ];
 }
 
@@ -399,7 +401,26 @@ include dirname(__DIR__) . '/includes/header.php';
         <?= $heroRow ? sanitize($heroData['section_title'] ?? 'Where We Work') : 'Where We Work' ?>
       </h1>
       <p class="text-lg text-white/80 max-w-2xl leading-relaxed mb-8">
-        <?= $heroRow ? sanitize($heroData['subtitle'] ?? $heroData['section_subtitle'] ?? '') : 'Our presence across Pakistan, serving communities in need.' ?>
+        <?php
+        // Coverage copy is project-driven. A dashboard subtitle that still says
+        // "four provinces" would contradict the map, table and counters below,
+        // so the province list is rebuilt from the live portfolio.
+        $heroSubtitle = $heroRow ? (string) ($heroData['subtitle'] ?? $heroData['section_subtitle'] ?? '') : 'Our presence across Pakistan, serving communities in need.';
+        if (preg_match('/four\s+provinces/i', $heroSubtitle)) {
+            $coverageNames = array_values(array_filter(array_map(
+                static fn(array $section): string => trim((string) ($section['name'] ?? '')),
+                $provinceSections
+            )));
+            if ($coverageNames) {
+                $coveragePhrase = count($coverageNames) === 1
+                    ? $coverageNames[0]
+                    : implode(', ', array_slice($coverageNames, 0, -1)) . ' and ' . end($coverageNames);
+                $heroSubtitle = preg_replace('/across\s+four\s+provinces\s+of\s+Pakistan/i', 'in ' . $coveragePhrase, $heroSubtitle);
+                $heroSubtitle = preg_replace('/four\s+provinces/i', $coveragePhrase, $heroSubtitle);
+            }
+        }
+        echo sanitize($heroSubtitle);
+        ?>
       </p>
       <div class="flex flex-wrap gap-3">
         <a href="#map" class="inline-flex items-center gap-2 bg-brandRed hover:bg-brandRed-hover text-white text-sm font-semibold px-6 py-3 rounded-xl transition-all shadow-lg shadow-brandRed/20">

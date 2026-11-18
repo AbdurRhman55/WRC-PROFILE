@@ -1625,11 +1625,55 @@ function wrcSyncBeneficiaryStats( PDO $pdo ): array {
         // Non-fatal.
     }
 
+    // ------------------------------------------------ coverage counters ----
+    try {
+        $coverage = wrcProjectImpactSummary( true );
+        $coverageValues = [
+            'provinces covered'   => (string) $coverage['provinces'],
+            'provinces'           => (string) $coverage['provinces'],
+            'districts covered'   => (string) $coverage['districts'],
+            'districts'           => (string) $coverage['districts'],
+            'projects completed'  => (string) $coverage['projects'],
+            'projects delivered'  => (string) $coverage['projects'],
+            'projects'            => (string) $coverage['projects'],
+            'programs'            => (string) $coverage['projects'],
+            'programmes'          => (string) $coverage['projects'],
+            'beneficiaries reached' => $total,
+        ];
+
+        $syncCoverage = static function ( string $table, string $labelColumn, string $valueColumn ) use ( $pdo, $tableExists, $coverageValues ): int {
+            if ( !$tableExists( $table ) ) {
+                return 0;
+            }
+            $rows = $pdo->query( "SELECT id, `{$labelColumn}` AS label FROM `{$table}`" )->fetchAll( PDO::FETCH_ASSOC );
+            $update = $pdo->prepare( "UPDATE `{$table}` SET `{$valueColumn}` = ? WHERE id = ?" );
+            $changed = 0;
+            foreach ( $rows as $row ) {
+                $label = strtolower( trim( (string) $row['label'] ) );
+                if ( !isset( $coverageValues[ $label ] ) ) {
+                    continue;
+                }
+                $update->execute( [ $coverageValues[ $label ], $row['id'] ] );
+                $changed += $update->rowCount();
+            }
+            return $changed;
+        };
+
+        $coverageChanges  = $syncCoverage( 'impact_stats', 'stat_label', 'stat_value' );
+        $coverageChanges += $syncCoverage( 'history_stats_items', 'stat_label', 'stat_value' );
+        $coverageChanges += $syncCoverage( 'geographic_presence_stats', 'stat_label', 'stat_value' );
+        if ( $coverageChanges ) {
+            $applied[] = 'coverage counters';
+        }
+    } catch ( Throwable $error ) {
+        // Non-fatal.
+    }
+
     // ------------------------------------------------ legacy SDG copy -------
     if ( $tableExists( 'sdg_contributions' ) ) {
         try {
             $sdgCopy = [
-                3 => number_format( $figures['health'] ) . ' health beneficiaries reached through free medical camps, clinical services and emergency care across 4 provinces.',
+                3 => number_format( $figures['health'] ) . ' health beneficiaries reached through free medical camps, clinical services and emergency care across ' . wrcProjectImpactSummary()['provinces'] . ' provinces.',
                 4 => number_format( $figures['skills'] ) . ' skills beneficiaries trained through education, vocational and livelihood programmes.',
                 5 => number_format( $figures['wash'] ) . ' WASH beneficiaries reached with clean water, sanitation and hygiene support.',
                 2 => number_format( $figures['food'] ) . ' food beneficiaries reached through emergency food relief and nutrition support.',
@@ -1679,6 +1723,35 @@ function wrcSyncBeneficiaryStats( PDO $pdo ): array {
                         ->execute( [ $newTitle, $newBody, $article['id'] ] );
                     $applied[] = 'annual impact article';
                 }
+            }
+        } catch ( Throwable $error ) {
+            // Non-fatal.
+        }
+    }
+
+    // ------------------------------------- stale headline figures in copy ---
+    // Older blog/press copy hardcoded the previous total (for example a story
+    // titled "What 1,046,208 Lives Taught Us..."). Keep any 1,046,xxx headline
+    // in line with the published total so the ticker and every page agree.
+    if ( $tableExists( 'news_articles' ) ) {
+        try {
+            $rows = $pdo->query( 'SELECT id, title, excerpt, content FROM news_articles' )->fetchAll( PDO::FETCH_ASSOC );
+            $updateNews = $pdo->prepare( 'UPDATE news_articles SET title = ?, excerpt = ?, content = ? WHERE id = ?' );
+            $staleCount = 0;
+            foreach ( $rows as $row ) {
+                $title   = (string) $row['title'];
+                $excerpt = (string) $row['excerpt'];
+                $content = (string) $row['content'];
+                $newTitle   = preg_replace( '/\b1,046,\d{3}\b/', $total, $title );
+                $newExcerpt = preg_replace( '/\b1,046,\d{3}\b/', $total, $excerpt );
+                $newContent = preg_replace( '/\b1,046,\d{3}\b/', $total, $content );
+                if ( $newTitle !== $title || $newExcerpt !== $excerpt || $newContent !== $content ) {
+                    $updateNews->execute( [ $newTitle, $newExcerpt, $newContent, $row['id'] ] );
+                    $staleCount++;
+                }
+            }
+            if ( $staleCount ) {
+                $applied[] = 'stale headline figures';
             }
         } catch ( Throwable $error ) {
             // Non-fatal.

@@ -66,6 +66,12 @@ if ( !function_exists( 'wrcSetupDistrictCoordinates' ) ) {
             [ 'Charsadda', 'Khyber Pakhtunkhwa', 320, 168 ],
             [ 'NMD', 'Khyber Pakhtunkhwa', 310, 135 ],
 
+            // Combined coverage areas used by the portfolio sheet. They get
+            // their own point so the markers for "Malakand" and "Buner, Swabi &
+            // Nowshera" do not sit on top of a neighbouring district marker.
+            [ 'Malakand & Swat', 'Khyber Pakhtunkhwa', 283, 112 ],
+            [ 'Buner, Swabi & Nowshera', 'Khyber Pakhtunkhwa', 322, 178 ],
+
             // Punjab / ICT
             [ 'Lahore', 'Punjab', 455, 252 ],
             [ 'Faisalabad', 'Punjab', 425, 268 ],

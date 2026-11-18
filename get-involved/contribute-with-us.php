@@ -352,13 +352,31 @@ include __DIR__ . '/../includes/header.php';
       <div class="bg-slate-50 rounded-3xl border border-slate-200 p-8 lg:p-10">
         <div class="grid grid-cols-2 gap-4">
           <?php
+          // Coverage counters follow the live portfolio; only the labels are
+          // fixed so a dashboard edit and the dashboard's own numbers agree.
+          $coverage = wrcProjectImpactSummary();
           $defaultStats = [
-            ['value' => '45+', 'label' => 'Projects Completed'],
+            ['value' => (string) $coverage['projects'], 'label' => 'Projects Completed'],
             ['value' => '8+', 'label' => 'Active Partners'],
             ['value' => wrcFormatBeneficiaries(wrcBeneficiaryTotal()), 'label' => 'Beneficiaries Reached'],
-            ['value' => '4', 'label' => 'Provinces Covered'],
+            ['value' => (string) $coverage['provinces'], 'label' => 'Provinces Covered'],
           ];
           $statItems = $whyData['stats'] ?? $defaultStats;
+          $coverageLabels = [
+            'projects completed'    => 'projects',
+            'projects delivered'    => 'projects',
+            'total projects'        => 'projects',
+            'provinces covered'     => 'provinces',
+            'districts covered'     => 'districts',
+            'beneficiaries reached' => 'beneficiaries',
+          ];
+          foreach ($statItems as &$coverageStat) {
+            $coverageKey = strtolower(trim((string) ($coverageStat['label'] ?? '')));
+            if (isset($coverageLabels[$coverageKey])) {
+              $coverageStat['value'] = number_format((int) $coverage[$coverageLabels[$coverageKey]]);
+            }
+          }
+          unset($coverageStat);
           foreach ($statItems as $stat):
           ?>
           <div class="bg-white rounded-2xl p-5 border border-slate-100 text-center">

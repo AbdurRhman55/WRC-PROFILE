@@ -16,6 +16,17 @@ $activeProjects = getRows('projects', "status = 'active' ORDER BY start_date DES
 $provinces = getRows('provinces', 'is_active = 1 ORDER BY sort_order ASC');
 $kpStats = getRows('impact_stats', "display_page = 'home_kpi' ORDER BY sort_order ASC");
 
+// Only provinces that actually hold a live project are shown, so the homepage
+// can never advertise a province (or a beneficiary figure) the portfolio does
+// not back.
+$projectProvinceIds = array_map(
+    'intval',
+    $pdo->query("SELECT DISTINCT province_id FROM projects WHERE is_active = 1 AND province_id IS NOT NULL AND province_id > 0")->fetchAll(PDO::FETCH_COLUMN)
+);
+$provinces = array_values(array_filter($provinces, static function ($province) use ($projectProvinceIds) {
+    return in_array((int) ($province['id'] ?? 0), $projectProvinceIds, true);
+}));
+
 // Hero figures are calculated from the live projects table, never typed in.
 $impactSummary = wrcProjectImpactSummary();
 $heroStats = [
@@ -60,7 +71,7 @@ $kpiLiveFigures = [
     'projects delivered'    => (int) $impactSummary[ 'projects' ],
     'total projects'        => (int) $impactSummary[ 'projects' ],
     'projects completed'    => (int) $impactSummary[ 'projects' ],
-    'provinces covered'     => count( $provinces ),
+    'provinces covered'     => (int) $impactSummary[ 'provinces' ],
     'programme sectors'     => (int) $impactSummary[ 'sectors' ],
     'program sectors'       => (int) $impactSummary[ 'sectors' ],
     'sectors covered'       => (int) $impactSummary[ 'sectors' ],
@@ -161,6 +172,24 @@ $geoRow = getRow('geographic_presence');
 if ($geoRow) {
     $geoStatsRows = getRows('geographic_presence_stats', ['geo_id' => $geoRow['id']], 'sort_order ASC');
     $geoStats = array_map(function($s) { return ['value' => $s['stat_value'] ?? '', 'label' => $s['stat_label'] ?? '', 'icon' => $s['stat_icon'] ?? '', 'color' => $s['stat_color'] ?? '']; }, $geoStatsRows);
+    // Coverage counters follow the live portfolio so this panel can never
+    // advertise a province, district or programme the projects table does not
+    // back. Labels and styling stay exactly as the dashboard set them.
+    $geoFigures = [
+        'provinces'     => (int) $impactSummary['provinces'],
+        'districts'     => (int) $impactSummary['districts'],
+        'programs'      => (int) $impactSummary['projects'],
+        'programmes'    => (int) $impactSummary['projects'],
+        'projects'      => (int) $impactSummary['projects'],
+        'beneficiaries' => wrcFormatBeneficiaries( wrcBeneficiaryTotal() ),
+    ];
+    foreach ($geoStats as &$geoStat) {
+        $geoLabel = strtolower(trim((string) ($geoStat['label'] ?? '')));
+        if (isset($geoFigures[$geoLabel])) {
+            $geoStat['value'] = (string) $geoFigures[$geoLabel];
+        }
+    }
+    unset($geoStat);
     $homepageMap['geographic_presence'] = [
         'section_key' => 'geographic_presence',
         'section_title' => $geoRow['section_title'] ?? '',
@@ -678,8 +707,9 @@ include __DIR__ . '/includes/header.php';
                 <p class="text-brandRed text-xs uppercase tracking-[0.35em] font-semibold mb-2">Geographic Presence</p>
                 <h2 class="text-3xl sm:text-4xl font-extrabold text-slate-900 mb-4">Serving Communities Across Pakistan
                 </h2>
-                <p class="text-slate-600 text-sm leading-relaxed mb-6">From the mountainous regions of KP to the
-                    floodplains of Sindh, WRC operates in the areas of greatest need across all four provinces.</p>
+                <p class="text-slate-600 text-sm leading-relaxed mb-6">From the mountainous districts of Khyber Pakhtunkhwa to the twin cities of
+                    Islamabad and Rawalpindi, WRC delivers health, education, WASH, food security and emergency relief where
+                    the need is greatest.</p>
                 <div class="grid grid-cols-2 gap-4 mb-6">
                     <?php foreach ($provinces as $province): ?>
                     <div class="flex items-center gap-3 p-3 bg-slate-50 rounded-xl border border-slate-100">
@@ -718,8 +748,8 @@ include __DIR__ . '/includes/header.php';
                     <?php if (empty($geoStats)): ?>
                     <div class="w-20 h-20 rounded-full bg-brandRed/10 flex items-center justify-center mx-auto mb-4"><i
                             class="fa-solid fa-map-location-dot text-brandRed text-3xl"></i></div>
-                    <h3 class="text-lg font-bold text-slate-900 mb-2">4 Provinces</h3>
-                    <p class="text-slate-500 text-sm mb-1">46+ Districts Covered</p>
+                    <h3 class="text-lg font-bold text-slate-900 mb-2"><?= (int) $impactSummary['provinces'] ?> Provinces</h3>
+                    <p class="text-slate-500 text-sm mb-1"><?= (int) $impactSummary['districts'] ?> Districts Covered</p>
                     <p class="text-slate-500 text-sm mb-4"><?= wrcFormatBeneficiaries( wrcBeneficiaryTotal() ) ?>+ Beneficiaries Reached</p>
                     <?php endif; ?>
                     <a href="<?= $base ?>where-we-work/index.php#map"

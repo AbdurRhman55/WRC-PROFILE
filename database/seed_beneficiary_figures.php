@@ -47,6 +47,7 @@ $oneTimeSetupDone = wrc_figures_done( $pdo, WRC_FIGURES_MARKER );
 if ( ! $oneTimeSetupDone ) {
 
 $figures = wrcBeneficiaryFigures();
+$coverage = wrcProjectImpactSummary();
 $total   = number_format( $figures['total'] );
 
 $canonicalStats = [
@@ -55,7 +56,7 @@ $canonicalStats = [
     [ 'icon' => 'fa-solid fa-graduation-cap', 'color' => 'purple', 'target' => (string) $figures['skills'], 'label' => 'Skills', 'sub' => 'Vocational & livelihood training' ],
     [ 'icon' => 'fa-solid fa-bowl-food', 'color' => 'amber', 'target' => (string) $figures['food'], 'label' => 'Food', 'sub' => 'Emergency food & nutrition support' ],
     [ 'icon' => 'fa-solid fa-faucet-drip', 'color' => 'blue', 'target' => (string) $figures['wash'], 'label' => 'WASH', 'sub' => 'Clean water, sanitation & hygiene' ],
-    [ 'icon' => 'fa-solid fa-map-location-dot', 'color' => 'teal', 'target' => '4', 'label' => 'Provinces Covered', 'sub' => 'Nationwide coverage' ],
+    [ 'icon' => 'fa-solid fa-map-location-dot', 'color' => 'teal', 'target' => (string) $coverage['provinces'], 'label' => 'Provinces Covered', 'sub' => 'Across our project areas' ],
 ];
 
 $canonicalSdgs = [
@@ -66,7 +67,7 @@ $canonicalSdgs = [
         'desc'   => 'WRC runs free medical camps, maternal and child health services, emergency treatment and community health programmes that bring essential care closer to underserved families.',
         'color'  => 'green-600',
         'bg'     => 'green',
-        'tags'   => [ 'Health & emergency care', '4 provinces covered' ],
+        'tags'   => [ 'Health & emergency care', $coverage['provinces'] . ' provinces covered' ],
         'icon'   => 'fa-heart-pulse',
     ],
     [
@@ -186,7 +187,7 @@ try {
         'water wells installed'     => [ number_format( $figures['wash'] ), 'WASH Beneficiaries', 'Clean water, sanitation & hygiene', 'fa-solid fa-faucet-drip', 'blue' ],
         'food packages distributed' => [ number_format( $figures['food'] ), 'Food Beneficiaries', 'Emergency food & nutrition support', 'fa-solid fa-bowl-food', 'amber' ],
         'children enrolled'         => [ number_format( $figures['skills'] ), 'Skills Beneficiaries', 'Vocational & livelihood training', 'fa-solid fa-graduation-cap', 'purple' ],
-        'communities served'        => [ '4', 'Provinces Covered', 'Nationwide coverage', 'fa-solid fa-map-location-dot', 'teal' ],
+        'communities served'        => [ (string) $coverage['provinces'], 'Provinces Covered', 'Across our project areas', 'fa-solid fa-map-location-dot', 'teal' ],
     ];
 
     $statRows = $pdo->query( 'SELECT id, stat_label FROM impact_stats' )->fetchAll( PDO::FETCH_ASSOC );
@@ -238,7 +239,7 @@ try {
     // Legacy SDG contribution copy (not currently printed on the site, kept in
     // step so no dashboard or future template can surface old numbers).
     $sdgCopy = [
-        1 => number_format( $figures['health'] ) . ' health beneficiaries reached through free medical camps, clinical services and emergency care across 4 provinces.',
+        1 => number_format( $figures['health'] ) . ' health beneficiaries reached through free medical camps, clinical services and emergency care across ' . wrcProjectImpactSummary()['provinces'] . ' provinces.',
         2 => number_format( $figures['skills'] ) . ' skills beneficiaries trained through education, vocational and livelihood programmes.',
         3 => number_format( $figures['wash'] ) . ' WASH beneficiaries reached with clean water, sanitation and hygiene support.',
         4 => number_format( $figures['food'] ) . ' food beneficiaries reached through emergency food relief and nutrition support.',

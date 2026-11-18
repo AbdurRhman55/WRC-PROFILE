@@ -166,7 +166,7 @@ HTML,
             ],
             [
                 'slug'         => 'what-1046208-lives-taught-us-about-impact',
-                'title'        => 'What 1,046,208 Lives Taught Us About Measuring Impact',
+                'title'        => 'What 1,046,209 Lives Taught Us About Measuring Impact',
                 'author'       => 'WRC MEAL Unit',
                 'published_at' => '2026-10-14',
                 'featured_image' => 'assets/images/projects/community-health.jpg',
@@ -176,7 +176,7 @@ HTML,
                 'content'      => <<<'HTML'
 <p>When an organisation reports that it has reached more than one million people, the first reaction is usually the number itself. The harder and more important question is what the number means: who was counted, how, and what changed for them.</p>
 
-<p>At WRC, the headline figure of 1,046,208 beneficiaries is not a trophy. It is a responsibility. Every row behind that total represents a household that received a service, joined a training, visited a camp or took part in a community programme. The quality of the total depends entirely on the quality of the counting.</p>
+<p>At WRC, the headline figure of 1,046,209 beneficiaries is not a trophy. It is a responsibility. Every row behind that total represents a household that received a service, joined a training, visited a camp or took part in a community programme. The quality of the total depends entirely on the quality of the counting.</p>
 
 <h2>Count people, not activities</h2>
 

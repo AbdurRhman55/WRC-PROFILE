@@ -54,6 +54,26 @@ if ( $statsRow ) {
     }
     , $statsRows );
 }
+
+// The headline counters follow the live portfolio, so this page can never show
+// a project, province, district or beneficiary figure the dashboard does not
+// back.
+$coverage = wrcProjectImpactSummary();
+$coverageLabels = [
+    'projects completed'    => 'projects',
+    'projects delivered'    => 'projects',
+    'total projects'        => 'projects',
+    'provinces covered'     => 'provinces',
+    'districts covered'     => 'districts',
+    'beneficiaries reached' => 'beneficiaries',
+];
+foreach ( $statsItems as &$coverageStat ) {
+    $coverageKey = strtolower( trim( (string) ( $coverageStat[ 'label' ] ?? '' ) ) );
+    if ( isset( $coverageLabels[ $coverageKey ] ) ) {
+        $coverageStat[ 'value' ] = number_format( (int) $coverage[ $coverageLabels[ $coverageKey ] ] );
+    }
+}
+unset( $coverageStat );
 $ctaData = $ctaRow ?: [];
 
 include dirname( __DIR__ ) . '/includes/header.php';
