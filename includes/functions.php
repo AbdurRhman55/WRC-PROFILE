@@ -1350,6 +1350,118 @@ function wrcFormatBeneficiaries( int $number ): string {
 }
 
 /**
+ * USD -> PKR rate used by the donation form and the admin ledger.
+ *
+ * Kept in one place so the public form, the stored conversion and the
+ * dashboard totals always agree.
+ */
+function wrcDonationUsdRate(): float {
+    return 280.0;
+}
+
+/**
+ * Donation currencies and their quick-pick amounts.
+ *
+ * @return array<string,array{label:string,symbol:string,presets:int[]}>
+ */
+function wrcDonationCurrencies(): array {
+    return [
+        'PKR' => [
+            'label'   => 'Pakistani Rupee',
+            'symbol'  => 'PKR',
+            'presets' => [ 1000, 2500, 5000, 10000, 25000, 50000 ],
+        ],
+        'USD' => [
+            'label'   => 'US Dollar',
+            'symbol'  => '$',
+            'presets' => [ 10, 25, 50, 100, 250, 500 ],
+        ],
+    ];
+}
+
+/** Convert a donation amount to PKR for the unified ledger total. */
+function wrcDonationAmountPkr( float $amount, string $currency ): float {
+    if ( strtoupper( $currency ) === 'USD' ) {
+        return round( $amount * wrcDonationUsdRate(), 2 );
+    }
+    return round( $amount, 2 );
+}
+
+/** Human label for a stored payment method. */
+function wrcPaymentMethodLabel( string $method ): string {
+    $labels = [
+        'bank'    => 'Bank Transfer',
+        'easy'    => 'EasyPaisa / JazzCash',
+        'payoneer' => 'Payoneer',
+        'taptap'  => 'TapTap Send',
+    ];
+    $key = strtolower( trim( $method ) );
+    return $labels[ $key ] ?? ucwords( str_replace( [ '_', '-' ], ' ', $key ) );
+}
+
+/** Programme sector keys used by the donation cards and the ledger. */
+function wrcDonationCauses(): array {
+    return [
+        'health' => [
+            'label'       => 'Health Care',
+            'sector'      => 'Health',
+            'icon'        => 'fa-heart-pulse',
+            'image'       => 'assets/images/projects/medical-camp.png',
+            'tagline'     => 'Medical care for families who cannot afford it',
+            'description' => 'Fund free medical camps, maternal care and essential medicines so no family is turned away.',
+            'impact'      => 'Every gift helps a patient receive care closer to home.',
+        ],
+        'water' => [
+            'label'       => 'Clean Water',
+            'sector'      => 'WASH',
+            'icon'        => 'fa-droplet',
+            'image'       => 'assets/images/projects/flood-swat.jpg',
+            'tagline'     => 'Safe water within walking distance',
+            'description' => 'Repair and install water points so children drink safe water instead of walking miles every day.',
+            'impact'      => 'A working water point serves an entire neighbourhood.',
+        ],
+        'food' => [
+            'label'       => 'Food & Relief',
+            'sector'      => 'Food & Relief Distribution',
+            'icon'        => 'fa-bowl-food',
+            'image'       => 'assets/images/projects/ramadan-packages.png',
+            'tagline'     => 'Dignified relief when it is needed most',
+            'description' => 'Deliver food packs, clean drinking water and household kits to families displaced by floods and conflict.',
+            'impact'      => 'One pack feeds a family through the hardest weeks.',
+        ],
+        'skills' => [
+            'label'       => 'Skill Development',
+            'sector'      => 'Skill Development',
+            'icon'        => 'fa-graduation-cap',
+            'image'       => 'assets/images/gallery/2+ (5).jpeg',
+            'tagline'     => 'Training that turns into a real income',
+            'description' => 'Support vocational and technical training so young people and women can earn a stable living.',
+            'impact'      => 'A trained graduate supports a whole household.',
+        ],
+        'solar' => [
+            'label'       => 'Hospital Solar Energy',
+            'sector'      => 'Health',
+            'icon'        => 'fa-solar-panel',
+            'image'       => 'assets/images/projects/solarization.png',
+            'tagline'     => 'Power that never cuts out',
+            'description' => 'Solarize rural health facilities so lighting, vaccines and lifesaving equipment keep running.',
+            'impact'      => 'Reliable power keeps a hospital open through every outage.',
+            'project_slug' => 'smart-aid-solarization-cat-d-hospital-totakan-malakand-2023-2024',
+        ],
+        'general' => [
+            'label'       => 'Where Most Needed',
+            'sector'      => '',
+            'icon'        => 'fa-hand-holding-heart',
+            'image'       => 'assets/images/projects/ramadan-packages.png',
+            'tagline'     => 'Let our field team decide',
+            'description' => 'Give where the need is greatest today and our team will direct your gift to the most urgent community.',
+            'impact'      => 'Flexible giving reaches needs as soon as they appear.',
+        ],
+    ];
+}
+
+
+/**
  * Resolve a stat label to one of the beneficiary figures.
  *
  * Returns the integer figure so callers can choose their own formatting

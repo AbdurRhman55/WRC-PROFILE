@@ -1023,6 +1023,17 @@ try {
     // and deliberate deletions survive every deploy.
     require_once __DIR__ . '/seed_blog.php';
 
+    // Donation ledger and payment channels: creates the `donations` table the
+    // public form writes to, adds the payment-channel columns to bank_accounts,
+    // and seeds the mobile wallet, Payoneer and TapTap Send channels once.
+    // Existing rows are never overwritten, so dashboard edits always win.
+    require_once __DIR__ . '/seed_donations.php';
+    try {
+        wrcSetupDonations( $pdo );
+    } catch ( Throwable $error ) {
+        error_log( 'donation setup failed: ' . $error->getMessage() );
+    }
+
     // Correct the solarization project beneficiary count (was 85000, should be 1).
     // This runs on every deployment in the maintenance section so the live DB
     // is corrected even when the portfolio slugs already match and the full

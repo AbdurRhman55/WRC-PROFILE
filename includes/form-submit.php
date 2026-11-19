@@ -142,19 +142,163 @@ switch ($formType) {
 
     case 'donation':
         $amount    = trim($_POST['donation_amount'] ?? '');
-        $frequency = trim($_POST['frequency'] ?? 'one-time');
-        $payment   = trim($_POST['payment'] ?? '');
+        $currency  = strtoupper(trim($_POST['currency'] ?? 'PKR'));
+        $frequency = strtolower(trim($_POST['frequency'] ?? 'one-time'));
+        $payment   = strtolower(trim($_POST['payment'] ?? 'bank'));
+        $causeKey  = strtolower(trim($_POST['cause'] ?? 'general'));
+        $projectId = (int) ($_POST['project_id'] ?? 0);
+        $reference = trim($_POST['payment_reference'] ?? '');
+        $note      = trim($_POST['donation_message'] ?? '');
 
-        $subject     = 'Donation Pledge' . ($amount !== '' ? ': PKR ' . number_format((float) $amount) : '');
-        $inquiryType = 'donation';
+        if ($amount === '' || !is_numeric($amount) || (float) $amount <= 0) {
+            fail('Please choose or enter a donation amount.', 'Amount Required');
+        }
+        if (!in_array($currency, ['PKR', 'USD'], true)) {
+            $currency = 'PKR';
+        }
+        if (!in_array($frequency, ['one-time', 'monthly', 'quarterly', 'annually'], true)) {
+            $frequency = 'one-time';
+        }
+        $paymentMethods = ['bank', 'easy', 'payoneer', 'taptap'];
+        if (!in_array($payment, $paymentMethods, true)) {
+            $payment = 'bank';
+        }
+        $causes = wrcDonationCauses();
+        if (!isset($causes[$causeKey])) {
+            $causeKey = 'general';
+        }
+        $cause       = $causes[$causeKey];
+        $sectorName  = (string) ($cause['sector'] ?? '');
+        $projectTitle = '';
 
-        $messageParts[] = 'Amount: ' . ($amount !== '' ? 'PKR ' . number_format((float) $amount) : 'Not specified');
-        $messageParts[] = 'Frequency: ' . $frequency;
-        $messageParts[] = 'Payment Method: ' . ($payment === 'bank' ? 'Bank Transfer' : ($payment === 'easy' ? 'EasyPaisa / JazzCash' : $payment));
+        if (empty($_POST['donation_consent'])) {
+            fail('Please confirm the donation details before you continue.', 'Consent Required');
+        }
 
-        $successTitle   = 'Thank You for Your Generosity';
-        $successMessage = 'Your pledge has been recorded. Our team will contact you shortly with the payment details and a formal receipt.';
-        break;
+        // Resolve the chosen project from the live portfolio, never from posted
+        // text, so a stale form cannot write an invented project name.
+        if ($projectId > 0) {
+            try {
+                $projectStmt = $pdo->prepare('SELECT id, title, category FROM projects WHERE id = ? AND is_active = 1 LIMIT 1');
+                $projectStmt->execute([$projectId]);
+                $project = $projectStmt->fetch(PDO::FETCH_ASSOC);
+                if ($project) {
+                    $projectId    = (int) $project['id'];
+                    $projectTitle = (string) $project['title'];
+                    if ($sectorName === '') {
+                        $sectorName = wrcProgrammeSector((string) ($project['category'] ?? ''));
+                    }
+                }
+            } catch (Throwable $e) {
+                $projectId = 0;
+            }
+        } else {
+            $projectId = 0;
+        }
+
+        // Payment proof: required for wallet and international channels, where
+        // the team reconciles the transfer from the screenshot.
+        $proofPath = null;
+        $proofRequired = in_array($payment, ['easy', 'payoneer', 'taptap'], true);
+        if (!empty($_FILES['payment_proof']) && is_array($_FILES['payment_proof'])) {
+            $proof = $_FILES['payment_proof'];
+            if (($proof['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_NO_FILE) {
+                if (($proof['error'] ?? UPLOAD_ERR_OK) !== UPLOAD_ERR_OK) {
+                    fail('The payment screenshot could not be uploaded. Please try a smaller image.', 'Upload Failed');
+                }
+                $proofPath = uploadPublicAttachment($proof);
+                if ($proofPath === null) {
+                    fail('Please upload a screenshot as JPG, PNG or PDF up to 20MB.', 'Upload Failed');
+                }
+            }
+        }
+        if ($proofRequired && $proofPath === null) {
+            fail('Please attach your payment screenshot so we can verify the donation.', 'Screenshot Required');
+        }
+
+        $amountValue = round((float) $amount, 2);
+        $amountPkr   = wrcDonationAmountPkr($amountValue, $currency);
+
+        $donationRow = [
+            'full_name'         => $name,
+            'email'             => $email,
+            'phone'             => $phone,
+            'amount'            => $amountValue,
+            'currency'          => $currency,
+            'amount_pkr'        => $amountPkr,
+            'frequency'         => $frequency,
+            'sector_key'        => $causeKey,
+            'sector_name'       => $sectorName,
+            'project_id'        => $projectId ?: null,
+            'project_title'     => $projectTitle !== '' ? $projectTitle : null,
+            'payment_method'    => $payment,
+            'payment_reference' => $reference !== '' ? $reference : null,
+            'message'           => $note !== '' ? $note : null,
+            'screenshot_path'   => $proofPath,
+            'status'            => 'new',
+            'created_at'        => date('Y-m-d H:i:s'),
+        ];
+
+        $saved = false;
+        try {
+            $donationColumns = [];
+            foreach ($pdo->query('SHOW COLUMNS FROM donations') as $column) {
+                $donationColumns[$column['Field']] = true;
+            }
+            if ($donationColumns) {
+                $insertColumns = array_values(array_filter(
+                    array_keys($donationRow),
+                    static fn($column) => isset($donationColumns[$column])
+                ));
+                $placeholders = implode(', ', array_fill(0, count($insertColumns), '?'));
+                $insert = $pdo->prepare(
+                    'INSERT INTO donations (`' . implode('`, `', $insertColumns) . '`) VALUES (' . $placeholders . ')'
+                );
+                $insert->execute(array_map(static fn($column) => $donationRow[$column], $insertColumns));
+                $saved = true;
+            }
+        } catch (Throwable $e) {
+            error_log('donation insert failed: ' . $e->getMessage());
+        }
+
+        // Older installs without the donations table keep the pledge in the
+        // submissions inbox so no enquiry is ever lost.
+        if (!$saved) {
+            $messageParts[] = 'Amount: ' . $currency . ' ' . number_format($amountValue, 2);
+            $messageParts[] = 'Frequency: ' . $frequency;
+            $messageParts[] = 'Cause: ' . $cause['label'] . ($sectorName !== '' ? ' (' . $sectorName . ')' : '');
+            if ($projectTitle !== '') {
+                $messageParts[] = 'Project: ' . $projectTitle;
+            }
+            $messageParts[] = 'Payment Method: ' . wrcPaymentMethodLabel($payment);
+            if ($reference !== '') {
+                $messageParts[] = 'Transaction Reference: ' . $reference;
+            }
+            if ($note !== '') {
+                $messageParts[] = 'Note: ' . $note;
+            }
+            if ($proofPath !== null) {
+                $messageParts[] = 'Payment Screenshot: ' . $proofPath;
+            }
+            $subject     = 'Donation Pledge: ' . $currency . ' ' . number_format($amountValue, 2);
+            $inquiryType = 'donation';
+
+            $successTitle   = 'Thank You for Your Generosity';
+            $successMessage = 'Your pledge has been recorded. Our team will verify your payment and email a receipt.';
+            break;
+        }
+
+        echo json_encode([
+            'success' => true,
+            'title'   => 'Thank You for Your Generosity',
+            'message' => 'Your donation has been recorded. Our team will verify your payment and send a receipt to ' . $email . ' within 2 working days.',
+            'donation' => [
+                'amount'   => number_format($amountValue, $currency === 'USD' ? 2 : 0),
+                'currency' => $currency,
+                'cause'    => $cause['label'],
+            ],
+        ]);
+        exit;
 
     default:
         fail('Unknown form type.', 'Invalid Form');

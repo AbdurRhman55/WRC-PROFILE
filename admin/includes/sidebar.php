@@ -28,6 +28,7 @@ $navGroups = [
         ['file' => 'provinces.php', 'label' => 'Provinces', 'icon' => 'fa-map-location-dot'],
     ]],
     ['label' => 'Fundraising', 'items' => [
+        ['file' => 'donations.php', 'label' => 'Donations', 'icon' => 'fa-hand-holding-dollar'],
         ['file' => 'campaigns.php', 'label' => 'Campaigns', 'icon' => 'fa-hand-holding-heart'],
         ['file' => 'tiers.php', 'label' => 'Donation Tiers', 'icon' => 'fa-coins'],
         ['file' => 'bank-accounts.php', 'label' => 'Bank Accounts', 'icon' => 'fa-building-columns'],
