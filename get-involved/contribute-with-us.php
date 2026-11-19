@@ -158,7 +158,7 @@ include __DIR__ . '/../includes/header.php';
   </div>
 </section>
 <!-- DONATION IMPACT -->
-<section class="relative overflow-hidden bg-white py-20">
+<section id="donation-impact" class="relative overflow-hidden scroll-mt-28 bg-white py-20">
   <div class="pointer-events-none absolute -top-24 right-0 h-72 w-72 rounded-full bg-brandRed/5 blur-3xl"></div>
   <div class="pointer-events-none absolute bottom-0 left-0 h-72 w-72 rounded-full bg-sky-100/60 blur-3xl"></div>
   <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -240,7 +240,7 @@ include __DIR__ . '/../includes/header.php';
     <div class="grid items-start gap-8 lg:grid-cols-[0.82fr_1.18fr]">
 
       <!-- ---------------------------------------------------------- visual -->
-      <aside class="space-y-6 lg:sticky lg:top-32">
+      <aside class="space-y-6">
         <div class="group relative overflow-hidden rounded-3xl bg-slate-900 shadow-2xl shadow-slate-900/20">
           <img id="donation-cause-image"
                src="<?= $base . sanitize($donationCauses['general']['image']) ?>"
@@ -268,7 +268,6 @@ include __DIR__ . '/../includes/header.php';
           </div>
           <div class="flex items-end gap-2 border-b border-dashed border-slate-200 pb-4">
             <span id="summary-amount" class="font-heading text-3xl font-extrabold text-slate-900">PKR 5,000</span>
-            <span id="summary-frequency" class="pb-1 text-xs font-semibold text-slate-400">one-time</span>
           </div>
           <dl class="mt-4 space-y-3 text-sm">
             <div class="flex items-start justify-between gap-4">
@@ -316,34 +315,27 @@ include __DIR__ . '/../includes/header.php';
           <input type="hidden" name="cause" id="donation-cause" value="general">
           <input type="hidden" name="donation_amount" id="donation-amount" value="">
 
-          <!-- Step 1: cause -->
-          <div class="mb-8">
-            <div class="mb-3 flex items-center gap-3">
-              <span class="flex h-7 w-7 items-center justify-center rounded-full bg-brandRed/10 text-[11px] font-bold text-brandRed">1</span>
-              <h3 class="font-heading text-base font-bold text-slate-900">Choose your cause</h3>
-            </div>
-            <div class="grid grid-cols-2 gap-2.5 sm:grid-cols-3" id="cause-picker">
-              <?php foreach ($donationCauses as $causeKey => $cause): ?>
-              <button type="button"
-                      data-cause="<?= sanitize($causeKey) ?>"
-                      onclick="selectCause('<?= sanitize($causeKey) ?>', { scroll: false })"
-                      class="cause-chip flex min-h-[56px] items-center gap-2 rounded-xl border-2 border-slate-200 bg-white px-2.5 py-2.5 text-left transition-all hover:border-brandRed/40 hover:bg-brandRed/5">
-                <span class="cause-chip-icon flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-slate-100 text-slate-500 transition-colors">
-                  <i class="fa-solid <?= sanitize($cause['icon']) ?> text-xs"></i>
-                </span>
-                <span class="min-w-0">
-                  <span class="block text-[11px] font-bold leading-tight text-slate-800"><?= sanitize($cause['label']) ?></span>
-                  <span class="mt-0.5 block truncate text-[9px] font-semibold uppercase tracking-wide text-slate-400"><?= sanitize($cause['sector'] !== '' ? $cause['sector'] : 'Greatest need') ?></span>
-                </span>
-              </button>
-              <?php endforeach; ?>
+          <!-- selected cause -->
+          <div class="mb-8 rounded-2xl border border-brandRed/15 bg-brandRed/[0.03] p-4 sm:p-5">
+            <div class="flex items-start gap-3">
+              <span id="form-cause-icon" class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-brandRed/10 text-brandRed">
+                <i class="fa-solid fa-hand-holding-heart"></i>
+              </span>
+              <div class="min-w-0 flex-1">
+                <p class="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">You are supporting</p>
+                <p id="form-cause-name" class="font-heading text-lg font-extrabold leading-tight text-slate-900">Where Most Needed</p>
+                <p id="form-cause-note" class="mt-0.5 text-[11px] leading-relaxed text-slate-500">Choose a cause above to link your donation to a specific project.</p>
+              </div>
+              <a href="#donation-impact" class="inline-flex shrink-0 items-center gap-1 rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-[10px] font-bold text-slate-500 transition hover:border-brandRed hover:text-brandRed">
+                <i class="fa-solid fa-arrow-up text-[9px]"></i> Change
+              </a>
             </div>
 
             <div class="mt-4">
               <label for="donation-project" class="mb-1.5 block text-[11px] font-bold uppercase tracking-wider text-slate-500">Project / Area</label>
               <div class="relative">
                 <select id="donation-project" name="project_id"
-                        class="w-full appearance-none rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 pr-10 text-sm font-medium text-slate-800 outline-none transition-all focus:border-brandRed focus:bg-white focus:ring-2 focus:ring-brandRed/20">
+                        class="w-full appearance-none rounded-xl border border-slate-200 bg-white px-4 py-3 pr-10 text-sm font-medium text-slate-800 outline-none transition-all focus:border-brandRed focus:ring-2 focus:ring-brandRed/20">
                   <option value="">Any project in this cause</option>
                 </select>
                 <i class="fa-solid fa-chevron-down pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-[10px] text-slate-400"></i>
@@ -355,7 +347,7 @@ include __DIR__ . '/../includes/header.php';
           <div class="mb-8 border-t border-slate-100 pt-8">
             <div class="mb-3 flex flex-wrap items-center justify-between gap-3">
               <div class="flex items-center gap-3">
-                <span class="flex h-7 w-7 items-center justify-center rounded-full bg-brandRed/10 text-[11px] font-bold text-brandRed">2</span>
+                <span class="flex h-7 w-7 items-center justify-center rounded-full bg-brandRed/10 text-[11px] font-bold text-brandRed">1</span>
                 <h3 class="font-heading text-base font-bold text-slate-900">Donation amount</h3>
               </div>
               <div class="inline-flex rounded-xl bg-slate-100 p-1">
@@ -377,24 +369,11 @@ include __DIR__ . '/../includes/header.php';
                      oninput="clearAmountBtns()">
             </div>
             <p id="conversion-hint" class="mt-2 hidden text-[11px] font-medium text-slate-500"></p>
-
-            <div class="mt-5">
-              <label class="mb-2 block text-[11px] font-bold uppercase tracking-wider text-slate-500">Frequency</label>
-              <div class="grid grid-cols-2 gap-2 sm:grid-cols-4">
-                <?php foreach (['one-time' => 'One-Time', 'monthly' => 'Monthly', 'quarterly' => 'Quarterly', 'annually' => 'Annually'] as $value => $label): ?>
-                <label class="flex cursor-pointer items-center justify-center gap-2 rounded-xl border-2 border-slate-200 px-2 py-2.5 text-center transition-all hover:border-brandRed/40 has-[:checked]:border-brandRed has-[:checked]:bg-brandRed/5">
-                  <input type="radio" name="frequency" value="<?= $value ?>" <?= $value === 'one-time' ? 'checked' : '' ?> onchange="updateSummary()"
-                         class="h-3.5 w-3.5 border-slate-300 text-brandRed focus:ring-brandRed">
-                  <span class="text-xs font-semibold text-slate-700"><?= $label ?></span>
-                </label>
-                <?php endforeach; ?>
-              </div>
-            </div>
           </div>
 
           <div class="mb-8 border-t border-slate-100 pt-8">
             <div class="mb-3 flex items-center gap-3">
-              <span class="flex h-7 w-7 items-center justify-center rounded-full bg-brandRed/10 text-[11px] font-bold text-brandRed">3</span>
+              <span class="flex h-7 w-7 items-center justify-center rounded-full bg-brandRed/10 text-[11px] font-bold text-brandRed">2</span>
               <h3 class="font-heading text-base font-bold text-slate-900">Your details</h3>
             </div>
             <div class="grid gap-4 sm:grid-cols-2">
@@ -421,7 +400,7 @@ include __DIR__ . '/../includes/header.php';
 
           <div class="mb-8 border-t border-slate-100 pt-8">
             <div class="mb-3 flex items-center gap-3">
-              <span class="flex h-7 w-7 items-center justify-center rounded-full bg-brandRed/10 text-[11px] font-bold text-brandRed">4</span>
+              <span class="flex h-7 w-7 items-center justify-center rounded-full bg-brandRed/10 text-[11px] font-bold text-brandRed">3</span>
               <h3 class="font-heading text-base font-bold text-slate-900">Payment method</h3>
             </div>
 
@@ -947,20 +926,12 @@ function selectCause(key, options) {
   const impact = document.getElementById('donation-cause-impact');
   if (impact) impact.textContent = cause.impact || '';
 
-  document.querySelectorAll('.cause-chip').forEach(function (chip) {
-    const active = chip.dataset.cause === key;
-    chip.classList.toggle('border-brandRed', active);
-    chip.classList.toggle('bg-brandRed/5', active);
-    const icon = chip.querySelector('.cause-chip-icon');
-    if (icon) {
-      icon.classList.toggle('bg-brandRed', active);
-      icon.classList.toggle('text-white', active);
-      icon.classList.toggle('bg-slate-100', !active);
-      icon.classList.toggle('text-slate-500', !active);
-    }
-    const label = chip.querySelector('.block');
-    if (label) label.classList.toggle('text-brandRed', active);
-  });
+  const formIcon = document.getElementById('form-cause-icon');
+  if (formIcon) formIcon.innerHTML = '<i class="fa-solid ' + cause.icon + '"></i>';
+  const formName = document.getElementById('form-cause-name');
+  if (formName) formName.textContent = cause.label;
+  const formNote = document.getElementById('form-cause-note');
+  if (formNote) formNote.textContent = (cause.sector ? cause.sector + ' · ' : '') + (cause.tagline || '');
 
   renderProjects(key);
   updateSummary();
@@ -1026,10 +997,6 @@ function updateSummary() {
 
   const amountEl = document.getElementById('summary-amount');
   if (amountEl) amountEl.textContent = amount > 0 ? donationFormatMoney(amount, donationState.currency) : 'Choose an amount';
-
-  const frequency = document.querySelector('input[name="frequency"]:checked');
-  const frequencyEl = document.getElementById('summary-frequency');
-  if (frequencyEl && frequency) frequencyEl.textContent = (frequency.value || 'one-time').replace('-', ' ');
 
   const causeEl = document.getElementById('summary-cause');
   if (causeEl) causeEl.textContent = (WRC_DONATION.causes[donationState.cause] || {}).label || 'Where Most Needed';
@@ -1228,9 +1195,6 @@ document.addEventListener('DOMContentLoaded', function () {
   selectCause('general', { scroll: false });
   setCurrency('PKR');
   selectPayment('bank');
-  document.querySelectorAll('input[name="frequency"]').forEach(function (radio) {
-    radio.addEventListener('change', updateSummary);
-  });
   const projectSelect = document.getElementById('donation-project');
   if (projectSelect) projectSelect.addEventListener('change', updateSummary);
 });
