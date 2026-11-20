@@ -191,7 +191,7 @@ include dirname(__DIR__) . '/includes/header.php';
     <img src="<?= $base ?><?= $heroImg ?>" alt="Contact Welfare &amp; Relief Committee" class="absolute inset-0 w-full h-full object-cover">
     <div class="absolute inset-0 bg-gradient-to-br from-slate-950/70 via-slate-900/50 to-brandRed/20"></div>
   </div>
-  <div class="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-20 lg:py-24">
+  <div class="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 md:py-12 lg:py-12">
     <div class="max-w-3xl mx-auto text-center">
       <nav class="text-xs text-white/50 mb-6 flex items-center gap-2 justify-center">
         <a href="<?= $base ?>index.php" class="hover:text-white transition">Home</a>
@@ -231,9 +231,9 @@ include dirname(__DIR__) . '/includes/header.php';
 
 
 <!-- OFFICE LOCATION + MAP -->
-<section id="offices" class="py-20 bg-white">
+<section id="offices" class="py-12 bg-white">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <div class="text-center mb-14">
+    <div class="text-center mb-8">
       <span class="text-brandRed text-xs font-bold uppercase tracking-widest"><?= sanitize($contentData['offices_subtitle'] ?? 'Visit Us') ?></span>
       <h2 class="text-3xl md:text-4xl font-extrabold text-slate-900 mt-2" style="font-family:'Fraunces',serif;"><?= sanitize($contentData['offices_title'] ?? 'Office Locations') ?></h2>
       <p class="mt-3 text-slate-500 text-sm max-w-xl mx-auto"><?= sanitize($contentData['offices_description'] ?? '') ?></p>
@@ -329,7 +329,7 @@ include dirname(__DIR__) . '/includes/header.php';
 
 
 <!-- CONTACT FORM + INFO -->
-<section id="contact" class="py-20 bg-slate-50">
+<section id="contact" class="py-12 bg-slate-50">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <div class="grid lg:grid-cols-5 gap-12">
 
@@ -410,7 +410,7 @@ include dirname(__DIR__) . '/includes/header.php';
 
 
 <!-- FEEDBACK -->
-<section id="feedback" class="py-20 bg-white">
+<section id="feedback" class="py-12 bg-white">
   <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
     <div class="text-center mb-10">
       <span class="text-brandRed text-xs font-bold uppercase tracking-widest"><?= sanitize($feedbackData['subtitle'] ?? 'Your Voice Matters') ?></span>
@@ -458,7 +458,7 @@ include dirname(__DIR__) . '/includes/header.php';
 
 
 <!-- WHISTLEBLOWER -->
-<section id="whistleblower" class="py-20 bg-slate-900">
+<section id="whistleblower" class="py-12 bg-slate-900">
   <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
     <div class="text-center mb-10">
       <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-yellow-500/20 mb-4"><i class="fa-solid fa-shield-halved text-yellow-400 text-2xl"></i></div>

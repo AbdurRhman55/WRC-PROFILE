@@ -221,7 +221,7 @@ include dirname(__DIR__) . '/includes/header.php';
     <div class="absolute inset-0 bg-gradient-to-t from-ink-900/90 via-transparent to-ink-900/40"></div>
     <div class="absolute -right-24 top-1/2 h-[420px] w-[420px] -translate-y-1/2 rounded-full bg-brandRed/20 blur-3xl"></div>
   </div>
-  <div class="relative z-10 mx-auto w-full max-w-7xl px-4 py-16 sm:px-6 md:py-20 lg:px-8 lg:py-24">
+  <div class="relative z-10 mx-auto w-full max-w-7xl px-4 py-10 sm:px-6 md:py-12 lg:px-8 lg:py-12">
     <div class="max-w-3xl">
       <nav class="mb-6 flex items-center gap-2 text-xs text-white/55 sm:text-sm">
         <a href="<?= $base ?>index.php" class="transition-colors hover:text-white">Home</a>
@@ -255,14 +255,14 @@ include dirname(__DIR__) . '/includes/header.php';
 
 
 <!-- IMPACT AT A GLANCE -->
-<section id="glance" class="bg-sand-50 py-16 lg:py-24">
+<section id="glance" class="bg-sand-50 py-10 lg:py-12">
   <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
     <div class="mx-auto max-w-3xl text-center">
       <p class="text-xs font-semibold uppercase tracking-[0.35em] text-brandRed">Programme Sectors</p>
       <h2 class="mt-3 text-3xl font-display font-bold text-ink-900 sm:text-4xl">Impact at a Glance</h2>
     </div>
 
-    <div class="mt-12 grid gap-5 md:grid-cols-2 lg:grid-cols-6">
+    <div class="mt-6 grid gap-5 md:grid-cols-2 lg:grid-cols-6">
       <?php foreach ($indicators as $i => $indicator): ?>
       <?php
         $style = $indicatorStyles[$i % count($indicatorStyles)];
@@ -287,7 +287,7 @@ include dirname(__DIR__) . '/includes/header.php';
 
 
 <!-- IMPACT IN NUMBERS -->
-<section id="dashboard" class="relative overflow-hidden bg-ink-900 py-14 lg:py-16">
+<section id="dashboard" class="relative overflow-hidden bg-ink-900 py-10 lg:py-10">
   <span id="stats" class="sr-only">Beneficiary statistics</span>
   <div class="pointer-events-none absolute -left-24 top-0 h-72 w-72 rounded-full bg-brandRed/20 blur-3xl"></div>
   <div class="pointer-events-none absolute -right-16 bottom-0 h-72 w-72 rounded-full bg-gold-400/10 blur-3xl"></div>
@@ -330,7 +330,7 @@ include dirname(__DIR__) . '/includes/header.php';
 
 
 <!-- MONITORING, EVALUATION & ACCOUNTABILITY FRAMEWORK -->
-<section id="mne" class="bg-white py-16 lg:py-24">
+<section id="mne" class="bg-white py-10 lg:py-12">
   <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
     <div class="mx-auto max-w-3xl text-center">
       <p class="text-xs font-semibold uppercase tracking-[0.35em] text-brandRed">How We Ensure Quality</p>
@@ -338,13 +338,13 @@ include dirname(__DIR__) . '/includes/header.php';
       <p class="mt-5 text-sm leading-7 text-slate-600 sm:text-base"><?= sanitize($mneIntro) ?></p>
     </div>
 
-    <div class="relative mx-auto mt-14 max-w-4xl">
+    <div class="relative mx-auto mt-8 max-w-4xl">
       <div class="absolute bottom-0 left-5 top-0 hidden w-px -translate-x-1/2 bg-gradient-to-b from-transparent via-slate-200 to-transparent md:left-1/2 md:block"></div>
       <div class="absolute bottom-0 left-[19px] top-0 w-px bg-gradient-to-b from-transparent via-slate-200 to-transparent md:hidden"></div>
 
       <div class="space-y-10 md:space-y-0">
         <?php foreach ($mneSteps as $i => $step): ?>
-        <div class="relative md:grid md:grid-cols-2 md:items-center md:gap-x-16 <?= $i < count($mneSteps) - 1 ? 'md:pb-14' : '' ?>">
+        <div class="relative md:grid md:grid-cols-2 md:items-center md:gap-x-16 <?= $i < count($mneSteps) - 1 ? 'md:pb-10' : '' ?>">
           <?php if (($step['side'] ?? 'left') === 'left'): ?>
           <div class="pl-16 md:pl-0 md:pr-16 md:text-right">
             <span class="inline-flex items-center gap-3 text-xs font-semibold uppercase tracking-[0.28em] text-brandRed md:justify-end">
@@ -378,7 +378,7 @@ include dirname(__DIR__) . '/includes/header.php';
 
 
 <!-- SDG CONTRIBUTION MAP -->
-<section id="sdgs" class="relative overflow-hidden bg-slate-50 py-16 lg:py-24">
+<section id="sdgs" class="relative overflow-hidden bg-slate-50 py-10 lg:py-12">
   <div class="pointer-events-none absolute -left-32 top-10 h-80 w-80 rounded-full bg-brandRed/5 blur-3xl"></div>
   <div class="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
     <div class="mx-auto max-w-4xl text-center">
@@ -392,7 +392,7 @@ include dirname(__DIR__) . '/includes/header.php';
       <p class="md:border-l md:border-slate-200 md:pl-10"><?= sanitize($sdgIntro2) ?></p>
     </div>
 
-    <div class="mt-12 grid gap-6 md:grid-cols-2">
+    <div class="mt-6 grid gap-6 md:grid-cols-2">
       <?php foreach ($sdgs as $sdg): ?>
       <article class="group relative overflow-hidden rounded-[1.75rem] border border-slate-200 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
         <div class="flex items-stretch">
@@ -434,9 +434,9 @@ include dirname(__DIR__) . '/includes/header.php';
 
 
 <!-- CASE STUDIES -->
-<section id="case-studies" class="bg-white py-16 lg:py-20">
+<section id="case-studies" class="bg-white py-10 lg:py-12">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <div class="text-center mb-12 lg:mb-16">
+    <div class="text-center mb-6 lg:mb-8">
       <p class="text-brandRed text-xs uppercase tracking-[0.35em] font-semibold mb-3">Real Stories, Real Impact</p>
       <h2 class="text-3xl sm:text-4xl font-display font-bold text-ink-900">Case Studies</h2>
       <p class="mt-4 mx-auto max-w-2xl text-slate-600 text-sm sm:text-base leading-7">In-depth look at how WRC programs transform lives, backed by data and beneficiary voices.</p>
@@ -492,7 +492,7 @@ include dirname(__DIR__) . '/includes/header.php';
 
 
 <!-- CTA BANNER -->
-<section class="bg-brandRed py-14 lg:py-16">
+<section class="bg-brandRed py-10 lg:py-10">
   <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
     <h2 class="text-3xl sm:text-4xl font-display font-bold text-white mb-4"><?= sanitize($ctaTitle) ?></h2>
     <p class="text-white/80 text-sm sm:text-base max-w-2xl mx-auto mb-8 leading-relaxed"><?= sanitize($ctaSubtitle) ?></p>

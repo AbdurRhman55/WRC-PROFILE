@@ -161,7 +161,7 @@ function renderProfileCard( array $member, string $badgeText = 'Profile' ): void
     <div class="absolute inset-0 bg-gradient-to-t from-ink-900/90 via-transparent to-ink-900/50"></div>
   </div>
 
-  <div class="relative z-10 w-full px-4 sm:px-6 lg:px-8 py-20 lg:py-28">
+  <div class="relative z-10 w-full px-4 sm:px-6 lg:px-8 py-12 lg:py-12">
     <div class="max-w-7xl mx-auto">
       <!-- Breadcrumb -->
       <nav class="flex items-center gap-2 text-sm text-white/60 mb-8" aria-label="Breadcrumb">
@@ -189,7 +189,7 @@ $message = !empty( $chairmanData[ 'paragraph1' ] )
   : ( $chairmanData[ 'message' ] ?? '' );
 $message2 = $chairmanData[ 'paragraph2' ] ?? '';
 ?>
-<section class="py-20 bg-white relative overflow-hidden" id="chairmans-message">
+<section class="py-12 bg-white relative overflow-hidden" id="chairmans-message">
   <!-- Background glow effect -->
   <div class="absolute -top-24 -left-24 w-96 h-96 bg-brandRed/5 rounded-full blur-3xl pointer-events-none"></div>
   <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
@@ -218,7 +218,7 @@ $message2 = $chairmanData[ 'paragraph2' ] ?? '';
         </div>
       </div>
 
-      <div class="space-y-6 mb-12 text-slate-300 leading-relaxed text-base md:text-lg font-normal">
+      <div class="space-y-6 mb-6 text-slate-300 leading-relaxed text-base md:text-lg font-normal">
         <?php if ( !empty( $message ) ): ?>
           <p><?= sanitize( $message ) ?></p>
         <?php endif; ?>
@@ -262,9 +262,9 @@ $message2 = $chairmanData[ 'paragraph2' ] ?? '';
 </section>
 
 <!-- 2. Governance & Executive Board (SEPARATE SECTION) -->
-<section class="py-20 bg-slate-50 relative border-t border-slate-200/80" id="governance-board">
+<section class="py-12 bg-slate-50 relative border-t border-slate-200/80" id="governance-board">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <div class="text-center max-w-3xl mx-auto mb-16">
+    <div class="text-center max-w-3xl mx-auto mb-8">
       <span class="px-4 py-1.5 rounded-full bg-brandRed/10 text-brandRed text-xs font-bold uppercase tracking-widest inline-block mb-3">
         Strategic Governance
       </span>
@@ -289,9 +289,9 @@ $message2 = $chairmanData[ 'paragraph2' ] ?? '';
 </section>
 
 <!-- 3. Executive Leadership (SEPARATE SECTION - EXCLUDES PROGRAMME ASSISTANT & IT MANAGER) -->
-<section class="py-20 bg-white relative border-t border-slate-200/80" id="executive-leadership">
+<section class="py-12 bg-white relative border-t border-slate-200/80" id="executive-leadership">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <div class="text-center max-w-3xl mx-auto mb-16">
+    <div class="text-center max-w-3xl mx-auto mb-8">
       <span class="px-4 py-1.5 rounded-full bg-brandRed/10 text-brandRed text-xs font-bold uppercase tracking-widest inline-block mb-3">
         Executive Leadership
       </span>
@@ -320,9 +320,9 @@ $message2 = $chairmanData[ 'paragraph2' ] ?? '';
 </section>
 
 <!-- 4. Our Team – The People Behind Our Mission (SEPARATE SECTION FOR OPERATIONAL & PROGRAMME STAFF) -->
-<section class="py-20 bg-slate-50 relative border-t border-slate-200/80" id="our-team">
+<section class="py-12 bg-slate-50 relative border-t border-slate-200/80" id="our-team">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <div class="text-center max-w-3xl mx-auto mb-16">
+    <div class="text-center max-w-3xl mx-auto mb-8">
       <span class="px-4 py-1.5 rounded-full bg-brandRed/10 text-brandRed text-xs font-bold uppercase tracking-widest inline-block mb-3">
         Our Team
       </span>

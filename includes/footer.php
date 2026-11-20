@@ -15,7 +15,7 @@ if ( !isset( $logoV ) ) $logoV = @filemtime( dirname( __DIR__ ) . '/assets/image
 
 <!-- FOOTER -->
 <footer class = 'bg-slate-950 text-slate-300 text-sm mt-auto border-t border-slate-800'>
-<div class = 'max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14'>
+<div class = 'max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10'>
 <div class = 'grid grid-cols-1 xl:grid-cols-12 gap-10'>
 
 <div class = 'xl:col-span-4 space-y-5'>

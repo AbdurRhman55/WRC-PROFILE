@@ -29,7 +29,7 @@ include dirname( __DIR__ ) . '/includes/header.php';
 <div class = 'absolute inset-0 bg-gradient-to-t from-ink-900/80 via-transparent to-ink-900/30'></div>
 </div>
 
-<div class = 'relative z-10 w-full px-4 sm:px-6 lg:px-8 py-16 md:py-20 lg:py-24'>
+<div class = 'relative z-10 w-full px-4 sm:px-6 lg:px-8 py-10 md:py-12 lg:py-12'>
 <div class = 'max-w-7xl mx-auto'>
 <!-- Breadcrumb -->
 <nav class = 'flex items-center gap-2 text-sm text-white/60 mb-8' aria-label = 'Breadcrumb'>
@@ -57,7 +57,7 @@ include dirname( __DIR__ ) . '/includes/header.php';
 </section>
 
 <!-- Mission / Vision / Values -->
-<section class = 'py-16 lg:py-20 bg-white'>
+<section class = 'py-10 lg:py-12 bg-white'>
 <div class = 'max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'>
 <div class = 'grid md:grid-cols-3 gap-8 lg:gap-12'>
 <?php foreach ( $missionItems as $item ): ?>
@@ -77,9 +77,9 @@ include dirname( __DIR__ ) . '/includes/header.php';
 </section>
 
 <!-- Governance Preview -->
-<section class = 'py-20 lg:py-28 bg-white'>
+<section class = 'py-12 lg:py-12 bg-white'>
 <div class = 'container mx-auto px-4 sm:px-6 lg:px-8'>
-<div class = 'text-center max-w-2xl mx-auto mb-16'>
+<div class = 'text-center max-w-2xl mx-auto mb-8'>
 <h2 class = 'text-3xl lg:text-4xl font-display font-bold text-slate-900 mb-4'><?= ( !empty( $governance[ 'section_title' ] ) ) ? sanitize( $governance[ 'section_title' ] ) : 'People & Governance' ?></h2>
 <p class = 'text-slate-600'><?= ( !empty( $governance[ 'section_subtitle' ] ) ) ? sanitize( $governance[ 'section_subtitle' ] ) : 'Guided by responsible leadership and a dedicated team, ensuring effective and transparent implementation of all our programs.' ?></p>
 </div>
@@ -100,7 +100,7 @@ include dirname( __DIR__ ) . '/includes/header.php';
 </section>
 
 <!-- Transparency & Trust -->
-<section class = 'py-20 lg:py-28 bg-ink-900 text-white'>
+<section class = 'py-12 lg:py-12 bg-ink-900 text-white'>
 <div class = 'container mx-auto px-4 sm:px-6 lg:px-8'>
 <div class = 'flex flex-col md:flex-row items-center justify-between gap-12'>
 <div class = 'md:w-1/2 space-y-6'>
@@ -132,7 +132,7 @@ include dirname( __DIR__ ) . '/includes/header.php';
 </section>
 
 <!-- Final CTA -->
-<section class = 'py-24 bg-brandRed text-center relative overflow-hidden'>
+<section class = 'py-12 bg-brandRed text-center relative overflow-hidden'>
 <div class = "absolute inset-0 bg-[url('../assets/images/hero/about-hero.jpg')] bg-cover bg-center mix-blend-multiply opacity-20"></div>
 <div class = 'container relative z-10 mx-auto px-4'>
 <h2 class = 'text-3xl md:text-5xl font-display font-bold text-white mb-8 max-w-3xl mx-auto leading-tight'>

@@ -41,7 +41,7 @@ include dirname(__DIR__) . '/includes/header.php';
     <img src="<?= $base ?><?= $heroImg ?>" alt="Get Involved" class="absolute inset-0 w-full h-full object-cover">
     <div class="absolute inset-0 bg-gradient-to-br from-brandRed/50 via-slate-900/60 to-slate-900/80"></div>
   </div>
-  <div class="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-20 lg:py-24">
+  <div class="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 md:py-12 lg:py-12">
     <div class="max-w-3xl mx-auto text-center">
       <div class="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-white/20 text-white/90 text-[11px] font-semibold uppercase tracking-widest px-4 py-2 rounded-full mb-6">
         <i class="fa-solid fa-hand-holding-heart text-white text-xs"></i> <?= sanitize($heroRow['badge'] ?? 'Join Our Mission') ?>
@@ -79,7 +79,7 @@ include dirname(__DIR__) . '/includes/header.php';
 
 
 <!-- 1. VOLUNTEER REGISTRATION -->
-<section id="volunteer" class="py-20 md:py-28 bg-white">
+<section id="volunteer" class="py-12 md:py-12 bg-white">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <div class="grid lg:grid-cols-2 gap-16 items-start">
 
@@ -178,10 +178,10 @@ include dirname(__DIR__) . '/includes/header.php';
 
 
 <!-- 2. CAREERS BOARD -->
-<section id="careers" class="py-20 md:py-28 bg-slate-50">
+<section id="careers" class="py-12 md:py-12 bg-slate-50">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
-    <div class="text-center mb-14">
+    <div class="text-center mb-8">
       <div class="inline-flex items-center gap-2 bg-red-50 text-brandRed text-[11px] font-bold uppercase tracking-widest px-3 py-1.5 rounded-full mb-4">
         <i class="fa-solid fa-briefcase"></i> Careers
       </div>
@@ -362,7 +362,7 @@ include dirname(__DIR__) . '/includes/header.php';
 
 
 <!-- 3. BECOME A PARTNER -->
-<section id="partner" class="py-20 md:py-28 bg-white">
+<section id="partner" class="py-12 md:py-12 bg-white">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <div class="grid lg:grid-cols-2 gap-16 items-start">
 
@@ -438,7 +438,7 @@ include dirname(__DIR__) . '/includes/header.php';
 
 
 <!-- 4. MEMBERSHIP -->
-<section id="membership" class="py-20 md:py-28 bg-slate-50">
+<section id="membership" class="py-12 md:py-12 bg-slate-50">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <div class="grid lg:grid-cols-2 gap-16 items-start">
 
@@ -526,7 +526,7 @@ include dirname(__DIR__) . '/includes/header.php';
 
 
 <!-- CTA BANNER -->
-<section class="bg-gradient-to-br from-brandRed to-brandRed-hover py-16">
+<section class="bg-gradient-to-br from-brandRed to-brandRed-hover py-10">
   <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-white">
     <h2 class="text-2xl md:text-3xl font-bold mb-4" style="font-family:'Fraunces',serif;"><?= sanitize($ctaRow['section_title'] ?? 'Ready to Make an Impact?') ?></h2>
     <p class="text-white/80 text-sm mb-8 max-w-xl mx-auto"><?= sanitize($ctaRow['description'] ?? '') ?></p>

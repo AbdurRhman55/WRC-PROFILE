@@ -181,7 +181,7 @@ include dirname( __DIR__ ) . '/includes/header.php';
         <div class="absolute inset-0 opacity-[0.05]" style="background-image: linear-gradient(rgba(255,255,255,.4) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.4) 1px, transparent 1px); background-size: 56px 56px;"></div>
     </div>
 
-    <div class="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16 pt-32 sm:pb-20">
+    <div class="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-10 pt-12 sm:pb-12">
         <nav class="mb-8 flex flex-wrap items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-white/45" aria-label="Breadcrumb">
             <a href="<?= $base ?>index.php" class="hover:text-white transition-colors">Home</a>
             <i class="fa-solid fa-chevron-right text-[7px] text-white/30"></i>
@@ -226,7 +226,7 @@ include dirname( __DIR__ ) . '/includes/header.php';
 </section>
 
 <!-- POST BODY -->
-<section class="bg-white pb-16 pt-10 sm:pb-20 sm:pt-12">
+<section class="bg-white pb-10 pt-10 sm:pb-12 sm:pt-12">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="grid gap-12 lg:grid-cols-[minmax(0,47rem)_minmax(250px,300px)] lg:justify-between lg:gap-14">
 
@@ -247,7 +247,7 @@ include dirname( __DIR__ ) . '/includes/header.php';
                 </div>
 
                 <!-- Tags + share -->
-                <div class="mt-12 border-t border-slate-200 pt-8">
+                <div class="mt-6 border-t border-slate-200 pt-8">
                     <div class="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
                         <div>
                             <p class="mb-2 text-[10px] font-bold uppercase tracking-[0.18em] text-slate-400">Filed under</p>
@@ -391,7 +391,7 @@ include dirname( __DIR__ ) . '/includes/header.php';
 
 <!-- RELATED -->
 <?php if ( $relatedPosts ): ?>
-<section class="bg-slate-50 py-16">
+<section class="bg-slate-50 py-10">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="mb-8 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
             <div>

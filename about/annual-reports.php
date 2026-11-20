@@ -147,7 +147,7 @@ include dirname( __DIR__ ) . '/includes/header.php';
 class = 'h-full w-full object-cover opacity-25'>
 <div class = 'absolute inset-0 bg-gradient-to-br from-ink-900/95 via-ink-900/85 to-brandRed/40'></div>
 </div>
-<div class = 'mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8 lg:py-28'>
+<div class = 'mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8 lg:py-12'>
 <nav class = 'mb-8 flex flex-wrap items-center gap-2 text-sm text-white/60' aria-label = 'Breadcrumb'>
 <a href = "<?= $base ?>index.php" class = 'transition-colors hover:text-white'>Home</a>
 <i class = 'fa-solid fa-chevron-right text-[9px]'></i>
@@ -179,7 +179,7 @@ class = 'inline-flex items-center justify-center gap-2 rounded-xl border border-
 </section>
 
 <!-- INTRODUCTION -->
-<section class = 'bg-white py-16 lg:py-24'>
+<section class = 'bg-white py-10 lg:py-12'>
 <div class = 'mx-auto grid max-w-7xl grid-cols-1 gap-12 px-4 sm:px-6 lg:grid-cols-12 lg:gap-16 lg:px-8'>
 <div class = 'lg:col-span-7'>
 <p class = 'text-[11px] font-bold uppercase tracking-[0.25em] text-brandRed'>Why We Report</p>
@@ -214,7 +214,7 @@ class = 'inline-flex items-center justify-center gap-2 rounded-xl border border-
 </section>
 
 <!-- REPORTS -->
-<section id = 'reports' class = 'scroll-mt-24 bg-sand-50 py-16 lg:py-24'>
+<section id = 'reports' class = 'scroll-mt-24 bg-sand-50 py-10 lg:py-12'>
 <div class = 'mx-auto max-w-7xl px-4 sm:px-6 lg:px-8'>
 <div class = 'flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between'>
 <div class = 'max-w-2xl'>
@@ -237,7 +237,7 @@ class = 'inline-flex items-center justify-center gap-2 rounded-xl border border-
 </div>
 
 <?php if ( !empty( $reportCards ) ): ?>
-<div class = 'mt-12 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3'>
+<div class = 'mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3'>
 <?php foreach ( $reportCards as $index => $card ): ?>
 <article
 class = 'group flex flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white transition-all duration-300 hover:-translate-y-1 hover:border-brandRed/30 hover:shadow-xl'>
@@ -304,7 +304,7 @@ class = 'inline-flex items-center gap-2 rounded-lg bg-slate-100 px-3.5 py-2.5 te
 <?php endforeach; ?>
 </div>
 <?php else: ?>
-<div class = 'mt-12 rounded-3xl border border-dashed border-slate-300 bg-white px-6 py-16 text-center'>
+<div class = 'mt-6 rounded-3xl border border-dashed border-slate-300 bg-white px-6 py-10 text-center'>
 <div class = 'mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-2xl bg-slate-100'>
 <i class = 'fa-solid fa-file-circle-plus text-2xl text-slate-300'></i>
 </div>
@@ -323,7 +323,7 @@ class = 'mt-6 inline-flex items-center gap-2 rounded-lg bg-brandRed px-5 py-2.5 
 </section>
 
 <!-- RELATED DOCUMENTS -->
-<section class = 'relative overflow-hidden bg-ink-900 py-16 text-white'>
+<section class = 'relative overflow-hidden bg-ink-900 py-10 text-white'>
 <div class = 'absolute inset-0 bg-gradient-to-r from-ink-900 via-ink-800 to-ink-900'></div>
 <div class = 'relative mx-auto flex max-w-7xl flex-col gap-6 px-4 sm:px-6 md:flex-row md:items-center md:justify-between lg:px-8'>
 <div class = 'max-w-2xl'>

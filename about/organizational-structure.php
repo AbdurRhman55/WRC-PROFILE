@@ -37,7 +37,7 @@ include dirname( __DIR__ ) . '/includes/header.php';
 <main class="flex-grow">
 
 <!-- HERO SECTION -->
-<section class="relative bg-slate-900 text-white min-h-[460px] flex items-center py-20 overflow-hidden">
+<section class="relative bg-slate-900 text-white min-h-[460px] flex items-center py-12 overflow-hidden">
   <div class="absolute inset-0 z-0">
     <img src="<?= $base ?><?= $heroData['hero_image'] ?? 'assets/images/hero/about-hero.jpg' ?>" alt="WRC Structure" class="w-full h-full object-cover opacity-25 mix-blend-luminosity">
     <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-900/80 to-slate-900/60"></div>
@@ -70,9 +70,9 @@ include dirname( __DIR__ ) . '/includes/header.php';
 </section>
 
 <!-- GOVERNANCE & MANAGEMENT FRAMEWORK OVERVIEW -->
-<section class="py-16 bg-slate-50 border-b border-slate-200/80">
+<section class="py-10 bg-slate-50 border-b border-slate-200/80">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <div class="text-center max-w-3xl mx-auto mb-12">
+    <div class="text-center max-w-3xl mx-auto mb-6">
       <span class="px-4 py-1.5 rounded-full bg-brandRed/10 text-brandRed text-xs font-bold uppercase tracking-widest inline-block mb-3">
         Governance &amp; Management Framework
       </span>
@@ -168,9 +168,9 @@ include dirname( __DIR__ ) . '/includes/header.php';
 </section>
 
 <!-- ORGANIZATIONAL HIERARCHY FLOWCHART -->
-<section class="py-24 bg-white relative overflow-hidden" id="chart">
+<section class="py-12 bg-white relative overflow-hidden" id="chart">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <div class="text-center max-w-3xl mx-auto mb-16">
+    <div class="text-center max-w-3xl mx-auto mb-8">
       <span class="px-4 py-1.5 rounded-full bg-slate-900 text-white text-xs font-bold uppercase tracking-widest inline-block mb-3 shadow-sm">
         Organizational Hierarchy &amp; Reporting Lines
       </span>
@@ -463,7 +463,7 @@ include dirname( __DIR__ ) . '/includes/header.php';
       </div>
 
       <!-- Coordination Footer Note -->
-      <div class="mt-12 bg-slate-50 border border-slate-200 rounded-2xl p-6 text-center max-w-4xl mx-auto shadow-xs">
+      <div class="mt-6 bg-slate-50 border border-slate-200 rounded-2xl p-6 text-center max-w-4xl mx-auto shadow-xs">
         <p class="text-xs text-slate-600 leading-relaxed">
           <strong class="text-slate-900">Inter-Departmental Synergy:</strong> Field &amp; Community Implementation coordinates directly with Programmes &amp; Development for technical delivery, and with Operations &amp; Logistics for material supply chain, reporting to executive leadership under the Executive Director.
         </p>
@@ -474,9 +474,9 @@ include dirname( __DIR__ ) . '/includes/header.php';
 </section>
 
 <!-- REPORTING INTEGRITY & GOVERNANCE PRINCIPLES -->
-<section class="py-20 bg-slate-50 border-t border-slate-200">
+<section class="py-12 bg-slate-50 border-t border-slate-200">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <div class="text-center max-w-3xl mx-auto mb-16">
+    <div class="text-center max-w-3xl mx-auto mb-8">
       <span class="px-4 py-1.5 rounded-full bg-brandRed/10 text-brandRed text-xs font-bold uppercase tracking-widest inline-block mb-3">
         Institutional Integrity
       </span>
@@ -531,7 +531,7 @@ include dirname( __DIR__ ) . '/includes/header.php';
     </div>
 
     <!-- Quick Navigation Links -->
-    <div class="mt-14 pt-10 border-t border-slate-200 flex flex-wrap items-center justify-center gap-4">
+    <div class="mt-8 pt-10 border-t border-slate-200 flex flex-wrap items-center justify-center gap-4">
       <a href="<?= $base ?>about/leadership.php" class="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-white border border-slate-300 text-slate-800 font-bold text-xs uppercase tracking-wider hover:bg-slate-100 transition-colors shadow-xs">
         <i class="fa-solid fa-user-tie text-brandRed"></i> View Leadership Team
       </a>

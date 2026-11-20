@@ -73,7 +73,7 @@ include dirname( __DIR__ ) . '/includes/header.php';
 </div>
 
 <!-- PROGRAM HERO -->
-<section class = 'relative bg-slate-900 text-white min-h-[380px] flex items-center py-16 overflow-hidden'>
+<section class = 'relative bg-slate-900 text-white min-h-[380px] flex items-center py-10 overflow-hidden'>
 <div class = 'absolute inset-0 bg-cover bg-center opacity-40 mix-blend-luminosity' style = "background-image: url('<?= htmlspecialchars(getImageUrl($program['hero_image'] ?? ''), ENT_QUOTES, 'UTF-8') ?>');"></div>
 <div class = 'absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-900/80 to-slate-900/65'></div>
 
@@ -91,7 +91,7 @@ include dirname( __DIR__ ) . '/includes/header.php';
 </section>
 
 <!-- OVERVIEW & WHY IT MATTERS -->
-<section class = 'py-16 lg:py-24 bg-white'>
+<section class = 'py-10 lg:py-12 bg-white'>
 <div class = 'container mx-auto px-4 sm:px-6 lg:px-8'>
 <div class = 'grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center'>
 
@@ -136,9 +136,9 @@ include dirname( __DIR__ ) . '/includes/header.php';
 
 <!-- WHAT WE DO ( INTERVENTIONS ) -->
 <?php if ( !empty( $interventions ) ): ?>
-<section class = 'py-16 lg:py-20 bg-slate-50 border-t border-slate-200/60'>
+<section class = 'py-10 lg:py-12 bg-slate-50 border-t border-slate-200/60'>
 <div class = 'container mx-auto px-4 sm:px-6 lg:px-8'>
-<div class = 'text-center max-w-3xl mx-auto mb-16'>
+<div class = 'text-center max-w-3xl mx-auto mb-8'>
 <span class = 'text-brandRed font-bold text-xs uppercase tracking-widest mb-2 block'>Our Actions</span>
 <h2 class = 'text-2xl md:text-3xl font-extrabold font-heading text-slate-900'>Key Program Interventions</h2>
 <p class = 'text-slate-600 text-sm mt-2'>The core activities and strategic services WRC provides under this sector.</p>
@@ -162,9 +162,9 @@ include dirname( __DIR__ ) . '/includes/header.php';
 ?>
 
 <!-- HOW WE IMPLEMENT -->
-<section class = 'py-16 bg-white border-t border-slate-200/60'>
+<section class = 'py-10 bg-white border-t border-slate-200/60'>
 <div class = 'container mx-auto px-4 sm:px-6 lg:px-8'>
-<div class = 'text-center max-w-3xl mx-auto mb-16'>
+<div class = 'text-center max-w-3xl mx-auto mb-8'>
 <span class = 'text-brandRed font-bold text-xs uppercase tracking-widest mb-2 block'><?= $pgSections[ 'program_implementation' ][ 'section_subtitle' ] ?? 'Implementation Path' ?></span>
 <h2 class = 'text-2xl md:text-3xl font-extrabold font-heading text-slate-900'><?= $pgSections[ 'program_implementation' ][ 'section_title' ] ?? '' ?></h2>
 <p class = 'text-slate-600 text-sm mt-2'><?= sanitize( $implData[ 'subtitle' ] ?? '' ) ?></p>
@@ -185,7 +185,7 @@ include dirname( __DIR__ ) . '/includes/header.php';
 
 <!-- WHO WE SERVE -->
 <?php if ( !empty( $targetGroups ) ): ?>
-<section class = 'py-16 bg-slate-50 border-t border-slate-200/60'>
+<section class = 'py-10 bg-slate-50 border-t border-slate-200/60'>
 <div class = 'container mx-auto px-4 sm:px-6 lg:px-8 text-center'>
 <span class = 'text-brandRed font-bold text-xs uppercase tracking-widest mb-2 block'>Target Groups</span>
 <h2 class = 'text-2xl md:text-3xl font-extrabold font-heading text-slate-900 mb-4'>Who We Serve</h2>
@@ -204,9 +204,9 @@ include dirname( __DIR__ ) . '/includes/header.php';
 
 <!-- PROGRAM PROJECTS -->
 <?php if ( !empty( $projects ) ): ?>
-<section class = 'py-16 bg-white border-t border-slate-200/60'>
+<section class = 'py-10 bg-white border-t border-slate-200/60'>
 <div class = 'container mx-auto px-4 sm:px-6 lg:px-8'>
-<div class = 'text-center max-w-3xl mx-auto mb-16'>
+<div class = 'text-center max-w-3xl mx-auto mb-8'>
 <span class = 'text-brandRed font-bold text-xs uppercase tracking-widest mb-2 block'>Field Work</span>
 <h2 class = 'text-2xl md:text-3xl font-extrabold font-heading text-slate-900'>Featured Projects</h2>
 <p class = 'text-slate-600 text-sm mt-2'>Ongoing and completed initiatives addressing local needs.</p>
@@ -240,9 +240,9 @@ include dirname( __DIR__ ) . '/includes/header.php';
 
 <!-- RELATED PROGRAMS -->
 <?php if ( !empty( $relatedPrograms ) ): ?>
-<section class = 'py-16 bg-slate-50 border-t border-slate-200/60'>
+<section class = 'py-10 bg-slate-50 border-t border-slate-200/60'>
 <div class = 'container mx-auto px-4 sm:px-6 lg:px-8'>
-<div class = 'text-center max-w-3xl mx-auto mb-16'>
+<div class = 'text-center max-w-3xl mx-auto mb-8'>
 <span class = 'text-brandRed font-bold text-xs uppercase tracking-widest mb-2 block'>Interconnected Sectors</span>
 <h2 class = 'text-2xl md:text-3xl font-extrabold font-heading text-slate-900'>Related Programs</h2>
 <p class = 'text-slate-600 text-sm mt-2'>Explore other related WRC sectors that operate in alignment with this program.</p>
@@ -275,7 +275,7 @@ include dirname( __DIR__ ) . '/includes/header.php';
 ?>
 
 <!-- CTA BANNER -->
-<section class = 'py-16 bg-slate-900 text-white relative overflow-hidden'>
+<section class = 'py-10 bg-slate-900 text-white relative overflow-hidden'>
 <div class = 'container mx-auto px-4 sm:px-6 lg:px-8 text-center max-w-3xl relative z-10'>
 <h2 class = 'text-2xl md:text-3xl font-extrabold font-heading mb-3'><?= $pgSections[ 'program_cta' ][ 'section_title' ] ?? '' ?></h2>
 <p class = 'text-slate-300 text-sm mb-6 leading-relaxed'><?= sanitize( $ctaData[ 'description' ] ?? '' ) ?></p>

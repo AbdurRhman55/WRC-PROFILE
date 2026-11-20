@@ -57,7 +57,7 @@ include dirname(__DIR__) . '/includes/header.php';
       <div class="absolute inset-0 bg-gradient-to-r from-slate-900 via-slate-900/80 to-slate-900/40"></div>
     </div>
 
-    <div class="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+    <div class="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
       <div class="max-w-2xl">
         <div class="inline-flex items-center gap-2 bg-brandRed/20 border border-brandRed/40 text-brandRed text-xs font-bold uppercase tracking-wider px-4 py-2 rounded-full mb-6">
           <span class="w-2 h-2 bg-brandRed rounded-full animate-pulse"></span>
@@ -83,9 +83,9 @@ include dirname(__DIR__) . '/includes/header.php';
   </section>
 
   <!-- CAMPAIGN CARDS SECTION -->
-  <section id="campaigns" class="py-20 bg-slate-50">
+  <section id="campaigns" class="py-12 bg-slate-50">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="text-center mb-14">
+      <div class="text-center mb-8">
         <span class="inline-block text-brandRed text-xs font-bold uppercase tracking-widest mb-3">Fundraising</span>
         <h2 class="text-3xl sm:text-4xl font-display font-bold text-slate-900 mb-4">Active Campaigns</h2>
         <p class="text-slate-500 max-w-2xl mx-auto">Support our ongoing campaigns to bring clean water, food and relief, and skill development to communities in need.</p>
@@ -137,12 +137,12 @@ include dirname(__DIR__) . '/includes/header.php';
   </section>
 
   <!-- IMPACT STATS SECTION -->
-  <section id="impact" class="py-20 bg-gradient-to-br from-ink-900 via-slate-900 to-ink-800 text-white relative overflow-hidden">
+  <section id="impact" class="py-12 bg-gradient-to-br from-ink-900 via-slate-900 to-ink-800 text-white relative overflow-hidden">
     <div class="absolute top-0 left-0 w-96 h-96 bg-brandRed/5 rounded-full -translate-x-1/2 -translate-y-1/2 blur-3xl"></div>
     <div class="absolute bottom-0 right-0 w-96 h-96 bg-brandRed/5 rounded-full translate-x-1/2 translate-y-1/2 blur-3xl"></div>
 
     <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="text-center mb-14">
+      <div class="text-center mb-8">
         <span class="inline-block text-brandRed text-xs font-bold uppercase tracking-widest mb-3"><?= $causesSections['causes_impact']['section_subtitle'] ?? 'Our Reach' ?></span>
         <h2 class="text-3xl sm:text-4xl font-display font-bold text-white mb-4"><?= $causesSections['causes_impact']['section_title'] ?? '' ?></h2>
         <p class="text-slate-400 max-w-xl mx-auto"><?= sanitize($impactData['subtitle'] ?? '') ?></p>

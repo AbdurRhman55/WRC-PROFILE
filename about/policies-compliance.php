@@ -150,7 +150,7 @@ include dirname( __DIR__ ) . '/includes/header.php';
 <main class="flex-grow bg-slate-50">
 
     <!-- HERO SECTION -->
-    <section class="relative bg-slate-900 text-white min-h-[440px] flex items-center py-20 overflow-hidden">
+    <section class="relative bg-slate-900 text-white min-h-[440px] flex items-center py-12 overflow-hidden">
         <div class="absolute inset-0 z-0">
             <img src="<?= $base ?><?= $heroData['hero_image'] ?? 'assets/images/hero/about-hero.jpg' ?>" 
                  alt="WRC Policies & Compliance" 
@@ -195,7 +195,7 @@ include dirname( __DIR__ ) . '/includes/header.php';
     </section>
 
     <!-- PROFESSIONAL FILTER TABS COMPONENT -->
-    <section class="py-12 md:py-16">
+    <section class="py-12 md:py-10">
         <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
 
             <div class="text-center max-w-2xl mx-auto mb-10">
@@ -305,7 +305,7 @@ include dirname( __DIR__ ) . '/includes/header.php';
             </div>
 
             <!-- COMMITMENT & WHISTLEBLOWING CARD -->
-            <div class="mt-16 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white rounded-2xl p-8 sm:p-12 border border-slate-700/60 shadow-xl relative overflow-hidden">
+            <div class="mt-8 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white rounded-2xl p-8 sm:p-12 border border-slate-700/60 shadow-xl relative overflow-hidden">
                 <div class="absolute -right-10 -bottom-10 w-64 h-64 bg-brandRed/10 rounded-full blur-3xl pointer-events-none"></div>
 
                 <div class="relative z-10 max-w-4xl mx-auto">
@@ -344,7 +344,7 @@ include dirname( __DIR__ ) . '/includes/header.php';
             </div>
 
             <!-- RELATED NAVIGATION -->
-            <div class="mt-12 flex flex-wrap items-center justify-between gap-4 text-xs sm:text-sm text-slate-600 pt-6 border-t border-slate-200">
+            <div class="mt-6 flex flex-wrap items-center justify-between gap-4 text-xs sm:text-sm text-slate-600 pt-6 border-t border-slate-200">
                 <div class="flex items-center gap-2">
                     <span class="text-slate-400">Related Governance:</span>
                     <a href="<?= $base ?>about/organizational-structure.php" class="text-brandRed hover:underline font-medium">Organizational Structure</a>

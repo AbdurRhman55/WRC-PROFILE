@@ -61,7 +61,7 @@ include dirname( __DIR__ ) . '/includes/header.php';
   <section class="relative isolate overflow-hidden bg-ink-900 text-white">
     <img src="<?= $base ?><?= htmlspecialchars( $heroImage, ENT_QUOTES, 'UTF-8' ) ?>" alt="" class="absolute inset-0 w-full h-full object-cover opacity-40" fetchpriority="high">
     <div class="absolute inset-0 bg-gradient-to-r from-ink-900 via-ink-900/85 to-ink-900/35"></div>
-    <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-10 pb-24 sm:pt-14 sm:pb-28">
+    <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-10 pb-12 sm:pt-10 sm:pb-12">
       <nav class="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-white/50 mb-8" aria-label="Breadcrumb">
         <a href="<?= $base ?>index.php" class="hover:text-white transition-colors">Home</a>
         <i class="fa-solid fa-chevron-right text-[7px]"></i>
@@ -132,11 +132,11 @@ include dirname( __DIR__ ) . '/includes/header.php';
   </section>
 
   <!-- PARTNER CATEGORIES -->
-  <section class="py-14 sm:py-16">
+  <section class="py-10 sm:py-10">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
       <?php if ( empty( $partners ) ): ?>
-        <div class="max-w-xl mx-auto text-center py-20 bg-white rounded-3xl border border-slate-200">
+        <div class="max-w-xl mx-auto text-center py-12 bg-white rounded-3xl border border-slate-200">
           <span class="w-16 h-16 mx-auto rounded-2xl bg-slate-100 text-slate-400 flex items-center justify-center mb-5"><i class="fa-solid fa-images text-xl"></i></span>
           <h2 class="font-display text-2xl font-semibold text-ink-900 mb-2">Galleries are being prepared</h2>
           <p class="text-sm text-slate-500 mb-6">Partner projects and photographs will appear here as soon as they are published from the dashboard.</p>
@@ -151,7 +151,7 @@ include dirname( __DIR__ ) . '/includes/header.php';
             $style = $typeStyles[ $type ] ?? $typeStyles['collaborator'];
             $count = count( $grouped[ $type ] );
           ?>
-          <div class="partner-category mb-14 last:mb-0" data-category="<?= htmlspecialchars( $type ) ?>">
+          <div class="partner-category mb-8 last:mb-0" data-category="<?= htmlspecialchars( $type ) ?>">
             <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3 mb-6">
               <div class="flex items-start gap-4">
                 <span class="w-12 h-12 rounded-2xl <?= $style['icon'] ?> flex items-center justify-center shrink-0 shadow-sm">
@@ -233,7 +233,7 @@ include dirname( __DIR__ ) . '/includes/header.php';
   </section>
 
   <!-- BACK TO NEWS -->
-  <section class="pb-16">
+  <section class="pb-10">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="text-center">
         <a href="<?= $base ?>news/index.php" class="inline-flex items-center gap-2 text-sm font-semibold text-slate-500 hover:text-brandRed transition-colors">

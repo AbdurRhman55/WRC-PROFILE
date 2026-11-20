@@ -129,7 +129,7 @@ include dirname( __DIR__ ) . '/includes/header.php';
 <div class = 'absolute inset-0 bg-cover bg-center opacity-30' style = "background-image: url('<?= $base ?><?= $newsImage ?>');"></div>
 <div class = 'absolute inset-0 bg-gradient-to-t from-ink-900 via-ink-900/80 to-ink-900/40'></div>
 </div>
-<div class = 'relative z-10 w-full max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pb-16 pt-32'>
+<div class = 'relative z-10 w-full max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pb-10 pt-12'>
 <div class = 'flex items-center gap-2 mb-4'>
 <a href = "<?= $base ?>index.php" class = 'text-white/60 hover:text-white text-sm transition-colors'>Home</a>
 <i class = 'fa-solid fa-chevron-right text-[9px] text-white/40'></i>
@@ -189,14 +189,14 @@ include dirname( __DIR__ ) . '/includes/header.php';
 </section>
 
 <!-- ARTICLE CONTENT -->
-<section class = 'py-12 sm:py-16 bg-white'>
+<section class = 'py-12 sm:py-10 bg-white'>
 <div class = 'max-w-4xl mx-auto px-4 sm:px-6 lg:px-8'>
 <article class = 'article-body'>
 <?= $bodyHtml ?>
 </article>
 
 <!-- SHARE -->
-<div class = 'mt-12 pt-8 border-t border-slate-200'>
+<div class = 'mt-6 pt-8 border-t border-slate-200'>
 <div class = 'flex flex-wrap items-center justify-between gap-4'>
 <span class = 'text-sm font-semibold text-slate-500'>Share this article</span>
 <div class = 'flex flex-wrap items-center gap-2'>
@@ -280,7 +280,7 @@ Next <i class = 'fa-solid fa-arrow-right text-[9px] group-hover:text-brandRed tr
 
 <!-- RELATED ARTICLES -->
 <?php if ( !empty( $relatedArticles ) ): ?>
-<section class = 'py-16 bg-slate-50'>
+<section class = 'py-10 bg-slate-50'>
 <div class = 'max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'>
 <h2 class = 'text-2xl font-display font-bold text-ink-900 mb-8'>Related <span class = 'text-brandRed'>Articles</span></h2>
 <div class = 'grid grid-cols-1 md:grid-cols-3 gap-6'>

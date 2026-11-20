@@ -65,7 +65,7 @@ include dirname( __DIR__ ) . '/includes/header.php';
     <img src="<?= wrcMediaUrl( (string) $heroImage ) ?>" alt="<?= htmlspecialchars( (string) $project['title'] ) ?>" class="absolute inset-0 w-full h-full object-cover opacity-55" fetchpriority="high">
     <div class="absolute inset-0 bg-gradient-to-t from-ink-900 via-ink-900/55 to-ink-900/25"></div>
 
-    <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-10 pb-16 sm:pt-14 sm:pb-20 min-h-[500px] flex flex-col justify-end">
+    <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-10 pb-10 sm:pt-10 sm:pb-12 min-h-[500px] flex flex-col justify-end">
       <nav class="flex flex-wrap items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-white/50 mb-auto" aria-label="Breadcrumb">
         <a href="<?= $base ?>index.php" class="hover:text-white transition-colors">Home</a>
         <i class="fa-solid fa-chevron-right text-[7px]"></i>
@@ -78,7 +78,7 @@ include dirname( __DIR__ ) . '/includes/header.php';
         <?php endif; ?>
       </nav>
 
-      <div class="max-w-4xl mt-12">
+      <div class="max-w-4xl mt-6">
         <div class="flex flex-wrap items-center gap-2 mb-4">
           <span class="inline-flex items-center gap-1.5 rounded-full bg-brandRed px-3 py-1 text-[10px] font-bold uppercase tracking-[0.16em] text-white">
             <i class="fa-solid fa-images text-[9px]"></i> Project Gallery
@@ -173,7 +173,7 @@ include dirname( __DIR__ ) . '/includes/header.php';
   </section>
 
   <!-- PHOTOGRAPHS -->
-  <section class="py-14 sm:py-16">
+  <section class="py-10 sm:py-10">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3 mb-8">
         <div>
@@ -189,7 +189,7 @@ include dirname( __DIR__ ) . '/includes/header.php';
       </div>
 
       <?php if ( empty( $media ) ): ?>
-        <div class="max-w-xl mx-auto text-center py-16 bg-white rounded-3xl border border-slate-200">
+        <div class="max-w-xl mx-auto text-center py-10 bg-white rounded-3xl border border-slate-200">
           <span class="w-14 h-14 mx-auto rounded-2xl bg-slate-100 text-slate-400 flex items-center justify-center mb-4"><i class="fa-solid fa-camera-retro"></i></span>
           <h3 class="font-display text-xl font-semibold text-ink-900">No photographs published yet</h3>
           <p class="text-sm text-slate-500 mt-1">This project's gallery is being prepared. Please check back soon.</p>
@@ -239,7 +239,7 @@ include dirname( __DIR__ ) . '/includes/header.php';
   </section>
 
   <!-- CLOSING CTA -->
-  <section class="pb-16">
+  <section class="pb-10">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="rounded-3xl bg-white border border-slate-200 p-6 sm:p-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-5">
         <div>

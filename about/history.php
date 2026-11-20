@@ -89,7 +89,7 @@ include dirname( __DIR__ ) . '/includes/header.php';
 <div class = 'absolute inset-0 bg-gradient-to-t from-ink-900/90 via-transparent to-ink-900/50'></div>
 </div>
 
-<div class = 'relative z-10 w-full px-4 sm:px-6 lg:px-8 py-20 lg:py-28'>
+<div class = 'relative z-10 w-full px-4 sm:px-6 lg:px-8 py-12 lg:py-12'>
 <div class = 'max-w-7xl mx-auto'>
 <!-- Breadcrumb -->
 <nav class = 'flex items-center gap-2 text-sm text-white/60 mb-8' aria-label = 'Breadcrumb'>
@@ -129,9 +129,9 @@ if ( !empty( $rawTitle ) ) {
 </section>
 
 <!-- Timeline Section -->
-<section class = 'py-16 lg:py-24 bg-slate-50'>
+<section class = 'py-10 lg:py-12 bg-slate-50'>
 <div class = 'max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'>
-<div class = 'text-center max-w-2xl mx-auto mb-16'>
+<div class = 'text-center max-w-2xl mx-auto mb-8'>
 <span class = 'text-brandRed font-bold text-[10px] tracking-widest uppercase'>Milestones</span>
 <h2 class = 'text-3xl lg:text-4xl font-display font-bold text-slate-900 mt-3 mb-4'>Our Journey Through the Years</h2>
 <p class = 'text-slate-600'>A timeline of key moments that have shaped who we are today.</p>
@@ -147,7 +147,7 @@ $isLeft = ( $milestone[ 'sort_order' ] % 2 ) !== 0;
 $isLast = ( $index === count( $timelineCards ) - 1 );
 $tagColor = !empty( $milestone[ 'tag_color' ] ) ? $milestone[ 'tag_color' ] : '#ca0000';
 ?>
-<div class = "relative flex flex-col md:flex-row items-center mb-12 md:mb-16 <?= $isLeft ? '' : 'md:flex-row-reverse' ?>">
+<div class = "relative flex flex-col md:flex-row items-center mb-6 md:mb-8 <?= $isLeft ? '' : 'md:flex-row-reverse' ?>">
 
 <!-- Content Card -->
 <div class = "w-full md:w-[calc(50%-2rem)] <?= $isLeft ? 'md:text-right md:pr-12' : 'md:text-left md:pl-12' ?>">
@@ -228,9 +228,9 @@ $tagColor = !empty( $milestone[ 'tag_color' ] ) ? $milestone[ 'tag_color' ] : '#
 
 <!-- Projects Chronological Table -->
 <?php if ( !empty( $projects ) ): ?>
-<section class = 'py-16 lg:py-20 bg-white'>
+<section class = 'py-10 lg:py-12 bg-white'>
 <div class = 'max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'>
-<div class = 'text-center max-w-2xl mx-auto mb-12'>
+<div class = 'text-center max-w-2xl mx-auto mb-6'>
 <span class = 'text-brandRed font-bold text-[10px] tracking-widest uppercase'>Our Projects</span>
 <h2 class = 'text-3xl lg:text-4xl font-display font-bold text-slate-900 mt-3 mb-4'>Project Chronology</h2>
 <p class = 'text-slate-600'>A chronological overview of our key projects and interventions across Pakistan.</p>
@@ -332,9 +332,9 @@ $benefText = !empty( $project[ 'beneficiaries_count' ] ) ? number_format( $proje
 
 <!-- Key Stats Section -->
 <?php if ( !empty( $statsItems ) ): ?>
-<section class = 'py-16 lg:py-20 bg-slate-50'>
+<section class = 'py-10 lg:py-12 bg-slate-50'>
 <div class = 'max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'>
-<div class = 'text-center max-w-2xl mx-auto mb-12'>
+<div class = 'text-center max-w-2xl mx-auto mb-6'>
 <span class = 'text-brandRed font-bold text-[10px] tracking-widest uppercase'>By the Numbers</span>
 <h2 class = 'text-3xl lg:text-4xl font-display font-bold text-slate-900 mt-3 mb-4'>
 <?= sanitize( $statsRow[ 'section_title' ] ?? 'Key Statistics' ) ?>
@@ -366,7 +366,7 @@ $benefText = !empty( $project[ 'beneficiaries_count' ] ) ? number_format( $proje
 ?>
 
 <!-- CTA Banner -->
-<section class = 'py-20 lg:py-28 bg-ink-900 text-white relative overflow-hidden'>
+<section class = 'py-12 lg:py-12 bg-ink-900 text-white relative overflow-hidden'>
 <div class = "absolute inset-0 bg-[url('../assets/images/hero/about-hero.jpg')] bg-cover bg-center mix-blend-multiply opacity-20"></div>
 <div class = 'container relative z-10 mx-auto px-4 sm:px-6 lg:px-8'>
 <div class = 'max-w-4xl mx-auto text-center'>

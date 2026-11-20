@@ -76,7 +76,7 @@ include dirname( __DIR__ ) . '/includes/header.php';
 <main class = 'flex-grow'>
 
 <!-- HERO SECTION -->
-<section class = 'relative bg-slate-900 text-white min-h-[480px] md:min-h-[540px] lg:min-h-[580px] flex items-center py-16 md:py-20 overflow-hidden'>
+<section class = 'relative bg-slate-900 text-white min-h-[480px] md:min-h-[540px] lg:min-h-[580px] flex items-center py-10 md:py-12 overflow-hidden'>
 <div class = 'absolute inset-0 z-0'>
 <img src = "<?= $base ?><?= $heroData['hero_image'] ?? 'assets/images/our-work/our-work-hero.jpg' ?>" alt = "<?= sanitize($heroData['hero_alt'] ?? 'Humanitarian Fieldwork in Pakistan') ?>" class = 'w-full h-full object-cover object-center opacity-50'>
 <div class = 'absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-900/40 to-slate-900/30'></div>
@@ -119,10 +119,10 @@ include dirname( __DIR__ ) . '/includes/header.php';
 </section>
 
 <!-- OUR PROJECTS GRID -->
-<section id = 'projects' class = 'py-20 lg:py-28 bg-slate-50 scroll-mt-24'>
+<section id = 'projects' class = 'py-12 lg:py-12 bg-slate-50 scroll-mt-24'>
 <div class = 'container mx-auto px-4 sm:px-6 lg:px-8'>
 
-<div class = 'text-center max-w-3xl mx-auto mb-16'>
+<div class = 'text-center max-w-3xl mx-auto mb-8'>
 <span class = 'text-brandRed font-bold text-xs uppercase tracking-widest mb-2 block'>Our Portfolio</span>
 <h2 class = 'text-3xl md:text-4xl font-extrabold font-heading text-slate-900 mb-4'>Active & Completed Projects</h2>
 <p class = 'text-slate-600 text-sm leading-relaxed'>Delivering real results through humanitarian projects across health, WASH, food and relief distribution, and skill development.</p>
@@ -160,7 +160,7 @@ View Details <i class = 'fa-solid fa-arrow-right text-[10px]'></i>
 ?>
 </div>
 
-<div class = 'text-center mt-12'><a href = "<?= $base ?>projects/index.php"
+<div class = 'text-center mt-6'><a href = "<?= $base ?>projects/index.php"
 
 class = 'inline-flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-white text-sm font-bold px-6 py-3 rounded-xl transition-all'>View
 All Projects <i class = 'fa-solid fa-arrow-right text-xs'></i></a></div>
@@ -168,7 +168,7 @@ All Projects <i class = 'fa-solid fa-arrow-right text-xs'></i></a></div>
 </section>
 
 <!-- FEATURED WORK SECTION ( EDITORIAL ) -->
-<section class = 'py-20 lg:py-28 bg-white border-t border-slate-200/70'>
+<section class = 'py-12 lg:py-12 bg-white border-t border-slate-200/70'>
 <div class = 'container mx-auto px-4 sm:px-6 lg:px-8'>
 <div class = 'grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center'>
 <div class = 'lg:col-span-6 relative'>
@@ -203,10 +203,10 @@ All Projects <i class = 'fa-solid fa-arrow-right text-xs'></i></a></div>
 </section>
 
 <!-- HOW WE WORK TIMELINE SECTION -->
-<section class = 'py-20 lg:py-28 bg-slate-50 border-t border-slate-200/50'>
+<section class = 'py-12 lg:py-12 bg-slate-50 border-t border-slate-200/50'>
 <div class = 'container mx-auto px-4 sm:px-6 lg:px-8'>
 
-<div class = 'text-center max-w-3xl mx-auto mb-20'>
+<div class = 'text-center max-w-3xl mx-auto mb-10'>
 <span class = 'text-brandRed font-bold text-xs uppercase tracking-widest mb-2 block'><?= sanitize( $owSections[ 'our_work_process' ][ 'section_subtitle' ] ?? 'Our Process' ) ?></span>
 <h2 class = 'text-3xl md:text-4xl font-extrabold font-heading text-slate-900 mb-4'><?= $owSections[ 'our_work_process' ][ 'section_title' ] ?? '' ?></h2>
 <p class = 'text-slate-600 text-sm'><?= sanitize( $processData[ 'subtitle' ] ?? '' ) ?></p>
@@ -229,9 +229,9 @@ All Projects <i class = 'fa-solid fa-arrow-right text-xs'></i></a></div>
 </section>
 
 <!-- OUR APPROACH TO IMPACT ( 4 PILLARS ) -->
-<section class = 'py-20 lg:py-28 bg-white border-t border-slate-200/50'>
+<section class = 'py-12 lg:py-12 bg-white border-t border-slate-200/50'>
 <div class = 'container mx-auto px-4 sm:px-6 lg:px-8'>
-<div class = 'text-center max-w-3xl mx-auto mb-16'>
+<div class = 'text-center max-w-3xl mx-auto mb-8'>
 <span class = 'text-brandRed font-bold text-xs uppercase tracking-widest mb-2 block'><?= sanitize( $owSections[ 'our_work_pillars' ][ 'section_subtitle' ] ?? 'Our Strategy' ) ?></span>
 <h2 class = 'text-3xl font-extrabold font-heading text-slate-900 mb-4'><?= $owSections[ 'our_work_pillars' ][ 'section_title' ] ?? '' ?></h2>
 <p class = 'text-slate-600 text-sm'><?= sanitize( $pillarsData[ 'subtitle' ] ?? '' ) ?></p>
@@ -251,10 +251,10 @@ All Projects <i class = 'fa-solid fa-arrow-right text-xs'></i></a></div>
 </section>
 
 <!-- FEATURED PROJECTS GRID SECTION -->
-<section id = 'featured' class = 'py-20 bg-slate-50 border-t border-slate-200/50 scroll-mt-24'>
+<section id = 'featured' class = 'py-12 bg-slate-50 border-t border-slate-200/50 scroll-mt-24'>
 <div class = 'container mx-auto px-4 sm:px-6 lg:px-8'>
 
-<div class = 'flex flex-col md:flex-row md:items-end justify-between mb-16'>
+<div class = 'flex flex-col md:flex-row md:items-end justify-between mb-8'>
 <div>
 <span class = 'text-brandRed font-bold text-xs uppercase tracking-widest mb-2 block'><?= sanitize( $owSections[ 'our_work_featured_projects' ][ 'section_subtitle' ] ?? 'Action in the Field' ) ?></span>
 <h2 class = 'text-3xl font-extrabold font-heading text-slate-900'><?= $owSections[ 'our_work_featured_projects' ][ 'section_title' ] ?? 'Featured Projects' ?></h2>
@@ -295,7 +295,7 @@ View Details <i class = 'fa-solid fa-arrow-right text-[10px]'></i>
 </section>
 
 <!-- CTA BANNER -->
-<section class = 'py-20 bg-slate-900 text-white relative overflow-hidden'>
+<section class = 'py-12 bg-slate-900 text-white relative overflow-hidden'>
 <div class = 'container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center max-w-3xl'>
 <h2 class = 'text-3xl md:text-4xl font-extrabold font-heading mb-4'><?= $owSections[ 'our_work_cta' ][ 'section_title' ] ?? '' ?></h2>
 <p class = 'text-slate-300 text-sm mb-8 leading-relaxed'><?= sanitize( $ctaData[ 'description' ] ?? '' ) ?></p>

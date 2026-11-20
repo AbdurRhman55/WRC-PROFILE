@@ -26,7 +26,7 @@ include dirname( __DIR__ ) . '/includes/header.php';
 <div class = 'absolute inset-0 bg-gradient-to-t from-ink-900/90 via-transparent to-ink-900/50'></div>
 </div>
 
-<div class = 'relative z-10 w-full px-4 sm:px-6 lg:px-8 py-14 lg:py-20'>
+<div class = 'relative z-10 w-full px-4 sm:px-6 lg:px-8 py-10 lg:py-12'>
 <div class = 'max-w-7xl mx-auto grid items-center gap-10 lg:grid-cols-2 lg:gap-14'>
 <div>
 <nav class = 'flex items-center gap-2 text-sm text-white/60 mb-8' aria-label = 'Breadcrumb'>
@@ -60,9 +60,9 @@ include dirname( __DIR__ ) . '/includes/header.php';
 </section>
 
 <!-- Team Grid -->
-<section class = 'py-20 bg-slate-50'>
+<section class = 'py-12 bg-slate-50'>
 <div class = 'max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'>
-<div class = 'text-center max-w-2xl mx-auto mb-16'>
+<div class = 'text-center max-w-2xl mx-auto mb-8'>
 <h2 class = 'text-3xl lg:text-4xl font-display font-bold text-slate-900 mb-4'>Our Team</h2>
 <p class = 'text-slate-600'>Passionate professionals committed to delivering meaningful humanitarian impact.</p>
 </div>
@@ -149,7 +149,7 @@ Profile <i class = 'fa-solid fa-arrow-right text-[10px] group-hover:translate-x-
 <?php endif;
 ?>
 
-<div class = 'mt-16 text-center'>
+<div class = 'mt-8 text-center'>
 <p class = 'text-slate-500 text-sm italic'>More team members will be updated here soon.</p>
 </div>
 </div>

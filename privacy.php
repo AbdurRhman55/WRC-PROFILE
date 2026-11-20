@@ -13,7 +13,7 @@ include __DIR__ . '/includes/header.php';
 <section class = 'relative w-full bg-slate-900 text-white overflow-hidden' style = 'min-height:340px'>
 <div class = 'absolute inset-0 opacity-30 bg-cover bg-center' style = "background-image:url('<?= $base ?>assets/images/hero.jpg')"></div>
 <div class = 'absolute inset-0 bg-gradient-to-b from-slate-900/80 via-slate-900/70 to-slate-900'></div>
-<div class = 'relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 flex flex-col items-center text-center'>
+<div class = 'relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 flex flex-col items-center text-center'>
 <nav class = 'text-xs text-slate-400 mb-6 flex items-center gap-2'>
 <a href = "<?= $base ?>index.php" class = 'hover:text-white transition'>Home</a>
 <i class = 'fa-solid fa-chevron-right text-[8px]'></i>
@@ -66,7 +66,7 @@ Policy
 </section>
 
 <!-- CONTENT -->
-<main class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16 space-y-16">
+<main class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
 
   <!-- Information Collection -->
   <section id="information-collection">

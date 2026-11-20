@@ -411,7 +411,7 @@ include dirname(__DIR__) . '/includes/header.php';
     <div class="absolute inset-0 bg-gradient-to-r from-slate-950/80 via-slate-900/50 to-transparent"></div>
     <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-slate-900/30"></div>
   </div>
-  <div class="relative z-10 w-full px-4 sm:px-6 lg:px-8 py-16 md:py-20 lg:py-24">
+  <div class="relative z-10 w-full px-4 sm:px-6 lg:px-8 py-10 md:py-12 lg:py-12">
     <div class="max-w-7xl mx-auto">
       <div class="flex items-center gap-2 text-white/60 text-xs font-medium uppercase tracking-widest mb-4">
         <a href="<?= $base ?>index.php" class="hover:text-white transition">Home</a>
@@ -472,9 +472,9 @@ include dirname(__DIR__) . '/includes/header.php';
 
 
 <!-- INTERACTIVE PAKISTAN SVG MAP -->
-<section id="map" class="py-20 bg-white scroll-mt-24">
+<section id="map" class="py-12 bg-white scroll-mt-24">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <div class="text-center mb-12">
+    <div class="text-center mb-6">
       <span class="text-xs font-bold text-brandRed uppercase tracking-widest mb-2 block">Geographic Footprint</span>
       <h2 class="text-3xl sm:text-4xl font-display font-bold text-slate-900 mb-3">
         <?= $contentRow ? sanitize($contentRow['section_title'] ?? 'Pakistan Operations Map') : 'Pakistan Operations Map' ?>
@@ -567,7 +567,7 @@ include dirname(__DIR__) . '/includes/header.php';
 
 <!-- ======================== PROVINCE SECTIONS (dynamic from projects) ======================== -->
 <?php foreach ($provinceSections as $prov): ?>
-<section id="<?= sanitize($prov['id'] ?? '') ?>" class="py-20 <?= ($prov['bg'] ?? '') === 'white' ? 'bg-white' : 'bg-slate-50' ?> scroll-mt-24">
+<section id="<?= sanitize($prov['id'] ?? '') ?>" class="py-12 <?= ($prov['bg'] ?? '') === 'white' ? 'bg-white' : 'bg-slate-50' ?> scroll-mt-24">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <div class="flex items-center gap-2 text-xs font-bold text-brandRed uppercase tracking-widest mb-2">
       <i class="fa-solid <?= sanitize($prov['icon'] ?? 'fa-circle-info') ?>"></i> Province Spotlight
@@ -593,7 +593,7 @@ include dirname(__DIR__) . '/includes/header.php';
 
     <!-- Focus Areas Cards (from project categories) -->
     <?php if (!empty($prov['focus_areas'])): ?>
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
       <?php foreach ($prov['focus_areas'] as $area): ?>
       <div class="bg-white rounded-[2rem] p-6 border border-slate-200 shadow-sm hover:shadow-md transition-all">
         <div class="w-12 h-12 rounded-xl bg-brandRed/10 flex items-center justify-center mb-4">
@@ -643,7 +643,7 @@ include dirname(__DIR__) . '/includes/header.php';
 
 
 <!-- ======================== DISTRICT COVERAGE TABLE ======================== -->
-<section id="districts" class="py-20 bg-slate-50 scroll-mt-24">
+<section id="districts" class="py-12 bg-slate-50 scroll-mt-24">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <div class="text-center mb-10">
       <span class="text-xs font-bold text-brandRed uppercase tracking-widest mb-2 block">Detailed Breakdown</span>

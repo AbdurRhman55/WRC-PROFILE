@@ -83,7 +83,7 @@ include dirname( __DIR__ ) . '/includes/header.php';
     <div class="absolute -right-24 -top-24 w-96 h-96 rounded-full bg-brandRed/5 blur-3xl pointer-events-none"></div>
     <div class="absolute left-1/2 top-0 h-full w-px bg-slate-100 hidden lg:block pointer-events-none"></div>
 
-    <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-14">
+    <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-10">
       <nav class="flex flex-wrap items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-400 mb-8" aria-label="Breadcrumb">
         <a href="<?= $base ?>index.php" class="hover:text-brandRed transition-colors">Home</a>
         <i class="fa-solid fa-chevron-right text-[7px]"></i>
@@ -174,7 +174,7 @@ include dirname( __DIR__ ) . '/includes/header.php';
   </section>
 
   <!-- PROJECTS -->
-  <section class="py-14 sm:py-16">
+  <section class="py-10 sm:py-10">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3 mb-8">
         <div>
@@ -188,7 +188,7 @@ include dirname( __DIR__ ) . '/includes/header.php';
       </div>
 
       <?php if ( empty( $projects ) ): ?>
-        <div class="text-center py-16 bg-white rounded-3xl border border-slate-200">
+        <div class="text-center py-10 bg-white rounded-3xl border border-slate-200">
           <span class="w-14 h-14 mx-auto rounded-2xl bg-slate-100 text-slate-400 flex items-center justify-center mb-4"><i class="fa-solid fa-folder-open"></i></span>
           <h3 class="font-display text-xl font-semibold text-ink-900">No projects linked yet</h3>
           <p class="text-sm text-slate-500 mt-1 max-w-md mx-auto">Projects delivered with this partner will appear here once they are linked from the dashboard.</p>
@@ -275,7 +275,7 @@ include dirname( __DIR__ ) . '/includes/header.php';
     }
   ?>
   <?php if ( $others ): ?>
-    <section class="pb-16">
+    <section class="pb-10">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="rounded-3xl bg-white border border-slate-200 p-6 sm:p-8">
           <div class="flex items-center justify-between gap-4 mb-5">

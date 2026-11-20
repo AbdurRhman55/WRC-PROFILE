@@ -131,9 +131,9 @@ include dirname(__DIR__) . '/includes/header.php';
 </section>
 
 <!-- LATEST NEWS -->
-<section id="news" class="py-20 bg-white">
+<section id="news" class="py-12 bg-white">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-12">
+    <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-6">
       <div>
         <span class="text-brandRed text-xs font-bold uppercase tracking-widest">Stay Updated</span>
         <h2 class="text-3xl sm:text-4xl font-display font-bold text-ink-900 mt-2">Latest <span class="text-brandRed">News</span></h2>
@@ -142,7 +142,7 @@ include dirname(__DIR__) . '/includes/header.php';
     </div>
 
     <?php if (empty($news)): ?>
-    <div class="text-center py-16 bg-slate-50 rounded-2xl">
+    <div class="text-center py-10 bg-slate-50 rounded-2xl">
       <i class="fa-solid fa-newspaper text-4xl text-slate-300 mb-4 block"></i>
       <h3 class="text-lg font-bold text-slate-700 mb-2">No news articles yet</h3>
       <p class="text-sm text-slate-400">Check back soon for the latest updates.</p>
@@ -210,7 +210,7 @@ include dirname(__DIR__) . '/includes/header.php';
 
 <?php if (!empty($blogPreview)): ?>
 <!-- FROM THE BLOG -->
-<section id="blog" class="py-20 bg-slate-50">
+<section id="blog" class="py-12 bg-slate-50">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <div class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between mb-10">
       <div class="max-w-2xl">
@@ -261,7 +261,7 @@ include dirname(__DIR__) . '/includes/header.php';
 
 
 <!-- PARTNER PHOTO GALLERIES -->
-<section id="photos" class="py-20 bg-white">
+<section id="photos" class="py-12 bg-white">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-10">
       <div>
@@ -325,7 +325,7 @@ include dirname(__DIR__) . '/includes/header.php';
       <?php endforeach; ?>
     </div>
     <?php else: ?>
-    <div class="text-center py-14 bg-slate-50 rounded-2xl border border-slate-200">
+    <div class="text-center py-10 bg-slate-50 rounded-2xl border border-slate-200">
       <i class="fa-solid fa-images text-4xl text-slate-300 mb-4 block"></i>
       <h3 class="text-lg font-bold text-slate-700 mb-2">Partner galleries are being prepared</h3>
       <p class="text-sm text-slate-400">Project photographs will appear here as soon as they are published.</p>
@@ -336,16 +336,16 @@ include dirname(__DIR__) . '/includes/header.php';
 
 
 <!-- VIDEO GALLERY -->
-<section id="videos" class="py-20 bg-white">
+<section id="videos" class="py-12 bg-white">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <div class="text-center mb-12">
+    <div class="text-center mb-6">
       <span class="text-brandRed text-xs font-bold uppercase tracking-widest">Watch & Learn</span>
       <h2 class="text-3xl sm:text-4xl font-display font-bold text-ink-900 mt-2">Video <span class="text-brandRed">Gallery</span></h2>
       <p class="text-slate-500 mt-3 max-w-2xl mx-auto">Watch stories from the field and see the impact of your support in action.</p>
     </div>
 
     <?php if (empty($videos)): ?>
-    <div class="text-center py-16 bg-slate-50 rounded-2xl">
+    <div class="text-center py-10 bg-slate-50 rounded-2xl">
       <i class="fa-solid fa-video text-4xl text-slate-300 mb-4 block"></i>
       <h3 class="text-lg font-bold text-slate-700 mb-2">No videos yet</h3>
       <p class="text-sm text-slate-400">Video gallery will be populated soon.</p>

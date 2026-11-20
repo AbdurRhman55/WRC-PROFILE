@@ -64,7 +64,7 @@ class = 'absolute inset-0 w-full h-full object-cover'>
 <div class = 'absolute top-20 left-10 w-72 h-72 bg-brandRed/10 rounded-full blur-3xl'></div>
 <div class = 'absolute bottom-10 right-10 w-96 h-96 bg-white/5 rounded-full blur-3xl'></div>
 </div>
-<div class = 'relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14 md:py-20'>
+<div class = 'relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 md:py-12'>
 <div class = 'max-w-3xl mx-auto text-center'>
 <nav class = 'text-xs text-white/50 mb-6 flex items-center gap-2 justify-center'>
 <a href = "<?= $base ?>index.php" class = 'hover:text-white transition'>Home</a>
@@ -89,14 +89,14 @@ style = "font-family:'Fraunces',serif;">
 </section>
 
 <!-- ORGANIZATION REGISTRATION -->
-<section id = 'registration' class = 'relative overflow-hidden bg-white py-16 md:py-24'>
+<section id = 'registration' class = 'relative overflow-hidden bg-white py-10 md:py-12'>
 <div class = 'pointer-events-none absolute -left-24 top-10 h-80 w-80 rounded-full bg-brandRed/5 blur-3xl'></div>
 <div class = 'pointer-events-none absolute -right-24 bottom-0 h-80 w-80 rounded-full bg-slate-100 blur-3xl'></div>
 
 <div class = 'relative max-w-5xl mx-auto px-4 sm:px-6 lg:px-8'>
 <div
 
-class = 'relative overflow-hidden rounded-[2rem] border border-slate-200 bg-slate-50/70 px-6 py-12 sm:px-10 md:px-14 md:py-16 text-center shadow-sm'>
+class = 'relative overflow-hidden rounded-[2rem] border border-slate-200 bg-slate-50/70 px-6 py-12 sm:px-10 md:px-14 md:py-10 text-center shadow-sm'>
 <div class = 'absolute inset-x-0 top-0 h-1.5 bg-gradient-to-r from-brandRed via-brandRed to-brandRed/40'></div>
 <div class = 'pointer-events-none absolute -right-12 -top-12 h-44 w-44 rounded-full bg-brandRed/5'></div>
 

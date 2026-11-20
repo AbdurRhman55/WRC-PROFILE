@@ -65,7 +65,7 @@ include dirname( __DIR__ ) . '/includes/header.php';
         <div class="absolute inset-0 opacity-[0.07]" style="background-image: linear-gradient(rgba(255,255,255,.35) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.35) 1px, transparent 1px); background-size: 54px 54px;"></div>
     </div>
 
-    <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-12 pb-20 sm:pt-16 sm:pb-24">
+    <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-12 pb-12 sm:pt-10 sm:pb-12">
         <nav class="flex flex-wrap items-center gap-2 text-xs text-white/55 mb-8" aria-label="Breadcrumb">
             <a href="<?= $base ?>index.php" class="hover:text-white transition-colors">Home</a>
             <i class="fa-solid fa-chevron-right text-[8px] text-white/35"></i>
@@ -174,7 +174,7 @@ $featuredUrl     = getBlogPostUrl( $featured );
 <?php endif; ?>
 
 <!-- STORY INDEX -->
-<section id="stories" class="bg-slate-50 py-16 sm:py-20">
+<section id="stories" class="bg-slate-50 py-10 sm:py-12">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
         <div class="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between mb-8">
@@ -227,7 +227,7 @@ $featuredUrl     = getBlogPostUrl( $featured );
         <?php endif; ?>
 
         <?php if ( empty( $posts ) ): ?>
-        <div class="rounded-3xl border border-dashed border-slate-300 bg-white px-6 py-16 text-center">
+        <div class="rounded-3xl border border-dashed border-slate-300 bg-white px-6 py-10 text-center">
             <span class="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-brandRed/10 text-brandRed">
                 <i class="fa-solid fa-pen-nib text-xl"></i>
             </span>
@@ -310,7 +310,7 @@ $featuredUrl     = getBlogPostUrl( $featured );
 </section>
 
 <!-- CTA -->
-<section class="bg-white py-16">
+<section class="bg-white py-10">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="relative overflow-hidden rounded-3xl bg-ink-900 px-6 py-10 sm:px-10 sm:py-12 lg:px-14">
             <div class="absolute -right-16 -top-20 h-64 w-64 rounded-full bg-brandRed/25 blur-3xl"></div>

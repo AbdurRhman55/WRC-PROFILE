@@ -172,7 +172,7 @@ include dirname(__DIR__) . '/includes/header.php';
         </div>
 
         <!-- Content -->
-        <div class="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 py-12 lg:py-16">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 py-12 lg:py-10">
             <!-- Breadcrumbs -->
             <nav class="flex items-center gap-2 text-xs text-white/60 mb-6 animate-fade-in">
                 <a href="<?= $base ?>index.php" class="hover:text-white transition-colors">Home</a>
@@ -256,12 +256,12 @@ include dirname(__DIR__) . '/includes/header.php';
     </section>
 
     <!-- MAIN CONTENT -->
-    <section class="py-16 lg:py-24 bg-slate-50">
+    <section class="py-10 lg:py-12 bg-slate-50">
         <div class="container mx-auto px-4 sm:px-6 lg:px-8">
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16">
 
                 <!-- Left Main Content -->
-                <div class="lg:col-span-8 space-y-12">
+                <div class="lg:col-span-8 space-y-8">
 
                     <!-- Project Overview - Magazine Layout -->
                     <div class="reveal-section">
@@ -738,9 +738,9 @@ include dirname(__DIR__) . '/includes/header.php';
 
     <!-- RELATED PROJECTS -->
     <?php if (!empty($relProjects)): ?>
-    <section class="py-20 bg-white border-t border-slate-100">
+    <section class="py-12 bg-white border-t border-slate-100">
         <div class="container mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="text-center mb-14 reveal-section">
+            <div class="text-center mb-8 reveal-section">
                 <div class="flex items-center justify-center gap-3 mb-4">
                     <div class="w-12 h-0.5 bg-brandRed"></div>
                     <span class="text-brandRed text-[11px] font-bold uppercase tracking-widest">More Projects</span>
@@ -792,7 +792,7 @@ include dirname(__DIR__) . '/includes/header.php';
     <?php endif; ?>
 
     <!-- CTA SECTION -->
-    <section class="py-20 bg-gradient-to-br from-ink-900 via-ink-800 to-ink-900 text-white relative overflow-hidden">
+    <section class="py-12 bg-gradient-to-br from-ink-900 via-ink-800 to-ink-900 text-white relative overflow-hidden">
         <!-- Background Pattern -->
         <div class="absolute inset-0 opacity-10">
             <div class="absolute top-0 left-0 w-full h-full"

@@ -10,7 +10,7 @@ include __DIR__ . '/includes/header.php';
 ?>
 
 <!-- HERO -->
-<section class="relative bg-slate-900 py-16 overflow-hidden">
+<section class="relative bg-slate-900 py-10 overflow-hidden">
   <div class="absolute inset-0 opacity-25 bg-cover bg-center" style="background-image: url('<?= $base ?>assets/images/hero.jpg');"></div>
   <div class="absolute inset-0 bg-gradient-to-r from-slate-950/90 to-slate-900/70"></div>
   <div class="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 text-center">
@@ -26,7 +26,7 @@ include __DIR__ . '/includes/header.php';
 </section>
 
 <!-- TERMS CONTENT -->
-<section class="py-16 bg-white">
+<section class="py-10 bg-white">
   <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
     <div class="grid lg:grid-cols-12 gap-12">
 

@@ -174,7 +174,7 @@ include dirname(__DIR__) . '/includes/header.php';
       <div class="absolute inset-0 bg-gradient-to-r from-ink-900/90 via-ink-900/65 to-ink-900/20"></div>
       <div class="absolute inset-0 bg-gradient-to-t from-ink-900/85 via-transparent to-ink-900/30"></div>
     </div>
-    <div class="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-20 lg:py-24">
+    <div class="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 md:py-12 lg:py-12">
       <div class="max-w-3xl">
         <nav class="mb-6 flex items-center gap-2 text-xs sm:text-sm text-white/60">
           <a href="<?= $base ?>index.php" class="hover:text-white transition-colors">Home</a>
@@ -258,7 +258,7 @@ include dirname(__DIR__) . '/includes/header.php';
   </section>
 
   <!-- ACTIVE PROJECTS -->
-  <section id="active" class="py-16 sm:py-20 bg-slate-50">
+  <section id="active" class="py-10 sm:py-12 bg-slate-50">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex items-center gap-3 mb-10">
         <div class="w-1.5 h-10 bg-brandRed rounded-full"></div>
@@ -306,7 +306,7 @@ include dirname(__DIR__) . '/includes/header.php';
   </section>
 
   <!-- COMPLETED PROJECTS -->
-  <section id="completed" class="py-16 sm:py-20 bg-white">
+  <section id="completed" class="py-10 sm:py-12 bg-white">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex items-center gap-3 mb-10">
         <div class="w-1.5 h-10 bg-teal-500 rounded-full"></div>
@@ -354,14 +354,14 @@ include dirname(__DIR__) . '/includes/header.php';
   </section>
 
   <!-- PROJECT DASHBOARD -->
-  <section id="dashboard" class="py-16 sm:py-20 bg-ink-900 text-white relative overflow-hidden">
+  <section id="dashboard" class="py-10 sm:py-12 bg-ink-900 text-white relative overflow-hidden">
     <!-- Background Effects -->
     <div class="absolute top-0 right-0 w-96 h-96 bg-brandRed/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
     <div class="absolute bottom-0 left-0 w-64 h-64 bg-teal-500/5 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2"></div>
     
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
       <!-- Section Header -->
-      <div class="text-center mb-14">
+      <div class="text-center mb-8">
         <div class="flex items-center justify-center gap-3 mb-4">
           <div class="w-12 h-0.5 bg-brandRed"></div>
           <span class="text-brandRed text-[11px] font-bold uppercase tracking-widest">Analytics</span>
@@ -372,7 +372,7 @@ include dirname(__DIR__) . '/includes/header.php';
       </div>
 
       <!-- Metric Cards -->
-      <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 mb-14">
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 mb-8">
         <?php foreach ($dashData['metrics'] ?? [] as $i => $metric): ?>
         <div class="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-5 sm:p-6 text-center dashboard-stat-card group hover:bg-white/10 transition-all duration-300">
           <div class="w-14 h-14 bg-<?= $metric['color'] ?>/15 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
@@ -496,9 +496,9 @@ include dirname(__DIR__) . '/includes/header.php';
   </section>
 
   <!-- SUCCESS STORIES -->
-  <section id="stories" class="py-16 sm:py-20 bg-sand-50">
+  <section id="stories" class="py-10 sm:py-12 bg-sand-50">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="text-center mb-12">
+      <div class="text-center mb-6">
         <h2 class="text-2xl sm:text-3xl font-display font-bold text-ink-900 mb-3">Success Stories</h2>
         <p class="text-slate-500 max-w-lg mx-auto">Hear from the communities whose lives have been transformed through our projects.</p>
       </div>
@@ -532,7 +532,7 @@ include dirname(__DIR__) . '/includes/header.php';
   </section>
 
   <!-- CTA SECTION -->
-  <section class="py-16 sm:py-20 bg-white">
+  <section class="py-10 sm:py-12 bg-white">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="bg-gradient-to-br from-ink-900 to-ink-800 rounded-3xl p-8 sm:p-12 lg:p-16 text-center relative overflow-hidden">
         <div class="absolute top-0 right-0 w-64 h-64 bg-brandRed/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
@@ -710,7 +710,7 @@ include dirname(__DIR__) . '/includes/header.php';
     if (visibleCount === 0) {
       var emptyDiv = document.createElement('div');
       emptyDiv.id = 'filter-empty-state';
-      emptyDiv.className = 'col-span-full text-center py-16';
+      emptyDiv.className = 'col-span-full text-center py-10';
       var emptyMessage = activeSearchQuery !== ''
         ? 'No projects match &ldquo;' + escapeHtml(activeSearchQuery) + '&rdquo;. Try a different keyword, or clear the search.'
         : 'No projects match this filter. Try selecting a different category.';

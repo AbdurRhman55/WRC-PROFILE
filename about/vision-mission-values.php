@@ -35,7 +35,7 @@ include dirname( __DIR__ ) . '/includes/header.php';
 
 <main class = 'flex-grow'>
 <!-- HERO -->
-<section class = 'relative bg-slate-900 text-white min-h-[420px] flex items-center py-20 overflow-hidden'>
+<section class = 'relative bg-slate-900 text-white min-h-[420px] flex items-center py-12 overflow-hidden'>
 <div class = 'absolute inset-0 z-0'>
 <img src = "<?= $base ?><?= $heroData['hero_image'] ?? 'assets/images/hero/about-hero.jpg' ?>" alt = 'WRC Vision' class = 'w-full h-full object-cover opacity-30 mix-blend-luminosity'>
 <div class = 'absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-900/80 to-slate-900/60'></div>
@@ -69,7 +69,7 @@ if ( empty( $visionItems ) ) {
 $visionAccents = [ '#c8102e', '#0f766e' ];
 $visionIcons   = [ 'fa-solid fa-eye', 'fa-solid fa-hand-holding-heart' ];
 ?>
-<section class = 'py-20 bg-white'>
+<section class = 'py-12 bg-white'>
 <div class = 'max-w-6xl mx-auto px-4 sm:px-6 lg:px-8'>
 <div class = 'grid md:grid-cols-2 gap-8'>
 <?php foreach ( $visionItems as $index => $item ):
@@ -113,9 +113,9 @@ if ( $valuesSubtitle === '' ) { $valuesSubtitle = 'The foundation of everything 
 
 $valueAccents = [ '#c8102e', '#0f766e', '#0369a1', '#b45309', '#6d28d9', '#be123c' ];
 ?>
-<section class = 'py-20 bg-slate-50 border-t border-slate-200'>
+<section class = 'py-12 bg-slate-50 border-t border-slate-200'>
 <div class = 'max-w-6xl mx-auto px-4 sm:px-6 lg:px-8'>
-<div class = 'text-center max-w-2xl mx-auto mb-14'>
+<div class = 'text-center max-w-2xl mx-auto mb-8'>
 <div class = 'inline-flex items-center gap-2 bg-white border border-slate-200 text-brandRed text-[11px] font-bold uppercase tracking-[0.18em] px-4 py-1.5 rounded-full mb-5 shadow-sm'>
 <i class = 'fa-solid fa-gem'></i> What Guides Us
 </div>

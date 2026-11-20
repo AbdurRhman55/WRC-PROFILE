@@ -134,10 +134,10 @@ include __DIR__ . '/../includes/header.php';
 ?>
 
 <!-- HERO -->
-<section class="relative bg-slate-900 py-16 md:py-24 overflow-hidden min-h-[480px] md:min-h-[540px] lg:min-h-[580px] flex items-center">
+<section class="relative bg-slate-900 py-10 md:py-12 overflow-hidden min-h-[480px] md:min-h-[540px] lg:min-h-[580px] flex items-center">
   <div class="absolute inset-0 opacity-50 bg-cover bg-center" style="background-image: url('<?= $base ?><?= !empty($heroData['hero_image']) ? $heroData['hero_image'] : 'assets/images/contribute-hero.jpg' ?>');"></div>
   <div class="absolute inset-0 bg-gradient-to-r from-slate-950/80 via-slate-900/70 to-slate-950/80"></div>
-  <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 text-center">
+  <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 text-center">
     <?php
     $heroBadge = !empty($heroData['badge']) ? $heroData['badge'] : "Let's Work Together";
     $heroTitle = !empty($heroData['title']) ? $heroData['title'] : "Let's Build Impact Together - Partner With WRC";
@@ -158,11 +158,11 @@ include __DIR__ . '/../includes/header.php';
   </div>
 </section>
 <!-- DONATION IMPACT -->
-<section id="donation-impact" class="relative overflow-hidden scroll-mt-28 bg-white py-20">
+<section id="donation-impact" class="relative overflow-hidden scroll-mt-28 bg-white py-12">
   <div class="pointer-events-none absolute -top-24 right-0 h-72 w-72 rounded-full bg-brandRed/5 blur-3xl"></div>
   <div class="pointer-events-none absolute bottom-0 left-0 h-72 w-72 rounded-full bg-sky-100/60 blur-3xl"></div>
   <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <div class="mx-auto mb-14 max-w-3xl text-center">
+    <div class="mx-auto mb-8 max-w-3xl text-center">
       <span class="mb-3 inline-flex items-center gap-2 rounded-full border border-brandRed/20 bg-brandRed/5 px-4 py-1.5 text-[11px] font-bold uppercase tracking-[0.25em] text-brandRed">
         <i class="fa-solid fa-heart"></i> <?= sanitize($sections['contribute_impact']['section_subtitle'] ?? 'Your Impact') ?>
       </span>
@@ -222,12 +222,12 @@ include __DIR__ . '/../includes/header.php';
 </section>
 
 <!-- DONATION FORM -->
-<section id="donate" class="relative overflow-hidden bg-slate-50 py-20 scroll-mt-24">
+<section id="donate" class="relative overflow-hidden bg-slate-50 py-12 scroll-mt-24">
   <div class="pointer-events-none absolute -left-32 top-10 h-96 w-96 rounded-full bg-brandRed/5 blur-3xl"></div>
   <div class="pointer-events-none absolute -right-24 bottom-0 h-96 w-96 rounded-full bg-sky-100/70 blur-3xl"></div>
 
   <div class="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-    <div class="mx-auto mb-12 max-w-3xl text-center">
+    <div class="mx-auto mb-6 max-w-3xl text-center">
       <span class="mb-3 inline-flex items-center gap-2 rounded-full border border-brandRed/20 bg-white px-4 py-1.5 text-[11px] font-bold uppercase tracking-[0.25em] text-brandRed shadow-sm">
         <i class="fa-solid fa-lock"></i> Secure Donation
       </span>
@@ -645,7 +645,7 @@ include __DIR__ . '/../includes/header.php';
 </section>
 
 <!-- WHY PARTNER WITH WRC -->
-<section class="py-16 bg-white">
+<section class="py-10 bg-white">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <div class="grid gap-10 lg:grid-cols-2 items-center">
       <!-- Left: Value Propositions -->
@@ -726,9 +726,9 @@ include __DIR__ . '/../includes/header.php';
 </section>
 
 <!-- COLLABORATION INQUIRY FORM -->
-<section id="contact-form" class="py-16 bg-slate-50">
+<section id="contact-form" class="py-10 bg-slate-50">
   <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-    <div class="text-center mb-12">
+    <div class="text-center mb-6">
       <span class="text-brandRed text-xs font-semibold uppercase tracking-[0.35em] mb-3 block">Get Started</span>
       <h2 class="text-3xl sm:text-4xl font-extrabold text-slate-900">Explore Collaboration With WRC</h2>
       <p class="mt-4 text-slate-600 text-sm sm:text-base max-w-2xl mx-auto">Complete the inquiry form below and our partnerships team will review your submission and respond within 5 business days.</p>
@@ -797,7 +797,7 @@ include __DIR__ . '/../includes/header.php';
 </section>
 
 <!-- FINAL CTA -->
-<section class="py-20 bg-brandRed text-center relative overflow-hidden">
+<section class="py-12 bg-brandRed text-center relative overflow-hidden">
   <div class="absolute inset-0 bg-cover bg-center mix-blend-multiply opacity-20" style="background-image: url('<?= $base ?>assets/images/hero/contribute-hero.jpg');"></div>
   <div class="container relative z-10 mx-auto px-4">
     <h2 class="text-3xl md:text-4xl font-display font-bold text-white mb-5 max-w-3xl mx-auto leading-tight">

@@ -46,7 +46,7 @@ include dirname( __DIR__ ) . '/includes/header.php';
 <main class = 'flex-grow'>
 
 <!-- HERO SECTION -->
-<section class = 'relative bg-slate-900 text-white min-h-[420px] flex items-center py-20 overflow-hidden'>
+<section class = 'relative bg-slate-900 text-white min-h-[420px] flex items-center py-12 overflow-hidden'>
 <div class = 'absolute inset-0 z-0'>
 <img src = "<?= $base ?><?= $heroData['hero_image'] ?? 'assets/images/hero/about-hero.jpg' ?>" alt = 'WRC Team' class = 'w-full h-full object-cover opacity-30 mix-blend-luminosity'>
 <div class = 'absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-900/80 to-slate-900/60'></div>
@@ -77,9 +77,9 @@ $impactTotal   = max( 1, count( $impactItems ) );
 $sectorAccents = [ '#c8102e', '#0f766e', '#0369a1', '#b45309', '#6d28d9', '#be123c' ];
 $impactIntro   = 'We take a comprehensive approach to community development, addressing immediate humanitarian needs while implementing sustainable solutions that strengthen communities and improve quality of life. Our work focuses on key sectors where strategic interventions can create meaningful and lasting impact.';
 ?>
-<section class = 'py-24 bg-slate-50 border-t border-slate-200'>
+<section class = 'py-12 bg-slate-50 border-t border-slate-200'>
 <div class = 'container mx-auto px-4 sm:px-6 lg:px-8'>
-<div class = 'text-center mb-16 max-w-3xl mx-auto'>
+<div class = 'text-center mb-8 max-w-3xl mx-auto'>
 <div class = 'inline-flex items-center gap-2 bg-white border border-slate-200 text-brandRed text-[11px] font-bold uppercase tracking-[0.18em] px-4 py-1.5 rounded-full mb-5 shadow-sm'>
 <i class = 'fa-solid fa-layer-group'></i> What We Do
 </div>
@@ -131,10 +131,10 @@ $impactIntro   = 'We take a comprehensive approach to community development, add
 $whyItems = array_slice($whyData[ 'items' ] ?? [], 0, 4);
 $whyIntro = 'We believe that meaningful development begins with recognizing the potential of every individual and creating an environment where communities can thrive. Our work is guided by principles that place people, dignity, accountability, and long-term progress at the Centre of every intervention.';
 ?>
-<section class = 'py-24 bg-ink-900 text-white relative overflow-hidden'>
+<section class = 'py-12 bg-ink-900 text-white relative overflow-hidden'>
 <div class = 'absolute inset-0 opacity-10 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-white via-transparent to-transparent'></div>
 <div class = 'container mx-auto px-4 sm:px-6 lg:px-8 relative z-10'>
-<div class = 'text-center max-w-3xl mx-auto mb-14'>
+<div class = 'text-center max-w-3xl mx-auto mb-8'>
 <div class = 'inline-flex items-center gap-2 bg-white/5 border border-white/10 text-brandRed text-[11px] font-bold uppercase tracking-[0.18em] px-4 py-1.5 rounded-full mb-5'>
 <i class = 'fa-solid fa-compass'></i> Our Principles
 </div>
@@ -162,7 +162,7 @@ $whyIntro = 'We believe that meaningful development begins with recognizing the 
 </section>
 
 <!-- CTA BANNER -->
-<section class = 'py-20 bg-slate-950 text-white text-center relative overflow-hidden'>
+<section class = 'py-12 bg-slate-950 text-white text-center relative overflow-hidden'>
 <div class = "absolute inset-0 bg-[url('../assets/images/hero/about-hero.jpg')] bg-cover bg-center mix-blend-multiply opacity-10"></div>
 <div class = 'container relative z-10 mx-auto px-4'>
 <h2 class = 'text-3xl md:text-4xl font-display font-bold text-white mb-4 max-w-2xl mx-auto leading-tight'>

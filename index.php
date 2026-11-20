@@ -397,7 +397,7 @@ include __DIR__ . '/includes/header.php';
 </section>
 
 <!-- OUR PROJECTS -->
-<section class="bg-slate-50 py-14 lg:py-20">
+<section class="bg-slate-50 py-10 lg:py-12">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="text-center mb-6 lg:mb-10">
             <p class="text-brandRed text-xs uppercase tracking-[0.35em] font-semibold mb-3">What We Do</p>
@@ -415,7 +415,7 @@ include __DIR__ . '/includes/header.php';
 <!-- INFOGRAPHICS SECTION -->
 <section id="how-it-works" class="w-full bg-slate-50 py-8 lg:py-12 overflow-hidden">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="mx-auto max-w-3xl text-center mb-20">
+        <div class="mx-auto max-w-3xl text-center mb-10">
             <p class="text-xs uppercase tracking-[0.35em] font-semibold text-brandRed">Our process</p>
             <h2 class="mt-4 text-3xl sm:text-4xl font-extrabold text-slate-900">How We Work</h2>
             <p class="mt-4 text-sm sm:text-base leading-7 text-slate-600">From identifying funding opportunities to delivering sustainable impact, we follow a structured, accountable, and transparent project management approach. Every initiative is guided by evidence, collaboration, quality standards, and measurable results.</p>
@@ -430,7 +430,7 @@ include __DIR__ . '/includes/header.php';
             <div class="space-y-10 md:space-y-0">
                 <?php foreach ($processSteps as $i => $step): ?>
                 <?php $isOdd = ($i % 2 === 0); ?>
-                <div class="step-row fade-up relative md:grid md:grid-cols-2 md:gap-x-16 md:items-center md:pb-20">
+                <div class="step-row fade-up relative md:grid md:grid-cols-2 md:gap-x-16 md:items-center md:pb-12">
                     <?php if ($isOdd): ?>
                     <div class="pl-14 md:pl-0 md:pr-16 md:text-right">
                         <span
@@ -483,14 +483,14 @@ include __DIR__ . '/includes/header.php';
     <div class="max-w-6xl mx-auto">
 
         <!-- Header -->
-        <div class="max-w-3xl mx-auto text-center mb-10 md:mb-12 reveal">
+        <div class="max-w-3xl mx-auto text-center mb-10 md:mb-6 reveal">
             <span class="inline-block font-sans text-xs tracking-[0.25em] uppercase text-brandRed mb-4">Who Makes It Possible</span>
             <h2 class="font-display text-4xl md:text-5xl text-slate-950 leading-tight mb-5">Our Partners &amp; Collaborators</h2>
             <p class="font-sans text-slate-600 text-base md:text-lg leading-relaxed">Meaningful and sustainable development is achieved through strong partnerships. We work alongside funding agencies, government institutions, development organizations, and strategic partners who share our vision of inclusive growth and lasting community impact. Through mutual trust, shared expertise, and collective commitment, we turn opportunities into meaningful action and sustainable outcomes.</p>
         </div>
 
         <!-- Funding partners -->
-        <div class="reveal mb-16">
+        <div class="reveal mb-8">
             <div class="flex items-center gap-4 mb-8">
                 <h3 class="font-display text-lg text-slate-950 whitespace-nowrap">Funding partners</h3>
                 <span class="h-px flex-1 bg-slate-200"></span>
@@ -545,7 +545,7 @@ include __DIR__ . '/includes/header.php';
 
         <!-- Trust strip -->
         <div
-            class="reveal mt-16 pt-10 border-t border-ink-900/10 flex flex-col md:flex-row items-center justify-between gap-6 text-center md:text-left">
+            class="reveal mt-8 pt-10 border-t border-ink-900/10 flex flex-col md:flex-row items-center justify-between gap-6 text-center md:text-left">
             <p class="font-sans text-sm text-ink-700/60 max-w-md">Interested in partnering with us on a funded
                 initiative or technical assessment? We welcome collaboration with institutions, government bodies, and
                 mission-aligned organizations.</p>
@@ -560,9 +560,9 @@ include __DIR__ . '/includes/header.php';
 </section>
 
 <!-- ACTIVE PROJECTS -->
-<section class="py-16 bg-white" id="active-projects">
+<section class="py-10 bg-white" id="active-projects">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="text-center mb-12">
+        <div class="text-center mb-6">
             <p class="text-brandRed text-xs uppercase tracking-[0.35em] font-semibold mb-2">Current Initiatives</p>
             <h2 class="text-3xl sm:text-4xl font-extrabold text-slate-900">Active Projects</h2>
             <p class="mt-3 max-w-2xl mx-auto text-slate-500 text-sm">Real-time overview of our ongoing humanitarian
@@ -613,9 +613,9 @@ include __DIR__ . '/includes/header.php';
 </section>
 
 <!-- KPI DASHBOARD -->
-<section class="py-16 bg-slate-900 text-white" id="kpi-dashboard">
+<section class="py-10 bg-slate-900 text-white" id="kpi-dashboard">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="text-center mb-12">
+        <div class="text-center mb-6">
             <p class="text-brandRed text-xs uppercase tracking-[0.35em] font-semibold mb-2">Performance Metrics</p>
             <h2 class="text-3xl sm:text-4xl font-extrabold text-white">Project KPI Dashboard</h2>
             <p class="mt-3 max-w-2xl mx-auto text-slate-400 text-sm">Key performance indicators tracked across all
@@ -635,9 +635,9 @@ include __DIR__ . '/includes/header.php';
 </section>
 
 <!-- SUCCESS STORIES -->
-<section class="py-16 bg-slate-50" id="success-stories">
+<section class="py-10 bg-slate-50" id="success-stories">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="text-center mb-12">
+        <div class="text-center mb-6">
             <p class="text-brandRed text-xs uppercase tracking-[0.35em] font-semibold mb-2">Real Impact</p>
             <h2 class="text-3xl sm:text-4xl font-extrabold text-slate-900">Success Stories</h2>
             <p class="mt-3 max-w-2xl mx-auto text-slate-500 text-sm">Hear from the communities whose lives have been
@@ -700,7 +700,7 @@ include __DIR__ . '/includes/header.php';
 </section>
 
 <!-- GEOGRAPHIC PRESENCE -->
-<section class="py-16 bg-white" id="where-we-work-preview">
+<section class="py-10 bg-white" id="where-we-work-preview">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="grid lg:grid-cols-2 gap-12 items-center">
             <div>
@@ -763,7 +763,7 @@ include __DIR__ . '/includes/header.php';
 
 <!-- CTA BANNER -->
 <?php $cta = $homepageMap['cta_banner'] ?? null; $ctaData = $cta ? json_decode($cta['content'], true) : []; ?>
-<section class="py-16 bg-brandRed">
+<section class="py-10 bg-brandRed">
     <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         <h2 class="text-3xl sm:text-4xl font-extrabold text-white mb-4 font-heading">
             <?= (!empty($cta['section_title'])) ? sanitize($cta['section_title']) : (!empty($ctaData['section_title']) ? sanitize($ctaData['section_title']) : 'Ready to Make a Difference?') ?>
