@@ -211,7 +211,7 @@ include __DIR__ . '/includes/header.php';
 ?>
 
 <!-- HERO SLIDER -->
-<section class="relative w-full bg-slate-900 text-white min-h-[560px] flex items-center overflow-hidden group">
+<section class="relative w-full bg-slate-900 text-white min-h-[400px] sm:min-h-[440px] lg:min-h-[min(56vh,520px)] flex items-center overflow-hidden group">
 
     <!-- Slider Wrapper -->
     <div id="hero-slider"
@@ -245,10 +245,10 @@ include __DIR__ . '/includes/header.php';
     </button>
 
     <!-- Slider Pagination (Dots) -->
-    <div class="absolute bottom-6 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2" id="slider-dots">
+    <div class="absolute bottom-4 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2" id="slider-dots">
         <?php foreach ($heroSlides as $i => $slide): ?>
         <button
-            class="<?= $i === 0 ? 'w-4 h-3 rounded-full bg-brandRed shadow-md' : 'w-3 h-3 rounded-full bg-white/50 hover:bg-white' ?> transition-all duration-300"
+            class="<?= $i === 0 ? 'w-4 h-2.5 rounded-full bg-brandRed shadow-md' : 'w-2.5 h-2.5 rounded-full bg-white/50 hover:bg-white' ?> transition-all duration-300"
             data-index="<?= $i ?>" aria-label="Go to slide <?= $i + 1 ?>"></button>
         <?php endforeach; ?>
     </div>
@@ -256,35 +256,34 @@ include __DIR__ . '/includes/header.php';
     <!-- Dynamic Content Overlay -->
     <div class="absolute inset-0 z-10 flex items-center pointer-events-none">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
-            <div id="hero-content" class="max-w-3xl pointer-events-auto animate-fade-in-up">
+            <div id="hero-content" class="max-w-2xl pointer-events-auto animate-fade-in-up">
                 <?php $firstSlide = $heroSlides[0] ?? []; ?>
                 <?php if (!empty($firstSlide['badge'])): ?>
                 <span
-                    class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest bg-brandRed/90 text-white mb-4 backdrop-blur-sm">
+                    class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest bg-brandRed/90 text-white mb-3 backdrop-blur-sm">
                     <i class="fa-solid fa-globe"></i> <?= sanitize($firstSlide['badge']) ?>
                 </span>
                 <?php else: ?>
                 <span
-                    class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest bg-slate-900/60 backdrop-blur-sm text-slate-100 border border-white/20 mb-6">
+                    class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest bg-slate-900/60 backdrop-blur-sm text-slate-100 border border-white/20 mb-3">
                     <i class="fa-solid fa-globe text-brandRed"></i> Welfare & Relief Committee NGO
                 </span>
                 <?php endif; ?>
                 <h1
-                    class="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-white leading-tight mb-6 font-heading drop-shadow-md">
+                    class="text-3xl sm:text-4xl lg:text-[2.6rem] font-extrabold text-white leading-tight mb-4 font-heading drop-shadow-md">
                     <?= sanitize($firstSlide['title'] ?? 'Empowering Hope, Rebuilding Lives Worldwide.') ?>
                 </h1>
-                <p class="text-base sm:text-lg text-slate-200 mb-8 leading-relaxed drop-shadow-sm max-w-2xl">
+                <p class="text-sm sm:text-base text-slate-200 mb-5 leading-relaxed drop-shadow-sm max-w-xl">
                     <?= sanitize($firstSlide['subtitle'] ?? 'WRC is dedicated to providing immediate emergency aid, clean water solutions, nutritious food packs, and sustainable education to vulnerable communities in crisis.') ?>
                 </p>
-                <div class="flex flex-wrap gap-4 items-center">
-                    <a href="<?= $base ?><?= $firstSlide['cta_link'] ?? 'our-work/index.php' ?>"
-                        class="bg-brandRed hover:bg-brandRed-hover text-white font-bold text-sm sm:text-base px-7 py-3.5 rounded-xl shadow-lg shadow-brandRed/30 transition-all flex items-center gap-2 transform hover:-translate-y-1">
-                        <?= sanitize($firstSlide['cta_text'] ?? 'Explore Our Work') ?> <i
-                            class="fa-solid fa-arrow-right text-xs"></i>
-                    </a>
+                <div class="flex flex-wrap gap-3 items-center">
                     <a href="<?= $base ?>get-involved/contribute-with-us.php"
-                        class="bg-white/10 hover:bg-white/25 backdrop-blur-md text-white border border-white/30 font-semibold text-sm sm:text-base px-6 py-3.5 rounded-xl transition-all flex items-center gap-2 transform hover:-translate-y-1">
-                        Let’s Work Together <i class="fa-solid fa-handshake text-xs"></i>
+                        class="bg-brandRed hover:bg-brandRed-hover text-white font-bold text-sm px-6 py-3 rounded-lg shadow-lg shadow-brandRed/30 transition-all flex items-center gap-2 transform hover:-translate-y-0.5">
+                        Donate Now <i class="fa-solid fa-heart text-xs"></i>
+                    </a>
+                    <a href="<?= $base ?>our-work/index.php"
+                        class="bg-white/10 hover:bg-white/25 backdrop-blur-md text-white border border-white/30 font-semibold text-sm px-5 py-3 rounded-lg transition-all flex items-center gap-2 transform hover:-translate-y-0.5">
+                        Our Work <i class="fa-solid fa-arrow-right text-xs"></i>
                     </a>
                 </div>
             </div>
@@ -295,18 +294,18 @@ include __DIR__ . '/includes/header.php';
 <!-- IMPACT STATISTICS (live from the projects table) -->
 <section class="relative z-20 border-b border-slate-200 bg-white" aria-label="WRC impact at a glance">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="grid grid-cols-2 gap-x-4 gap-y-6 py-6 sm:grid-cols-3 sm:py-7 lg:grid-cols-5 lg:gap-0 lg:divide-x lg:divide-slate-100 lg:py-8">
+        <div class="grid grid-cols-2 gap-x-4 gap-y-5 py-4 sm:grid-cols-3 sm:py-5 md:grid-cols-5 md:gap-0 md:divide-x md:divide-slate-100">
             <?php foreach ($heroStats as $stat): ?>
-            <div class="flex flex-col items-center justify-center gap-2 text-center lg:px-5">
-                <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brandRed/10 text-brandRed ring-1 ring-inset ring-brandRed/10 sm:h-11 sm:w-11">
-                    <i class="<?= $stat['icon'] ?> text-[15px] sm:text-base"></i>
+            <div class="flex flex-col items-center justify-center gap-1.5 text-center md:px-4">
+                <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-brandRed/10 text-brandRed ring-1 ring-inset ring-brandRed/10">
+                    <i class="<?= $stat['icon'] ?> text-sm"></i>
                 </span>
                 <div class="min-w-0">
-                    <div class="counter-val font-display text-2xl font-extrabold leading-none tracking-tight text-ink-900 sm:text-3xl"
+                    <div class="counter-val font-display text-xl font-extrabold leading-none tracking-tight text-ink-900 sm:text-2xl"
                         data-target="<?= (int) $stat['value'] ?>"><?= number_format((int) $stat['value']) ?></div>
-                    <p class="mt-1.5 text-[10px] font-bold uppercase leading-tight tracking-[0.12em] text-slate-500 sm:text-[11px]">
+                    <p class="mt-1 text-[10px] font-bold uppercase leading-tight tracking-[0.12em] text-slate-500">
                         <?= sanitize($stat['label']) ?></p>
-                    <p class="mt-0.5 hidden text-[10px] leading-tight text-slate-400 sm:block"><?= sanitize($stat['note']) ?></p>
+                    <p class="mt-0.5 hidden text-[9px] leading-tight text-slate-400 lg:block"><?= sanitize($stat['note']) ?></p>
                 </div>
             </div>
             <?php endforeach; ?>
@@ -817,19 +816,18 @@ function renderContent(index) {
     contentEl.style.transform = 'translateY(15px)';
     setTimeout(function() {
         var badgeHtml = s.badge ?
-            '<span class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest bg-brandRed/90 text-white mb-4 backdrop-blur-sm"><i class="fa-solid fa-globe"></i> ' +
+            '<span class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest bg-brandRed/90 text-white mb-3 backdrop-blur-sm"><i class="fa-solid fa-globe"></i> ' +
             s.badge + '</span>' :
-            '<span class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest bg-slate-900/60 backdrop-blur-sm text-slate-100 border border-white/20 mb-6"><i class="fa-solid fa-globe text-brandRed"></i> Welfare & Relief Committee NGO</span>';
+            '<span class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest bg-slate-900/60 backdrop-blur-sm text-slate-100 border border-white/20 mb-3"><i class="fa-solid fa-globe text-brandRed"></i> Welfare & Relief Committee NGO</span>';
         contentEl.innerHTML = badgeHtml +
-            '<h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-white leading-tail mb-6 font-heading drop-shadow-md">' +
+            '<h1 class="text-3xl sm:text-4xl lg:text-[2.6rem] font-extrabold text-white leading-tight mb-4 font-heading drop-shadow-md">' +
             s.title + '</h1>' +
-            '<p class="text-base sm:text-lg text-slate-200 mb-8 leading-relaxed drop-shadow-sm max-w-2xl">' + s
+            '<p class="text-sm sm:text-base text-slate-200 mb-5 leading-relaxed drop-shadow-sm max-w-xl">' + s
             .subtitle + '</p>' +
-            '<div class="flex flex-wrap gap-4 items-center">' +
-            '<a href="<?= $base ?>' + s.cta_link +
-            '" class="bg-brandRed hover:bg-brandRed-hover text-white font-bold text-sm sm:text-base px-7 py-3.5 rounded-xl shadow-lg shadow-brandRed/30 transition-all flex items-center gap-2 transform hover:-translate-y-1">' +
-            s.cta_text + ' <i class="fa-solid fa-arrow-right text-xs"></i></a>' +
-            '<a href="<?= $base ?>get-involved/contribute-with-us.php" class="bg-white/10 hover:bg-white/25 backdrop-blur-md text-white border border-white/30 font-semibold text-sm sm:text-base px-6 py-3.5 rounded-xl transition-all flex items-center gap-2 transform hover:-translate-y-1">Let’s Work Together <i class="fa-solid fa-handshake text-xs"></i></a>' +
+            '<div class="flex flex-wrap gap-3 items-center">' +
+            '<a href="<?= $base ?>get-involved/contribute-with-us.php" class="bg-brandRed hover:bg-brandRed-hover text-white font-bold text-sm px-6 py-3 rounded-lg shadow-lg shadow-brandRed/30 transition-all flex items-center gap-2 transform hover:-translate-y-0.5">' +
+            'Donate Now <i class="fa-solid fa-heart text-xs"></i></a>' +
+            '<a href="<?= $base ?>our-work/index.php" class="bg-white/10 hover:bg-white/25 backdrop-blur-md text-white border border-white/30 font-semibold text-sm px-5 py-3 rounded-lg transition-all flex items-center gap-2 transform hover:-translate-y-0.5">Our Work <i class="fa-solid fa-arrow-right text-xs"></i></a>' +
             '</div>';
         contentEl.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
         contentEl.style.opacity = '1';
@@ -842,8 +840,8 @@ function updateSlider() {
         slider.style.transform = 'translateX(-' + currentSlide * 100 + '%)';
         dots.forEach(function(dot, index) {
             dot.className = index === currentSlide ?
-                'w-4 h-3 rounded-full bg-brandRed shadow-md transition-all duration-300' :
-                'w-3 h-3 rounded-full bg-white/50 hover:bg-white transition-all duration-300';
+                'w-4 h-2.5 rounded-full bg-brandRed shadow-md transition-all duration-300' :
+                'w-2.5 h-2.5 rounded-full bg-white/50 hover:bg-white transition-all duration-300';
         });
         renderContent(currentSlide);
     }
