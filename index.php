@@ -14,7 +14,6 @@ $heroSlides = getRows('hero_sliders', ['page' => 'homepage', 'is_active' => 1], 
 $partners = getRows('partners', 'is_active = 1 ORDER BY sort_order ASC');
 $activeProjects = getRows('projects', "status = 'active' ORDER BY start_date DESC LIMIT 3");
 $provinces = getRows('provinces', 'is_active = 1 ORDER BY sort_order ASC');
-$kpStats = getRows('impact_stats', "display_page = 'home_kpi' ORDER BY sort_order ASC");
 
 // Only provinces that actually hold a live project are shown, so the homepage
 // can never advertise a province (or a beneficiary figure) the portfolio does
@@ -26,6 +25,12 @@ $projectProvinceIds = array_map(
 $provinces = array_values(array_filter($provinces, static function ($province) use ($projectProvinceIds) {
     return in_array((int) ($province['id'] ?? 0), $projectProvinceIds, true);
 }));
+
+// Active project count per province, used by the homepage coverage cards.
+$provinceProjectCounts = [];
+foreach ($pdo->query("SELECT province_id, COUNT(*) AS total FROM projects WHERE is_active = 1 GROUP BY province_id")->fetchAll(PDO::FETCH_ASSOC) as $provinceCountRow) {
+    $provinceProjectCounts[(int) $provinceCountRow['province_id']] = (int) $provinceCountRow['total'];
+}
 
 // Hero figures are calculated from the live projects table, never typed in.
 $impactSummary = wrcProjectImpactSummary();
@@ -61,28 +66,6 @@ $heroStats = [
         'note'  => 'Health, WASH, food & relief, skills',
     ],
 ];
-
-// Keep the KPI dashboard honest too: the four project metrics are rebuilt from
-// the live tables so an import or a project edit never leaves a stale number.
-$kpiLiveFigures = [
-    'beneficiaries reached' => (int) $impactSummary[ 'beneficiaries' ],
-    'total beneficiaries'   => (int) $impactSummary[ 'beneficiaries' ],
-    'lives impacted'        => (int) $impactSummary[ 'beneficiaries' ],
-    'projects delivered'    => (int) $impactSummary[ 'projects' ],
-    'total projects'        => (int) $impactSummary[ 'projects' ],
-    'projects completed'    => (int) $impactSummary[ 'projects' ],
-    'provinces covered'     => (int) $impactSummary[ 'provinces' ],
-    'programme sectors'     => (int) $impactSummary[ 'sectors' ],
-    'program sectors'       => (int) $impactSummary[ 'sectors' ],
-    'sectors covered'       => (int) $impactSummary[ 'sectors' ],
-];
-foreach ( $kpStats as &$kpiStat ) {
-    $kpiLabel = strtolower( trim( (string) ( $kpiStat[ 'stat_label' ] ?? '' ) ) );
-    if ( isset( $kpiLiveFigures[ $kpiLabel ] ) ) {
-        $kpiStat[ 'stat_value' ] = number_format( $kpiLiveFigures[ $kpiLabel ] );
-    }
-}
-unset( $kpiStat );
 
 $processSteps = getRows('process_steps', 'is_active = 1 ORDER BY sort_order ASC');
 if (empty($processSteps)) {
@@ -611,28 +594,6 @@ include __DIR__ . '/includes/header.php';
     </div>
 </section>
 
-<!-- KPI DASHBOARD -->
-<section class="py-10 bg-slate-900 text-white" id="kpi-dashboard">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="text-center mb-6">
-            <p class="text-brandRed text-xs uppercase tracking-[0.35em] font-semibold mb-2">Performance Metrics</p>
-            <h2 class="text-3xl sm:text-4xl font-extrabold text-white">Project KPI Dashboard</h2>
-            <p class="mt-3 max-w-2xl mx-auto text-slate-400 text-sm">Key performance indicators tracked across all
-                active projects.</p>
-        </div>
-        <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
-            <?php foreach ($kpStats as $kpi): ?>
-            <div class="bg-white/5 backdrop-blur-sm rounded-2xl p-6 border border-white/10 text-center">
-                <div class="w-12 h-12 rounded-full bg-brandRed/20 flex items-center justify-center mx-auto mb-3"><i
-                        class="fa-solid <?= $kpi['icon_class'] ?? 'fa-chart-line' ?> text-brandRed text-lg"></i></div>
-                <div class="text-3xl font-extrabold text-white mb-1 font-heading"><?= $kpi['stat_value'] ?></div>
-                <p class="text-xs text-slate-400"><?= $kpi['stat_label'] ?></p>
-            </div>
-            <?php endforeach; ?>
-        </div>
-    </div>
-</section>
-
 <!-- SUCCESS STORIES -->
 <section class="py-10 bg-slate-50" id="success-stories">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -699,61 +660,123 @@ include __DIR__ . '/includes/header.php';
 </section>
 
 <!-- GEOGRAPHIC PRESENCE -->
-<section class="py-10 bg-white" id="where-we-work-preview">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="grid lg:grid-cols-2 gap-12 items-center">
+<section id="where-we-work-preview" class="relative overflow-hidden bg-[#0B1222] py-12 text-white lg:py-14">
+    <div class="pointer-events-none absolute -left-24 top-10 h-72 w-72 rounded-full bg-brandRed/20 blur-3xl"></div>
+    <div class="pointer-events-none absolute -right-20 bottom-0 h-80 w-80 rounded-full bg-sky-500/10 blur-3xl"></div>
+    <div class="pointer-events-none absolute inset-0 opacity-[0.05]"
+        style="background-image: linear-gradient(rgba(255,255,255,.4) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.4) 1px, transparent 1px); background-size: 44px 44px;"></div>
+
+    <div class="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div class="grid items-center gap-10 lg:grid-cols-[0.92fr_1.08fr] lg:gap-16">
             <div>
-                <p class="text-brandRed text-xs uppercase tracking-[0.35em] font-semibold mb-2">Geographic Presence</p>
-                <h2 class="text-3xl sm:text-4xl font-extrabold text-slate-900 mb-4">Serving Communities Across Pakistan
+                <span class="inline-flex items-center gap-3 text-[10px] font-bold uppercase tracking-[0.3em] text-brandRed">
+                    <span class="h-px w-8 bg-brandRed"></span> Geographic Presence
+                </span>
+                <h2 class="mt-4 font-heading text-3xl font-extrabold leading-tight sm:text-4xl">
+                    Serving Communities
+                    <span class="block text-white/55">Across Pakistan</span>
                 </h2>
-                <p class="text-slate-600 text-sm leading-relaxed mb-6">From the mountainous districts of Khyber Pakhtunkhwa to the twin cities of
-                    Islamabad and Rawalpindi, WRC delivers health, WASH, food and relief distribution, and skill development where
-                    the need is greatest.</p>
-                <div class="grid grid-cols-2 gap-4 mb-6">
+                <p class="mt-4 max-w-xl text-sm leading-relaxed text-slate-400">From the mountainous districts of
+                    Khyber Pakhtunkhwa to the twin cities of Islamabad and Rawalpindi, WRC delivers health, WASH, food
+                    and relief distribution, and skill development where the need is greatest.</p>
+
+                <div class="mt-7 flex items-center justify-between border-b border-white/10 pb-2">
+                    <span class="text-[10px] font-bold uppercase tracking-[0.22em] text-slate-500">Active Provinces</span>
+                    <span class="text-[10px] font-semibold uppercase tracking-[0.18em] text-emerald-300/80">Live project
+                        data</span>
+                </div>
+
+                <div class="mt-3 space-y-3">
                     <?php foreach ($provinces as $province): ?>
-                    <div class="flex items-center gap-3 p-3 bg-slate-50 rounded-xl border border-slate-100">
-                        <div class="w-10 h-10 rounded-lg bg-blue-50 flex items-center justify-center shrink-0"><i
-                                class="fa-solid <?= $province['icon_class'] ?? 'fa-map' ?> text-blue-500"></i></div>
-                        <div>
-                            <p class="text-sm font-bold text-slate-900"><?= sanitize($province['name']) ?></p>
-                            <p class="text-[11px] text-slate-400">
-                                <?= number_format($province['beneficiaries_count']) ?>+ beneficiaries</p>
+                    <?php $provinceProjects = (int) ($provinceProjectCounts[(int) ($province['id'] ?? 0)] ?? 0); ?>
+                    <a href="<?= $base ?>where-we-work/index.php#map"
+                        class="group flex items-center gap-4 rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3.5 transition-all duration-300 hover:-translate-y-0.5 hover:border-brandRed/40 hover:bg-white/[0.07]">
+                        <span
+                            class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-brandRed">
+                            <i class="<?= $province['icon_class'] ?? 'fa-map-location-dot' ?> text-base"></i>
+                        </span>
+                        <div class="min-w-0 flex-1">
+                            <div class="flex items-baseline justify-between gap-2">
+                                <h3 class="truncate text-sm font-bold text-white"><?= sanitize($province['name']) ?></h3>
+                                <span
+                                    class="shrink-0 rounded-full border border-white/10 bg-white/5 px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider text-slate-400"><?= $provinceProjects ?> <?= $provinceProjects === 1 ? 'project' : 'projects' ?></span>
+                            </div>
+                            <p class="mt-1 text-[11px] text-slate-400"><span
+                                    class="font-bold text-brandRed"><?= sanitize(wrcFormatBeneficiaries((int) $province['beneficiaries_count'])) ?></span>
+                                beneficiaries reached</p>
                         </div>
-                    </div>
+                        <span
+                            class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-white/10 text-slate-400 transition-all group-hover:border-brandRed group-hover:bg-brandRed group-hover:text-white">
+                            <i class="fa-solid fa-arrow-right text-[10px]"></i>
+                        </span>
+                    </a>
                     <?php endforeach; ?>
                 </div>
-                <a href="<?= $base ?>where-we-work/index.php#map"
-                    class="inline-flex items-center gap-2 bg-brandRed hover:bg-brandRed-hover text-white text-sm font-bold px-6 py-3 rounded-xl transition-all shadow-lg shadow-brandRed/20">Explore
-                    Full Map <i class="fa-solid fa-arrow-right text-xs"></i></a>
-            </div>
-            <div
-                class="relative bg-slate-50 rounded-3xl border border-slate-200 p-8 flex items-center justify-center min-h-[400px]">
-                <div class="text-center">
-                    <?php
-                    $geoMap = $homepageMap['geographic_presence'] ?? null;
-                    $geoMapData = $geoMap ? json_decode($geoMap['content'], true) : [];
-                    $geoStats = $geoMapData['stats'] ?? [];
-                    foreach ($geoStats as $gs):
-                    ?>
-                    <div class="mb-4">
-                        <div
-                            class="w-20 h-20 rounded-full bg-brandRed/10 flex items-center justify-center mx-auto mb-4">
-                            <i class="fa-solid <?= $gs['icon'] ?? 'fa-map-location-dot' ?> text-brandRed text-3xl"></i>
-                        </div>
-                        <h3 class="text-lg font-bold text-slate-900 mb-2"><?= sanitize($gs['value'] ?? '') ?></h3>
-                        <p class="text-slate-500 text-sm mb-1"><?= sanitize($gs['label'] ?? '') ?></p>
-                    </div>
-                    <?php endforeach; ?>
-                    <?php if (empty($geoStats)): ?>
-                    <div class="w-20 h-20 rounded-full bg-brandRed/10 flex items-center justify-center mx-auto mb-4"><i
-                            class="fa-solid fa-map-location-dot text-brandRed text-3xl"></i></div>
-                    <h3 class="text-lg font-bold text-slate-900 mb-2"><?= (int) $impactSummary['provinces'] ?> Provinces</h3>
-                    <p class="text-slate-500 text-sm mb-1"><?= (int) $impactSummary['districts'] ?> Districts Covered</p>
-                    <p class="text-slate-500 text-sm mb-4"><?= wrcFormatBeneficiaries( wrcBeneficiaryTotal() ) ?>+ Beneficiaries Reached</p>
-                    <?php endif; ?>
+
+                <div class="mt-6 flex flex-wrap items-center gap-4">
                     <a href="<?= $base ?>where-we-work/index.php#map"
-                        class="inline-flex items-center gap-2 text-brandRed text-sm font-bold hover:underline">Interactive
-                        Map <i class="fa-solid fa-arrow-right text-xs"></i></a>
+                        class="inline-flex items-center gap-2 rounded-lg bg-brandRed px-6 py-3 text-sm font-bold text-white shadow-lg shadow-brandRed/25 transition-all hover:bg-brandRed-hover hover:-translate-y-0.5">
+                        Explore Full Coverage <i class="fa-solid fa-map-location-dot text-xs"></i>
+                    </a>
+                    <span class="text-[11px] text-slate-500">Updated from <?= (int) $impactSummary['projects'] ?> live
+                        projects</span>
+                </div>
+            </div>
+
+            <div class="relative">
+                <div
+                    class="relative overflow-hidden rounded-[1.75rem] border border-white/10 bg-gradient-to-br from-white/[0.07] via-white/[0.03] to-transparent p-5 shadow-2xl shadow-black/40 sm:p-6">
+                    <div class="flex items-center justify-between gap-3">
+                        <span
+                            class="inline-flex items-center gap-2 rounded-full border border-emerald-400/25 bg-emerald-400/10 px-3 py-1 text-[9px] font-bold uppercase tracking-wider text-emerald-300">
+                            <span class="relative flex h-1.5 w-1.5">
+                                <span class="motion-safe:animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                                <span class="relative inline-flex h-1.5 w-1.5 rounded-full bg-emerald-400"></span>
+                            </span>
+                            Live Field Coverage
+                        </span>
+                        <span class="text-[9px] font-bold uppercase tracking-[0.2em] text-slate-500">Pakistan</span>
+                    </div>
+
+                    <div class="relative mx-auto mt-3 w-full max-w-[360px]">
+                        <img src="<?= $base ?>assets/images/pakistan-map.svg"
+                            alt="Map of Pakistan showing WRC field coverage" loading="lazy"
+                            class="aspect-square w-full opacity-[0.18] mix-blend-screen">
+                        <?php
+                        $pinPositions = [
+                            'khyber-pakhtunkhwa' => ['left' => '45%', 'top' => '24%', 'label' => 'KP'],
+                            'punjab'             => ['left' => '63%', 'top' => '47%', 'label' => 'Punjab'],
+                        ];
+                        foreach ($provinces as $index => $province):
+                            $slug = (string) ($province['slug'] ?? '');
+                            $pin = $pinPositions[$slug] ?? ['left' => (38 + $index * 14) . '%', 'top' => (30 + $index * 16) . '%', 'label' => sanitize($province['name'])];
+                        ?>
+                        <span class="absolute z-10" style="left: <?= $pin['left'] ?>; top: <?= $pin['top'] ?>;">
+                            <span
+                                class="motion-safe:animate-ping absolute -left-3 -top-3 h-6 w-6 rounded-full bg-brandRed/25"></span>
+                            <span
+                                class="relative block h-2.5 w-2.5 rounded-full bg-brandRed shadow-[0_0_0_4px_rgba(202,0,0,0.16)]"></span>
+                            <span
+                                class="absolute left-4 top-1/2 -translate-y-1/2 whitespace-nowrap rounded-full border border-white/15 bg-slate-950/85 px-2 py-0.5 text-[8px] font-bold uppercase tracking-wider text-slate-200 backdrop-blur-sm"><?= $pin['label'] ?></span>
+                        </span>
+                        <?php endforeach; ?>
+                    </div>
+
+                    <div
+                        class="mt-4 grid grid-cols-3 divide-x divide-white/10 rounded-2xl border border-white/10 bg-black/25 py-3 text-center">
+                        <div class="px-1">
+                            <p class="font-heading text-sm font-extrabold text-white sm:text-base"><?= sanitize(wrcFormatBeneficiaries(wrcBeneficiaryTotal())) ?></p>
+                            <p class="mt-0.5 text-[8px] font-bold uppercase tracking-[0.14em] text-slate-500">Lives Reached</p>
+                        </div>
+                        <div class="px-1">
+                            <p class="font-heading text-sm font-extrabold text-white sm:text-base"><?= (int) $impactSummary['districts'] ?></p>
+                            <p class="mt-0.5 text-[8px] font-bold uppercase tracking-[0.14em] text-slate-500">Districts</p>
+                        </div>
+                        <div class="px-1">
+                            <p class="font-heading text-sm font-extrabold text-white sm:text-base"><?= (int) $impactSummary['projects'] ?></p>
+                            <p class="mt-0.5 text-[8px] font-bold uppercase tracking-[0.14em] text-slate-500">Projects</p>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
