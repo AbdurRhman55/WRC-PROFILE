@@ -21,10 +21,71 @@ if (!$project) {
 $base = siteBaseUrl();
 
 // Parse JSON fields (handle null values)
-$objectives = json_decode($project['objectives'] ?? '', true) ?? [];
+$rawObjectives = json_decode($project['objectives'] ?? '', true) ?? [];
+$objectives = [];
+if (is_array($rawObjectives)) {
+    foreach ($rawObjectives as $o) {
+        if (is_array($o)) {
+            $t = trim((string)($o['title'] ?? ''));
+            $d = trim((string)($o['description'] ?? ''));
+            if ($t !== '' || $d !== '') {
+                $objectives[] = ['title' => $t ?: $d, 'description' => $t ? $d : ''];
+            }
+        } elseif (is_string($o) && trim($o) !== '') {
+            $objectives[] = ['title' => trim($o), 'description' => ''];
+        }
+    }
+}
+
 $targetGroups = json_decode($project['target_groups'] ?? '', true) ?? [];
 $timeline = json_decode($project['timeline'] ?? '', true) ?? [];
-$gallery = json_decode($project['gallery_images'] ?? '', true) ?? [];
+
+$rawGallery = json_decode($project['gallery_images'] ?? '', true) ?? [];
+$gallery = [];
+if (is_array($rawGallery)) {
+    foreach ($rawGallery as $g) {
+        if (is_array($g)) {
+            $p = trim((string)($g['path'] ?? ''));
+            $c = trim((string)($g['caption'] ?? ''));
+            if ($p !== '') {
+                $gallery[] = ['path' => $p, 'caption' => $c];
+            }
+        } elseif (is_string($g) && trim($g) !== '') {
+            $gallery[] = ['path' => trim($g), 'caption' => ''];
+        }
+    }
+}
+
+// Automatically check project_media table so field documentation photos
+// and gallery photos uploaded through either interface display seamlessly!
+try {
+    global $pdo;
+    $mediaStmt = $pdo->prepare(
+        "SELECT image_path AS path, caption 
+           FROM project_media 
+          WHERE project_slug = ? AND is_active = 1 
+          ORDER BY sort_order ASC, id ASC"
+    );
+    $mediaStmt->execute([$project['slug']]);
+    $dbMedia = $mediaStmt->fetchAll(PDO::FETCH_ASSOC);
+    if (!empty($dbMedia)) {
+        $existingPaths = array_map(function($item) {
+            return strtolower(trim((string)($item['path'] ?? '')));
+        }, $gallery);
+
+        foreach ($dbMedia as $m) {
+            $mp = trim((string)($m['path'] ?? ''));
+            if ($mp !== '' && !in_array(strtolower($mp), $existingPaths, true)) {
+                $gallery[] = [
+                    'path' => $mp,
+                    'caption' => trim((string)($m['caption'] ?? ''))
+                ];
+                $existingPaths[] = strtolower($mp);
+            }
+        }
+    }
+} catch (Throwable $e) {}
+
 $relatedProjects = json_decode($project['related_projects'] ?? '', true) ?? [];
 
 // Fetch related data from dedicated tables
@@ -462,10 +523,15 @@ include dirname(__DIR__) . '/includes/header.php';
 
                         <div class="grid grid-cols-2 md:grid-cols-3 gap-3" id="project-gallery">
                             <?php foreach ($gallery as $i => $img): ?>
+                            <?php 
+                            $imgPath = trim((string)($img['path'] ?? ''));
+                            if ($imgPath === '') continue;
+                            $imgUrl = preg_match('~^(?:https?:)?//~i', $imgPath) ? $imgPath : $base . ltrim($imgPath, '/');
+                            ?>
                             <div class="gallery-item relative overflow-hidden rounded-2xl cursor-pointer group <?= ($i % 5 === 0) ? 'col-span-2 row-span-2' : 'aspect-[4/3]' ?>"
-                                data-src="<?= $base ?><?= $img['path'] ?>"
+                                data-src="<?= htmlspecialchars($imgUrl, ENT_QUOTES, 'UTF-8') ?>"
                                 data-caption="<?= sanitize($img['caption'] ?? '') ?>">
-                                <img src="<?= $base ?><?= $img['path'] ?>"
+                                <img src="<?= htmlspecialchars($imgUrl, ENT_QUOTES, 'UTF-8') ?>"
                                     alt="<?= sanitize($img['caption'] ?? 'Project image') ?>"
                                     class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
                                 <div

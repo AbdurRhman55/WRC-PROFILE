@@ -132,14 +132,105 @@ if (isPost()) {
         }
     }
 
+    // Clean and normalize JSON fields
+    $objectives_json = null;
+    if (!empty($objectives)) {
+        $decObj = json_decode($objectives, true);
+        if (is_array($decObj)) {
+            $cleanObj = [];
+            foreach ($decObj as $o) {
+                if (is_array($o)) {
+                    $t = trim((string)($o['title'] ?? ''));
+                    $d = trim((string)($o['description'] ?? ''));
+                    if ($t !== '' || $d !== '') {
+                        $cleanObj[] = ['title' => $t ?: $d, 'description' => $t ? $d : ''];
+                    }
+                } elseif (is_string($o) && trim($o) !== '') {
+                    $cleanObj[] = ['title' => trim($o), 'description' => ''];
+                }
+            }
+            if (!empty($cleanObj)) {
+                $objectives_json = json_encode($cleanObj, JSON_UNESCAPED_UNICODE);
+            }
+        }
+    }
+
+    $target_groups_json = null;
+    if (!empty($target_groups)) {
+        $decTg = json_decode($target_groups, true);
+        if (is_array($decTg)) {
+            $cleanTg = [];
+            foreach ($decTg as $tg) {
+                if (is_array($tg)) {
+                    $n = trim((string)($tg['name'] ?? ''));
+                    $ic = trim((string)($tg['icon'] ?? 'fa-solid fa-users'));
+                    if ($n !== '') {
+                        $cleanTg[] = ['name' => $n, 'icon' => $ic ?: 'fa-solid fa-users'];
+                    }
+                } elseif (is_string($tg) && trim($tg) !== '') {
+                    $cleanTg[] = ['name' => trim($tg), 'icon' => 'fa-solid fa-users'];
+                }
+            }
+            if (!empty($cleanTg)) {
+                $target_groups_json = json_encode($cleanTg, JSON_UNESCAPED_UNICODE);
+            }
+        }
+    }
+
+    $timeline_json = null;
+    if (!empty($timeline)) {
+        $decTime = json_decode($timeline, true);
+        if (is_array($decTime)) {
+            $cleanTime = [];
+            foreach ($decTime as $t) {
+                if (is_array($t)) {
+                    $dt = trim((string)($t['date'] ?? ''));
+                    $ti = trim((string)($t['title'] ?? ''));
+                    $de = trim((string)($t['description'] ?? ''));
+                    $ic = trim((string)($t['icon'] ?? 'fa-solid fa-flag'));
+                    if ($dt !== '' || $ti !== '' || $de !== '') {
+                        $cleanTime[] = ['date' => $dt, 'title' => $ti, 'description' => $de, 'icon' => $ic ?: 'fa-solid fa-flag'];
+                    }
+                }
+            }
+            if (!empty($cleanTime)) {
+                $timeline_json = json_encode($cleanTime, JSON_UNESCAPED_UNICODE);
+            }
+        }
+    }
+
+    $gallery_images_json = null;
+    if (!empty($gallery_images)) {
+        $decGal = json_decode($gallery_images, true);
+        if (is_array($decGal)) {
+            $cleanGal = [];
+            foreach ($decGal as $g) {
+                if (is_array($g)) {
+                    $p = trim((string)($g['path'] ?? ''));
+                    $c = trim((string)($g['caption'] ?? ''));
+                    if ($p !== '') {
+                        $cleanGal[] = ['path' => $p, 'caption' => $c];
+                    }
+                } elseif (is_string($g) && trim($g) !== '') {
+                    $cleanGal[] = ['path' => trim($g), 'caption' => ''];
+                }
+            }
+            if (!empty($cleanGal)) {
+                $gallery_images_json = json_encode($cleanGal, JSON_UNESCAPED_UNICODE);
+            }
+        }
+    }
+
+    $related_projects_json = null;
+    if (!empty($related_projects)) {
+        $decRel = json_decode($related_projects, true);
+        if (is_array($decRel) && !empty($decRel)) {
+            $related_projects_json = json_encode(array_values(array_map('intval', $decRel)));
+        }
+    }
+
     if (empty($errors)) {
         global $pdo;
-
-        $objectives_json = !empty($objectives) ? $objectives : null;
-        $target_groups_json = !empty($target_groups) ? $target_groups : null;
-        $timeline_json = !empty($timeline) ? $timeline : null;
-        $gallery_images_json = !empty($gallery_images) ? $gallery_images : null;
-        $related_projects_json = !empty($related_projects) ? $related_projects : null;
 
         if ($isEdit) {
             $stmt = $pdo->prepare("UPDATE projects SET slug=?, title=?, status=?, category=?, organization_id=?, category_id=?, subcategory_id=?, province_id=?, district=?, start_date=?, end_date=?, budget_amount=?, budget_currency=?, beneficiaries_count=?, progress_percent=?, description=?, overview=?, location_details=?, hero_image=?, overview_image=?, objectives=?, target_groups=?, timeline=?, gallery_images=?, related_projects=?, is_active=?, show_in_history=?, sort_order=? WHERE id=?");
@@ -193,7 +284,7 @@ include __DIR__ . '/includes/header.php';
 </div>
 <?php endif; ?>
 
-<form method="POST" class="space-y-6">
+<form method="POST" id="projectForm" class="space-y-6">
   <input type="hidden" name="csrf_token" value="<?= generateCSRF() ?>">
 
   <!-- Basic Info -->
@@ -369,24 +460,29 @@ include __DIR__ . '/includes/header.php';
       <!-- Objectives (Dynamic Rows) -->
       <div>
         <div class="flex items-center justify-between mb-2">
-          <label class="text-sm font-medium text-slate-700">Objectives</label>
-          <button type="button" onclick="addObjective()" class="text-xs font-semibold text-blue-600 hover:text-blue-700"><i class="fa-solid fa-plus"></i> Add Objective</button>
+          <div>
+            <label class="text-sm font-semibold text-slate-900">Project Objectives</label>
+            <p class="text-xs text-slate-500">Key targets and aims of this project (shown on the project detail page).</p>
+          </div>
+          <button type="button" onclick="addObjective()" class="inline-flex items-center gap-1.5 text-xs font-semibold bg-red-50 text-brandRed hover:bg-brandRed hover:text-white px-3 py-1.5 rounded-lg transition-colors">
+            <i class="fa-solid fa-plus text-[10px]"></i> Add Objective
+          </button>
         </div>
         <input type="hidden" name="objectives" id="objectivesInput" value="<?= htmlspecialchars($project['objectives'] ?? '[]') ?>">
-        <div id="objectivesList" class="space-y-2"></div>
+        <div id="objectivesList" class="space-y-3"></div>
       </div>
 
       <!-- Target Groups (Chip with Icon) -->
       <div>
-        <label class="text-sm font-medium text-slate-700 mb-1.5 block">Target Groups</label>
-        <p class="text-xs text-slate-400 mb-2">Type group name, then icon class (e.g. fa-solid fa-users), press Enter</p>
+        <label class="text-sm font-semibold text-slate-900 mb-1 block">Target Groups (Who Benefits)</label>
+        <p class="text-xs text-slate-500 mb-2">Type group name and optional icon (e.g. <code>fa-solid fa-users</code>), then click Add.</p>
         <input type="hidden" name="target_groups" id="targetGroupsInput" value="<?= htmlspecialchars($project['target_groups'] ?? '[]') ?>">
-        <div class="chip-input-wrap rounded-xl border border-slate-200 focus-within:ring-2 focus-within:ring-brandRed/20 focus-within:border-brandRed transition-all p-2" id="targetGroupsWrap">
-          <div class="flex flex-wrap gap-1.5" id="targetGroupsChips"></div>
+        <div class="chip-input-wrap rounded-xl border border-slate-200 focus-within:ring-2 focus-within:ring-brandRed/20 focus-within:border-brandRed transition-all p-2.5 bg-slate-50/50" id="targetGroupsWrap">
+          <div class="flex flex-wrap gap-1.5 mb-2" id="targetGroupsChips"></div>
           <div class="flex items-center gap-2">
-            <input type="text" id="tgNameField" placeholder="Group name" class="flex-1 min-w-[100px] px-2 py-1.5 text-sm outline-none bg-transparent">
-            <input type="text" id="tgIconField" placeholder="fa-solid fa-users" class="w-44 px-2 py-1.5 text-xs outline-none bg-transparent border-l border-slate-200">
-            <button type="button" onclick="addTargetGroup()" class="text-xs bg-slate-100 px-2 py-1 rounded-lg hover:bg-slate-200"><i class="fa-solid fa-plus"></i></button>
+            <input type="text" id="tgNameField" placeholder="Group name (e.g. Women & Children)" class="flex-1 min-w-[140px] px-3 py-1.5 text-sm outline-none bg-white border border-slate-200 rounded-lg">
+            <input type="text" id="tgIconField" placeholder="Icon (fa-solid fa-users)" class="w-48 px-3 py-1.5 text-xs outline-none bg-white border border-slate-200 rounded-lg">
+            <button type="button" onclick="addTargetGroup()" class="text-xs bg-slate-200 hover:bg-brandRed hover:text-white px-3 py-1.5 rounded-lg transition-colors font-medium">Add</button>
           </div>
         </div>
       </div>
@@ -394,21 +490,38 @@ include __DIR__ . '/includes/header.php';
       <!-- Timeline (Dynamic Rows) -->
       <div>
         <div class="flex items-center justify-between mb-2">
-          <label class="text-sm font-medium text-slate-700">Timeline</label>
-          <button type="button" onclick="addTimeline()" class="text-xs font-semibold text-blue-600 hover:text-blue-700"><i class="fa-solid fa-plus"></i> Add Phase</button>
+          <div>
+            <label class="text-sm font-semibold text-slate-900">Project Timeline & Milestones</label>
+            <p class="text-xs text-slate-500">Chronological project journey and milestones.</p>
+          </div>
+          <button type="button" onclick="addTimeline()" class="inline-flex items-center gap-1.5 text-xs font-semibold bg-red-50 text-brandRed hover:bg-brandRed hover:text-white px-3 py-1.5 rounded-lg transition-colors">
+            <i class="fa-solid fa-plus text-[10px]"></i> Add Milestone
+          </button>
         </div>
         <input type="hidden" name="timeline" id="timelineInput" value="<?= htmlspecialchars($project['timeline'] ?? '[]') ?>">
-        <div id="timelineList" class="space-y-2"></div>
+        <div id="timelineList" class="space-y-3"></div>
       </div>
 
-      <!-- Gallery Images -->
+      <!-- Gallery Images / Visual Documentation -->
       <div>
-        <div class="flex items-center justify-between mb-2">
-          <label class="text-sm font-medium text-slate-700">Gallery Images</label>
-          <button type="button" onclick="addGallery()" class="text-xs font-semibold text-blue-600 hover:text-blue-700"><i class="fa-solid fa-plus"></i> Add Image</button>
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-2">
+          <div>
+            <label class="text-sm font-semibold text-slate-900">Project Visualization / Gallery Images</label>
+            <p class="text-xs text-slate-500">Visual documentation photos shown on the project page.</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <?php if ($isEdit && !empty($project['slug'])): ?>
+            <a href="project-media.php?slug=<?= rawurlencode($project['slug']) ?>" target="_blank" class="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-600 hover:text-brandRed px-2.5 py-1 rounded-lg border border-slate-200 hover:border-brandRed/40 transition-colors">
+              <i class="fa-solid fa-images text-[10px]"></i> Full Media Manager
+            </a>
+            <?php endif; ?>
+            <button type="button" onclick="addGallery()" class="inline-flex items-center gap-1.5 text-xs font-semibold bg-red-50 text-brandRed hover:bg-brandRed hover:text-white px-3 py-1.5 rounded-lg transition-colors">
+              <i class="fa-solid fa-plus text-[10px]"></i> Add Image
+            </button>
+          </div>
         </div>
         <input type="hidden" name="gallery_images" id="galleryInput" value="<?= htmlspecialchars($project['gallery_images'] ?? '[]') ?>">
-        <div id="galleryList" class="space-y-2"></div>
+        <div id="galleryList" class="space-y-3"></div>
       </div>
 
       <!-- Related Projects -->
@@ -536,59 +649,130 @@ include __DIR__ . '/includes/header.php';
 </div>
 
 <style>
-.dynamic-row{display:flex;gap:8px;align-items:flex-start;padding:10px;border:1px solid #e2e8f0;border-radius:12px;background:#f8fafc;position:relative}
-.dynamic-row input,.dynamic-row textarea{flex:1;padding:6px 10px;border:1px solid #e2e8f0;border-radius:8px;font-size:13px;outline:none}
-.dynamic-row input:focus,.dynamic-row textarea:focus{border-color:#ca0000;ring:2px}
-.dynamic-row .dr-remove{position:absolute;top:8px;right:8px;width:24px;height:24px;border-radius:50%;background:#fee2e2;color:#991b1b;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:12px}
+.dynamic-row{display:flex;gap:10px;align-items:flex-start;padding:12px;border:1px solid #e2e8f0;border-radius:12px;background:#f8fafc;position:relative;transition:all .15s}
+.dynamic-row:hover{background:#f1f5f9;border-color:#cbd5e1}
+.dynamic-row input,.dynamic-row textarea{padding:7px 12px;border:1px solid #cbd5e1;border-radius:8px;font-size:13px;outline:none;background:#fff}
+.dynamic-row input:focus,.dynamic-row textarea:focus{border-color:#ca0000;box-shadow:0 0 0 2px rgba(202,0,0,0.15)}
+.dynamic-row .dr-remove{width:26px;height:26px;border-radius:50%;background:#fee2e2;color:#991b1b;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:12px;shrink:0}
 .dynamic-row .dr-remove:hover{background:#fecaca}
 .chip-input-wrap{display:flex;flex-wrap:wrap;gap:6px;min-height:42px;align-items:center}
-.chip-tag{display:inline-flex;align-items:center;gap:5px;background:#dbeafe;color:#1e40af;padding:4px 10px;border-radius:9999px;font-size:12px;font-weight:600;line-height:1}
-.chip-tag button{background:none;border:none;color:#1e40af;cursor:pointer;padding:0;font-size:14px;line-height:1;opacity:.6}
+.chip-tag{display:inline-flex;align-items:center;gap:6px;background:#dbeafe;color:#1e40af;padding:5px 12px;border-radius:9999px;font-size:12px;font-weight:600;line-height:1}
+.chip-tag button{background:none;border:none;color:#1e40af;cursor:pointer;padding:0;font-size:14px;line-height:1;opacity:.7}
 .chip-tag button:hover{opacity:1}
+.gallery-thumb-box{width:64px;height:64px;border-radius:8px;border:1px solid #cbd5e1;overflow:hidden;background:#e2e8f0;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.gallery-thumb-box img{width:100%;height:100%;object-fit:cover}
 .rp-item{transition:all .15s}
 </style>
 
 <script>
+function safeStr(val) {
+  if (val === null || val === undefined) return '';
+  return String(val);
+}
+
+function escapeHtmlAttr(str) {
+  return safeStr(str).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
 // === Objectives ===
 var objectives = [];
-try { objectives = JSON.parse(document.getElementById('objectivesInput').value); if (!Array.isArray(objectives)) objectives = []; } catch(e) { objectives = []; }
+try {
+  var rawObj = JSON.parse(document.getElementById('objectivesInput').value || '[]');
+  if (Array.isArray(rawObj)) {
+    objectives = rawObj.map(function(item) {
+      if (typeof item === 'string') return { title: item, description: '' };
+      return { title: safeStr(item.title), description: safeStr(item.description) };
+    });
+  }
+} catch(e) { objectives = []; }
+
+function syncObjectives() {
+  var rows = document.querySelectorAll('#objectivesList .dynamic-row');
+  var list = [];
+  rows.forEach(function(r) {
+    var title = safeStr(r.querySelector('.obj-title')?.value).trim();
+    var desc = safeStr(r.querySelector('.obj-desc')?.value).trim();
+    if (title || desc) {
+      list.push({ title: title, description: desc });
+    }
+  });
+  document.getElementById('objectivesInput').value = JSON.stringify(list);
+  objectives = list;
+}
 
 function renderObjectives() {
   var el = document.getElementById('objectivesList');
   el.innerHTML = '';
-  objectives.forEach(function(item, i) {
-    el.innerHTML += '<div class="dynamic-row"><input type="text" placeholder="Title" value="'+item.title.replace(/"/g,'&quot;')+'" oninput="objectives['+i+'].title=this.value"><textarea rows="2" placeholder="Description" oninput="objectives['+i+'].description=this.value">'+item.description.replace(/</g,'&lt;')+'</textarea><button type="button" class="dr-remove" onclick="objectives.splice('+i+',1);renderObjectives()"><i class="fa-solid fa-xmark"></i></button></div>';
-  });
+  if (!objectives.length) {
+    el.innerHTML = '<p class="text-xs text-slate-400 italic py-2">No objectives added yet. Click &ldquo;Add Objective&rdquo; above.</p>';
+  } else {
+    objectives.forEach(function(item, i) {
+      var num = (i + 1 < 10 ? '0' : '') + (i + 1);
+      el.innerHTML += '<div class="dynamic-row" data-index="' + i + '">' +
+        '<span class="w-7 h-7 rounded-lg bg-slate-200 text-slate-700 flex items-center justify-center text-xs font-bold shrink-0 mt-1">' + num + '</span>' +
+        '<div class="flex-1 space-y-2">' +
+          '<input type="text" class="obj-title w-full font-medium" placeholder="Objective Title (e.g. Clean Drinking Water Access)" value="' + escapeHtmlAttr(item.title) + '" oninput="syncObjectives()">' +
+          '<textarea rows="2" class="obj-desc w-full text-slate-600" placeholder="Objective Description & Impact Details..." oninput="syncObjectives()">' + escapeHtmlAttr(item.description) + '</textarea>' +
+        '</div>' +
+        '<button type="button" class="dr-remove" title="Remove Objective" onclick="objectives.splice(' + i + ',1);renderObjectives();syncObjectives();"><i class="fa-solid fa-xmark"></i></button>' +
+      '</div>';
+    });
+  }
   document.getElementById('objectivesInput').value = JSON.stringify(objectives);
 }
 
 function addObjective() {
-  objectives.push({title:'',description:''});
+  syncObjectives();
+  objectives.push({ title: '', description: '' });
   renderObjectives();
+  setTimeout(function() {
+    var rows = document.querySelectorAll('#objectivesList .dynamic-row');
+    if (rows.length) {
+      var last = rows[rows.length - 1].querySelector('.obj-title');
+      if (last) last.focus();
+    }
+  }, 50);
 }
 renderObjectives();
 
-// === Target Groups (Chip with Icon) ===
+// === Target Groups ===
 var tgItems = [];
-try { tgItems = JSON.parse(document.getElementById('targetGroupsInput').value); if (!Array.isArray(tgItems)) tgItems = []; } catch(e) { tgItems = []; }
+try {
+  var rawTg = JSON.parse(document.getElementById('targetGroupsInput').value || '[]');
+  if (Array.isArray(rawTg)) {
+    tgItems = rawTg.map(function(item) {
+      if (typeof item === 'string') return { name: item, icon: 'fa-solid fa-users' };
+      return { name: safeStr(item.name), icon: safeStr(item.icon) || 'fa-solid fa-users' };
+    });
+  }
+} catch(e) { tgItems = []; }
+
+function syncTG() {
+  document.getElementById('targetGroupsInput').value = JSON.stringify(tgItems);
+}
 
 function renderTG() {
   var el = document.getElementById('targetGroupsChips');
   el.innerHTML = '';
   tgItems.forEach(function(item, i) {
-    el.innerHTML += '<span class="chip-tag"><i class="'+(item.icon||'fa-solid fa-users')+'" style="font-size:11px"></i> <span>'+item.name.replace(/</g,'&lt;')+'</span> <button type="button" onclick="tgItems.splice('+i+',1);renderTG()">&times;</button></span>';
+    el.innerHTML += '<span class="chip-tag">' +
+      '<i class="' + escapeHtmlAttr(item.icon || 'fa-solid fa-users') + '" style="font-size:11px"></i> ' +
+      '<span>' + escapeHtmlAttr(item.name) + '</span> ' +
+      '<button type="button" onclick="tgItems.splice(' + i + ',1);renderTG();syncTG();">&times;</button>' +
+    '</span>';
   });
-  document.getElementById('targetGroupsInput').value = JSON.stringify(tgItems);
+  syncTG();
 }
 
 function addTargetGroup() {
   var name = document.getElementById('tgNameField').value.trim();
   var icon = document.getElementById('tgIconField').value.trim() || 'fa-solid fa-users';
   if (name) {
-    tgItems.push({name:name, icon:icon});
+    tgItems.push({ name: name, icon: icon });
     document.getElementById('tgNameField').value = '';
     document.getElementById('tgIconField').value = '';
     renderTG();
+    syncTG();
   }
 }
 
@@ -599,38 +783,177 @@ renderTG();
 
 // === Timeline ===
 var timeline = [];
-try { timeline = JSON.parse(document.getElementById('timelineInput').value); if (!Array.isArray(timeline)) timeline = []; } catch(e) { timeline = []; }
+try {
+  var rawTime = JSON.parse(document.getElementById('timelineInput').value || '[]');
+  if (Array.isArray(rawTime)) {
+    timeline = rawTime.map(function(item) {
+      return {
+        date: safeStr(item.date),
+        title: safeStr(item.title),
+        description: safeStr(item.description),
+        icon: safeStr(item.icon) || 'fa-solid fa-flag'
+      };
+    });
+  }
+} catch(e) { timeline = []; }
+
+function syncTimeline() {
+  var rows = document.querySelectorAll('#timelineList .dynamic-row');
+  var list = [];
+  rows.forEach(function(r) {
+    var date = safeStr(r.querySelector('.timeline-date')?.value).trim();
+    var title = safeStr(r.querySelector('.timeline-title')?.value).trim();
+    var desc = safeStr(r.querySelector('.timeline-desc')?.value).trim();
+    if (date || title || desc) {
+      list.push({ date: date, title: title, description: desc, icon: 'fa-solid fa-flag' });
+    }
+  });
+  document.getElementById('timelineInput').value = JSON.stringify(list);
+  timeline = list;
+}
 
 function renderTimeline() {
   var el = document.getElementById('timelineList');
   el.innerHTML = '';
-  timeline.forEach(function(item, i) {
-    el.innerHTML += '<div class="dynamic-row"><input type="text" placeholder="Date (e.g. Jan 2025)" value="'+item.date.replace(/"/g,'&quot;')+'" oninput="timeline['+i+'].date=this.value" style="max-width:140px"><input type="text" placeholder="Title" value="'+item.title.replace(/"/g,'&quot;')+'" oninput="timeline['+i+'].title=this.value"><textarea rows="1" placeholder="Description" oninput="timeline['+i+'].description=this.value">'+item.description.replace(/</g,'&lt;')+'</textarea><button type="button" class="dr-remove" onclick="timeline.splice('+i+',1);renderTimeline()"><i class="fa-solid fa-xmark"></i></button></div>';
-  });
+  if (!timeline.length) {
+    el.innerHTML = '<p class="text-xs text-slate-400 italic py-2">No timeline milestones added. Click &ldquo;Add Milestone&rdquo; above.</p>';
+  } else {
+    timeline.forEach(function(item, i) {
+      el.innerHTML += '<div class="dynamic-row" data-index="' + i + '">' +
+        '<input type="text" class="timeline-date font-medium" placeholder="e.g. Q1 2025" value="' + escapeHtmlAttr(item.date) + '" oninput="syncTimeline()" style="max-width:130px">' +
+        '<div class="flex-1 space-y-2">' +
+          '<input type="text" class="timeline-title w-full font-medium" placeholder="Milestone / Phase Title" value="' + escapeHtmlAttr(item.title) + '" oninput="syncTimeline()">' +
+          '<textarea rows="1" class="timeline-desc w-full text-slate-600" placeholder="Phase description..." oninput="syncTimeline()">' + escapeHtmlAttr(item.description) + '</textarea>' +
+        '</div>' +
+        '<button type="button" class="dr-remove" title="Remove" onclick="timeline.splice(' + i + ',1);renderTimeline();syncTimeline();"><i class="fa-solid fa-xmark"></i></button>' +
+      '</div>';
+    });
+  }
   document.getElementById('timelineInput').value = JSON.stringify(timeline);
 }
 
 function addTimeline() {
-  timeline.push({date:'',title:'',description:'',icon:'fa-solid fa-flag'});
+  syncTimeline();
+  timeline.push({ date: '', title: '', description: '', icon: 'fa-solid fa-flag' });
   renderTimeline();
+  setTimeout(function() {
+    var rows = document.querySelectorAll('#timelineList .dynamic-row');
+    if (rows.length) {
+      var last = rows[rows.length - 1].querySelector('.timeline-title');
+      if (last) last.focus();
+    }
+  }, 50);
 }
 renderTimeline();
 
-// === Gallery ===
+// === Gallery / Visual Documentation ===
 var gallery = [];
-try { gallery = JSON.parse(document.getElementById('galleryInput').value); if (!Array.isArray(gallery)) gallery = []; } catch(e) { gallery = []; }
+try {
+  var rawGal = JSON.parse(document.getElementById('galleryInput').value || '[]');
+  if (Array.isArray(rawGal)) {
+    gallery = rawGal.map(function(item) {
+      if (typeof item === 'string') return { path: item, caption: '' };
+      return { path: safeStr(item.path), caption: safeStr(item.caption) };
+    });
+  }
+} catch(e) { gallery = []; }
+
+function syncGallery() {
+  var rows = document.querySelectorAll('#galleryList .dynamic-row');
+  var list = [];
+  rows.forEach(function(r) {
+    var path = safeStr(r.querySelector('.gallery-path')?.value).trim();
+    var caption = safeStr(r.querySelector('.gallery-caption')?.value).trim();
+    if (path) {
+      list.push({ path: path, caption: caption });
+    }
+  });
+  document.getElementById('galleryInput').value = JSON.stringify(list);
+  gallery = list;
+}
+
+function updateGalleryThumb(index, path) {
+  var row = document.querySelector('#galleryList .dynamic-row[data-index="' + index + '"]');
+  if (!row) return;
+  var thumbBox = row.querySelector('.gallery-thumb-box');
+  if (!thumbBox) return;
+  if (path && path.trim()) {
+    var p = path.trim();
+    var src = /^(https?:)?\/\//i.test(p) ? p : (window.location.origin + '/' + p.replace(/^\/+/, ''));
+    thumbBox.innerHTML = '<img src="' + escapeHtmlAttr(src) + '" alt="Thumbnail" onerror="this.parentElement.innerHTML=\'<i class=\\\'fa-solid fa-image text-slate-400\\\'></i>\'">';
+  } else {
+    thumbBox.innerHTML = '<i class="fa-solid fa-image text-slate-400"></i>';
+  }
+}
+
+function uploadGalleryFile(file, index) {
+  if (!file) return;
+  var row = document.querySelector('#galleryList .dynamic-row[data-index="' + index + '"]');
+  var thumbBox = row ? row.querySelector('.gallery-thumb-box') : null;
+  if (thumbBox) thumbBox.innerHTML = '<i class="fa-solid fa-spinner fa-spin text-brandRed"></i>';
+
+  var fd = new FormData();
+  fd.append('file', file);
+  fd.append('type', 'image');
+
+  fetch('ajax-upload.php', { method: 'POST', body: fd })
+    .then(function(r) { return r.json(); })
+    .then(function(res) {
+      if (res.success && res.path) {
+        if (gallery[index]) gallery[index].path = res.path;
+        if (row) {
+          var input = row.querySelector('.gallery-path');
+          if (input) input.value = res.path;
+        }
+        updateGalleryThumb(index, res.path);
+        syncGallery();
+      } else {
+        alert(res.message || 'Image upload failed.');
+        updateGalleryThumb(index, gallery[index] ? gallery[index].path : '');
+      }
+    })
+    .catch(function() {
+      alert('Upload failed. Check network or server configuration.');
+      updateGalleryThumb(index, gallery[index] ? gallery[index].path : '');
+    });
+}
 
 function renderGallery() {
   var el = document.getElementById('galleryList');
   el.innerHTML = '';
-  gallery.forEach(function(item, i) {
-    el.innerHTML += '<div class="dynamic-row"><input type="text" placeholder="Image path (e.g. assets/images/photo.jpg)" value="'+item.path.replace(/"/g,'&quot;')+'" oninput="gallery['+i+'].path=this.value"><input type="text" placeholder="Caption" value="'+item.caption.replace(/"/g,'&quot;')+'" oninput="gallery['+i+'].caption=this.value"><button type="button" class="dr-remove" onclick="gallery.splice('+i+',1);renderGallery()"><i class="fa-solid fa-xmark"></i></button></div>';
-  });
+  if (!gallery.length) {
+    el.innerHTML = '<p class="text-xs text-slate-400 italic py-2">No visual documentation images yet. Click &ldquo;Add Image&rdquo; above.</p>';
+  } else {
+    gallery.forEach(function(item, i) {
+      var p = safeStr(item.path).trim();
+      var thumbHtml = '<i class="fa-solid fa-image text-slate-400"></i>';
+      if (p) {
+        var src = /^(https?:)?\/\//i.test(p) ? p : (window.location.origin + '/' + p.replace(/^\/+/, ''));
+        thumbHtml = '<img src="' + escapeHtmlAttr(src) + '" alt="Thumbnail" onerror="this.parentElement.innerHTML=\'<i class=\\\'fa-solid fa-image text-slate-400\\\'></i>\'">';
+      }
+
+      el.innerHTML += '<div class="dynamic-row" data-index="' + i + '">' +
+        '<div class="gallery-thumb-box">' + thumbHtml + '</div>' +
+        '<div class="flex-1 space-y-2">' +
+          '<div class="flex items-center gap-2">' +
+            '<input type="text" class="gallery-path flex-1 text-xs font-mono" placeholder="Image path (e.g. uploads/images/project.jpg)" value="' + escapeHtmlAttr(item.path) + '" oninput="updateGalleryThumb(' + i + ', this.value); syncGallery();">' +
+            '<label class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-200 hover:bg-brandRed hover:text-white text-xs font-medium cursor-pointer transition-colors shrink-0">' +
+              '<i class="fa-solid fa-cloud-arrow-up text-[10px]"></i> Upload' +
+              '<input type="file" accept="image/*" class="hidden" onchange="uploadGalleryFile(this.files[0], ' + i + ')">' +
+            '</label>' +
+          '</div>' +
+          '<input type="text" class="gallery-caption w-full text-xs" placeholder="Caption / description of this photo" value="' + escapeHtmlAttr(item.caption) + '" oninput="syncGallery()">' +
+        '</div>' +
+        '<button type="button" class="dr-remove" title="Remove" onclick="gallery.splice(' + i + ',1);renderGallery();syncGallery();"><i class="fa-solid fa-xmark"></i></button>' +
+      '</div>';
+    });
+  }
   document.getElementById('galleryInput').value = JSON.stringify(gallery);
 }
 
 function addGallery() {
-  gallery.push({path:'',caption:''});
+  syncGallery();
+  gallery.push({ path: '', caption: '' });
   renderGallery();
 }
 renderGallery();
@@ -639,7 +962,7 @@ renderGallery();
 (function() {
   var hidden = document.getElementById('relatedProjectsInput');
   var items = [];
-  try { items = JSON.parse(hidden.value); if (!Array.isArray(items)) items = []; } catch(e) { items = []; }
+  try { items = JSON.parse(hidden.value || '[]'); if (!Array.isArray(items)) items = []; } catch(e) { items = []; }
 
   document.querySelectorAll('.rp-item').forEach(function(label) {
     var cb = label.querySelector('.rp-checkbox');
@@ -649,12 +972,28 @@ renderGallery();
     else { label.classList.remove('bg-blue-50','border-blue-300'); }
 
     cb.addEventListener('change', function() {
-      if (cb.checked) { items.push(id); label.classList.add('bg-blue-50','border-blue-300'); }
-      else { items = items.filter(function(v){ return v !== id; }); label.classList.remove('bg-blue-50','border-blue-300'); }
+      if (cb.checked) {
+        if (items.indexOf(id) === -1) items.push(id);
+        label.classList.add('bg-blue-50','border-blue-300');
+      } else {
+        items = items.filter(function(v){ return v !== id; });
+        label.classList.remove('bg-blue-50','border-blue-300');
+      }
       hidden.value = JSON.stringify(items);
     });
   });
 })();
+
+// === Form Submission Final Sync ===
+var pForm = document.getElementById('projectForm');
+if (pForm) {
+  pForm.addEventListener('submit', function() {
+    syncObjectives();
+    syncTimeline();
+    syncGallery();
+    syncTG();
+  });
+}
 </script>
 
 <?php if ($isEdit): ?>
