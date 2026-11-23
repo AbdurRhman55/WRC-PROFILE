@@ -525,19 +525,6 @@ include __DIR__ . '/includes/header.php';
             </div>
         </div>
 
-        <!-- Trust strip -->
-        <div
-            class="reveal mt-8 pt-10 border-t border-ink-900/10 flex flex-col md:flex-row items-center justify-between gap-6 text-center md:text-left">
-            <p class="font-sans text-sm text-ink-700/60 max-w-md">Interested in partnering with us on a funded
-                initiative or technical assessment? We welcome collaboration with institutions, government bodies, and
-                mission-aligned organizations.</p>
-            <a href="#contact"
-                class="shrink-0 inline-flex items-center gap-2 font-sans text-sm font-medium text-ink-900 border border-ink-900/20 rounded-full px-6 py-3 hover:bg-ink-900 hover:text-sand-50 hover:border-ink-900 transition-colors">Become
-                a partner<svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                </svg></a>
-        </div>
-
     </div>
 </section>
 
