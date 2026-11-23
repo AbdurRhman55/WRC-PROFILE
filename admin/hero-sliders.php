@@ -22,12 +22,24 @@ if (isPost() && isset($_POST['restore_id'])) {
 }
 if (isPost() && isset($_POST['hard_delete_id'])) {
     if (!verifyCSRF($_POST['csrf_token'] ?? '')) { redirect('hero-sliders.php'); }
-    $s = getRow('hero_sliders', ['id' => (int) $_POST['hard_delete_id']]);
-    if ($s && !empty($s['image_path']) && file_exists(__DIR__ . '/../' . $s['image_path'])) { unlink(__DIR__ . '/../' . $s['image_path']); }
+    $deleteId = (int) $_POST['hard_delete_id'];
+    $s = getRow('hero_sliders', ['id' => $deleteId]);
     global $pdo;
-    $stmt = $pdo->prepare("DELETE FROM hero_sliders WHERE id = ?");
-    $stmt->execute([(int) $_POST['hard_delete_id']]);
-    setFlash('success', 'Slider permanently deleted.');
+    if ($s) {
+        $imagePath = trim((string) ($s['image_path'] ?? ''));
+        if ($imagePath !== '') {
+            // Only remove the file when no other slide still points at it, so
+            // deleting one slide can never break another.
+            $shared = $pdo->prepare("SELECT COUNT(*) FROM hero_sliders WHERE image_path = ? AND id <> ?");
+            $shared->execute([$imagePath, $deleteId]);
+            $stillUsed = (int) $shared->fetchColumn() > 0;
+            $file = __DIR__ . '/../' . ltrim($imagePath, '/\\');
+            if (!$stillUsed && is_file($file)) { @unlink($file); }
+        }
+        $stmt = $pdo->prepare("DELETE FROM hero_sliders WHERE id = ?");
+        $stmt->execute([$deleteId]);
+        setFlash('success', 'Slider permanently deleted.');
+    }
     redirect('hero-sliders.php');
 }
 
@@ -131,11 +143,11 @@ include __DIR__ . '/includes/header.php';
           <td class="px-5 py-3 text-right"><div class="flex items-center justify-end gap-1.5">
             <a href="hero-slider-edit.php?id=<?= $s['id'] ?>" class="text-slate-400 hover:text-blue-500 p-1.5 rounded-lg hover:bg-blue-50" title="Edit"><i class="fa-solid fa-pen-to-square text-xs"></i></a>
             <?php if ($s['is_active']): ?>
-            <form method="POST" class="inline" onsubmit="return confirm('Deactivate?')"><input type="hidden" name="csrf_token" value="<?= generateCSRF() ?>"><input type="hidden" name="delete_id" value="<?= $s['id'] ?>"><button class="text-slate-400 hover:text-amber-500 p-1.5 rounded-lg hover:bg-amber-50"><i class="fa-solid fa-eye-slash text-xs"></i></button></form>
+            <form method="POST" class="inline" onsubmit="return confirm('Deactivate?')"><input type="hidden" name="csrf_token" value="<?= generateCSRF() ?>"><input type="hidden" name="delete_id" value="<?= $s['id'] ?>"><button class="text-slate-400 hover:text-amber-500 p-1.5 rounded-lg hover:bg-amber-50" title="Deactivate"><i class="fa-solid fa-eye-slash text-xs"></i></button></form>
             <?php else: ?>
-            <form method="POST" class="inline" onsubmit="return confirm('Restore?')"><input type="hidden" name="csrf_token" value="<?= generateCSRF() ?>"><input type="hidden" name="restore_id" value="<?= $s['id'] ?>"><button class="text-slate-400 hover:text-green-500 p-1.5 rounded-lg hover:bg-green-50"><i class="fa-solid fa-eye text-xs"></i></button></form>
-            <form method="POST" class="inline" onsubmit="return confirm('Permanently delete?')"><input type="hidden" name="csrf_token" value="<?= generateCSRF() ?>"><input type="hidden" name="hard_delete_id" value="<?= $s['id'] ?>"><button class="text-slate-400 hover:text-red-500 p-1.5 rounded-lg hover:bg-red-50"><i class="fa-solid fa-trash text-xs"></i></button></form>
+            <form method="POST" class="inline" onsubmit="return confirm('Restore?')"><input type="hidden" name="csrf_token" value="<?= generateCSRF() ?>"><input type="hidden" name="restore_id" value="<?= $s['id'] ?>"><button class="text-slate-400 hover:text-green-500 p-1.5 rounded-lg hover:bg-green-50" title="Restore"><i class="fa-solid fa-eye text-xs"></i></button></form>
             <?php endif; ?>
+            <form method="POST" class="inline" onsubmit="return confirm('Permanently delete this slider? This cannot be undone.')"><input type="hidden" name="csrf_token" value="<?= generateCSRF() ?>"><input type="hidden" name="hard_delete_id" value="<?= $s['id'] ?>"><button class="text-slate-400 hover:text-red-500 p-1.5 rounded-lg hover:bg-red-50" title="Delete"><i class="fa-solid fa-trash text-xs"></i></button></form>
           </div></td>
         </tr>
         <?php endforeach; ?>
