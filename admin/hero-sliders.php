@@ -71,7 +71,7 @@ include __DIR__ . '/includes/header.php';
 <div class="flex items-center justify-between mb-8">
   <div>
     <h1 class="text-2xl font-bold text-slate-900">Hero Sliders</h1>
-    <p class="text-sm text-slate-500 mt-1">Manage hero sliders for all pages from one place</p>
+    <p class="text-sm text-slate-500 mt-1">Each page shows one static hero. The first active slider in sort order is used; the others stay hidden.</p>
   </div>
   <a href="hero-slider-edit.php" class="inline-flex items-center gap-2 bg-brandRed text-white px-5 py-2.5 rounded-xl text-sm font-semibold hover:bg-red-700 transition-colors shadow-sm">
     <i class="fa-solid fa-plus text-xs"></i> Add Slider

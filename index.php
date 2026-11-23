@@ -193,54 +193,30 @@ if ($ctaRow) {
 include __DIR__ . '/includes/header.php';
 ?>
 
-<!-- HERO SLIDER -->
-<section class="relative w-full bg-slate-900 text-white min-h-[400px] sm:min-h-[440px] lg:min-h-[min(56vh,520px)] flex items-center overflow-hidden group">
+<!-- HERO -->
+<?php
+$firstSlide = $heroSlides[0] ?? [];
+$heroImage = !empty($firstSlide['image_path']) ? $firstSlide['image_path'] : 'assets/images/hero.jpg';
+if (strpos($heroImage, 'assets/') !== 0 && strpos($heroImage, 'http') !== 0 && strpos($heroImage, 'uploads/') !== 0) {
+    $heroImage = 'assets/images/' . $heroImage;
+}
+?>
+<section class="relative w-full bg-slate-900 text-white min-h-[400px] sm:min-h-[440px] lg:min-h-[min(56vh,520px)] flex items-center overflow-hidden">
 
-    <!-- Slider Wrapper -->
-    <div id="hero-slider"
-        class="absolute inset-0 z-0 w-full h-full transition-transform duration-1000 ease-in-out flex">
-        <?php foreach ($heroSlides as $i => $slide): ?>
-        <?php
-            $slideImage = !empty($slide['image_path']) ? $slide['image_path'] : 'assets/images/hero.jpg';
-            if (strpos($slideImage, 'assets/') !== 0 && strpos($slideImage, 'http') !== 0 && strpos($slideImage, 'uploads/') !== 0) {
-                $slideImage = 'assets/images/' . $slideImage;
-            }
-        ?>
-        <div class="w-full h-full flex-shrink-0 relative">
-            <img src="<?= $base ?><?= $slideImage ?>" alt="<?= sanitize($slide['title'] ?? 'Slide') ?>"
-                class="absolute inset-0 w-full h-full object-cover" loading="<?= $i === 0 ? 'eager' : 'lazy' ?>">
-        </div>
-        <?php endforeach; ?>
+    <!-- Hero Image -->
+    <div class="absolute inset-0 z-0 w-full h-full">
+        <img src="<?= $base ?><?= $heroImage ?>" alt="<?= sanitize($firstSlide['title'] ?? 'Welfare & Relief Committee') ?>"
+            class="absolute inset-0 w-full h-full object-cover" loading="eager">
     </div>
 
     <div
         class="absolute inset-0 bg-gradient-to-br from-slate-950/70 via-slate-900/50 to-brandRed/20 z-[1] pointer-events-none">
     </div>
 
-    <!-- Slider Navigation (Arrows) -->
-    <button id="slider-prev"
-        class="absolute left-4 sm:left-8 top-1/2 -translate-y-1/2 z-20 w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center rounded-full bg-white/10 hover:bg-brandRed/90 backdrop-blur-md border border-white/20 text-white opacity-0 group-hover:opacity-100 transition-all duration-300 shadow-lg">
-        <i class="fa-solid fa-chevron-left text-sm sm:text-lg"></i>
-    </button>
-    <button id="slider-next"
-        class="absolute right-4 sm:right-8 top-1/2 -translate-y-1/2 z-20 w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center rounded-full bg-white/10 hover:bg-brandRed/90 backdrop-blur-md border border-white/20 text-white opacity-0 group-hover:opacity-100 transition-all duration-300 shadow-lg">
-        <i class="fa-solid fa-chevron-right text-sm sm:text-lg"></i>
-    </button>
-
-    <!-- Slider Pagination (Dots) -->
-    <div class="absolute bottom-4 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2" id="slider-dots">
-        <?php foreach ($heroSlides as $i => $slide): ?>
-        <button
-            class="<?= $i === 0 ? 'w-4 h-2.5 rounded-full bg-brandRed shadow-md' : 'w-2.5 h-2.5 rounded-full bg-white/50 hover:bg-white' ?> transition-all duration-300"
-            data-index="<?= $i ?>" aria-label="Go to slide <?= $i + 1 ?>"></button>
-        <?php endforeach; ?>
-    </div>
-
-    <!-- Dynamic Content Overlay -->
+    <!-- Content Overlay -->
     <div class="absolute inset-0 z-10 flex items-center pointer-events-none">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
-            <div id="hero-content" class="max-w-2xl pointer-events-auto animate-fade-in-up">
-                <?php $firstSlide = $heroSlides[0] ?? []; ?>
+            <div class="max-w-2xl pointer-events-auto animate-fade-in-up">
                 <?php if (!empty($firstSlide['badge'])): ?>
                 <span
                     class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest bg-brandRed/90 text-white mb-3 backdrop-blur-sm">
@@ -794,131 +770,7 @@ include __DIR__ . '/includes/header.php';
 
 <?php include __DIR__ . '/includes/footer.php'; ?>
 
-<?php
-// Hero slider JS (dynamic slide count)
-$slideCount = count($heroSlides);
-?>
 <script>
-// Hero Slider Logic
-const slider = document.getElementById('hero-slider');
-const prevBtn = document.getElementById('slider-prev');
-const nextBtn = document.getElementById('slider-next');
-const dots = document.querySelectorAll('#slider-dots button');
-const contentEl = document.getElementById('hero-content');
-let currentSlide = 0;
-const slideCount = <?= $slideCount ?>;
-let slideInterval;
-
-const slideContents = <?= json_encode(array_map(function($s) {
-    return [
-        'badge' => $s['badge'] ?? '',
-        'title' => $s['title'] ?? '',
-        'subtitle' => $s['subtitle'] ?? '',
-        'cta_text' => $s['cta_text'] ?? 'Explore Our Work',
-        'cta_link' => $s['cta_link'] ?? 'our-work/index.php',
-    ];
-}, $heroSlides)) ?>;
-
-function renderContent(index) {
-    if (!contentEl || !slideContents[index]) return;
-    var s = slideContents[index];
-    contentEl.style.opacity = '0';
-    contentEl.style.transform = 'translateY(15px)';
-    setTimeout(function() {
-        var badgeHtml = s.badge ?
-            '<span class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest bg-brandRed/90 text-white mb-3 backdrop-blur-sm"><i class="fa-solid fa-globe"></i> ' +
-            s.badge + '</span>' :
-            '<span class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest bg-slate-900/60 backdrop-blur-sm text-slate-100 border border-white/20 mb-3"><i class="fa-solid fa-globe text-brandRed"></i> Welfare & Relief Committee NGO</span>';
-        contentEl.innerHTML = badgeHtml +
-            '<h1 class="text-3xl sm:text-4xl lg:text-[2.6rem] font-extrabold text-white leading-tight mb-4 font-heading drop-shadow-md">' +
-            s.title + '</h1>' +
-            '<p class="text-sm sm:text-base text-slate-200 mb-5 leading-relaxed drop-shadow-sm max-w-xl">' + s
-            .subtitle + '</p>' +
-            '<div class="flex flex-wrap gap-3 items-center">' +
-            '<a href="<?= $base ?>get-involved/contribute-with-us.php" class="bg-brandRed hover:bg-brandRed-hover text-white font-bold text-sm px-6 py-3 rounded-lg shadow-lg shadow-brandRed/30 transition-all flex items-center gap-2 transform hover:-translate-y-0.5">' +
-            'Donate Now <i class="fa-solid fa-heart text-xs"></i></a>' +
-            '<a href="<?= $base ?>our-work/index.php" class="bg-white/10 hover:bg-white/25 backdrop-blur-md text-white border border-white/30 font-semibold text-sm px-5 py-3 rounded-lg transition-all flex items-center gap-2 transform hover:-translate-y-0.5">Our Work <i class="fa-solid fa-arrow-right text-xs"></i></a>' +
-            '</div>';
-        contentEl.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
-        contentEl.style.opacity = '1';
-        contentEl.style.transform = 'translateY(0)';
-    }, 200);
-}
-
-function updateSlider() {
-    if (slider) {
-        slider.style.transform = 'translateX(-' + currentSlide * 100 + '%)';
-        dots.forEach(function(dot, index) {
-            dot.className = index === currentSlide ?
-                'w-4 h-2.5 rounded-full bg-brandRed shadow-md transition-all duration-300' :
-                'w-2.5 h-2.5 rounded-full bg-white/50 hover:bg-white transition-all duration-300';
-        });
-        renderContent(currentSlide);
-    }
-}
-
-function nextSlide() {
-    currentSlide = (currentSlide + 1) % slideCount;
-    updateSlider();
-}
-
-function prevSlide() {
-    currentSlide = (currentSlide - 1 + slideCount) % slideCount;
-    updateSlider();
-}
-
-function startSlider() {
-    slideInterval = setInterval(nextSlide, 5000);
-}
-
-function resetSlider() {
-    clearInterval(slideInterval);
-    startSlider();
-}
-
-if (nextBtn && prevBtn && dots.length > 0) {
-    nextBtn.addEventListener('click', function() {
-        nextSlide();
-        resetSlider();
-    });
-    prevBtn.addEventListener('click', function() {
-        prevSlide();
-        resetSlider();
-    });
-    dots.forEach(function(dot) {
-        dot.addEventListener('click', function(e) {
-            currentSlide = parseInt(e.target.getAttribute('data-index'));
-            updateSlider();
-            resetSlider();
-        });
-    });
-    startSlider();
-}
-
-// Touch/Swipe support
-var touchStartX = 0;
-var touchEndX = 0;
-var heroSection = document.getElementById('hero-slider');
-if (heroSection) {
-    heroSection.addEventListener('touchstart', function(e) {
-        touchStartX = e.changedTouches[0].screenX;
-    }, {
-        passive: true
-    });
-    heroSection.addEventListener('touchend', function(e) {
-        touchEndX = e.changedTouches[0].screenX;
-        if (touchStartX - touchEndX > 50) {
-            nextSlide();
-            resetSlider();
-        } else if (touchEndX - touchStartX > 50) {
-            prevSlide();
-            resetSlider();
-        }
-    }, {
-        passive: true
-    });
-}
-
 // Animated impact counters. The final values are already in the HTML, so the
 // page reads correctly without JavaScript; this only animates them into view.
 (function() {

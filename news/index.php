@@ -67,47 +67,28 @@ include dirname(__DIR__) . '/includes/header.php';
 
 <main class="flex-grow">
 
-<!-- HERO SLIDER - FULL SCREEN -->
-<section class="relative w-full h-screen bg-ink-900 text-white overflow-hidden group" id="news-hero">
+<!-- HERO - FULL SCREEN -->
+<?php
+$firstSlide = $heroSlides[0];
+$heroImage = !empty($firstSlide['image_path']) ? $firstSlide['image_path'] : 'assets/images/hero/hero-slider-1.jpg';
+if (strpos($heroImage, 'assets/') !== 0 && strpos($heroImage, 'http') !== 0 && strpos($heroImage, 'uploads/') !== 0) {
+    $heroImage = 'assets/images/' . $heroImage;
+}
+?>
+<section class="relative w-full h-screen bg-ink-900 text-white overflow-hidden" id="news-hero">
 
-    <!-- Slider Wrapper -->
-    <div id="news-hero-slider" class="absolute inset-0 z-0 w-full h-full transition-transform duration-1000 ease-in-out flex">
-        <?php foreach ($heroSlides as $i => $slide): ?>
-        <?php
-            $slideImage = !empty($slide['image_path']) ? $slide['image_path'] : 'assets/images/hero/hero-slider-1.jpg';
-            if (strpos($slideImage, 'assets/') !== 0 && strpos($slideImage, 'http') !== 0 && strpos($slideImage, 'uploads/') !== 0) {
-                $slideImage = 'assets/images/' . $slideImage;
-            }
-        ?>
-        <div class="w-full h-full flex-shrink-0 relative">
-            <img src="<?= $base ?><?= $slideImage ?>" alt="<?= sanitize($slide['title'] ?? 'Slide') ?>" class="absolute inset-0 w-full h-full object-cover" loading="<?= $i === 0 ? 'eager' : 'lazy' ?>">
-        </div>
-        <?php endforeach; ?>
+    <!-- Hero Image -->
+    <div class="absolute inset-0 z-0 w-full h-full">
+        <img src="<?= $base ?><?= $heroImage ?>" alt="<?= sanitize($firstSlide['title'] ?? 'News & Media') ?>" class="absolute inset-0 w-full h-full object-cover" loading="eager">
     </div>
 
     <!-- Bottom Gradient for text readability only -->
     <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent z-[1] pointer-events-none"></div>
 
-    <!-- Slider Navigation (Arrows) -->
-    <button id="news-slider-prev" class="absolute left-4 sm:left-8 top-1/2 -translate-y-1/2 z-20 w-12 h-12 sm:w-14 sm:h-14 flex items-center justify-center rounded-full bg-white/15 hover:bg-brandRed/90 backdrop-blur-md border border-white/20 text-white opacity-0 group-hover:opacity-100 transition-all duration-300 shadow-lg" aria-label="Previous slide">
-        <i class="fa-solid fa-chevron-left text-lg"></i>
-    </button>
-    <button id="news-slider-next" class="absolute right-4 sm:right-8 top-1/2 -translate-y-1/2 z-20 w-12 h-12 sm:w-14 sm:h-14 flex items-center justify-center rounded-full bg-white/15 hover:bg-brandRed/90 backdrop-blur-md border border-white/20 text-white opacity-0 group-hover:opacity-100 transition-all duration-300 shadow-lg" aria-label="Next slide">
-        <i class="fa-solid fa-chevron-right text-lg"></i>
-    </button>
-
-    <!-- Slider Pagination (Dots) -->
-    <div class="absolute bottom-8 left-1/2 -translate-x-1/2 z-20 flex items-center gap-3" id="news-slider-dots">
-        <?php foreach ($heroSlides as $i => $slide): ?>
-        <button class="<?= $i === 0 ? 'w-4 h-3 rounded-full bg-brandRed shadow-md' : 'w-3 h-3 rounded-full bg-white/40 hover:bg-white/70' ?> transition-all duration-300" data-index="<?= $i ?>" aria-label="Go to slide <?= $i + 1 ?>"></button>
-        <?php endforeach; ?>
-    </div>
-
-    <!-- Slide Content - Centered vertically -->
+    <!-- Hero Content - Centered vertically -->
     <div class="absolute inset-0 z-10 flex items-center pointer-events-none">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
-            <div id="news-hero-content" class="max-w-3xl pointer-events-auto">
-                <?php $firstSlide = $heroSlides[0]; ?>
+            <div class="max-w-3xl pointer-events-auto">
                 <span class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest bg-brandRed/90 text-white mb-4 backdrop-blur-sm">
                     <i class="fa-solid fa-newspaper"></i> <?= sanitize($firstSlide['badge'] ?? 'News & Media') ?>
                 </span>
@@ -407,100 +388,6 @@ include dirname(__DIR__) . '/includes/header.php';
 
 <script>
 (function(){
-  // === NEWS HERO SLIDER ===
-  const slider = document.getElementById('news-hero-slider');
-  const prevBtn = document.getElementById('news-slider-prev');
-  const nextBtn = document.getElementById('news-slider-next');
-  const dots = document.querySelectorAll('#news-slider-dots button');
-  const slides = slider ? slider.querySelectorAll(':scope > div') : [];
-  const slideContents = <?= json_encode(array_map(function($s) {
-      return [
-          'badge' => $s['badge'] ?? 'News & Media',
-          'title' => $s['title'] ?? '',
-          'subtitle' => $s['subtitle'] ?? '',
-          'cta_text' => $s['cta_text'] ?? 'Latest News',
-          'cta_link' => $s['cta_link'] ?? '#news',
-      ];
-  }, $heroSlides)) ?>;
-  let currentSlide = 0;
-  const slideCount = slides.length;
-  let slideInterval;
-  const contentEl = document.getElementById('news-hero-content');
-
-  function renderContent(index) {
-      if (!contentEl || !slideContents[index]) return;
-      const s = slideContents[index];
-      contentEl.style.opacity = '0';
-      contentEl.style.transform = 'translateY(15px)';
-      setTimeout(() => {
-          contentEl.innerHTML = `
-              <span class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest bg-brandRed/90 text-white mb-4 backdrop-blur-sm">
-                  <i class="fa-solid fa-newspaper"></i> ${s.badge}
-              </span>
-              <h1 class="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-display font-bold leading-[1.1] mb-4 drop-shadow-lg">
-                  ${s.title}
-              </h1>
-              <p class="text-lg sm:text-xl text-white/80 leading-relaxed mb-8 max-w-xl drop-shadow-sm">
-                  ${s.subtitle}
-              </p>
-              <div class="flex flex-wrap gap-4">
-                  <a href="<?= $base ?>${s.cta_link}" class="bg-brandRed hover:bg-brandRed-hover text-white font-bold text-sm px-8 py-4 rounded-xl shadow-lg shadow-brandRed/30 transition-all flex items-center gap-2 transform hover:-translate-y-0.5">
-                      ${s.cta_text} <i class="fa-solid fa-arrow-right text-xs"></i>
-                  </a>
-                  <a href="<?= $base ?>news/gallery.php" class="bg-white/15 hover:bg-white/25 backdrop-blur-sm text-white font-bold text-sm px-8 py-4 rounded-xl border border-white/25 transition-all flex items-center gap-2 transform hover:-translate-y-0.5">
-                      Photo Gallery <i class="fa-solid fa-images text-xs"></i>
-                  </a>
-              </div>
-          `;
-          contentEl.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
-          contentEl.style.opacity = '1';
-          contentEl.style.transform = 'translateY(0)';
-      }, 200);
-  }
-
-  function updateSlider() {
-      if (slider) {
-          slider.style.transform = `translateX(-${currentSlide * 100}%)`;
-          dots.forEach((dot, index) => {
-              dot.className = index === currentSlide
-                  ? 'w-4 h-3 rounded-full bg-brandRed shadow-md transition-all duration-300'
-                  : 'w-3 h-3 rounded-full bg-white/40 hover:bg-white/70 transition-all duration-300';
-          });
-          renderContent(currentSlide);
-      }
-  }
-
-  function nextSlide() { currentSlide = (currentSlide + 1) % slideCount; updateSlider(); }
-  function prevSlide() { currentSlide = (currentSlide - 1 + slideCount) % slideCount; updateSlider(); }
-  function startSlider() { slideInterval = setInterval(nextSlide, 5000); }
-  function resetSlider() { clearInterval(slideInterval); startSlider(); }
-
-  if (nextBtn && prevBtn && dots.length > 0) {
-      nextBtn.addEventListener('click', () => { nextSlide(); resetSlider(); });
-      prevBtn.addEventListener('click', () => { prevSlide(); resetSlider(); });
-      dots.forEach(dot => {
-          dot.addEventListener('click', function() {
-              currentSlide = parseInt(this.dataset.index);
-              updateSlider();
-              resetSlider();
-          });
-      });
-      startSlider();
-  }
-
-  // Touch support for slider
-  let touchStartX = 0;
-  const heroEl = document.getElementById('news-hero');
-  if (heroEl) {
-      heroEl.addEventListener('touchstart', e => { touchStartX = e.touches[0].clientX; }, { passive: true });
-      heroEl.addEventListener('touchend', e => {
-          const diff = touchStartX - e.changedTouches[0].clientX;
-          if (Math.abs(diff) > 50) {
-              diff > 0 ? nextSlide() : prevSlide();
-              resetSlider();
-          }
-      }, { passive: true });
-  }
 
   // === VIDEO MODAL ===
   var videoModal = document.getElementById('video-modal');

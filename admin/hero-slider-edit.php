@@ -87,7 +87,7 @@ include __DIR__ . '/includes/header.php';
         <option value="<?= $key ?>" <?= ($slider['page'] ?? 'homepage') === $key ? 'selected' : '' ?>><?= $label ?></option>
         <?php endforeach; ?>
       </select>
-      <p class="text-[11px] text-slate-400 mt-1">This slider will appear only on the selected page</p>
+      <p class="text-[11px] text-slate-400 mt-1">Shown as the static hero only when this is the first active slider for the page.</p>
     </div>
   </div>
 
