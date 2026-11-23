@@ -1054,6 +1054,15 @@ try {
         fwrite( STDERR, 'WARNING: could not correct solarization beneficiary count: ' . $e->getMessage() . "\n" );
     }
 
+    // Prepare the taxonomy schema even when the portfolio itself is already
+    // correct, so a fresh database gets the organisation/category tables.
+    try {
+        require_once dirname( __DIR__ ) . '/includes/functions.php';
+        wrcEnsureProjectTaxonomy();
+    } catch ( Throwable $e ) {
+        fwrite( STDERR, 'WARNING: could not prepare the project taxonomy: ' . $e->getMessage() . "\n" );
+    }
+
     $reasons = $portfolioStatus();
     if ( !$reasons ) {
         echo 'Project portfolio already matches the ' . PORTFOLIO_SIZE . " approved Excel entries; no changes made.\n";
@@ -1147,6 +1156,21 @@ try {
     // their partners and seeds a cover photograph for any new project.
     require_once dirname( __DIR__ ) . '/includes/functions.php';
     wrcSyncBeneficiaryStats( $pdo );
+
+    // Rebuild the Organisation -> Category -> Sub-category taxonomy for the new
+    // rows. Existing classifications are kept, so re-running the import never
+    // undoes an administrator's category edits.
+    try {
+        wrcEnsureProjectTaxonomy();
+        $classified = wrcSeedProjectTaxonomy();
+        $unclassified = (int) $pdo->query(
+            'SELECT COUNT(*) FROM projects WHERE organization_id IS NULL OR category_id IS NULL'
+        )->fetchColumn();
+        echo 'Project taxonomy: ' . $classified . ' project(s) classified, ' . $unclassified . " left unclassified.\n";
+    } catch ( Throwable $e ) {
+        fwrite( STDERR, 'WARNING: could not rebuild the project taxonomy: ' . $e->getMessage() . "\n" );
+    }
+
     if ( function_exists( 'wrcSetupMediaGallery' ) ) {
         $mediaResult = wrcSetupMediaGallery( $pdo );
         echo 'Partner galleries: ' . $mediaResult['links'] . ' new project link(s), ' . $mediaResult['media'] . ' new photograph(s) seeded, ' . $mediaResult['merged'] . " duplicate partner record(s) merged.\n";

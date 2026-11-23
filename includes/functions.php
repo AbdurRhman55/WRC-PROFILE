@@ -156,6 +156,7 @@ function getRows( string $table, $conditions = [], string $orderBy = 'sort_order
         'sdg_goals', 'sdg_contributions', 'impact_stats', 'organizational_structure',
         'hero_sliders', 'homepage_sections', 'site_settings', 'program_interventions',
         'program_focus_areas', 'program_impact_stats', 'project_donors', 'province_programs',
+        'project_organizations', 'project_categories', 'project_subcategories',
         'process_steps', 'success_stories', 'events', 'photo_gallery', 'video_gallery',
         'about_hero', 'about_mission', 'about_mission_items',
         'about_governance', 'about_governance_items',
@@ -1349,6 +1350,560 @@ function wrcFormatBeneficiaries( int $number ): string {
     return number_format( $number );
 }
 
+// ===  ===  ===  ===  ===  ===  ===  ===  ===  ===  ===  ===  ===  ===  ===
+// PROJECT TAXONOMY  (Organisation -> Category -> Sub-category)
+//
+// A project always belongs to one organisation (ZFA, Turkiye Diyanet, KP-TEVTA,
+// Islamic Relief, ...). Each organisation owns its own category list ("Ramadan
+// Food Packs", "Paramedic Training", ...), and each category can hold any
+// number of sub-categories.
+//
+// projects.category deliberately keeps the public programme sector ("Health",
+// "Food Security", ...) so the public filters, sector counters and the
+// related-project logic never change; the taxonomy columns carry the detailed
+// classification used by the admin.
+// ===  ===  ===  ===  ===  ===  ===  ===  ===  ===  ===  ===  ===  ===  ===
+
+/**
+ * Programme sectors a category can be mapped to.
+ *
+ * These are the same nine programme titles the public site already groups by,
+ * so mapping a category to a sector never invents a filter that visitors
+ * cannot navigate to.
+ *
+ * @return string[]
+ */
+function wrcProjectSectorOptions(): array {
+    global $pdo;
+
+    static $options = null;
+    if ( $options !== null ) {
+        return $options;
+    }
+
+    $options = [];
+
+    try {
+        if ( $pdo instanceof PDO ) {
+            $options = $pdo->query(
+                'SELECT title FROM programs WHERE is_active = 1 ORDER BY sort_order ASC, title ASC'
+            )->fetchAll( PDO::FETCH_COLUMN );
+        }
+    } catch ( Throwable $error ) {
+        $options = [];
+    }
+
+    $fallback = [
+        'Health',
+        'Education',
+        'WASH',
+        'Food Security',
+        'Nutrition',
+        'Livelihood',
+        'Emergency Response',
+        'Disaster Risk Reduction',
+        'Climate Resilience',
+    ];
+
+    foreach ( $fallback as $sector ) {
+        if ( !in_array( $sector, $options, true ) ) {
+            $options[] = $sector;
+        }
+    }
+
+    $options = array_values( array_filter( array_map( 'trim', $options ), 'strlen' ) );
+
+    return $options;
+}
+
+/**
+ * Creates the taxonomy tables and the projects.* columns when they are missing.
+ *
+ * Safe to call on every request: the schema is checked first and nothing is
+ * written when it already matches. Returns false when the database refused the
+ * change (for example a read-only user), so callers can degrade gracefully.
+ */
+function wrcEnsureProjectTaxonomy( bool $seed = true ): bool {
+    global $pdo;
+
+    static $ready = false;
+    if ( $ready ) {
+        return true;
+    }
+
+    if ( ! ( $pdo instanceof PDO ) ) {
+        return false;
+    }
+
+    try {
+        $pdo->exec( <<<'SQL'
+CREATE TABLE IF NOT EXISTS project_organizations (
+    id INT UNSIGNED NOT NULL AUTO_INCREMENT,
+    name VARCHAR(191) NOT NULL,
+    slug VARCHAR(191) NOT NULL,
+    contact_email VARCHAR(191) NULL,
+    website_url VARCHAR(500) NULL,
+    is_active TINYINT(1) NOT NULL DEFAULT 1,
+    sort_order SMALLINT UNSIGNED NOT NULL DEFAULT 0,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (id),
+    UNIQUE KEY uniq_project_organizations_slug (slug)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+SQL
+        );
+
+        $pdo->exec( <<<'SQL'
+CREATE TABLE IF NOT EXISTS project_categories (
+    id INT UNSIGNED NOT NULL AUTO_INCREMENT,
+    organization_id INT UNSIGNED NOT NULL,
+    name VARCHAR(191) NOT NULL,
+    slug VARCHAR(191) NOT NULL,
+    sector VARCHAR(100) NOT NULL DEFAULT 'General',
+    is_active TINYINT(1) NOT NULL DEFAULT 1,
+    sort_order SMALLINT UNSIGNED NOT NULL DEFAULT 0,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (id),
+    UNIQUE KEY uniq_project_categories_slug (organization_id, slug),
+    KEY idx_project_categories_org (organization_id),
+    CONSTRAINT fk_project_categories_org FOREIGN KEY (organization_id)
+        REFERENCES project_organizations (id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+SQL
+        );
+
+        $pdo->exec( <<<'SQL'
+CREATE TABLE IF NOT EXISTS project_subcategories (
+    id INT UNSIGNED NOT NULL AUTO_INCREMENT,
+    category_id INT UNSIGNED NOT NULL,
+    name VARCHAR(191) NOT NULL,
+    slug VARCHAR(191) NOT NULL,
+    is_active TINYINT(1) NOT NULL DEFAULT 1,
+    sort_order SMALLINT UNSIGNED NOT NULL DEFAULT 0,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (id),
+    UNIQUE KEY uniq_project_subcategories_slug (category_id, slug),
+    KEY idx_project_subcategories_category (category_id),
+    CONSTRAINT fk_project_subcategories_category FOREIGN KEY (category_id)
+        REFERENCES project_categories (id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+SQL
+        );
+
+        $projectColumns = $pdo->query( 'SHOW COLUMNS FROM projects' )->fetchAll( PDO::FETCH_COLUMN );
+
+        $addColumns = [];
+        if ( !in_array( 'organization_id', $projectColumns, true ) ) {
+            $addColumns[] = 'ADD COLUMN organization_id INT UNSIGNED NULL AFTER category';
+        }
+        if ( !in_array( 'category_id', $projectColumns, true ) ) {
+            $addColumns[] = 'ADD COLUMN category_id INT UNSIGNED NULL AFTER organization_id';
+        }
+        if ( !in_array( 'subcategory_id', $projectColumns, true ) ) {
+            $addColumns[] = 'ADD COLUMN subcategory_id INT UNSIGNED NULL AFTER category_id';
+        }
+        if ( $addColumns ) {
+            $pdo->exec( 'ALTER TABLE projects ' . implode( ', ', $addColumns ) );
+        }
+
+        $projectIndexes = $pdo->query( 'SHOW INDEX FROM projects' )->fetchAll( PDO::FETCH_ASSOC );
+        $indexNames     = array_column( $projectIndexes, 'Key_name' );
+
+        $addIndexes = [];
+        if ( !in_array( 'idx_projects_organization', $indexNames, true ) ) {
+            $addIndexes[] = 'ADD KEY idx_projects_organization (organization_id)';
+        }
+        if ( !in_array( 'idx_projects_category', $indexNames, true ) ) {
+            $addIndexes[] = 'ADD KEY idx_projects_category (category_id)';
+        }
+        if ( !in_array( 'idx_projects_subcategory', $indexNames, true ) ) {
+            $addIndexes[] = 'ADD KEY idx_projects_subcategory (subcategory_id)';
+        }
+        if ( $addIndexes ) {
+            $pdo->exec( 'ALTER TABLE projects ' . implode( ', ', $addIndexes ) );
+        }
+    } catch ( Throwable $error ) {
+        error_log( 'WRC project taxonomy: schema update failed - ' . $error->getMessage() );
+        return false;
+    }
+
+    $ready = true;
+
+    if ( $seed ) {
+        try {
+            wrcSeedProjectTaxonomy();
+        } catch ( Throwable $error ) {
+            error_log( 'WRC project taxonomy: seeding failed - ' . $error->getMessage() );
+        }
+    }
+
+    return true;
+}
+
+/**
+ * Returns a slug that is unique inside its parent scope.
+ *
+ * Categories are unique per organisation and sub-categories per category, so
+ * the same name ("Education") can exist under two organisations without the
+ * two records colliding.
+ */
+function wrcUniqueTaxonomySlug( string $table, int $parentId, string $parentColumn, string $name, int $excludeId = 0 ): string {
+    global $pdo;
+
+    $base = createSlug( $name );
+    if ( $base === '' ) {
+        $base = 'item';
+    }
+
+    $slug   = $base;
+    $suffix = 1;
+
+    while ( true ) {
+        $sql    = "SELECT COUNT(*) FROM `{$table}` WHERE slug = ?";
+        $params = [ $slug ];
+
+        if ( $parentColumn !== '' ) {
+            $sql     .= " AND `{$parentColumn}` = ?";
+            $params[] = $parentId;
+        }
+        if ( $excludeId > 0 ) {
+            $sql     .= ' AND id != ?';
+            $params[] = $excludeId;
+        }
+
+        $stmt = $pdo->prepare( $sql );
+        $stmt->execute( $params );
+
+        if ( !(int) $stmt->fetchColumn() ) {
+            return $slug;
+        }
+
+        $suffix++;
+        $slug = $base . '-' . $suffix;
+    }
+}
+
+/**
+ * Backfills the taxonomy for projects that are not classified yet.
+ *
+ * The organisation comes from the project's first recorded donor, the category
+ * from its legacy category text. Nothing is overwritten: a project that an
+ * administrator has already classified keeps its organisation, category and
+ * sub-category - which is what makes a portfolio re-import safe.
+ *
+ * @return int Number of projects that received a classification.
+ */
+function wrcSeedProjectTaxonomy(): int {
+    global $pdo;
+
+    if ( ! ( $pdo instanceof PDO ) ) {
+        return 0;
+    }
+
+    $organizationIds = [];
+    foreach ( $pdo->query( 'SELECT id, name FROM project_organizations' )->fetchAll( PDO::FETCH_ASSOC ) as $organization ) {
+        $organizationIds[ strtolower( trim( (string) $organization[ 'name' ] ) ) ] = (int) $organization[ 'id' ];
+    }
+
+    $ensureOrganization = static function ( string $name ) use ( $pdo, &$organizationIds ): int {
+        $name = trim( $name );
+        if ( $name === '' ) {
+            $name = 'Welfare & Relief Committee (WRC)';
+        }
+
+        $key = strtolower( $name );
+        if ( isset( $organizationIds[ $key ] ) ) {
+            return $organizationIds[ $key ];
+        }
+
+        $stmt = $pdo->prepare(
+            'INSERT INTO project_organizations (name, slug, sort_order, is_active) VALUES (?, ?, 0, 1)'
+        );
+        $stmt->execute( [ $name, wrcUniqueTaxonomySlug( 'project_organizations', 0, '', $name ) ] );
+
+        return $organizationIds[ $key ] = (int) $pdo->lastInsertId();
+    };
+
+    $donorNames = $pdo->query(
+        "SELECT DISTINCT donor_name FROM project_donors WHERE donor_name IS NOT NULL AND donor_name <> ''"
+    )->fetchAll( PDO::FETCH_COLUMN );
+
+    foreach ( $donorNames as $donorName ) {
+        $ensureOrganization( (string) $donorName );
+    }
+    $ensureOrganization( 'Welfare & Relief Committee (WRC)' );
+
+    $categoryIds = [];
+    foreach ( $pdo->query( 'SELECT id, organization_id, name FROM project_categories' )->fetchAll( PDO::FETCH_ASSOC ) as $category ) {
+        $categoryIds[ (int) $category[ 'organization_id' ] . '|' . strtolower( trim( (string) $category[ 'name' ] ) ) ] = (int) $category[ 'id' ];
+    }
+
+    $sectors = array_map( 'strtolower', wrcProjectSectorOptions() );
+
+    $unclassified = $pdo->query(
+        "SELECT p.id, p.category, p.organization_id, p.category_id,
+                (SELECT d.donor_name FROM project_donors d WHERE d.project_id = p.id ORDER BY d.id ASC LIMIT 1) AS donor_name
+           FROM projects p
+          WHERE p.organization_id IS NULL OR p.category_id IS NULL"
+    )->fetchAll( PDO::FETCH_ASSOC );
+
+    if ( !$unclassified ) {
+        return 0;
+    }
+
+    $update = $pdo->prepare( 'UPDATE projects SET organization_id = ?, category_id = ? WHERE id = ?' );
+    $insertCategory = $pdo->prepare(
+        'INSERT INTO project_categories (organization_id, name, slug, sector, sort_order, is_active) VALUES (?, ?, ?, ?, 0, 1)'
+    );
+
+    $updated = 0;
+
+    foreach ( $unclassified as $project ) {
+        $organizationId = (int) ( $project[ 'organization_id' ] ?? 0 );
+        if ( $organizationId <= 0 ) {
+            $organizationId = $ensureOrganization( (string) ( $project[ 'donor_name' ] ?? '' ) );
+        }
+
+        $categoryId = (int) ( $project[ 'category_id' ] ?? 0 );
+
+        if ( $categoryId <= 0 ) {
+            $categoryName = trim( (string) ( $project[ 'category' ] ?? '' ) );
+            if ( $categoryName === '' ) {
+                $categoryName = 'General';
+            }
+
+            $key = $organizationId . '|' . strtolower( $categoryName );
+
+            if ( isset( $categoryIds[ $key ] ) ) {
+                $categoryId = $categoryIds[ $key ];
+            } else {
+                $sector = in_array( strtolower( $categoryName ), $sectors, true ) ? $categoryName : 'General';
+
+                $insertCategory->execute( [
+                    $organizationId,
+                    $categoryName,
+                    wrcUniqueTaxonomySlug( 'project_categories', $organizationId, 'organization_id', $categoryName ),
+                    $sector,
+                ] );
+
+                $categoryId = $categoryIds[ $key ] = (int) $pdo->lastInsertId();
+            }
+        }
+
+        $update->execute( [ $organizationId, $categoryId, (int) $project[ 'id' ] ] );
+        $updated++;
+    }
+
+    return $updated;
+}
+
+/**
+ * @return array<int,array<string,mixed>>
+ */
+function wrcProjectOrganizations( bool $activeOnly = true ): array {
+    global $pdo;
+
+    try {
+        $sql = 'SELECT * FROM project_organizations'
+            . ( $activeOnly ? ' WHERE is_active = 1' : '' )
+            . ' ORDER BY sort_order ASC, name ASC';
+
+        return $pdo->query( $sql )->fetchAll( PDO::FETCH_ASSOC );
+    } catch ( Throwable $error ) {
+        return [];
+    }
+}
+
+/**
+ * @return array<int,array<string,mixed>>
+ */
+function wrcProjectCategories( ?int $organizationId = null, bool $activeOnly = true ): array {
+    global $pdo;
+
+    try {
+        $conditions = [];
+        $params     = [];
+
+        if ( $organizationId !== null ) {
+            $conditions[] = 'organization_id = ?';
+            $params[]     = $organizationId;
+        }
+        if ( $activeOnly ) {
+            $conditions[] = 'is_active = 1';
+        }
+
+        $sql = 'SELECT * FROM project_categories'
+            . ( $conditions ? ' WHERE ' . implode( ' AND ', $conditions ) : '' )
+            . ' ORDER BY sort_order ASC, name ASC';
+
+        $stmt = $pdo->prepare( $sql );
+        $stmt->execute( $params );
+
+        return $stmt->fetchAll( PDO::FETCH_ASSOC );
+    } catch ( Throwable $error ) {
+        return [];
+    }
+}
+
+/**
+ * @return array<int,array<string,mixed>>
+ */
+function wrcProjectSubcategories( ?int $categoryId = null, bool $activeOnly = true ): array {
+    global $pdo;
+
+    try {
+        $conditions = [];
+        $params     = [];
+
+        if ( $categoryId !== null ) {
+            $conditions[] = 'category_id = ?';
+            $params[]     = $categoryId;
+        }
+        if ( $activeOnly ) {
+            $conditions[] = 'is_active = 1';
+        }
+
+        $sql = 'SELECT * FROM project_subcategories'
+            . ( $conditions ? ' WHERE ' . implode( ' AND ', $conditions ) : '' )
+            . ' ORDER BY sort_order ASC, name ASC';
+
+        $stmt = $pdo->prepare( $sql );
+        $stmt->execute( $params );
+
+        return $stmt->fetchAll( PDO::FETCH_ASSOC );
+    } catch ( Throwable $error ) {
+        return [];
+    }
+}
+
+/**
+ * @return array<string,mixed>|null
+ */
+function wrcProjectCategoryById( int $id ): ?array {
+    global $pdo;
+
+    if ( $id <= 0 || ! ( $pdo instanceof PDO ) ) {
+        return null;
+    }
+
+    try {
+        $stmt = $pdo->prepare( 'SELECT * FROM project_categories WHERE id = ? LIMIT 1' );
+        $stmt->execute( [ $id ] );
+        $row = $stmt->fetch( PDO::FETCH_ASSOC );
+
+        return $row ?: null;
+    } catch ( Throwable $error ) {
+        return null;
+    }
+}
+
+/**
+ * @return array<string,mixed>|null
+ */
+function wrcProjectSubcategoryById( int $id ): ?array {
+    global $pdo;
+
+    if ( $id <= 0 || ! ( $pdo instanceof PDO ) ) {
+        return null;
+    }
+
+    try {
+        $stmt = $pdo->prepare( 'SELECT * FROM project_subcategories WHERE id = ? LIMIT 1' );
+        $stmt->execute( [ $id ] );
+        $row = $stmt->fetch( PDO::FETCH_ASSOC );
+
+        return $row ?: null;
+    } catch ( Throwable $error ) {
+        return null;
+    }
+}
+
+/**
+ * Nested organisation -> categories -> sub-categories tree.
+ *
+ * Consumed by the admin project form (cascading selects and the quick-add
+ * dialogs) and by the categories screen.
+ *
+ * @return array<int,array<string,mixed>>
+ */
+function wrcProjectTaxonomyTree( bool $activeOnly = false ): array {
+    $organizations = wrcProjectOrganizations( $activeOnly );
+    $categories    = wrcProjectCategories( null, $activeOnly );
+    $subcategories = wrcProjectSubcategories( null, $activeOnly );
+
+    $subcategoriesByCategory = [];
+    foreach ( $subcategories as $subcategory ) {
+        $subcategoriesByCategory[ (int) $subcategory[ 'category_id' ] ][] = [
+            'id'        => (int) $subcategory[ 'id' ],
+            'name'      => (string) $subcategory[ 'name' ],
+            'is_active' => (int) $subcategory[ 'is_active' ],
+        ];
+    }
+
+    $categoriesByOrganization = [];
+    foreach ( $categories as $category ) {
+        $categoriesByOrganization[ (int) $category[ 'organization_id' ] ][] = [
+            'id'            => (int) $category[ 'id' ],
+            'name'          => (string) $category[ 'name' ],
+            'sector'        => (string) $category[ 'sector' ],
+            'is_active'     => (int) $category[ 'is_active' ],
+            'subcategories' => $subcategoriesByCategory[ (int) $category[ 'id' ] ] ?? [],
+        ];
+    }
+
+    $tree = [];
+    foreach ( $organizations as $organization ) {
+        $tree[] = [
+            'id'         => (int) $organization[ 'id' ],
+            'name'       => (string) $organization[ 'name' ],
+            'is_active'  => (int) $organization[ 'is_active' ],
+            'categories' => $categoriesByOrganization[ (int) $organization[ 'id' ] ] ?? [],
+        ];
+    }
+
+    return $tree;
+}
+
+/**
+ * Human readable classification of one project, e.g.
+ * "Zakat Foundation of America (ZFA) > Food Security > Ramadan Food Packs".
+ *
+ * @param array<string,mixed> $project
+ */
+function wrcProjectClassificationLabel( array $project, string $separator = ' › ' ): string {
+    global $pdo;
+
+    $parts = [];
+
+    $organizationId = (int) ( $project[ 'organization_id' ] ?? 0 );
+    if ( $organizationId > 0 ) {
+        try {
+            $stmt = $pdo->prepare( 'SELECT name FROM project_organizations WHERE id = ? LIMIT 1' );
+            $stmt->execute( [ $organizationId ] );
+            $name = (string) $stmt->fetchColumn();
+            if ( $name !== '' ) {
+                $parts[] = $name;
+            }
+        } catch ( Throwable $error ) {
+            // Classification is decorative on this path; never break a listing.
+        }
+    }
+
+    $category = wrcProjectCategoryById( (int) ( $project[ 'category_id' ] ?? 0 ) );
+    if ( $category ) {
+        $parts[] = (string) $category[ 'name' ];
+    }
+
+    $subcategory = wrcProjectSubcategoryById( (int) ( $project[ 'subcategory_id' ] ?? 0 ) );
+    if ( $subcategory ) {
+        $parts[] = (string) $subcategory[ 'name' ];
+    }
+
+    return implode( $separator, $parts );
+}
+
 /**
  * USD -> PKR rate used by the donation form and the admin ledger.
  *
@@ -1673,6 +2228,10 @@ function wrcSyncBeneficiaryStats( PDO $pdo ): array {
     // are KP-TEVTA / FATA skills training, and the Totakan solarization is
     // facility infrastructure delivered with Smart Aid, so neither belongs in
     // the Health sector count.
+    //
+    // This is a fallback for projects that have no taxonomy category yet: once
+    // an administrator classifies a project, the sector of its chosen category
+    // is authoritative and must never be overwritten here.
     try {
         $sectorDefinitions = [
             'kp-tevta-pc1-paramedic-training-nmd-2021'                    => 'Education',
@@ -1683,7 +2242,14 @@ function wrcSyncBeneficiaryStats( PDO $pdo ): array {
             'fata-da-paramedic-training-nmd-2018-2021'                    => 'Education',
             'smart-aid-solarization-cat-d-hospital-totakan-malakand-2023-2024' => 'Climate Resilience',
         ];
-        $sectorUpdate = $pdo->prepare( 'UPDATE projects SET category = ? WHERE slug = ? AND category <> ?' );
+        $hasTaxonomyColumn = in_array(
+            'category_id',
+            $pdo->query( 'SHOW COLUMNS FROM projects' )->fetchAll( PDO::FETCH_COLUMN ),
+            true
+        );
+        $sectorSql = 'UPDATE projects SET category = ? WHERE slug = ? AND category <> ?'
+            . ( $hasTaxonomyColumn ? ' AND category_id IS NULL' : '' );
+        $sectorUpdate = $pdo->prepare( $sectorSql );
         $sectorChanges = 0;
         foreach ( $sectorDefinitions as $sectorSlug => $sectorName ) {
             $sectorUpdate->execute( [ $sectorName, $sectorSlug, $sectorName ] );

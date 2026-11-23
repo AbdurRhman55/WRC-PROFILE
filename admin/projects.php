@@ -4,6 +4,10 @@ requireLogin();
 
 $pageTitle = 'Projects';
 
+// The taxonomy columns live on the projects table, so make sure they exist
+// before the listing reads them.
+wrcEnsureProjectTaxonomy();
+
 if (isPost()) {
     if (!isset($_POST['csrf_token']) || !verifyCSRF($_POST['csrf_token'])) {
         setFlash('error', 'Invalid security token.');
@@ -30,6 +34,55 @@ if (isPost()) {
 
 $projects = getRows('projects', [], 'sort_order ASC');
 
+// Optional organisation / category filter. Filtering in PHP keeps the existing
+// helper-driven query intact while still letting the admins narrow the list.
+$filterOrgId = (int) ($_GET['org'] ?? 0);
+$filterCatId = (int) ($_GET['cat'] ?? 0);
+
+if ($filterOrgId > 0 || $filterCatId > 0) {
+    $projects = array_values(array_filter($projects, static function (array $project) use ($filterOrgId, $filterCatId): bool {
+        if ($filterOrgId > 0 && (int) ($project['organization_id'] ?? 0) !== $filterOrgId) {
+            return false;
+        }
+        if ($filterCatId > 0 && (int) ($project['category_id'] ?? 0) !== $filterCatId) {
+            return false;
+        }
+
+        return true;
+    }));
+}
+
+$organizationsById = [];
+foreach (wrcProjectOrganizations(false) as $organization) {
+    $organizationsById[(int) $organization['id']] = $organization;
+}
+
+$categoriesById = [];
+foreach (wrcProjectCategories(null, false) as $category) {
+    $categoriesById[(int) $category['id']] = $category;
+}
+
+$subcategoriesById = [];
+foreach (wrcProjectSubcategories(null, false) as $subcategory) {
+    $subcategoriesById[(int) $subcategory['id']] = $subcategory;
+}
+
+// The category dropdown only lists categories of the chosen organisation.
+$filterCategoryOptions = [];
+foreach ($categoriesById as $category) {
+    if ($filterOrgId > 0 && (int) $category['organization_id'] !== $filterOrgId) {
+        continue;
+    }
+    $filterCategoryOptions[] = $category;
+}
+
+$unclassifiedCount = 0;
+foreach ($projects as $project) {
+    if (empty($project['organization_id']) || empty($project['category_id'])) {
+        $unclassifiedCount++;
+    }
+}
+
 $provancesById = [];
 foreach (getRows('provinces', ['is_active' => 1], 'sort_order ASC') as $prov) {
     $provancesById[$prov['id']] = $prov['name'];
@@ -48,11 +101,50 @@ include __DIR__ . '/includes/header.php';
   </a>
 </div>
 
-<!-- Search -->
+<!-- Search & filters -->
 <div class="bg-white rounded-2xl border border-slate-200 p-4 mb-6">
-  <div class="relative max-w-md">
-    <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
-    <input type="text" id="searchInput" placeholder="Search projects..." class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-brandRed/20 focus:border-brandRed transition-colors">
+  <div class="flex flex-col gap-3 lg:flex-row lg:items-center">
+    <div class="relative w-full lg:max-w-md">
+      <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+      <input type="text" id="searchInput" placeholder="Search projects..." class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-brandRed/20 focus:border-brandRed transition-colors">
+    </div>
+
+    <form method="GET" class="flex flex-col gap-2 sm:flex-row sm:items-center">
+      <select name="org" onchange="this.form.submit()" class="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-brandRed/20 focus:border-brandRed sm:w-56">
+        <option value="">All organisations</option>
+        <?php foreach ($organizationsById as $organization): ?>
+        <option value="<?= (int) $organization['id'] ?>" <?= $filterOrgId === (int) $organization['id'] ? 'selected' : '' ?>><?= htmlspecialchars($organization['name']) ?></option>
+        <?php endforeach; ?>
+      </select>
+
+      <?php if ($filterOrgId > 0 || $filterCatId > 0): ?>
+      <a href="projects.php" class="inline-flex items-center justify-center gap-1.5 rounded-xl border border-slate-200 px-3 py-2.5 text-[12px] font-semibold text-slate-600 transition-colors hover:bg-slate-50">
+        <i class="fa-solid fa-xmark text-[10px]"></i> Clear
+      </a>
+      <?php endif; ?>
+    </form>
+
+    <?php if ($filterOrgId > 0 && $filterCategoryOptions): ?>
+    <form method="GET" class="flex items-center">
+      <input type="hidden" name="org" value="<?= $filterOrgId ?>">
+      <select name="cat" onchange="this.form.submit()" class="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-brandRed/20 focus:border-brandRed sm:w-52">
+        <option value="">All categories</option>
+        <?php foreach ($filterCategoryOptions as $category): ?>
+        <option value="<?= (int) $category['id'] ?>" <?= $filterCatId === (int) $category['id'] ? 'selected' : '' ?>><?= htmlspecialchars($category['name']) ?></option>
+        <?php endforeach; ?>
+      </select>
+    </form>
+    <?php endif; ?>
+
+    <div class="flex items-center gap-3 lg:ml-auto">
+      <span class="text-[12px] text-slate-500"><?= count($projects) ?> <?= count($projects) === 1 ? 'project' : 'projects' ?></span>
+      <?php if ($unclassifiedCount > 0): ?>
+      <span class="rounded-full bg-amber-50 px-2 py-0.5 text-[11px] font-semibold text-amber-700 ring-1 ring-amber-200"><?= $unclassifiedCount ?> unclassified</span>
+      <?php endif; ?>
+      <a href="project-categories.php" class="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-[11px] font-semibold text-slate-600 transition-colors hover:border-brandRed/40 hover:text-brandRed">
+        <i class="fa-solid fa-sitemap text-[10px]"></i> Categories
+      </a>
+    </div>
   </div>
 </div>
 
@@ -64,8 +156,9 @@ include __DIR__ . '/includes/header.php';
         <tr class="bg-slate-50 border-b border-slate-200">
           <th class="text-left px-5 py-3 font-semibold text-slate-600 text-xs uppercase tracking-wider">ID</th>
           <th class="text-left px-5 py-3 font-semibold text-slate-600 text-xs uppercase tracking-wider">Title</th>
+          <th class="text-left px-5 py-3 font-semibold text-slate-600 text-xs uppercase tracking-wider">Organisation &amp; Category</th>
           <th class="text-left px-5 py-3 font-semibold text-slate-600 text-xs uppercase tracking-wider">Location</th>
-          <th class="text-left px-5 py-3 font-semibold text-slate-600 text-xs uppercase tracking-wider">Category</th>
+          <th class="text-left px-5 py-3 font-semibold text-slate-600 text-xs uppercase tracking-wider">Sector</th>
           <th class="text-left px-5 py-3 font-semibold text-slate-600 text-xs uppercase tracking-wider">Status</th>
           <th class="text-left px-5 py-3 font-semibold text-slate-600 text-xs uppercase tracking-wider">Progress</th>
           <th class="text-left px-5 py-3 font-semibold text-slate-600 text-xs uppercase tracking-wider">Active</th>
@@ -75,16 +168,38 @@ include __DIR__ . '/includes/header.php';
       <tbody id="tableBody">
         <?php if (empty($projects)): ?>
         <tr>
-          <td colspan="8" class="px-5 py-12 text-center text-slate-400">
+          <td colspan="9" class="px-5 py-12 text-center text-slate-400">
             <i class="fa-solid fa-folder-open text-3xl mb-3 block text-slate-300"></i>
             No projects found.
           </td>
         </tr>
         <?php else: ?>
         <?php foreach ($projects as $i => $project): ?>
+        <?php
+          $orgName = $organizationsById[(int) ($project['organization_id'] ?? 0)]['name'] ?? '';
+          $catRow  = $categoriesById[(int) ($project['category_id'] ?? 0)] ?? null;
+          $subName = $subcategoriesById[(int) ($project['subcategory_id'] ?? 0)]['name'] ?? '';
+        ?>
         <tr class="border-b border-slate-100 hover:bg-slate-50 transition-colors <?= $i % 2 === 0 ? '' : 'bg-slate-50/50' ?>">
           <td class="px-5 py-3 text-slate-500 font-mono text-xs"><?= $project['id'] ?></td>
           <td class="px-5 py-3 font-semibold text-slate-900"><?= htmlspecialchars($project['title']) ?></td>
+          <td class="px-5 py-3">
+            <?php if ($orgName !== '' || $catRow): ?>
+            <?php if ($orgName !== ''): ?>
+            <p class="text-[12px] font-semibold leading-tight text-slate-800"><?= htmlspecialchars($orgName) ?></p>
+            <?php endif; ?>
+            <p class="mt-0.5 text-[11px] leading-tight text-slate-500">
+              <?= htmlspecialchars($catRow['name'] ?? 'Unclassified') ?>
+              <?php if ($subName !== ''): ?>
+              <span class="mx-0.5 text-slate-300">›</span> <?= htmlspecialchars($subName) ?>
+              <?php endif; ?>
+            </p>
+            <?php else: ?>
+            <span class="inline-flex items-center gap-1 rounded-full bg-amber-50 px-2 py-0.5 text-[10px] font-semibold text-amber-700 ring-1 ring-amber-200">
+              <i class="fa-solid fa-circle-exclamation text-[9px]"></i> Unclassified
+            </span>
+            <?php endif; ?>
+          </td>
           <td class="px-5 py-3 text-slate-600 text-xs">
             <?php if (!empty($project['district']) || !empty($project['province_id'])): ?>
             <i class="fa-solid fa-location-dot text-brandRed/70 mr-1"></i>

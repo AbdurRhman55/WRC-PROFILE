@@ -9,6 +9,7 @@ $navGroups = [
     ]],
     ['label' => 'Content', 'items' => [
         ['file' => 'projects.php', 'label' => 'Projects', 'icon' => 'fa-folder-open'],
+        ['file' => 'project-categories.php', 'label' => 'Project Categories', 'icon' => 'fa-sitemap'],
         ['file' => 'news.php', 'label' => 'News & Media', 'icon' => 'fa-newspaper'],
         ['file' => 'blog.php', 'label' => 'Blog', 'icon' => 'fa-pen-nib'],
         ['file' => 'success-stories.php', 'label' => 'Success Stories', 'icon' => 'fa-quote-left'],

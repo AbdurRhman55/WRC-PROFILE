@@ -50,6 +50,14 @@ if ($isEdit) {
 
 $provinces = getRows('provinces', ['is_active' => 1], 'sort_order ASC');
 
+// Taxonomy state used by the cascading selects. The POSTed values win so a
+// validation error never loses the administrator's selection.
+wrcEnsureProjectTaxonomy();
+
+$organization_id = (int) ($project['organization_id'] ?? 0);
+$category_id     = (int) ($project['category_id'] ?? 0);
+$subcategory_id  = (int) ($project['subcategory_id'] ?? 0);
+
 if (isPost()) {
     if (!isset($_POST['csrf_token']) || !verifyCSRF($_POST['csrf_token'])) {
         setFlash('error', 'Invalid security token.');
@@ -60,6 +68,9 @@ if (isPost()) {
     $slug = getPost('slug');
     $status = getPost('status');
     $category = getPost('category');
+    $organization_id = (int) getPost('organization_id');
+    $category_id     = (int) getPost('category_id');
+    $subcategory_id  = (int) getPost('subcategory_id');
     $province_id = getPost('province_id') ? (int) getPost('province_id') : null;
     $district = getPost('district');
     $start_date = getPost('start_date') ?: null;
@@ -87,6 +98,30 @@ if (isPost()) {
     if (!checkSlugUnique('projects', $slug, $isEdit ? (int) $_GET['id'] : 0)) $errors[] = 'A project with this slug already exists.';
     if (!in_array($status, ['active', 'completed', 'upcoming'])) $errors[] = 'Invalid status.';
 
+    // Organisation -> Category -> Sub-category. The category decides the public
+    // programme sector, so a project can never end up in a filter that does not
+    // exist on the website.
+    $selectedCategory    = $category_id > 0 ? wrcProjectCategoryById($category_id) : null;
+    $selectedSubcategory = $subcategory_id > 0 ? wrcProjectSubcategoryById($subcategory_id) : null;
+
+    if ($organization_id <= 0) {
+        $errors[] = 'Select the organisation this project belongs to.';
+    }
+    if (!$selectedCategory) {
+        $errors[] = 'Select a project category.';
+    } elseif ((int) $selectedCategory['organization_id'] !== $organization_id) {
+        $errors[] = 'The selected category does not belong to that organisation.';
+    }
+    if ($selectedSubcategory && (!$selectedCategory || (int) $selectedSubcategory['category_id'] !== (int) $selectedCategory['id'])) {
+        $errors[] = 'The selected sub-category does not belong to that category.';
+    }
+
+    if ($selectedCategory) {
+        $category = (string) $selectedCategory['sector'];
+    } elseif ($category === '') {
+        $category = 'General';
+    }
+
     foreach (['objectives', 'target_groups', 'timeline', 'gallery_images', 'related_projects'] as $field) {
         $val = ${$field};
         if (!empty($val)) {
@@ -107,12 +142,12 @@ if (isPost()) {
         $related_projects_json = !empty($related_projects) ? $related_projects : null;
 
         if ($isEdit) {
-            $stmt = $pdo->prepare("UPDATE projects SET slug=?, title=?, status=?, category=?, province_id=?, district=?, start_date=?, end_date=?, budget_amount=?, budget_currency=?, beneficiaries_count=?, progress_percent=?, description=?, overview=?, location_details=?, hero_image=?, overview_image=?, objectives=?, target_groups=?, timeline=?, gallery_images=?, related_projects=?, is_active=?, show_in_history=?, sort_order=? WHERE id=?");
-            $stmt->execute([$slug, $title, $status, $category, $province_id, $district, $start_date, $end_date, $budget_amount, $budget_currency, $beneficiaries_count, $progress_percent, $description, $overview, $location_details, $hero_image, $overview_image, $objectives_json, $target_groups_json, $timeline_json, $gallery_images_json, $related_projects_json, $is_active, $show_in_history, $sort_order, $project['id']]);
+            $stmt = $pdo->prepare("UPDATE projects SET slug=?, title=?, status=?, category=?, organization_id=?, category_id=?, subcategory_id=?, province_id=?, district=?, start_date=?, end_date=?, budget_amount=?, budget_currency=?, beneficiaries_count=?, progress_percent=?, description=?, overview=?, location_details=?, hero_image=?, overview_image=?, objectives=?, target_groups=?, timeline=?, gallery_images=?, related_projects=?, is_active=?, show_in_history=?, sort_order=? WHERE id=?");
+            $stmt->execute([$slug, $title, $status, $category, $organization_id ?: null, $category_id ?: null, $subcategory_id ?: null, $province_id, $district, $start_date, $end_date, $budget_amount, $budget_currency, $beneficiaries_count, $progress_percent, $description, $overview, $location_details, $hero_image, $overview_image, $objectives_json, $target_groups_json, $timeline_json, $gallery_images_json, $related_projects_json, $is_active, $show_in_history, $sort_order, $project['id']]);
             setFlash('success', 'Project updated successfully.');
         } else {
-            $stmt = $pdo->prepare("INSERT INTO projects (slug, title, status, category, province_id, district, start_date, end_date, budget_amount, budget_currency, beneficiaries_count, progress_percent, description, overview, location_details, hero_image, overview_image, objectives, target_groups, timeline, gallery_images, related_projects, is_active, show_in_history, sort_order) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-            $stmt->execute([$slug, $title, $status, $category, $province_id, $district, $start_date, $end_date, $budget_amount, $budget_currency, $beneficiaries_count, $progress_percent, $description, $overview, $location_details, $hero_image, $overview_image, $objectives_json, $target_groups_json, $timeline_json, $gallery_images_json, $related_projects_json, $is_active, $show_in_history, $sort_order]);
+            $stmt = $pdo->prepare("INSERT INTO projects (slug, title, status, category, organization_id, category_id, subcategory_id, province_id, district, start_date, end_date, budget_amount, budget_currency, beneficiaries_count, progress_percent, description, overview, location_details, hero_image, overview_image, objectives, target_groups, timeline, gallery_images, related_projects, is_active, show_in_history, sort_order) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+            $stmt->execute([$slug, $title, $status, $category, $organization_id ?: null, $category_id ?: null, $subcategory_id ?: null, $province_id, $district, $start_date, $end_date, $budget_amount, $budget_currency, $beneficiaries_count, $progress_percent, $description, $overview, $location_details, $hero_image, $overview_image, $objectives_json, $target_groups_json, $timeline_json, $gallery_images_json, $related_projects_json, $is_active, $show_in_history, $sort_order]);
             setFlash('success', 'Project created successfully.');
         }
 
@@ -129,6 +164,12 @@ if (isPost()) {
 
 $allProjects = getRows('projects', [], 'sort_order ASC');
 $allPrograms = getRows('programs', ['is_active' => 1], 'sort_order ASC');
+
+// Taxonomy data for the cascading selects and the quick-add dialogs.
+$taxonomyTree      = wrcProjectTaxonomyTree(false);
+$sectorOptions     = wrcProjectSectorOptions();
+$formCategories    = $organization_id > 0 ? wrcProjectCategories($organization_id, false) : [];
+$formSubcategories = $category_id > 0 ? wrcProjectSubcategories($category_id, false) : [];
 
 include __DIR__ . '/includes/header.php';
 ?>
@@ -176,18 +217,6 @@ include __DIR__ . '/includes/header.php';
         </select>
       </div>
       <div>
-        <label class="block text-sm font-medium text-slate-700 mb-1">Category *</label>
-        <select name="category" required class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-brandRed/20 focus:border-brandRed">
-          <option value="">-- Select Category --</option>
-          <?php
-          $categories = ['Health', 'Education', 'Livelihood', 'WASH', 'Food Security', 'Emergency Response', 'Child Protection', 'Shelter', 'Gender Equality', 'Climate Resilience', 'General'];
-          foreach ($categories as $cat):
-          ?>
-          <option value="<?= $cat ?>" <?= ($project['category'] ?? '') === $cat ? 'selected' : '' ?>><?= $cat ?></option>
-          <?php endforeach; ?>
-        </select>
-      </div>
-      <div>
         <label class="block text-sm font-medium text-slate-700 mb-1">Province</label>
         <select name="province_id" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-brandRed/20 focus:border-brandRed">
           <option value="">-- None --</option>
@@ -204,6 +233,76 @@ include __DIR__ . '/includes/header.php';
         <label class="block text-sm font-medium text-slate-700 mb-1">Location Details</label>
         <input type="text" name="location_details" value="<?= htmlspecialchars($project['location_details'] ?? '') ?>" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-brandRed/20 focus:border-brandRed">
       </div>
+    </div>
+  </div>
+
+  <!-- Organisation & Classification -->
+  <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden">
+    <div class="flex flex-col gap-3 border-b border-slate-100 bg-slate-50/60 px-6 py-4 sm:flex-row sm:items-center sm:justify-between">
+      <div class="flex items-start gap-3">
+        <span class="mt-0.5 grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-white text-brandRed ring-1 ring-slate-200"><i class="fa-solid fa-sitemap text-xs"></i></span>
+        <div>
+          <h2 class="text-sm font-bold uppercase tracking-wider text-slate-900">Organisation &amp; Categories</h2>
+          <p class="mt-0.5 text-xs text-slate-500">Pick the organisation first — its own categories and sub-categories load next.</p>
+        </div>
+      </div>
+      <a href="project-categories.php" class="inline-flex items-center gap-1.5 self-start rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-[11px] font-semibold text-slate-600 transition-colors hover:border-brandRed/40 hover:text-brandRed sm:self-auto">
+        <i class="fa-solid fa-sliders text-[10px]"></i> Manage categories
+      </a>
+    </div>
+
+    <div class="grid grid-cols-1 gap-4 p-6 md:grid-cols-3">
+      <div>
+        <label class="block text-sm font-medium text-slate-700 mb-1">Organisation *</label>
+        <select name="organization_id" id="organizationSelect" required class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-brandRed/20 focus:border-brandRed">
+          <option value="">-- Select organisation --</option>
+          <?php foreach ($taxonomyTree as $orgNode): ?>
+          <option value="<?= (int) $orgNode['id'] ?>" <?= $organization_id === (int) $orgNode['id'] ? 'selected' : '' ?>><?= htmlspecialchars($orgNode['name']) ?></option>
+          <?php endforeach; ?>
+        </select>
+        <p class="mt-1.5 text-[11px] text-slate-400">Donor or implementing partner.</p>
+      </div>
+
+      <div>
+        <div class="mb-1 flex items-center justify-between gap-2">
+          <label class="block text-sm font-medium text-slate-700">Category *</label>
+          <button type="button" id="quickAddCategory" class="inline-flex items-center gap-1 text-[11px] font-semibold text-brandRed transition-colors hover:underline">
+            <i class="fa-solid fa-plus text-[9px]"></i> New
+          </button>
+        </div>
+        <select name="category_id" id="categorySelect" required <?= $organization_id > 0 ? '' : 'disabled' ?> class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-brandRed/20 focus:border-brandRed disabled:bg-slate-50 disabled:text-slate-400">
+          <option value=""><?= $organization_id > 0 ? '-- Select category --' : '-- Select organisation first --' ?></option>
+          <?php foreach ($formCategories as $formCategory): ?>
+          <option value="<?= (int) $formCategory['id'] ?>" <?= $category_id === (int) $formCategory['id'] ? 'selected' : '' ?>><?= htmlspecialchars($formCategory['name']) ?><?= (int) $formCategory['is_active'] ? '' : ' (inactive)' ?></option>
+          <?php endforeach; ?>
+        </select>
+        <p class="mt-1.5 text-[11px] text-slate-400">Only this organisation's categories.</p>
+      </div>
+
+      <div>
+        <div class="mb-1 flex items-center justify-between gap-2">
+          <label class="block text-sm font-medium text-slate-700">Sub-category</label>
+          <button type="button" id="quickAddSubcategory" <?= $category_id > 0 ? '' : 'disabled' ?> class="inline-flex items-center gap-1 text-[11px] font-semibold text-brandRed transition-colors hover:underline disabled:cursor-not-allowed disabled:text-slate-300">
+            <i class="fa-solid fa-plus text-[9px]"></i> New
+          </button>
+        </div>
+        <select name="subcategory_id" id="subcategorySelect" <?= $category_id > 0 ? '' : 'disabled' ?> class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-brandRed/20 focus:border-brandRed disabled:bg-slate-50 disabled:text-slate-400">
+          <option value="">-- Optional --</option>
+          <?php foreach ($formSubcategories as $formSubcategory): ?>
+          <option value="<?= (int) $formSubcategory['id'] ?>" <?= $subcategory_id === (int) $formSubcategory['id'] ? 'selected' : '' ?>><?= htmlspecialchars($formSubcategory['name']) ?><?= (int) $formSubcategory['is_active'] ? '' : ' (inactive)' ?></option>
+          <?php endforeach; ?>
+        </select>
+        <p class="mt-1.5 text-[11px] text-slate-400">Optional detail inside the category.</p>
+      </div>
+    </div>
+
+    <div class="flex flex-col gap-2 border-t border-slate-100 bg-slate-50/60 px-6 py-3 text-[11px] sm:flex-row sm:items-center">
+      <span class="inline-flex items-center gap-1.5 text-slate-500">
+        <i class="fa-solid fa-bullseye text-[10px] text-slate-400"></i>
+        Public programme sector:
+        <span id="sectorBadge" class="rounded-full bg-white px-2 py-0.5 font-bold text-slate-700 ring-1 ring-slate-200"><?= htmlspecialchars($project['category'] ?? '—') ?></span>
+      </span>
+      <span class="text-slate-400 sm:ml-auto">Drives the website's project filters and sector counters.</span>
     </div>
   </div>
 
@@ -364,6 +463,77 @@ include __DIR__ . '/includes/header.php';
     </button>
   </div>
 </form>
+
+<!-- Quick-add taxonomy modal -->
+<div id="taxonomyModal" class="fixed inset-0 z-[120] hidden">
+  <div class="absolute inset-0 bg-slate-900/50 backdrop-blur-sm" data-taxonomy-close></div>
+  <div class="relative mx-auto mt-24 w-[92%] max-w-md overflow-hidden rounded-2xl bg-white shadow-2xl">
+    <div class="flex items-start gap-3 border-b border-slate-100 px-5 py-4">
+      <span class="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-red-50 text-brandRed">
+        <i id="taxonomyModalIcon" class="fa-solid fa-folder-plus text-xs"></i>
+      </span>
+      <div class="min-w-0">
+        <h3 id="taxonomyModalTitle" class="text-sm font-bold text-slate-900">Add category</h3>
+        <p id="taxonomyModalHint" class="text-[11px] text-slate-500">Created inside the selected organisation.</p>
+      </div>
+      <button type="button" class="ml-auto rounded-lg p-1.5 text-slate-400 transition-colors hover:bg-slate-50 hover:text-slate-700" data-taxonomy-close>
+        <i class="fa-solid fa-xmark text-xs"></i>
+      </button>
+    </div>
+
+    <div class="space-y-3 px-5 py-4">
+      <div id="taxonomyCategoryFields" class="space-y-3">
+        <div>
+          <label class="mb-1 block text-[11px] font-semibold uppercase tracking-wider text-slate-500">Organisation</label>
+          <select id="modalOrganization" class="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm focus:border-brandRed focus:outline-none focus:ring-2 focus:ring-brandRed/20">
+            <option value="">-- Select organisation --</option>
+            <?php foreach ($taxonomyTree as $orgNode): ?>
+            <option value="<?= (int) $orgNode['id'] ?>"><?= htmlspecialchars($orgNode['name']) ?></option>
+            <?php endforeach; ?>
+            <option value="__new">+ New organisation…</option>
+          </select>
+        </div>
+        <div id="modalNewOrgWrap" class="hidden">
+          <label class="mb-1 block text-[11px] font-semibold uppercase tracking-wider text-slate-500">New organisation name</label>
+          <input type="text" id="modalNewOrg" placeholder="e.g. UNICEF" class="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm focus:border-brandRed focus:outline-none focus:ring-2 focus:ring-brandRed/20">
+        </div>
+        <div>
+          <label class="mb-1 block text-[11px] font-semibold uppercase tracking-wider text-slate-500">Category name</label>
+          <input type="text" id="modalCategoryName" placeholder="e.g. Ramadan Food Packs" class="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm focus:border-brandRed focus:outline-none focus:ring-2 focus:ring-brandRed/20">
+        </div>
+        <div>
+          <label class="mb-1 block text-[11px] font-semibold uppercase tracking-wider text-slate-500">Programme sector</label>
+          <select id="modalSector" class="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm focus:border-brandRed focus:outline-none focus:ring-2 focus:ring-brandRed/20">
+            <?php foreach ($sectorOptions as $sectorOption): ?>
+            <option value="<?= htmlspecialchars($sectorOption) ?>"><?= htmlspecialchars($sectorOption) ?></option>
+            <?php endforeach; ?>
+          </select>
+          <p class="mt-1 text-[10px] text-slate-400">Shown on the website as this project's sector.</p>
+        </div>
+      </div>
+
+      <div id="taxonomySubFields" class="hidden space-y-3">
+        <div class="rounded-xl bg-slate-50 px-3 py-2 text-[12px] text-slate-600">
+          <span class="text-slate-400">Under</span>
+          <span id="modalCategoryPath" class="font-semibold text-slate-800">—</span>
+        </div>
+        <div>
+          <label class="mb-1 block text-[11px] font-semibold uppercase tracking-wider text-slate-500">Sub-category name</label>
+          <input type="text" id="modalSubName" placeholder="e.g. Winter Package" class="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm focus:border-brandRed focus:outline-none focus:ring-2 focus:ring-brandRed/20">
+        </div>
+      </div>
+
+      <p id="taxonomyModalError" class="hidden rounded-lg bg-red-50 px-3 py-2 text-[12px] font-medium text-red-600"></p>
+    </div>
+
+    <div class="flex items-center justify-end gap-2 border-t border-slate-100 bg-slate-50/60 px-5 py-3">
+      <button type="button" data-taxonomy-close class="rounded-lg border border-slate-200 bg-white px-4 py-2 text-[12px] font-semibold text-slate-600 hover:bg-slate-50">Cancel</button>
+      <button type="button" id="taxonomyModalSave" class="rounded-lg bg-brandRed px-4 py-2 text-[12px] font-semibold text-white transition-colors hover:bg-brandRed-hover disabled:opacity-60">
+        <i class="fa-solid fa-check mr-1 text-[10px]"></i> Save
+      </button>
+    </div>
+  </div>
+</div>
 
 <style>
 .dynamic-row{display:flex;gap:8px;align-items:flex-start;padding:10px;border:1px solid #e2e8f0;border-radius:12px;background:#f8fafc;position:relative}
@@ -551,6 +721,313 @@ document.getElementById('titleInput')?.addEventListener('input', function() {
 document.getElementById('slugInput')?.addEventListener('input', function() {
   this.dataset.manual = '1';
 });
+</script>
+
+<script>
+// === Organisation -> Category -> Sub-category cascade + quick-add ===
+(function () {
+  var taxonomy = <?= json_encode($taxonomyTree, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>;
+  var csrfToken = <?= json_encode(generateCSRF()) ?>;
+  var endpoint = 'ajax-taxonomy.php';
+
+  var orgSelect = document.getElementById('organizationSelect');
+  var catSelect = document.getElementById('categorySelect');
+  var subSelect = document.getElementById('subcategorySelect');
+  var sectorBadge = document.getElementById('sectorBadge');
+  var btnAddCat = document.getElementById('quickAddCategory');
+  var btnAddSub = document.getElementById('quickAddSubcategory');
+
+  if (!orgSelect || !catSelect || !subSelect) return;
+
+  var modal = document.getElementById('taxonomyModal');
+  var modalTitle = document.getElementById('taxonomyModalTitle');
+  var modalHint = document.getElementById('taxonomyModalHint');
+  var modalIcon = document.getElementById('taxonomyModalIcon');
+  var modalOrg = document.getElementById('modalOrganization');
+  var modalNewOrgWrap = document.getElementById('modalNewOrgWrap');
+  var modalNewOrg = document.getElementById('modalNewOrg');
+  var modalCatFields = document.getElementById('taxonomyCategoryFields');
+  var modalSubFields = document.getElementById('taxonomySubFields');
+  var modalCatName = document.getElementById('modalCategoryName');
+  var modalSector = document.getElementById('modalSector');
+  var modalSubName = document.getElementById('modalSubName');
+  var modalPath = document.getElementById('modalCategoryPath');
+  var modalError = document.getElementById('taxonomyModalError');
+  var modalSave = document.getElementById('taxonomyModalSave');
+  var modalMode = 'category';
+
+  var disabledSelectClass = 'disabled:bg-slate-50 disabled:text-slate-400 disabled:cursor-not-allowed';
+  var baseSelectClass = 'w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-brandRed/20 focus:border-brandRed ';
+
+  function orgById(id) {
+    id = parseInt(id, 10) || 0;
+    for (var i = 0; i < taxonomy.length; i++) {
+      if (parseInt(taxonomy[i].id, 10) === id) return taxonomy[i];
+    }
+    return null;
+  }
+
+  function categoryById(orgId, catId) {
+    var org = orgById(orgId);
+    if (!org) return null;
+    catId = parseInt(catId, 10) || 0;
+    for (var i = 0; i < org.categories.length; i++) {
+      if (parseInt(org.categories[i].id, 10) === catId) return org.categories[i];
+    }
+    return null;
+  }
+
+  function setDisabled(select, disabled) {
+    select.disabled = !!disabled;
+    select.classList.toggle('bg-slate-50', !!disabled);
+    select.classList.toggle('text-slate-400', !!disabled);
+    select.classList.toggle('cursor-not-allowed', !!disabled);
+  }
+
+  function rebuildSelect(select, items, placeholder, selectedId) {
+    selectedId = parseInt(selectedId, 10) || 0;
+    select.innerHTML = '';
+    var first = document.createElement('option');
+    first.value = '';
+    first.textContent = placeholder;
+    select.appendChild(first);
+
+    items.forEach(function (item) {
+      var opt = document.createElement('option');
+      opt.value = String(item.id);
+      opt.textContent = item.name + (parseInt(item.is_active, 10) === 0 ? ' (inactive)' : '');
+      if (parseInt(item.id, 10) === selectedId) opt.selected = true;
+      select.appendChild(opt);
+    });
+  }
+
+  function currentSector() {
+    var orgId = parseInt(orgSelect.value, 10) || 0;
+    var catId = parseInt(catSelect.value, 10) || 0;
+    var category = categoryById(orgId, catId);
+    if (sectorBadge) {
+      sectorBadge.textContent = category && category.sector ? category.sector : '—';
+    }
+  }
+
+  function fillCategories(orgId, selectedId, keepSub) {
+    orgId = parseInt(orgId, 10) || 0;
+    var org = orgById(orgId);
+    var categories = org ? org.categories : [];
+
+    if (!orgId) {
+      rebuildSelect(catSelect, [], '-- Select organisation first --', 0);
+      setDisabled(catSelect, true);
+      rebuildSelect(subSelect, [], '-- Optional --', 0);
+      setDisabled(subSelect, true);
+      if (btnAddCat) btnAddCat.disabled = false;
+      if (btnAddSub) btnAddSub.disabled = true;
+      if (sectorBadge) sectorBadge.textContent = '—';
+      return;
+    }
+
+    rebuildSelect(catSelect, categories, '-- Select category --', selectedId);
+    setDisabled(catSelect, false);
+    if (btnAddCat) btnAddCat.disabled = false;
+
+    var nextCatId = parseInt(catSelect.value, 10) || 0;
+    if (keepSub && nextCatId === (parseInt(selectedId, 10) || 0)) {
+      fillSubcategories(nextCatId, keepSub);
+    } else {
+      fillSubcategories(nextCatId, 0);
+    }
+    currentSector();
+  }
+
+  function fillSubcategories(catId, selectedId) {
+    catId = parseInt(catId, 10) || 0;
+    var orgId = parseInt(orgSelect.value, 10) || 0;
+    var category = categoryById(orgId, catId);
+    var subcategories = category ? category.subcategories : [];
+
+    if (!catId) {
+      rebuildSelect(subSelect, [], '-- Optional --', 0);
+      setDisabled(subSelect, true);
+      if (btnAddSub) btnAddSub.disabled = true;
+      return;
+    }
+
+    rebuildSelect(subSelect, subcategories, '-- Optional --', selectedId);
+    setDisabled(subSelect, false);
+    if (btnAddSub) btnAddSub.disabled = false;
+    currentSector();
+  }
+
+  orgSelect.addEventListener('change', function () {
+    fillCategories(this.value, 0, false);
+  });
+
+  catSelect.addEventListener('change', function () {
+    fillSubcategories(this.value, 0);
+  });
+
+  // ---- Modal ----
+  function openModal(mode) {
+    modalMode = mode;
+    modalError.classList.add('hidden');
+    modalError.textContent = '';
+
+    if (mode === 'category') {
+      modalTitle.textContent = 'Add category';
+      modalHint.textContent = 'Created inside the selected organisation.';
+      modalIcon.className = 'fa-solid fa-folder-plus text-xs';
+      modalCatFields.classList.remove('hidden');
+      modalSubFields.classList.add('hidden');
+      modalCatName.value = '';
+
+      var orgId = parseInt(orgSelect.value, 10) || 0;
+      if (modalOrg.querySelector('option[value="' + orgId + '"]')) {
+        modalOrg.value = String(orgId);
+      }
+      modalNewOrgWrap.classList.add('hidden');
+      modalNewOrg.value = '';
+      // Default the sector to the currently selected category's sector.
+      var category = categoryById(orgId, parseInt(catSelect.value, 10) || 0);
+      if (category && modalSector.querySelector('option[value="' + category.sector + '"]')) {
+        modalSector.value = category.sector;
+      }
+      modalCatName.focus();
+    } else {
+      modalTitle.textContent = 'Add sub-category';
+      modalHint.textContent = 'Created inside the selected category.';
+      modalIcon.className = 'fa-solid fa-tags text-xs';
+      modalCatFields.classList.add('hidden');
+      modalSubFields.classList.remove('hidden');
+
+      var org = orgById(orgSelect.value);
+      var cat = categoryById(orgSelect.value, catSelect.value);
+      modalPath.textContent = (org ? org.name : '—') + ' › ' + (cat ? cat.name : '—');
+      modalSubName.value = '';
+      modalSubName.focus();
+    }
+
+    modal.classList.remove('hidden');
+  }
+
+  function closeModal() {
+    modal.classList.add('hidden');
+  }
+
+  if (btnAddCat) btnAddCat.addEventListener('click', function () { openModal('category'); });
+  if (btnAddSub) btnAddSub.addEventListener('click', function () { openModal('subcategory'); });
+
+  modal.querySelectorAll('[data-taxonomy-close]').forEach(function (el) {
+    el.addEventListener('click', closeModal);
+  });
+
+  document.addEventListener('keydown', function (event) {
+    if (event.key === 'Escape' && !modal.classList.contains('hidden')) closeModal();
+  });
+
+  modalOrg.addEventListener('change', function () {
+    modalNewOrgWrap.classList.toggle('hidden', this.value !== '__new');
+    if (this.value === '__new') modalNewOrg.focus();
+  });
+
+  function showModalError(message) {
+    modalError.textContent = message;
+    modalError.classList.remove('hidden');
+  }
+
+  modalSave.addEventListener('click', function () {
+    var body = new FormData();
+    body.append('csrf_token', csrfToken);
+    body.append('action', modalMode === 'category' ? 'add_category' : 'add_subcategory');
+
+    var orgId = parseInt(orgSelect.value, 10) || 0;
+    var catId = parseInt(catSelect.value, 10) || 0;
+
+    if (modalMode === 'category') {
+      var name = modalCatName.value.trim();
+      if (!name) { showModalError('Enter a category name.'); return; }
+
+      body.append('name', name);
+      body.append('sector', modalSector.value);
+      if (modalOrg.value === '__new') {
+        var newOrg = modalNewOrg.value.trim();
+        if (!newOrg) { showModalError('Enter the new organisation name.'); return; }
+        body.append('organization_name', newOrg);
+      } else if (modalOrg.value) {
+        body.append('organization_id', modalOrg.value);
+      } else {
+        showModalError('Choose an organisation.');
+        return;
+      }
+    } else {
+      var subName = modalSubName.value.trim();
+      if (catId <= 0) { closeModal(); return; }
+      if (!subName) { showModalError('Enter a sub-category name.'); return; }
+      body.append('name', subName);
+      body.append('category_id', String(catId));
+    }
+
+    modalSave.disabled = true;
+    var originalHtml = modalSave.innerHTML;
+    modalSave.textContent = 'Saving…';
+
+    fetch(endpoint, { method: 'POST', body: body, headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+      .then(function (response) { return response.json(); })
+      .then(function (data) {
+        if (!data.success) {
+          showModalError(data.message || 'Could not save.');
+          return;
+        }
+
+        if (modalMode === 'category') {
+          var org = data.organization || {};
+          var category = data.category || {};
+          var node = orgById(org.id);
+          if (!node) {
+            node = { id: org.id, name: org.name, is_active: 1, categories: [] };
+            taxonomy.push(node);
+            var newOpt = document.createElement('option');
+            newOpt.value = String(org.id);
+            newOpt.textContent = org.name;
+            orgSelect.appendChild(newOpt);
+          }
+          node.categories.push({
+            id: category.id,
+            name: category.name,
+            sector: category.sector,
+            is_active: 1,
+            subcategories: []
+          });
+
+          orgSelect.value = String(org.id);
+          fillCategories(org.id, category.id, false);
+
+          if (modalOrg.querySelector('option[value="' + org.id + '"]') === null) {
+            var opt = document.createElement('option');
+            opt.value = String(org.id);
+            opt.textContent = org.name;
+            modalOrg.insertBefore(opt, modalOrg.querySelector('option[value="__new"]'));
+          }
+        } else {
+          var sub = data.subcategory || {};
+          var thisOrgId = parseInt(orgSelect.value, 10) || 0;
+          var thisCat = categoryById(thisOrgId, catId);
+          if (thisCat) {
+            thisCat.subcategories.push({ id: sub.id, name: sub.name, is_active: 1 });
+          }
+          fillSubcategories(catId, sub.id);
+        }
+
+        closeModal();
+      })
+      .catch(function () {
+        showModalError('Network error. Please try again.');
+      })
+      .finally(function () {
+        modalSave.disabled = false;
+        modalSave.innerHTML = originalHtml;
+      });
+  });
+})();
 </script>
 
 <?php include __DIR__ . '/includes/footer.php'; ?>

@@ -25,6 +25,8 @@ jobs:
 
           for item in \
             database/run_project_import.php \
+            admin/ajax-taxonomy.php \
+            admin/project-categories.php \
             includes/footer.php \
             includes/form-submit.php \
             includes/functions.php \
