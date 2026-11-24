@@ -275,8 +275,8 @@ tailwind.config = {
             <a href = "<?= $base ?>about/history.php" class = 'block px-3 py-1.5 rounded-xl hover:bg-slate-800 hover:text-white transition-colors'><i class = 'fa-solid fa-timeline w-4 text-center mr-1 text-slate-400'></i> Our History</a>
 
             <div class = 'mt-2 mb-1 px-2 text-[10px] font-bold text-slate-400 uppercase tracking-wider'>People & Governance</div>
-            <a href = "<?= $base ?>about/leadership.php" class = 'block px-3 py-1.5 rounded-xl hover:bg-slate-800 hover:text-white transition-colors'><i class = 'fa-solid fa-user-tie w-4 text-center mr-1 text-slate-400'></i> Leadership</a>
             <a href = "<?= $base ?>about/organizational-structure.php" class = 'block px-3 py-1.5 rounded-xl hover:bg-slate-800 hover:text-white transition-colors'><i class = 'fa-solid fa-sitemap w-4 text-center mr-1 text-slate-400'></i> Organizational Structure</a>
+            <a href = "<?= $base ?>about/leadership.php" class = 'block px-3 py-1.5 rounded-xl hover:bg-slate-800 hover:text-white transition-colors'><i class = 'fa-solid fa-user-tie w-4 text-center mr-1 text-slate-400'></i> Leadership</a>
             <a href = "<?= $base ?>about/team.php" class = 'block px-3 py-1.5 rounded-xl hover:bg-slate-800 hover:text-white transition-colors'><i class = 'fa-solid fa-users w-4 text-center mr-1 text-slate-400'></i> Our Team</a>
 
             <div class = 'mt-2 mb-1 px-2 text-[10px] font-bold text-slate-400 uppercase tracking-wider'>Transparency</div>
