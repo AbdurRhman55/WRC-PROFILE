@@ -76,20 +76,22 @@ include dirname( __DIR__ ) . '/includes/header.php';
 <main class = 'flex-grow'>
 
 <!-- HERO SECTION -->
-<section class = 'relative bg-ink-900 text-white min-h-[520px] md:min-h-[620px] lg:min-h-[720px] flex items-center py-14 md:py-16 overflow-hidden'>
+<section class = 'relative bg-ink-900 text-white flex items-center overflow-hidden h-[calc(100svh-7.5rem)] min-h-[430px] lg:h-[calc(100svh-9.5rem)]'>
 <div class = 'absolute inset-0 z-0'>
-<img src = "<?= $base ?><?= $heroData['hero_image'] ?? 'assets/images/our-work/our-work-hero.jpg' ?>" alt = "<?= sanitize($heroData['hero_alt'] ?? 'Humanitarian Fieldwork in Pakistan') ?>" class = 'w-full h-full object-cover object-center'>
-<div class = 'absolute inset-0 bg-gradient-to-r from-ink-900/95 via-ink-900/70 to-ink-900/40 md:from-ink-900/90 md:via-ink-900/45 md:to-ink-900/5'></div>
-<div class = 'absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-ink-900/50 to-transparent'></div>
+<!-- Blurred, cropped copy fills the letterbox bars on wide screens so the
+     complete photograph can be shown without stretching or hard edges. -->
+<img src = "<?= $base ?><?= $heroData['hero_image'] ?? 'assets/images/our-work/our-work-hero.jpg' ?>" alt = "" aria-hidden = "true" class = 'hidden lg:block absolute inset-0 w-full h-full object-cover scale-110 blur-2xl opacity-60'>
+<img src = "<?= $base ?><?= $heroData['hero_image'] ?? 'assets/images/our-work/our-work-hero.jpg' ?>" alt = "<?= sanitize($heroData['hero_alt'] ?? 'Humanitarian Fieldwork in Pakistan') ?>" class = 'relative w-full h-full object-cover object-center lg:object-contain'>
+<div class = 'absolute inset-0 bg-gradient-to-r from-ink-900/95 via-ink-900/55 to-ink-900/20 lg:from-ink-900/85 lg:via-ink-900/30 lg:to-transparent'></div>
 </div>
 
 <div class = 'container mx-auto px-4 sm:px-6 lg:px-8 relative z-10'>
 <div class = 'max-w-3xl'>
-<span class = 'text-brandRed font-bold text-xs uppercase tracking-widest mb-3 block'><?= $owSections[ 'our_work_hero' ][ 'section_title' ] ?? 'Our Work' ?></span>
-<h1 class = 'text-4xl md:text-5xl lg:text-6xl font-extrabold font-heading text-white mb-6 leading-tight [text-shadow:0_2px_24px_rgba(0,0,0,0.55)]'>
+<span class = 'text-brandRed font-bold text-xs uppercase tracking-widest mb-2 block'><?= $owSections[ 'our_work_hero' ][ 'section_title' ] ?? 'Our Work' ?></span>
+<h1 class = 'text-4xl md:text-5xl lg:text-5xl xl:text-6xl font-extrabold font-heading text-white mb-4 leading-tight [text-shadow:0_2px_24px_rgba(0,0,0,0.55)]'>
 <?= $owSections[ 'our_work_hero' ][ 'section_subtitle' ] ?? '' ?>
 </h1>
-<p class = 'text-slate-200 text-base md:text-lg mb-8 leading-relaxed [text-shadow:0_1px_12px_rgba(0,0,0,0.65)]'>
+<p class = 'text-slate-200 text-base md:text-lg mb-6 leading-relaxed [text-shadow:0_1px_12px_rgba(0,0,0,0.65)]'>
 <?= sanitize( $heroData[ 'subtitle' ] ?? '' ) ?>
 </p>
 <div class = 'flex flex-wrap gap-4'>
