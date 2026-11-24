@@ -78,10 +78,7 @@ include dirname( __DIR__ ) . '/includes/header.php';
 <!-- HERO SECTION -->
 <section class = 'relative bg-ink-900 text-white flex items-center overflow-hidden h-[calc(100svh-7.5rem)] min-h-[430px] lg:h-[calc(100svh-9.5rem)]'>
 <div class = 'absolute inset-0 z-0'>
-<!-- Blurred, cropped copy fills the letterbox bars on wide screens so the
-     complete photograph can be shown without stretching or hard edges. -->
-<img src = "<?= $base ?><?= $heroData['hero_image'] ?? 'assets/images/our-work/our-work-hero.jpg' ?>" alt = "" aria-hidden = "true" class = 'hidden lg:block absolute inset-0 w-full h-full object-cover scale-110 blur-2xl opacity-60'>
-<img src = "<?= $base ?><?= $heroData['hero_image'] ?? 'assets/images/our-work/our-work-hero.jpg' ?>" alt = "<?= sanitize($heroData['hero_alt'] ?? 'Humanitarian Fieldwork in Pakistan') ?>" class = 'relative w-full h-full object-cover object-center lg:object-contain'>
+<img src = "<?= $base ?><?= $heroData['hero_image'] ?? 'assets/images/our-work/our-work-hero.jpg' ?>" alt = "<?= sanitize($heroData['hero_alt'] ?? 'Humanitarian Fieldwork in Pakistan') ?>" class = 'w-full h-full object-cover object-center'>
 <div class = 'absolute inset-0 bg-gradient-to-r from-ink-900/95 via-ink-900/55 to-ink-900/20 lg:from-ink-900/85 lg:via-ink-900/30 lg:to-transparent'></div>
 </div>
 
