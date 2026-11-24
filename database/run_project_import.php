@@ -108,46 +108,44 @@ $portfolioStatus = static function () use ( $pdo, $expectedSlugs ): array {
     $slugs = $pdo->query( 'SELECT slug FROM projects ORDER BY slug' )->fetchAll( PDO::FETCH_COLUMN );
     sort( $slugs );
 
-    $activeCount  = (int) $pdo->query( 'SELECT COUNT(*) FROM projects WHERE is_active = 1' )->fetchColumn();
-    $pricedCount  = (int) $pdo->query( 'SELECT COUNT(*) FROM projects WHERE budget_amount IS NOT NULL' )->fetchColumn();
-    $partnerCount = (int) $pdo->query( 'SELECT COUNT(*) FROM project_donors' )->fetchColumn();
-
     $reasons = [];
 
     // Only check for MISSING approved projects — extra projects are allowed
     $missing = array_values( array_diff( $expectedSlugs, $slugs ) );
     if ( $missing ) {
         $reasons[] = count( $missing ) . ' approved project(s) missing (first: ' . $missing[ 0 ] . ')';
+        return $reasons;
     }
 
-    // Check data quality for approved projects only
-    if ( $missing ) {
-        // If approved projects missing, we don't enforce exact counts on active/priced/partner
-        // because the import will fix them
-    } else {
-        // All approved projects present — verify their data quality
-        $approvedActive = (int) $pdo->query(
-            'SELECT COUNT(*) FROM projects WHERE is_active = 1 AND slug IN (' . implode( ',', array_fill( 0, count( $expectedSlugs ), '?' ) ) . ')',
-            $expectedSlugs
-        )->fetchColumn();
-        $approvedPriced = (int) $pdo->query(
-            'SELECT COUNT(*) FROM projects WHERE budget_amount IS NOT NULL AND slug IN (' . implode( ',', array_fill( 0, count( $expectedSlugs ), '?' ) ) . ')',
-            $expectedSlugs
-        )->fetchColumn();
-        $approvedPartners = (int) $pdo->query(
-            'SELECT COUNT(*) FROM project_donors pd JOIN projects p ON pd.project_id = p.id WHERE p.slug IN (' . implode( ',', array_fill( 0, count( $expectedSlugs ), '?' ) ) . ')',
-            $expectedSlugs
-        )->fetchColumn();
+    // All approved projects present — verify their data quality only.
+    $placeholders = implode( ',', array_fill( 0, count( $expectedSlugs ), '?' ) );
 
-        if ( $approvedActive !== PORTFOLIO_SIZE ) {
-            $reasons[] = "approved active project count is {$approvedActive}, expected " . PORTFOLIO_SIZE;
-        }
-        if ( $approvedPriced !== 0 ) {
-            $reasons[] = "{$approvedPriced} approved project(s) still carry a budget_amount";
-        }
-        if ( $approvedPartners !== PORTFOLIO_SIZE ) {
-            $reasons[] = "approved project partner count is {$approvedPartners}, expected " . PORTFOLIO_SIZE;
-        }
+    $activeStmt = $pdo->prepare(
+        "SELECT COUNT(*) FROM projects WHERE is_active = 1 AND slug IN ($placeholders)"
+    );
+    $activeStmt->execute( $expectedSlugs );
+    $approvedActive = (int) $activeStmt->fetchColumn();
+
+    $pricedStmt = $pdo->prepare(
+        "SELECT COUNT(*) FROM projects WHERE budget_amount IS NOT NULL AND slug IN ($placeholders)"
+    );
+    $pricedStmt->execute( $expectedSlugs );
+    $approvedPriced = (int) $pricedStmt->fetchColumn();
+
+    $partnerStmt = $pdo->prepare(
+        "SELECT COUNT(*) FROM project_donors pd JOIN projects p ON pd.project_id = p.id WHERE p.slug IN ($placeholders)"
+    );
+    $partnerStmt->execute( $expectedSlugs );
+    $approvedPartners = (int) $partnerStmt->fetchColumn();
+
+    if ( $approvedActive !== PORTFOLIO_SIZE ) {
+        $reasons[] = "approved active project count is {$approvedActive}, expected " . PORTFOLIO_SIZE;
+    }
+    if ( $approvedPriced !== 0 ) {
+        $reasons[] = "{$approvedPriced} approved project(s) still carry a budget_amount";
+    }
+    if ( $approvedPartners !== PORTFOLIO_SIZE ) {
+        $reasons[] = "approved project partner count is {$approvedPartners}, expected " . PORTFOLIO_SIZE;
     }
 
     return $reasons;
