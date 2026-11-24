@@ -411,6 +411,43 @@ if ( isPost() && isset( $_POST[ 'save_sections' ] ) ) {
         }
     }
 
+    function saveOurWorkDashboard( $sectionKey, $data ) {
+        global $pdo;
+        $content = $data[ 'content' ] ?? [];
+        $exists = getRow( 'our_work_dashboard' );
+        $updateData = [
+            'section_title' => $data[ 'section_title' ] ?? '',
+            'section_subtitle' => $data[ 'section_subtitle' ] ?? '',
+            'subtitle' => $content[ 'subtitle' ] ?? '',
+            'hero_image' => $content[ 'hero_image' ] ?? '',
+        ];
+        if ( $exists ) {
+            updateRow( 'our_work_dashboard', $updateData, [ 'id' => $exists[ 'id' ] ] );
+        } else {
+            insertRow( 'our_work_dashboard', $updateData );
+        }
+        $dash = getRow( 'our_work_dashboard' );
+        if ( $dash ) {
+            $pdo->exec( "DELETE FROM our_work_dashboard_metrics WHERE dashboard_id = {$dash['id']}" );
+            $metrics = $content[ 'metrics' ] ?? [];
+            foreach ( $metrics as $i => $m ) {
+                insertRow( 'our_work_dashboard_metrics', [
+                    'dashboard_id' => $dash[ 'id' ], 'metric_icon' => $m[ 'icon' ] ?? '', 'metric_color' => $m[ 'color' ] ?? '',
+                    'metric_label' => $m[ 'label' ] ?? '', 'metric_value' => $m[ 'value' ] ?? '', 'sort_order' => $i,
+                ] );
+            }
+            $pdo->exec( "DELETE FROM our_work_dashboard_sectors WHERE dashboard_id = {$dash['id']}" );
+            $sectors = $content[ 'sectors' ] ?? [];
+            foreach ( $sectors as $i => $sec ) {
+                insertRow( 'our_work_dashboard_sectors', [
+                    'dashboard_id' => $dash[ 'id' ], 'sector_name' => $sec[ 'name' ] ?? '', 'sector_color' => $sec[ 'color' ] ?? '',
+                    'sector_count' => $sec[ 'count' ] ?? 0, 'sector_percent' => $sec[ 'percent' ] ?? 0,
+                    'sector_gradient' => $sec[ 'gradient' ] ?? '', 'sort_order' => $i,
+                ] );
+            }
+        }
+    }
+
     function saveProjectsHero( $sectionKey, $data ) {
         global $pdo;
         $content = $data[ 'content' ] ?? [];
@@ -930,6 +967,7 @@ if ( isPost() && isset( $_POST[ 'save_sections' ] ) ) {
         'our_work_editorial' => 'saveOurWorkEditorial',
         'our_work_process' => 'saveOurWorkProcess',
         'our_work_pillars' => 'saveOurWorkPillars',
+        'our_work_dashboard' => 'saveOurWorkDashboard',
         'our_work_featured_projects' => 'saveOurWorkFeatured',
         'our_work_cta' => 'saveOurWorkCta',
         'projects_hero' => 'saveProjectsHero',
@@ -1020,6 +1058,7 @@ $pages = [
             'our_work_hero' => 'Hero Section',
             'our_work_editorial' => 'Editorial / Featured Work',
             'our_work_process' => 'Process Timeline',
+            'our_work_dashboard' => 'Impact Dashboard',
             'our_work_pillars' => '4 Pillars of Impact',
             'our_work_featured_projects' => 'Featured Projects',
             'our_work_cta' => 'CTA Banner',

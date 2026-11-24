@@ -339,7 +339,7 @@ include dirname(__DIR__) . '/includes/header.php';
   <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
     <div class="mx-auto max-w-3xl text-center">
       <p class="text-xs font-semibold uppercase tracking-[0.35em] text-brandRed">How We Ensure Quality</p>
-      <h2 class="mt-3 text-3xl font-display font-bold leading-tight text-ink-900 sm:text-4xl">Monitoring, Evaluation &amp; Accountability Framework</h2>
+      <h2 class="mt-3 text-3xl font-display font-bold leading-tight text-ink-900 sm:text-4xl">Monitoring, Evaluation & Accountability Framework</h2>
       <p class="mt-5 text-sm leading-7 text-slate-600 sm:text-base"><?= sanitize($mneIntro) ?></p>
     </div>
 
@@ -503,7 +503,7 @@ include dirname(__DIR__) . '/includes/header.php';
     <p class="text-white/80 text-sm sm:text-base max-w-2xl mx-auto mb-8 leading-relaxed"><?= sanitize($ctaSubtitle) ?></p>
     <div class="flex flex-wrap justify-center gap-4">
       <a href="<?= $base ?><?= $ctaData['button1_link'] ?? 'get-involved/contribute-with-us.php' ?>" class="bg-white hover:bg-slate-100 text-brandRed font-bold text-sm px-8 py-3.5 rounded-xl shadow-lg transition-all flex items-center gap-2 transform hover:-translate-y-1">
-        <i class="fa-solid fa-handshake"></i> <?= sanitize($ctaData['button1_text'] ?? 'Let’s Work Together') ?>
+        <i class="fa-solid fa-handshake"></i> <?= sanitize($ctaData['button1_text'] ?? 'Let\'s Work Together') ?>
       </a>
       <a href="<?= $base ?><?= $ctaData['button2_link'] ?? 'contact/index.php' ?>" class="bg-white/10 hover:bg-white/25 backdrop-blur-md text-white border border-white/30 font-semibold text-sm px-7 py-3.5 rounded-xl transition-all flex items-center gap-2 transform hover:-translate-y-1">
         <i class="fa-solid fa-phone"></i> <?= sanitize($ctaData['button2_text'] ?? 'Contact Us') ?>
