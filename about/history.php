@@ -10,14 +10,15 @@ $metaDescription = 'Explore the history of Welfare & Relief Committee (WRC) - ou
 $heroRow = getRow( 'history_hero' );
 $statsRow = getRow( 'history_stats' );
 $ctaRow = getRow( 'history_cta' );
-// Fetch projects from the projects table ( admin-managed ) joined with programs
+// Fetch ALL projects from the projects table ( admin-managed ) so the history
+// page always shows the same data as the projects page — latest first.
 global $pdo;
 $stmt = $pdo->query( "
     SELECT p.id, p.slug, p.title, p.status, p.start_date, p.end_date,
            p.beneficiaries_count, p.location_details, p.description, p.hero_image
     FROM projects p
-    WHERE p.is_active = 1 AND p.show_in_history = 1 AND p.status IN ('active', 'completed')
-    ORDER BY p.start_date ASC
+    WHERE p.is_active = 1 AND p.status IN ('active', 'completed')
+    ORDER BY p.start_date DESC
 " );
 $projects = $stmt->fetchAll( PDO::FETCH_ASSOC );
 
