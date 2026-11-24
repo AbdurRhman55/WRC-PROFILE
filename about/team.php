@@ -70,72 +70,31 @@ include dirname( __DIR__ ) . '/includes/header.php';
 <?php if ( !empty( $teamMembers ) ): ?>
 <div class = 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8'>
 <?php foreach ( $teamMembers as $member ): ?>
-<div class = 'bg-white rounded-3xl border border-slate-200/80 overflow-hidden hover:shadow-2xl hover:shadow-slate-900/10 hover:-translate-y-2 transition-all duration-500 group flex flex-col h-full relative'>
-<!-- Top Accent Line -->
-<div class = 'h-1.5 w-full bg-gradient-to-r from-brandRed via-red-500 to-amber-500 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left'></div>
+<div class = 'bg-white rounded-2xl border border-slate-100 overflow-hidden hover:shadow-xl hover:shadow-slate-900/10 hover:-translate-y-1 transition-all duration-400 group flex flex-col h-full'>
 
 <!-- Member Image -->
-<div class = 'relative aspect-[4/4.5] overflow-hidden bg-slate-100'>
+<div class = 'relative aspect-[4/5] overflow-hidden bg-slate-50'>
 <?php if ( !empty( $member[ 'photo_path' ] ) ): ?>
-<img src = "<?= $base ?><?= sanitize($member['photo_path']) ?>" alt = "<?= sanitize($member['full_name'] ?? $member['name'] ?? '') ?>" class = 'w-full h-full object-cover group-hover:scale-108 transition-transform duration-700 ease-out'>
+<img src = "<?= $base ?><?= sanitize($member['photo_path']) ?>" alt = "<?= sanitize($member['full_name'] ?? $member['name'] ?? '') ?>" class = 'w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out'>
 <?php else: ?>
-<div class = 'w-full h-full bg-gradient-to-br from-slate-100 to-slate-200 flex flex-col items-center justify-center p-6 text-center'>
-<div class = 'w-20 h-20 rounded-full bg-brandRed/10 border border-brandRed/20 flex items-center justify-center mb-3'>
-<i class = 'fa-solid fa-user text-3xl text-brandRed'></i>
+<div class = 'w-full h-full bg-gradient-to-br from-slate-50 to-slate-100 flex flex-col items-center justify-center p-6 text-center'>
+<div class = 'w-16 h-16 rounded-full bg-brandRed/10 border border-brandRed/20 flex items-center justify-center mb-3'>
+<i class = 'fa-solid fa-user text-2xl text-brandRed'></i>
 </div>
 <span class = 'text-xs text-slate-400 font-medium uppercase tracking-wider font-heading'>WRC Team</span>
 </div>
 <?php endif;
 ?>
-
-<!-- Role Badge -->
-<div class = 'absolute top-3 right-3 px-3 py-1 rounded-full bg-slate-900/85 backdrop-blur-md text-[10px] font-bold tracking-widest uppercase text-white shadow-md border border-white/10'>
-<?= sanitize( strtoupper( $member[ 'role_type' ] ?? 'TEAM' ) ) ?>
-</div>
 </div>
 
 <!-- Member Content -->
-<div class = 'p-6 flex flex-col flex-grow justify-between bg-white'>
-<div>
-<h3 class = 'text-xl font-bold font-display text-slate-900 group-hover:text-brandRed transition-colors duration-300 leading-snug mb-1'>
+<div class = 'p-5 text-center bg-white'>
+<h3 class = 'text-lg font-semibold font-display text-slate-900 leading-snug mb-1'>
 <?= sanitize( $member[ 'full_name' ] ?? $member[ 'name' ] ?? '' ) ?>
 </h3>
-<p class = 'text-brandRed text-xs font-semibold uppercase tracking-wider mb-4 flex items-center gap-1.5'>
-<i class = 'fa-solid fa-id-badge text-[10px] opacity-70'></i>
+<p class = 'text-slate-500 text-sm font-medium leading-relaxed'>
 <?= sanitize( $member[ 'role_title' ] ?? $member[ 'title' ] ?? 'Team Member' ) ?>
 </p>
-<?php if ( !empty( $member[ 'description' ] ?? $member[ 'bio' ] ?? null ) ): ?>
-<p class = 'text-slate-600 text-sm leading-relaxed mb-6 line-clamp-3'>
-<?= sanitize( $member[ 'description' ] ?? $member[ 'bio' ] ?? '' ) ?>
-</p>
-<?php endif;
-?>
-</div>
-
-<!-- Footer Social Links -->
-<div class = 'pt-4 border-t border-slate-100 flex items-center justify-between mt-auto'>
-<div class = 'flex items-center gap-2'>
-<?php if ( !empty( $member[ 'email' ] ) ): ?>
-<a href = "mailto:<?= sanitize($member['email']) ?>" class = 'w-8 h-8 rounded-full bg-slate-100 hover:bg-brandRed hover:text-white text-slate-500 flex items-center justify-center transition-all duration-300' aria-label = 'Email'>
-<i class = 'fa-solid fa-envelope text-xs'></i>
-</a>
-<?php endif;
-?>
-<?php if ( !empty( $member[ 'linkedin_url' ] ) ): ?>
-<a href = "<?= sanitize($member['linkedin_url']) ?>" target = '_blank' rel = 'noopener noreferrer' class = 'w-8 h-8 rounded-full bg-slate-100 hover:bg-blue-600 hover:text-white text-slate-500 flex items-center justify-center transition-all duration-300' aria-label = 'LinkedIn'>
-<i class = 'fa-brands fa-linkedin-in text-xs'></i>
-</a>
-<?php endif;
-?>
-<?php if ( empty( $member[ 'email' ] ) && empty( $member[ 'linkedin_url' ] ) ): ?>
-<span class = 'text-xs text-slate-400 font-medium'>Welfare & Relief Committee</span>
-<?php endif;
-?>
-</div>
-<span class = 'text-xs font-semibold text-slate-400 group-hover:text-brandRed flex items-center gap-1 transition-colors'>
-Profile <i class = 'fa-solid fa-arrow-right text-[10px] group-hover:translate-x-1 transition-transform'></i>
-</span>
-</div>
 </div>
 </div>
 <?php endforeach;
