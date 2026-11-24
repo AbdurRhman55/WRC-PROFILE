@@ -1262,11 +1262,11 @@ try {
                 sort_order = VALUES(sort_order)'
         );
 
-        // Column list from SQL (17 columns, no id - it's auto_increment)
-        $projectColumns = 17;
+        // Column list from SQL (16 columns, no id - it's auto_increment)
+        $projectColumns = 16;
 
         foreach ( $approvedProjects as $slug => $vals ) {
-            // Ensure we have all 17 values
+            // Ensure we have all 16 values
             while ( count( $vals ) < $projectColumns ) {
                 $vals[] = 'NULL';
             }
@@ -1277,6 +1277,11 @@ try {
                 if ( ( str_starts_with( $v, "'" ) && str_ends_with( $v, "'" ) )
                   || ( str_starts_with( $v, '"' ) && str_ends_with( $v, '"' ) ) ) {
                     $cleanVals[] = substr( $v, 1, -1 );
+                } elseif ( strcasecmp( $v, 'NULL' ) === 0 ) {
+                    // Unquoted NULL is a real SQL NULL, not the four-character
+                    // string: binding "NULL" would fail on DATE columns such as
+                    // end_date.
+                    $cleanVals[] = null;
                 } else {
                     $cleanVals[] = $v;
                 }
@@ -1297,71 +1302,75 @@ try {
             }
         }
 
-        // Parse donor INSERTs again and upsert
+        // Parse donor INSERTs again and upsert.
+        //
+        // Each donor statement is written as:
+        //   INSERT INTO project_donors (project_id, donor_name, donor_type, amount)
+        //   SELECT id, 'Name', 'Type', NULL FROM projects WHERE slug = '...';
+        // A project can cover several slugs, so the WHERE clause may instead be
+        // "slug IN ('a', 'b', ...)". Reading the statement with a regex extracts
+        // the name, type, amount and every affected slug reliably, unlike the
+        // old comma splitter, which never found the slug and therefore inserted
+        // no partners at all.
+        $findDonor = $pdo->prepare(
+            'SELECT id FROM project_donors WHERE project_id = ? AND donor_name = ? LIMIT 1'
+        );
+        $updateDonor = $pdo->prepare(
+            'UPDATE project_donors SET donor_type = ?, amount = ? WHERE id = ?'
+        );
+        $insertDonor = $pdo->prepare(
+            'INSERT INTO project_donors (project_id, donor_name, donor_type, amount) VALUES (?, ?, ?, ?)'
+        );
+
         foreach ( $statements as $statement ) {
             $statement = trim( $statement );
             if ( $statement === '' ) continue;
             if ( preg_match( '/^(?:START\s+TRANSACTION|COMMIT|ROLLBACK)$/i', $statement ) ) continue;
             if ( preg_match( $backupStatement, $statement ) ) continue;
 
-            if ( preg_match( "/^INSERT\s+INTO\s+`?project_donors`?\s*\(/i", $statement ) ) {
-                if ( preg_match( "/VALUES\s*(.*)$/is", $statement, $m ) ) {
-                    $valuesPart = $m[1];
-                    $rows = preg_split( "/\)\s*,\s*\(/", $valuesPart );
-                    foreach ( $rows as $row ) {
-                        $row = trim( $row, "() \t\n\r" );
-                        if ( $row === '' ) continue;
-                        $vals = [];
-                        $current = '';
-                        $inQuote = false;
-                        $quoteChar = '';
-                        for ( $i = 0; $i < strlen( $row ); $i++ ) {
-                            $ch = $row[$i];
-                            if ( ( $ch === "'" || $ch === '"' ) && ( $i === 0 || $row[$i-1] !== '\\' ) ) {
-                                if ( !$inQuote ) {
-                                    $inQuote = true;
-                                    $quoteChar = $ch;
-                                } elseif ( $ch === $quoteChar ) {
-                                    $inQuote = false;
-                                    $quoteChar = '';
-                                }
-                            }
-                            if ( $ch === ',' && !$inQuote ) {
-                                $vals[] = trim( $current );
-                                $current = '';
-                            } else {
-                                $current .= $ch;
-                            }
-                        }
-                        if ( $current !== '' ) $vals[] = trim( $current );
-                        if ( count( $vals ) >= 4 ) {
-                            // The first value is a subquery like: SELECT id FROM projects WHERE slug = '...'
-                            // We need to extract the slug from it
-                            $firstVal = $vals[0];
-                            if ( preg_match( "/slug\s*=\s*['\"]([^'\"]+)['\"]/i", $firstVal, $slugMatch ) ) {
-                                $donorSlug = $slugMatch[1];
-                                if ( isset( $projectIds[ $donorSlug ] ) ) {
-                                    $projectId = $projectIds[ $donorSlug ];
-                                    $donorName = trim( $vals[1], "'\"" );
-                                    $donorType = trim( $vals[2], "'\"" );
-                                    $amount = trim( $vals[3] );
-                                    if ( strcasecmp( $amount, 'NULL' ) === 0 ) $amount = null;
+            if ( ! preg_match( '/^INSERT\s+INTO\s+`?project_donors`?\s*\(/i', $statement ) ) {
+                continue;
+            }
 
-                                    // Upsert donor by project_id + donor_name
-                                    $upsertDonor = $pdo->prepare(
-                                        'INSERT INTO project_donors (project_id, donor_name, donor_type, amount)
-                                         VALUES (?, ?, ?, ?)
-                                         ON DUPLICATE KEY UPDATE
-                                            donor_type = VALUES(donor_type),
-                                            amount = VALUES(amount)'
-                                    );
-                                    $upsertDonor->execute( [ $projectId, $donorName, $donorType, $amount ] );
-                                    $executed++;
-                                }
-                            }
-                        }
-                    }
+            $donorPattern = "~SELECT\s+id\s*,\s*'((?:[^'\\\\]|\\\\.)*)'\s*,\s*'((?:[^'\\\\]|\\\\.)*)'\s*,\s*(NULL|[-+]?\d+(?:\.\d+)?)\s+FROM\s+projects\s+WHERE\s+slug\s+(?:=\s*'((?:[^'\\\\]|\\\\.)*)'|IN\s*\(([^)]*)\))~is";
+            if ( ! preg_match( $donorPattern, $statement, $m ) ) {
+                continue;
+            }
+
+            $donorName = stripslashes( $m[1] );
+            $donorType = stripslashes( $m[2] );
+            $amount     = strcasecmp( $m[3], 'NULL' ) === 0 ? null : $m[3];
+
+            $donorSlugs = [];
+            if ( isset( $m[4] ) && $m[4] !== '' ) {
+                $donorSlugs[] = stripslashes( $m[4] );
+            }
+            if ( isset( $m[5] ) && $m[5] !== '' && preg_match_all( "/'((?:[^'\\\\]|\\\\.)*)'/", $m[5], $slugMatches ) ) {
+                foreach ( $slugMatches[1] as $donorSlug ) {
+                    $donorSlugs[] = stripslashes( $donorSlug );
                 }
+            }
+
+            foreach ( $donorSlugs as $donorSlug ) {
+                if ( ! isset( $projectIds[ $donorSlug ] ) ) {
+                    continue;
+                }
+
+                $projectId = $projectIds[ $donorSlug ];
+
+                // project_donors has no unique key on (project_id, donor_name),
+                // so ON DUPLICATE KEY UPDATE would insert a fresh duplicate on
+                // every deployment. Look the row up explicitly and update it.
+                $findDonor->execute( [ $projectId, $donorName ] );
+                $existingDonor = $findDonor->fetchColumn();
+
+                if ( $existingDonor !== false ) {
+                    $updateDonor->execute( [ $donorType, $amount, $existingDonor ] );
+                } else {
+                    $insertDonor->execute( [ $projectId, $donorName, $donorType, $amount ] );
+                }
+
+                $executed++;
             }
         }
 
