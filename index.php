@@ -12,6 +12,34 @@ $metaDescription = 'Welfare & Relief Committee (WRC) is a non-profit humanitaria
 // Fetch dynamic data
 $heroSlides = getRows('hero_sliders', ['page' => 'homepage', 'is_active' => 1], 'sort_order ASC');
 $partners = getRows('partners', 'is_active = 1 ORDER BY sort_order ASC');
+
+// The homepage partner wall only renders logo cards for active funding and
+// government partners. Everything below works from that same list, so the
+// "Partner Organisations" figure always equals the number of logos shown.
+//
+// Records are folded with wrcPartnerAliasKey() so spelling variants of one
+// organisation (the three KP-TEVTA records, for example) are never shown or
+// counted twice.
+$uniquePartners = [];
+foreach ($partners as $p) {
+    if (!in_array($p['partner_type'] ?? '', ['funding', 'government'], true)) {
+        continue;
+    }
+    if (!imageExists($p['logo_path'] ?? '')) {
+        continue;
+    }
+    $key = wrcPartnerAliasKey((string) ($p['name'] ?? ''));
+    if ($key === '' || isset($uniquePartners[$key])) {
+        continue;
+    }
+    $uniquePartners[$key] = $p;
+}
+$partners = array_values($uniquePartners);
+
+$fundingPartners = array_values(array_filter($partners, fn($p) => ($p['partner_type'] ?? '') === 'funding'));
+$govPartners = array_values(array_filter($partners, fn($p) => ($p['partner_type'] ?? '') === 'government'));
+$partnerLogoCount = count($fundingPartners) + count($govPartners);
+
 $activeProjects = getRows('projects', "status = 'active' ORDER BY start_date DESC LIMIT 3");
 $provinces = getRows('provinces', 'is_active = 1 ORDER BY sort_order ASC');
 
@@ -55,7 +83,7 @@ $heroStats = [
     ],
     [
         'icon'  => 'fa-solid fa-handshake-angle',
-        'value' => (int) $impactSummary[ 'partners' ],
+        'value' => $partnerLogoCount,
         'label' => 'Partner Organisations',
         'note'  => 'Donors and implementers',
     ],
@@ -459,7 +487,6 @@ if (strpos($heroImage, 'assets/') !== 0 && strpos($heroImage, 'http') !== 0 && s
           // The homepage partner wall is a logo strip. Donor records that are
           // maintained for the gallery but have no logo should not appear as
           // empty text-only cards.
-          $fundingPartners = array_filter($partners, fn($p) => $p['partner_type'] === 'funding' && imageExists($p['logo_path'] ?? ''));
           foreach ($fundingPartners as $partner): ?>
                 <div
                     class="partner-card group flex flex-col items-center justify-center gap-3 text-center bg-white border border-slate-200 rounded-xl px-6 py-8">
@@ -485,7 +512,6 @@ if (strpos($heroImage, 'assets/') !== 0 && strpos($heroImage, 'http') !== 0 && s
 
             <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
                 <?php 
-          $govPartners = array_filter($partners, fn($p) => $p['partner_type'] === 'government' && imageExists($p['logo_path'] ?? ''));
           foreach ($govPartners as $partner): ?>
                 <div
                     class="partner-card group flex flex-col items-center justify-center gap-3 text-center bg-white border border-slate-200 rounded-xl px-6 py-8">
