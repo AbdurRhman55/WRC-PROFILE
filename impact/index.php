@@ -153,14 +153,15 @@ if (empty($mneSteps)) {
     ];
 }
 
-// SDGs. These are the four goals WRC reports against; each card reads its
+// SDGs. These are the five goals in WRC's SDG mapping; each card reads its
 // headline beneficiary figure from the canonical figures above, never from a
 // separately typed number.
 $sdgs = $contentData['sdgs'] ?? [
-    ['key' => 'health', 'number' => '3', 'title' => 'Good Health & Well-Being', 'desc' => 'WRC runs free medical camps, maternal and child health services, emergency treatment and community health programmes that bring essential care closer to underserved families.', 'color' => 'green-600', 'bg' => 'green', 'tags' => ['Health & emergency care', $coverage['provinces'] . ' provinces covered'], 'icon' => 'fa-heart-pulse'],
-    ['key' => 'skills', 'number' => '8', 'title' => 'Decent Work & Economic Growth', 'desc' => 'Vocational training, enterprise support and livelihood opportunities help young people and women earn a stable income and build stronger local economies.', 'color' => 'red-600', 'bg' => 'red', 'tags' => ['Skills & vocational training', 'Women & youth livelihoods'], 'icon' => 'fa-briefcase'],
-    ['key' => 'food', 'number' => '2', 'title' => 'Zero Hunger', 'desc' => 'Emergency food distributions, nutrition support and food-security assistance protect families facing hunger, seasonal shortages and displacement.', 'color' => 'amber-600', 'bg' => 'amber', 'tags' => ['Emergency food relief', 'Nutrition support'], 'icon' => 'fa-bowl-food'],
-    ['key' => 'wash', 'number' => '6', 'title' => 'Clean Water & Sanitation', 'desc' => 'Clean water systems, sanitation improvements and hygiene promotion reduce waterborne disease and improve health in rural and disaster-affected communities.', 'color' => 'blue-600', 'bg' => 'blue', 'tags' => ['Clean water access', 'Sanitation & hygiene'], 'icon' => 'fa-faucet-drip'],
+    ['key' => 'health', 'number' => '3', 'title' => 'Good Health & Well-Being', 'desc' => 'WRC supports rural health centres, hospital management and healthcare service delivery so that essential treatment reaches families in underserved districts.', 'color' => 'green-600', 'bg' => 'green', 'tags' => ['Rural health centres', 'Hospital management', 'Healthcare service delivery'], 'icon' => 'fa-heart-pulse'],
+    ['key' => 'skills', 'number' => '4', 'title' => 'Quality Education', 'desc' => 'Paramedic training, vocational skills development and women\'s skills training give young people and women recognised qualifications and market-relevant competencies.', 'color' => 'red-600', 'bg' => 'red', 'tags' => ['Paramedic training', 'Vocational skills development', 'Women\'s skills training'], 'icon' => 'fa-book-open'],
+    ['key' => 'gender', 'number' => '5', 'title' => 'Gender Equality', 'desc' => 'WRC advances women\'s empowerment and women-led vocational skills development, widening access to training, income and decision-making within their communities.', 'color' => 'orange-600', 'bg' => 'orange', 'tags' => ['Women\'s empowerment', 'Women in vocational training'], 'icon' => 'fa-people-roof'],
+    ['key' => 'wash', 'number' => '6', 'title' => 'Clean Water & Sanitation', 'desc' => 'Hand-pump installation and clean water access initiatives reduce waterborne disease and the daily burden of water collection in rural and disaster-affected communities.', 'color' => 'blue-600', 'bg' => 'blue', 'tags' => ['Hand-pump installation', 'Clean water access'], 'icon' => 'fa-faucet-drip'],
+    ['key' => 'climate', 'number' => '13', 'title' => 'Climate Action', 'desc' => 'Climate resilience, disaster preparedness, environmental protection and community awareness initiatives help vulnerable districts anticipate shocks and recover faster.', 'color' => 'emerald-600', 'bg' => 'emerald', 'tags' => ['Climate resilience', 'Disaster preparedness', 'Environmental protection'], 'icon' => 'fa-earth-asia'],
 ];
 
 $sdgBeneficiaryMap = [
@@ -187,11 +188,15 @@ foreach ( $sdgs as &$sdg ) {
 }
 unset( $sdg );
 
+// Cards are rendered in a two-column grid; a plain list keeps the "odd card"
+// centring below working even if the dashboard stores the goals keyed.
+$sdgs = array_values( $sdgs );
+
 // SDG section copy (dashboard-managed, approved wording as the fallback).
 $sdgEyebrow = trim((string) ($contentData['sdg_eyebrow'] ?? '')) ?: 'Global Goals Alignment';
 $sdgTitle   = trim((string) ($contentData['sdg_title'] ?? '')) ?: 'Contributing to the United Nations Sustainable Development Goals (SDGs)';
 $sdgIntro1  = trim((string) ($contentData['sdg_intro1'] ?? ''))
-    ?: "WRC aligns its humanitarian and development initiatives with the United Nations Sustainable Development Goals (SDGs). Our programmes contribute directly to SDG 3 (Good Health & Well-Being), SDG 8 (Decent Work & Economic Growth), SDG 2 (Zero Hunger) and SDG 6 (Clean Water & Sanitation), with every beneficiary counted once across these four sectors.";
+    ?: "WRC aligns its humanitarian and development initiatives with the United Nations Sustainable Development Goals (SDGs). Our programmes contribute directly to SDG 3 (Good Health & Well-Being), SDG 4 (Quality Education), SDG 5 (Gender Equality), SDG 6 (Clean Water & Sanitation) and SDG 13 (Climate Action), with every beneficiary counted once across our programme sectors.";
 $sdgIntro2  = trim((string) ($contentData['sdg_intro2'] ?? ''))
     ?: 'Our programme activities are mapped against relevant SDG targets to demonstrate their contribution and identify opportunities for greater impact.';
 
@@ -393,8 +398,8 @@ include dirname(__DIR__) . '/includes/header.php';
     </div>
 
     <div class="mt-6 grid gap-6 md:grid-cols-2">
-      <?php foreach ($sdgs as $sdg): ?>
-      <article class="group relative overflow-hidden rounded-[1.75rem] border border-slate-200 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
+      <?php $sdgTotal = count($sdgs); foreach ($sdgs as $sdgIndex => $sdg): ?>
+      <article class="group relative overflow-hidden rounded-[1.75rem] border border-slate-200 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl<?= ($sdgTotal % 2 === 1 && $sdgIndex === $sdgTotal - 1) ? ' md:col-span-2 md:w-[calc(50%-0.75rem)] md:justify-self-center' : '' ?>">
         <div class="flex items-stretch">
           <div class="relative flex w-24 shrink-0 flex-col items-center justify-center overflow-hidden bg-gradient-to-b from-<?= $sdg['bg'] ?>-500 to-<?= $sdg['bg'] ?>-700 p-4 text-white sm:w-28">
             <span class="pointer-events-none absolute -right-1 -top-3 font-display text-6xl font-bold text-white/10"><?= sanitize($sdg['number']) ?></span>

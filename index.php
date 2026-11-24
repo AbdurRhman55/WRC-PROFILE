@@ -62,6 +62,28 @@ foreach ($pdo->query("SELECT province_id, COUNT(*) AS total FROM projects WHERE 
 
 // Hero figures are calculated from the live projects table, never typed in.
 $impactSummary = wrcProjectImpactSummary();
+
+// The SDG figure is read from the same Impact content the Impact page renders,
+// so the hero strip can never claim a different number of goals than the page
+// that explains them.
+$sdgCount = 0;
+if (isset($pdo) && $pdo instanceof PDO) {
+    try {
+        $sdgRow = getRow('impact_content');
+        $sdgContent = $sdgRow ? json_decode($sdgRow['content'] ?? '{}', true) : null;
+        if (is_array($sdgContent) && !empty($sdgContent['sdgs']) && is_array($sdgContent['sdgs'])) {
+            $sdgCount = count($sdgContent['sdgs']);
+        }
+    } catch (Throwable $e) {
+        $sdgCount = 0;
+    }
+}
+if ($sdgCount < 1) {
+    $sdgCount = 5;
+}
+
+// Order matters: the strip reads left to right as reach, then breadth of
+// programme, then global alignment, then the partnership and geographic base.
 $heroStats = [
     [
         'icon'  => 'fa-solid fa-diagram-project',
@@ -76,10 +98,16 @@ $heroStats = [
         'note'  => 'Lives directly impacted',
     ],
     [
-        'icon'  => 'fa-solid fa-map-location-dot',
-        'value' => (int) $impactSummary[ 'districts' ],
-        'label' => 'Districts Covered',
-        'note'  => 'Across our field areas',
+        'icon'  => 'fa-solid fa-layer-group',
+        'value' => (int) $impactSummary[ 'sectors' ],
+        'label' => 'Programme Sectors',
+        'note'  => 'Health, WASH, food & relief, skills',
+    ],
+    [
+        'icon'  => 'fa-solid fa-globe',
+        'value' => $sdgCount,
+        'label' => 'SDGs Covered',
+        'note'  => 'Aligned with the UN 2030 Agenda',
     ],
     [
         'icon'  => 'fa-solid fa-handshake-angle',
@@ -88,10 +116,10 @@ $heroStats = [
         'note'  => 'Donors and implementers',
     ],
     [
-        'icon'  => 'fa-solid fa-layer-group',
-        'value' => (int) $impactSummary[ 'sectors' ],
-        'label' => 'Programme Sectors',
-        'note'  => 'Health, WASH, food & relief, skills',
+        'icon'  => 'fa-solid fa-map-location-dot',
+        'value' => (int) $impactSummary[ 'districts' ],
+        'label' => 'Districts Covered',
+        'note'  => 'Across our field areas',
     ],
 ];
 
@@ -281,7 +309,7 @@ if (strpos($heroImage, 'assets/') !== 0 && strpos($heroImage, 'http') !== 0 && s
 <!-- IMPACT STATISTICS (live from the projects table) -->
 <section class="relative z-20 border-b border-slate-200 bg-white" aria-label="WRC impact at a glance">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="grid grid-cols-2 gap-x-4 gap-y-5 py-4 sm:grid-cols-3 sm:py-5 md:grid-cols-5 md:gap-0 md:divide-x md:divide-slate-100">
+        <div class="grid grid-cols-2 gap-x-4 gap-y-5 py-4 sm:grid-cols-3 sm:py-5 md:grid-cols-6 md:gap-0 md:divide-x md:divide-slate-100">
             <?php foreach ($heroStats as $stat): ?>
             <div class="flex flex-col items-center justify-center gap-1.5 text-center md:px-4">
                 <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-brandRed/10 text-brandRed ring-1 ring-inset ring-brandRed/10">
