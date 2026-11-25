@@ -39,109 +39,21 @@ if ( empty( $chairmanData[ 'person_title' ] ) ) {
   $chairmanData[ 'person_title' ] = $chairmanData[ 'title' ] ?? '';
 }
 
-// 1. Governance & Executive Board Members
-// Role type 'chairman' or 'board', or title containing 'Board'
-$boardMembers = getRows( 'team_members', "is_active = 1 AND (role_type IN ('chairman', 'board') OR title LIKE '%Board%') ORDER BY sort_order ASC, id ASC" );
-if ( empty( $boardMembers ) ) {
-    $boardMembers = [
-        [
-            'name' => $chairmanData['person_name'] ?: 'Mr. Asad Shah',
-            'title' => $chairmanData['person_title'] ?: 'Chairman of the Board',
-            'role_type' => 'chairman',
-            'bio' => 'Guiding strategic governance, fiduciary accountability, and institutional policy to advance WRC’s humanitarian mission.',
-            'photo_path' => !empty($chairmanData['image_path']) ? $chairmanData['image_path'] : ($chairmanData['hero_image'] ?? 'assets/images/uploads/images-1788330057.jpg'),
-            'email' => '',
-            'linkedin_url' => '',
-        ]
+// Governance & executive designations only. The band below deliberately shows
+// roles, never personal names or photos.
+$governanceRoles = getRows(
+    'team_members',
+    "is_active = 1 AND role_type IN ('chairman', 'board', 'executive', 'leadership') AND title != '' ORDER BY sort_order ASC, id ASC"
+);
+if ( empty( $governanceRoles ) ) {
+    $governanceRoles = [
+        [ 'title' => $chairmanData['person_title'] ?: 'Chairman of the Board' ],
     ];
 }
 
 include dirname( __DIR__ ) . '/includes/header.php';
-
-/**
- * Helper to render team profile cards consistently across all profiles.
- * Matches the exact styling, sizing, and structure of about/team.php.
- */
-function renderProfileCard( array $member, string $badgeText = 'Profile' ): void {
-    $photo = trim( (string) ( $member['photo_path'] ?? '' ) );
-    $hasPhoto = $photo !== '' && imageExists( $photo );
-    $imgUrl = getImageUrl( $photo, 'assets/images/chairman.svg' );
-    $name = $member['full_name'] ?? $member['name'] ?? '';
-    $title = $member['role_title'] ?? $member['title'] ?? 'Team Member';
-    $bio = $member['description'] ?? $member['bio'] ?? '';
-    $email = $member['email'] ?? '';
-    $linkedin = $member['linkedin_url'] ?? '';
-    ?>
-    <div class="bg-white rounded-3xl border border-slate-200/80 overflow-hidden hover:shadow-2xl hover:shadow-slate-900/10 hover:-translate-y-2 transition-all duration-500 group flex flex-col h-full relative">
-      <!-- Top Accent Line -->
-      <div class="h-1.5 w-full bg-gradient-to-r from-brandRed via-red-500 to-amber-500 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left"></div>
-
-      <!-- Member Image Container: exact aspect-[4/4.5] as team.php -->
-      <div class="relative aspect-[4/4.5] w-full overflow-hidden bg-slate-100">
-        <?php if ( $hasPhoto ): ?>
-          <img src="<?= sanitize( $imgUrl ) ?>" alt="<?= sanitize( $name ) ?>" class="w-full h-full object-cover group-hover:scale-108 transition-transform duration-700 ease-out">
-        <?php else: ?>
-          <div class="w-full h-full bg-gradient-to-br from-slate-100 to-slate-200 flex flex-col items-center justify-center p-6 text-center">
-            <div class="w-20 h-20 rounded-full bg-brandRed/10 border border-brandRed/20 flex items-center justify-center mb-3">
-              <i class="fa-solid fa-user text-3xl text-brandRed"></i>
-            </div>
-            <span class="text-xs text-slate-400 font-medium uppercase tracking-wider font-heading">WRC Profile</span>
-          </div>
-        <?php endif; ?>
-
-        <!-- Role Badge -->
-        <div class="absolute top-3 right-3 px-3 py-1 rounded-full bg-slate-900/85 backdrop-blur-md text-[10px] font-bold tracking-widest uppercase text-white shadow-md border border-white/10">
-          <?= sanitize( strtoupper( $badgeText ) ) ?>
-        </div>
-      </div>
-
-      <!-- Member Content -->
-      <div class="p-6 flex flex-col flex-grow justify-between bg-white">
-        <div>
-          <h3 class="text-xl font-bold font-display text-slate-900 group-hover:text-brandRed transition-colors duration-300 leading-snug mb-1">
-            <?= sanitize( $name ) ?>
-          </h3>
-          <p class="text-brandRed text-xs font-semibold uppercase tracking-wider mb-4 flex items-center gap-1.5">
-            <i class="fa-solid fa-id-badge text-[10px] opacity-70"></i>
-            <?= sanitize( $title ) ?>
-          </p>
-          <?php if ( !empty( $bio ) ): ?>
-            <p class="text-slate-600 text-sm leading-relaxed mb-6 line-clamp-3">
-              <?= sanitize( $bio ) ?>
-            </p>
-          <?php else: ?>
-            <p class="text-slate-400 text-sm italic leading-relaxed mb-6">
-              Dedicated professional committed to WRC's humanitarian mission and community impact.
-            </p>
-          <?php endif; ?>
-        </div>
-
-        <!-- Footer Social Links -->
-        <div class="pt-4 border-t border-slate-100 flex items-center justify-between mt-auto">
-          <div class="flex items-center gap-2">
-            <?php if ( !empty( $email ) ): ?>
-              <a href="mailto:<?= sanitize( $email ) ?>" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-brandRed hover:text-white text-slate-500 flex items-center justify-center transition-all duration-300" aria-label="Email <?= sanitize( $name ) ?>" title="Email <?= sanitize( $name ) ?>">
-                <i class="fa-solid fa-envelope text-xs"></i>
-              </a>
-            <?php endif; ?>
-            <?php if ( !empty( $linkedin ) ): ?>
-              <a href="<?= sanitize( $linkedin ) ?>" target="_blank" rel="noopener noreferrer" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-blue-600 hover:text-white text-slate-500 flex items-center justify-center transition-all duration-300" aria-label="LinkedIn" title="LinkedIn Profile">
-                <i class="fa-brands fa-linkedin-in text-xs"></i>
-              </a>
-            <?php endif; ?>
-            <?php if ( empty( $email ) && empty( $linkedin ) ): ?>
-              <span class="text-xs text-slate-400 font-medium">Welfare &amp; Relief Committee</span>
-            <?php endif; ?>
-          </div>
-          <span class="text-xs font-semibold text-slate-400 group-hover:text-brandRed flex items-center gap-1 transition-colors">
-            Profile <i class="fa-solid fa-arrow-right text-[10px] group-hover:translate-x-1 transition-transform"></i>
-          </span>
-        </div>
-      </div>
-    </div>
-    <?php
-}
 ?>
+
 
 <main class="flex-grow">
 
@@ -268,15 +180,70 @@ $message2 = $chairmanData[ 'paragraph2' ] ?? '';
       </p>
     </div>
 
-    <?php if ( !empty( $boardMembers ) ): ?>
-      <div class="flex flex-wrap justify-center gap-8">
-        <?php foreach ( $boardMembers as $member ): ?>
-          <div class="w-full sm:w-[calc(50%-1rem)] lg:w-[calc(25%-1.5rem)] max-w-sm flex flex-col">
-            <?php renderProfileCard( $member, 'Governance & Board' ); ?>
+    <!-- Full-width designation band: roles only, never names or photos -->
+    <div class="relative overflow-hidden rounded-[2rem] bg-ink-900 ring-1 ring-white/10 shadow-[0_28px_70px_-30px_rgba(2,6,23,0.65)]">
+      <div class="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-brandRed via-amber-400 to-brandRed"></div>
+      <div class="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full bg-brandRed/20 blur-3xl"></div>
+      <div class="pointer-events-none absolute -bottom-32 -left-20 h-72 w-72 rounded-full bg-amber-400/10 blur-3xl"></div>
+      <div class="pointer-events-none absolute inset-0 opacity-[0.06]" style="background-image: radial-gradient(circle at 1px 1px, #ffffff 1px, transparent 0); background-size: 22px 22px;"></div>
+      <i class="fa-solid fa-scale-balanced pointer-events-none absolute -bottom-10 -right-4 text-[230px] leading-none text-white/[0.04]"></i>
+
+      <div class="relative flex flex-col gap-8 p-6 sm:p-8 lg:p-10 xl:flex-row xl:items-center xl:gap-12">
+        <div class="max-w-sm shrink-0">
+          <span class="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.22em] text-white/60">
+            <i class="fa-solid fa-landmark text-brandRed"></i> Board of Directors
+          </span>
+          <h3 class="mt-4 font-display text-2xl font-bold leading-tight text-white sm:text-3xl">
+            Stewardship, <span class="text-brandRed">accountability</span> and trust.
+          </h3>
+          <p class="mt-3 text-sm leading-relaxed text-white/55">
+            Strategic direction, fiduciary oversight and institutional integrity behind every WRC programme.
+          </p>
+          <div class="mt-6 flex items-center gap-3 text-[10px] font-semibold uppercase tracking-[0.18em] text-white/35">
+            <span class="h-px w-8 bg-gradient-to-r from-brandRed to-transparent"></span>
+            Governance &middot; Executive Management
           </div>
-        <?php endforeach; ?>
+        </div>
+
+        <div class="grid flex-1 grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-5">
+          <?php foreach ( $governanceRoles as $role ): ?>
+            <?php
+            $roleTitle = trim( (string) ( $role['title'] ?? '' ) );
+            if ( $roleTitle === '' ) {
+                continue;
+            }
+            $roleLower = strtolower( $roleTitle );
+            if ( strpos( $roleLower, 'chair' ) !== false ) {
+                $roleIcon  = 'fa-user-tie';
+                $roleRemit = 'Board leadership';
+            } elseif ( strpos( $roleLower, 'finance' ) !== false ) {
+                $roleIcon  = 'fa-calculator';
+                $roleRemit = 'Fiscal stewardship';
+            } elseif ( strpos( $roleLower, 'program' ) !== false ) {
+                $roleIcon  = 'fa-diagram-project';
+                $roleRemit = 'Programme delivery';
+            } elseif ( strpos( $roleLower, 'project' ) !== false ) {
+                $roleIcon  = 'fa-list-check';
+                $roleRemit = 'Project execution';
+            } elseif ( strpos( $roleLower, 'it ' ) !== false || strpos( $roleLower, 'information' ) !== false ) {
+                $roleIcon  = 'fa-server';
+                $roleRemit = 'Systems & security';
+            } else {
+                $roleIcon  = 'fa-id-badge';
+                $roleRemit = 'Leadership';
+            }
+            ?>
+            <div class="group rounded-2xl border border-white/10 bg-white/[0.04] p-4 transition-colors hover:border-brandRed/40 hover:bg-white/[0.07]">
+              <div class="flex h-9 w-9 items-center justify-center rounded-xl border border-brandRed/25 bg-brandRed/15 text-brandRed">
+                <i class="fa-solid <?= $roleIcon ?> text-xs"></i>
+              </div>
+              <div class="mt-3 text-sm font-bold leading-tight text-white"><?= sanitize( $roleTitle ) ?></div>
+              <div class="mt-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-white/40"><?= $roleRemit ?></div>
+            </div>
+          <?php endforeach; ?>
+        </div>
       </div>
-    <?php endif; ?>
+    </div>
   </div>
 </section>
 
