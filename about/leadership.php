@@ -3,8 +3,8 @@ require_once dirname( __DIR__ ) . '/includes/config.php';
 require_once dirname( __DIR__ ) . '/includes/functions.php';
 
 $base = siteBaseUrl();
-$pageTitle = 'Leadership & Team | WRC About';
-$metaDescription = 'Meet the leadership of Welfare & Relief Committee (WRC) — our chairman, governance board, executive leadership, and dedicated operational team.';
+$pageTitle = 'Leadership | WRC About';
+$metaDescription = 'Meet the leadership of Welfare & Relief Committee (WRC) — our chairman and the governance board guiding the organisation.';
 
 // Fetch homepage sections
 $homepageSections = getRows( 'homepage_sections', [], 'sort_order ASC' );
@@ -55,14 +55,6 @@ if ( empty( $boardMembers ) ) {
         ]
     ];
 }
-
-// 2. Executive Leadership (CEO, Executive Director and senior management)
-// Excludes Programme Assistant, IT Manager, coordinators, and operational staff
-$execLeaders = getRows( 'team_members', "is_active = 1 AND (role_type IN ('executive', 'leadership')) AND title NOT LIKE '%Assistant%' AND title NOT LIKE '%IT Manager%' AND title NOT LIKE '%Coordinator%' AND title NOT LIKE '%Officer%' AND title NOT LIKE '%Board%' AND role_type != 'chairman' ORDER BY sort_order ASC, id ASC" );
-
-// 3. Our Team – The People Behind Our Mission
-// Programme, IT, administration and operational staff (excludes placeholder '[Name]')
-$teamStaff = getRows( 'team_members', "is_active = 1 AND (role_type = 'staff' OR title LIKE '%Assistant%' OR title LIKE '%IT Manager%' OR title LIKE '%Coordinator%' OR title LIKE '%Officer%') AND name != '[Name]' AND name != '' AND role_type NOT IN ('chairman', 'board') ORDER BY sort_order ASC, id ASC" );
 
 include dirname( __DIR__ ) . '/includes/header.php';
 
@@ -283,68 +275,6 @@ $message2 = $chairmanData[ 'paragraph2' ] ?? '';
             <?php renderProfileCard( $member, 'Governance & Board' ); ?>
           </div>
         <?php endforeach; ?>
-      </div>
-    <?php endif; ?>
-  </div>
-</section>
-
-<!-- 3. Executive Leadership (SEPARATE SECTION - EXCLUDES PROGRAMME ASSISTANT & IT MANAGER) -->
-<section class="py-12 bg-white relative border-t border-slate-200/80" id="executive-leadership">
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <div class="text-center max-w-3xl mx-auto mb-8">
-      <span class="px-4 py-1.5 rounded-full bg-brandRed/10 text-brandRed text-xs font-bold uppercase tracking-widest inline-block mb-3">
-        Executive Leadership
-      </span>
-      <h2 class="text-3xl md:text-4xl lg:text-5xl font-display font-extrabold text-slate-900 tracking-tight">
-        Executive Leadership
-      </h2>
-      <p class="mt-4 text-slate-600 text-base md:text-lg">
-        CEO, Executive Director and senior management steering WRC's strategic programs, operations, and community impact.
-      </p>
-    </div>
-
-    <?php if ( !empty( $execLeaders ) ): ?>
-      <div class="flex flex-wrap justify-center gap-8">
-        <?php foreach ( $execLeaders as $leader ): ?>
-          <div class="w-full sm:w-[calc(50%-1rem)] lg:w-[calc(25%-1.5rem)] max-w-sm flex flex-col">
-            <?php renderProfileCard( $leader, 'Executive Leadership' ); ?>
-          </div>
-        <?php endforeach; ?>
-      </div>
-    <?php else: ?>
-      <div class="text-center py-12 bg-slate-50 rounded-3xl border border-slate-200/80 max-w-xl mx-auto">
-        <p class="text-slate-500 text-sm">Executive profiles are currently being updated.</p>
-      </div>
-    <?php endif; ?>
-  </div>
-</section>
-
-<!-- 4. Our Team – The People Behind Our Mission (SEPARATE SECTION FOR OPERATIONAL & PROGRAMME STAFF) -->
-<section class="py-12 bg-slate-50 relative border-t border-slate-200/80" id="our-team">
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <div class="text-center max-w-3xl mx-auto mb-8">
-      <span class="px-4 py-1.5 rounded-full bg-brandRed/10 text-brandRed text-xs font-bold uppercase tracking-widest inline-block mb-3">
-        Our Team
-      </span>
-      <h2 class="text-3xl md:text-4xl lg:text-5xl font-display font-extrabold text-slate-900 tracking-tight">
-        The People Behind Our Mission
-      </h2>
-      <p class="mt-4 text-slate-600 text-base md:text-lg leading-relaxed">
-        Behind every successful initiative is a dedicated team working with commitment, professionalism, and a shared sense of responsibility. At WRC, our team brings together diverse skills and expertise to support programme delivery, strengthen institutional capacity, and serve communities with dedication.
-      </p>
-    </div>
-
-    <?php if ( !empty( $teamStaff ) ): ?>
-      <div class="flex flex-wrap justify-center gap-8">
-        <?php foreach ( $teamStaff as $staff ): ?>
-          <div class="w-full sm:w-[calc(50%-1rem)] lg:w-[calc(25%-1.5rem)] max-w-sm flex flex-col">
-            <?php renderProfileCard( $staff, 'Our Team' ); ?>
-          </div>
-        <?php endforeach; ?>
-      </div>
-    <?php else: ?>
-      <div class="text-center py-12 bg-white rounded-3xl border border-slate-200/80 max-w-xl mx-auto">
-        <p class="text-slate-500 text-sm">Operational and programme staff profiles are currently being updated.</p>
       </div>
     <?php endif; ?>
   </div>
