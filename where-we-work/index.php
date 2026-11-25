@@ -80,39 +80,61 @@ $parseProjectArea = static function (string $raw) use ($locationAliases): array 
     ];
 };
 
-$findCoordinate = static function (string $areaLabel) use ($coordsByName, $coordKey): ?array {
-    $key = $coordKey($areaLabel);
-    if (isset($coordsByName[$key])) {
-        return $coordsByName[$key];
-    }
-    // The marker table stores the merged districts under the short name "NMD".
-    if (strpos($key, 'nmd') === 0 && isset($coordsByName['nmd'])) {
-        return $coordsByName['nmd'];
-    }
-    // "DI Khan", "D.I. Khan" and "Dera Ismail Khan" are one place.
-    if ($key === 'dikhan' || $key === 'deraismailkhan') {
-        return $coordsByName['dikhan'] ?? $coordsByName['deraismailkhan'] ?? null;
-    }
-    // A combined area such as "Islamabad & Rawalpindi" or "Buner, Swabi &
-    // Nowshera" falls back to the centre of the districts it joins.
-    $parts = preg_split('/\s*(?:,|&|\band\b|\/)\s*/u', $areaLabel, -1, PREG_SPLIT_NO_EMPTY);
-    if (count((array) $parts) > 1) {
-        $xs = [];
-        $ys = [];
-        foreach ($parts as $part) {
-            $partKey = $coordKey($part);
-            if (!isset($coordsByName[$partKey])) { return null; }
-            $xs[] = (int) $coordsByName[$partKey]['svg_x'];
-            $ys[] = (int) $coordsByName[$partKey]['svg_y'];
+// The marker table stores a few groups without a latitude/longitude pair.
+// These are fixed geographic facts (not project data), so they live here as a
+// fallback and never override a real coordinate.
+$coordFallback = [
+    'swabi'     => [34.1200, 72.4700],
+    'nmd'       => [33.2000, 70.1000],
+    'islamabad' => [33.6844, 73.0479],
+];
+
+// Resolve the centre of a coverage area. Combined labels such as
+// "Buner, Swabi & Nowshera" are averaged from their member districts so the
+// marker lands where the work actually happens, not on the label text.
+$findLatLng = static function (string $areaLabel) use ($coordsByName, $coordKey, $coordFallback): ?array {
+    $parts = preg_split('/\s*(?:,|&|\band\b|\/)\s*/u', trim($areaLabel), -1, PREG_SPLIT_NO_EMPTY);
+    $points = [];
+    foreach ((array) $parts as $part) {
+        $partKey = $coordKey($part);
+        $row = $coordsByName[$partKey] ?? null;
+        // The marker table stores the merged districts under the short name "NMD".
+        if (!$row && strpos($partKey, 'nmd') === 0) {
+            $row = $coordsByName['nmd'] ?? null;
+            $partKey = 'nmd';
         }
-        if (!empty($xs)) {
-            return [
-                'svg_x' => (int) round(array_sum($xs) / count($xs)),
-                'svg_y' => (int) round(array_sum($ys) / count($ys)),
-            ];
+        // "DI Khan", "D.I. Khan" and "Dera Ismail Khan" are one place.
+        if (!$row && ($partKey === 'dikhan' || $partKey === 'deraismailkhan')) {
+            $row = $coordsByName['dikhan'] ?? $coordsByName['deraismailkhan'] ?? null;
+            $partKey = 'dikhan';
         }
+
+        $lat = ($row && $row['lat'] !== null) ? (float) $row['lat'] : ($coordFallback[$partKey][0] ?? null);
+        $lng = ($row && $row['lng'] !== null) ? (float) $row['lng'] : ($coordFallback[$partKey][1] ?? null);
+        if ($lat === null || $lng === null) {
+            return null;
+        }
+        $points[] = [$lat, $lng];
     }
-    return null;
+
+    if (empty($points)) {
+        return null;
+    }
+    $lat = array_sum(array_column($points, 0)) / count($points);
+    $lng = array_sum(array_column($points, 1)) / count($points);
+    return [$lat, $lng];
+};
+
+// Equirectangular projection fitted to the map's 620 x 570 viewBox. The
+// constants come from the public-domain province geometry so district pins and
+// province shapes share one coordinate system.
+$mapProject = static function (float $lat, float $lng): array {
+    $kx    = 0.8625136692072575;
+    $scale = 39.42694330760481;
+    return [
+        'x' => 22 + ((($lng - 69.3) * $kx) + 7.265055231974547) * $scale,
+        'y' => 23.353689028049814 + ((30.4 - $lat) + 6.603781127497065) * $scale,
+    ];
 };
 
 // Build coverage areas from projects. This is the only source for the page: an
@@ -175,15 +197,18 @@ foreach ($projectsAll as $proj) {
     $key = $area['key'] . '|' . $provKey;
 
     if (!isset($distinctDistricts[$key])) {
-        $coord = $findCoordinate($area['label']);
+        $latLng = $findLatLng($area['label']);
+        $point  = $latLng ? $mapProject($latLng[0], $latLng[1]) : null;
         $distinctDistricts[$key] = [
             'district' => $area['label'],
             'district_count' => count($areaDistricts),
             'province' => $provName,
             'province_key' => $provKey,
-            'svg_x' => $coord ? (int) $coord['svg_x'] : 0,
-            'svg_y' => $coord ? (int) $coord['svg_y'] : 0,
-            'has_coord' => (bool) $coord,
+            'lat' => $latLng ? $latLng[0] : null,
+            'lng' => $latLng ? $latLng[1] : null,
+            'svg_x' => $point ? (int) round($point['x']) : 0,
+            'svg_y' => $point ? (int) round($point['y']) : 0,
+            'has_coord' => (bool) $point,
             'programs' => [],
             'projects_list' => [],
             'beneficiaries_count' => 0,
@@ -268,10 +293,13 @@ foreach ($distinctDistricts as $row) {
         'district_names' => $areaDistrictNames,
         'province'     => $row['province'],
         'province_key' => $row['province_key'],
+        'lat'          => $row['lat'],
+        'lng'          => $row['lng'],
         'svg_x'        => $row['svg_x'],
         'svg_y'        => $row['svg_y'],
         'programs'     => implode(', ', array_slice($row['programs'], 0, 3)) . (count($row['programs']) > 3 ? ' +' : ''),
         'beneficiaries'=> number_format($row['beneficiaries_count']),
+        'beneficiaries_raw' => (int) $row['beneficiaries_count'],
         'year'         => $row['year'],
         'project_count'=> count($row['projects_list']),
         'projects_list'=> $row['projects_list'],
@@ -356,20 +384,94 @@ $statItems = [
     ['label' => 'Total Projects', 'value' => (string) count($projectsAll)],
 ];
 
-// Dynamic quick links (from all available province sections)
-$quickLinks = [];
+// Map data ---------------------------------------------------------------
+$provinceSectionsById = [];
 foreach ($provinceSections as $ps) {
-    $quickLinks[] = [
-        'id'   => $ps['id'],
-        'name' => $ps['name'],
-        'icon' => $ps['icon'] ?? 'fa-map',
-        'desc' => is_numeric(str_replace(',', '', $ps['beneficiaries']))
-            ? $ps['project_count'] . ' project' . ($ps['project_count'] !== 1 ? 's' : '') . ' · ' . $ps['beneficiaries'] . ' beneficiaries'
-            : $ps['project_count'] . ' districts · ' . $ps['beneficiaries'],
+    $provinceSectionsById[$ps['id']] = $ps;
+}
+
+// Every unit drawn on the map, including those without a current project.
+$mapProvinceMeta = [
+    'balochistan' => ['name' => 'Balochistan', 'short' => 'Balochistan'],
+    'sindh'       => ['name' => 'Sindh', 'short' => 'Sindh'],
+    'punjab'      => ['name' => 'Punjab / ICT', 'short' => 'Punjab'],
+    'kp'          => ['name' => 'Khyber Pakhtunkhwa', 'short' => 'KP'],
+    'gilgit'      => ['name' => 'Gilgit-Baltistan', 'short' => 'GB'],
+    'ajk'         => ['name' => 'Azad Jammu & Kashmir', 'short' => 'AJK'],
+];
+$mapProvinceStats = [];
+foreach ($mapProvinceMeta as $mapKey => $meta) {
+    $section = $provinceSectionsById[$mapKey] ?? null;
+    $mapProvinceStats[$mapKey] = [
+        'key'            => $mapKey,
+        'name'           => $meta['name'],
+        'short'          => $meta['short'],
+        'active'         => (bool) $section,
+        'project_count'  => (int) ($section['project_count'] ?? 0),
+        'district_total' => (int) ($section['district_total'] ?? 0),
+        'beneficiaries'  => (int) str_replace(',', '', (string) ($section['beneficiaries'] ?? '0')),
     ];
 }
-// Add districts table link
-$quickLinks[] = ['id' => 'districts', 'name' => 'District Coverage', 'icon' => 'fa-layer-group', 'desc' => 'Full breakdown by district & program'];
+
+// Coverage pins are clustered when they sit close together, so dense areas
+// stay readable. Pins from different provinces never merge.
+$mapMarkers = [];
+foreach ($districts as $districtRow) {
+    if ($districtRow['lat'] === null || $districtRow['lng'] === null) {
+        continue;
+    }
+
+    $point = [
+        'x'             => (float) $districtRow['svg_x'],
+        'y'             => (float) $districtRow['svg_y'],
+        'province_key'  => (string) $districtRow['province_key'],
+        'province'      => (string) $districtRow['province'],
+        'projects'      => (int) $districtRow['project_count'],
+        'beneficiaries' => (int) $districtRow['beneficiaries_raw'],
+        'areas'         => [(string) $districtRow['district']],
+    ];
+
+    $merged = false;
+    foreach ($mapMarkers as &$cluster) {
+        if ($cluster['province_key'] !== $point['province_key']) {
+            continue;
+        }
+        if (hypot($cluster['x'] - $point['x'], $cluster['y'] - $point['y']) > 18) {
+            continue;
+        }
+
+        $oldWeight = max(1, $cluster['projects']);
+        $newWeight = max(1, $point['projects']);
+        $weight    = $oldWeight + $newWeight;
+        $cluster['x'] = (($cluster['x'] * $oldWeight) + ($point['x'] * $newWeight)) / $weight;
+        $cluster['y'] = (($cluster['y'] * $oldWeight) + ($point['y'] * $newWeight)) / $weight;
+        $cluster['projects']      += $point['projects'];
+        $cluster['beneficiaries'] += $point['beneficiaries'];
+        foreach ($point['areas'] as $area) {
+            if (!in_array($area, $cluster['areas'], true)) {
+                $cluster['areas'][] = $area;
+            }
+        }
+        $merged = true;
+        break;
+    }
+    unset($cluster);
+
+    if (!$merged) {
+        $mapMarkers[] = $point;
+    }
+}
+
+// Small clusters sit at the back; the largest coverage hub stays on top.
+usort($mapMarkers, fn($a, $b) => $a['projects'] <=> $b['projects']);
+foreach ($mapMarkers as $i => &$cluster) {
+    $cluster['x']      = round($cluster['x'], 1);
+    $cluster['y']      = round($cluster['y'], 1);
+    $cluster['radius'] = round(min(17, 8.5 + sqrt(max(1, $cluster['projects'])) * 2), 1);
+    $cluster['halo']   = round($cluster['radius'] + 4, 1);
+    $cluster['delay']  = round($i * 0.28, 2);
+}
+unset($cluster);
 
 // Dynamic filter tabs
 $filterTabs = [];
@@ -377,28 +479,115 @@ foreach ($provinceSections as $ps) {
     $filterTabs[] = ['key' => $ps['id'], 'name' => $ps['name'], 'short' => strtoupper(substr($ps['name'], 0, 2))];
     if ($ps['id'] === 'kp') { $filterTabs[count($filterTabs)-1]['short'] = 'KPK'; }
 }
+
+// Province outlines for the coverage map (public-domain geometry).
+$mapGeo = require __DIR__ . '/pakistan-map.php';
 include dirname(__DIR__) . '/includes/header.php';
 ?>
 
 <style>
-  .province-path { cursor: pointer; transition: fill 0.4s ease, filter 0.3s ease, stroke-width 0.3s ease; }
-  .province-path:hover { filter: brightness(1.1); stroke-width: 2.5; }
-  .province-path.active { stroke: #ca0000; stroke-width: 2; }
-  .province-label { pointer-events: none; font-family: 'Inter', sans-serif; font-weight: 600; fill: #1e293b; }
-  .province-dot { pointer-events: none; }
-  #map-tooltip { transition: opacity 0.2s ease; pointer-events: none; }
+  /* Coverage map */
+  .map-canvas {
+    position: relative;
+    background-color: #f8fafc;
+    background-image: radial-gradient(circle at 1px 1px, rgba(148, 163, 184, 0.22) 1px, transparent 0);
+    background-size: 20px 20px;
+  }
+  .map-country { filter: drop-shadow(0 10px 18px rgba(15, 23, 42, 0.10)); }
+  .province-path {
+    fill: #e9eef5;
+    stroke: #ffffff;
+    stroke-width: 1.6;
+    stroke-linejoin: round;
+    transition: fill 0.25s ease, stroke 0.25s ease;
+  }
+  .province-path.is-inactive:hover { fill: #dfe7f1; }
+  .province-path.is-active { fill: #fee2e2; cursor: pointer; }
+  .province-path.is-active:hover { fill: #fecaca; stroke: #fca5a5; }
+  .province-path:focus-visible { outline: none; stroke: #ca0000; stroke-width: 2.4; }
+  .province-label {
+    pointer-events: none;
+    font-family: 'Inter', sans-serif;
+    font-weight: 700;
+    letter-spacing: 1.1px;
+    text-transform: uppercase;
+    paint-order: stroke fill;
+    stroke: rgba(255, 255, 255, 0.92);
+    stroke-width: 2.6px;
+  }
+  .province-label.is-active { fill: #991b1b; }
+  .province-label.is-inactive { fill: #7b8ba1; }
+  .province-sub {
+    pointer-events: none;
+    font-family: 'Inter', sans-serif;
+    font-weight: 700;
+    font-size: 7px;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    fill: #b91c1c;
+    paint-order: stroke fill;
+    stroke: rgba(255, 255, 255, 0.9);
+    stroke-width: 2px;
+  }
+  .map-label-sea {
+    pointer-events: none;
+    font-family: 'Inter', sans-serif;
+    font-style: italic;
+    fill: #9aaec4;
+    letter-spacing: 1.8px;
+  }
+  .map-scale-line { stroke: #94a3b8; stroke-width: 1.6; stroke-linecap: round; }
+  .map-scale-text {
+    fill: #94a3b8;
+    font-family: 'Inter', sans-serif;
+    font-size: 7px;
+    letter-spacing: 0.4px;
+  }
+  .map-marker-group { cursor: pointer; }
+  .cluster-halo {
+    fill: none;
+    stroke: #ca0000;
+    stroke-width: 1.4;
+    opacity: 0;
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: cluster-ping 3.4s cubic-bezier(0, 0, 0.2, 1) infinite;
+    pointer-events: none;
+  }
+  @keyframes cluster-ping {
+    0% { transform: scale(0.55); opacity: 0.45; }
+    70%, 100% { transform: scale(1.8); opacity: 0; }
+  }
+  .cluster-dot {
+    fill: #ca0000;
+    stroke: #ffffff;
+    stroke-width: 2.4;
+    transition: fill 0.2s ease, transform 0.2s ease;
+    transform-box: fill-box;
+    transform-origin: center;
+  }
+  .map-marker-group:hover .cluster-dot,
+  .map-marker-group:focus-visible .cluster-dot { fill: #a80000; transform: scale(1.08); }
+  .map-marker-group:focus-visible { outline: none; }
+  .cluster-count {
+    fill: #ffffff;
+    font-family: 'Inter', sans-serif;
+    font-weight: 700;
+    font-size: 9px;
+    text-anchor: middle;
+    dominant-baseline: central;
+    pointer-events: none;
+  }
+  #map-tooltip { transition: opacity 0.15s ease; }
+  @media (prefers-reduced-motion: reduce) {
+    .cluster-halo { animation: none; opacity: 0.16; }
+    .cluster-dot { transition: none; }
+  }
+
   .district-row:hover { background-color: #fef2f2; }
   .search-input:focus { outline: none; box-shadow: 0 0 0 3px rgba(202,0,0,0.15); border-color: #ca0000; }
   .tab-btn.active { background-color: #ca0000; color: white; }
   .stat-counter { font-variant-numeric: tabular-nums; }
-  .district-marker { cursor: pointer; transition: r 0.2s ease; }
-  .district-marker:hover { r: 8; }
-  @keyframes pulse-ring {
-    0% { r: 6; opacity: 0.7; }
-    100% { r: 14; opacity: 0; }
-  }
-  .marker-pulse { animation: pulse-ring 2s ease-out infinite; pointer-events: none; }
-  .district-tooltip { transition: opacity 0.15s ease; pointer-events: none; }
   .province-card:hover { border-color: rgba(202,0,0,0.3); box-shadow: 0 4px 20px rgba(202,0,0,0.08); }
 </style>
 
@@ -471,11 +660,14 @@ include dirname(__DIR__) . '/includes/header.php';
 </section>
 
 
-<!-- INTERACTIVE PAKISTAN SVG MAP -->
-<section id="map" class="py-12 bg-white scroll-mt-24">
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <div class="text-center mb-6">
-      <span class="text-xs font-bold text-brandRed uppercase tracking-widest mb-2 block">Geographic Footprint</span>
+<!-- INTERACTIVE PAKISTAN COVERAGE MAP -->
+<section id="map" class="relative overflow-hidden bg-slate-50 py-12 lg:py-16 scroll-mt-24">
+  <div class="pointer-events-none absolute -right-24 top-16 h-72 w-72 rounded-full bg-brandRed/5 blur-3xl"></div>
+  <div class="pointer-events-none absolute -left-20 bottom-0 h-64 w-64 rounded-full bg-gold-400/10 blur-3xl"></div>
+
+  <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="mx-auto max-w-3xl text-center mb-10">
+      <span class="text-xs font-bold text-brandRed uppercase tracking-[0.3em] mb-2 block">Geographic Footprint</span>
       <h2 class="text-3xl sm:text-4xl font-display font-bold text-slate-900 mb-3">
         <?= $contentRow ? sanitize($contentRow['section_title'] ?? 'Pakistan Operations Map') : 'Pakistan Operations Map' ?>
       </h2>
@@ -484,85 +676,235 @@ include dirname(__DIR__) . '/includes/header.php';
       </p>
     </div>
 
-    <div class="flex flex-col lg:flex-row gap-10 items-start">
-      <!-- SVG Map -->
-      <div class="relative w-full lg:w-2/3 bg-slate-50 rounded-[2rem] border border-slate-200 p-6 sm:p-10 flex items-center justify-center min-h-[500px]">
-        <div id="map-tooltip" class="absolute hidden bg-slate-900 text-white text-xs font-semibold px-3 py-2 rounded-lg shadow-xl z-20 whitespace-nowrap"></div>
+    <div class="grid grid-cols-1 items-start gap-6 lg:grid-cols-[minmax(0,1fr)_360px] xl:grid-cols-[minmax(0,1fr)_390px]">
 
-        <svg viewBox="0 0 600 700" class="w-full max-w-lg" xmlns="http://www.w3.org/2000/svg">
-          <!-- Balochistan -->
-          <path id="path-balochistan" class="province-path <?= in_array('balochistan', $activeProvinces) ? 'active' : '' ?>"
-            data-province="balochistan"
-            d="M 60,350 L 80,320 L 110,310 L 140,290 L 170,280 L 200,260 L 230,250 L 250,230 L 260,210 L 270,200 L 280,190 L 290,185 L 310,210 L 320,240 L 330,270 L 340,290 L 350,310 L 360,330 L 370,360 L 380,380 L 390,400 L 400,420 L 390,440 L 380,460 L 370,480 L 350,490 L 330,500 L 310,510 L 290,520 L 270,530 L 250,540 L 230,535 L 210,520 L 190,510 L 170,500 L 150,490 L 130,480 L 110,470 L 90,450 L 75,420 L 65,390 L 60,350 Z"
-            fill="<?= in_array('balochistan', $activeProvinces) ? '#fecaca' : '#cbd5e1' ?>" stroke="#94a3b8" stroke-width="1.5" />
-          <text class="province-label" x="210" y="400" text-anchor="middle" font-size="14">Balochistan</text>
-          <circle class="province-dot" cx="210" cy="415" r="4" fill="#ca0000" />
+      <!-- MAP CARD -->
+      <div class="overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-[0_18px_50px_-24px_rgba(15,23,42,0.35)]">
+        <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 px-5 py-4 sm:px-6">
+          <div class="flex items-center gap-3">
+            <span class="grid h-10 w-10 place-items-center rounded-xl bg-brandRed/10 text-brandRed">
+              <i class="fa-solid fa-map-location-dot text-sm"></i>
+            </span>
+            <div>
+              <div class="text-[10px] font-bold uppercase tracking-[0.18em] text-slate-400">Coverage map</div>
+              <div class="text-sm font-semibold text-slate-900"><?= count($districts) ?> coverage areas · <?= count($projectsAll) ?> live projects</div>
+            </div>
+          </div>
+          <span class="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest text-emerald-600">
+            <span class="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse"></span> Live portfolio
+          </span>
+        </div>
 
-          <!-- Sindh -->
-          <path id="path-sindh" class="province-path <?= in_array('sindh', $activeProvinces) ? 'active' : '' ?>"
-            data-province="sindh"
-            d="M 400,420 L 420,400 L 440,390 L 460,380 L 475,370 L 490,355 L 500,340 L 510,320 L 520,300 L 530,290 L 540,280 L 550,270 L 560,280 L 570,300 L 575,320 L 580,350 L 580,380 L 575,410 L 570,440 L 560,470 L 550,490 L 535,505 L 520,520 L 500,530 L 480,535 L 460,530 L 440,520 L 420,510 L 400,500 L 380,490 L 370,480 L 380,460 L 390,440 Z"
-            fill="<?= in_array('sindh', $activeProvinces) ? '#fecaca' : '#d1d5db' ?>" stroke="#94a3b8" stroke-width="1.5" />
-          <text class="province-label" x="480" y="420" text-anchor="middle" font-size="14">Sindh</text>
-          <circle class="province-dot" cx="480" cy="435" r="4" fill="#ca0000" />
+        <div id="map-canvas" class="map-canvas px-2 py-3 sm:px-5 sm:py-5">
+          <div id="map-tooltip" class="pointer-events-none absolute left-0 top-0 z-30 hidden w-max max-w-[250px] rounded-xl border border-white/10 bg-slate-900/95 px-3.5 py-3 text-left text-white shadow-2xl backdrop-blur">
+            <div class="tt-eyebrow text-[9px] font-bold uppercase tracking-[0.18em] text-white/45"></div>
+            <div class="tt-title mt-1 text-xs font-semibold leading-snug text-white"></div>
+            <div class="tt-meta mt-1 text-[11px] leading-snug text-white/60"></div>
+            <div class="tt-hint mt-2 text-[9px] font-bold uppercase tracking-wider text-red-300"></div>
+          </div>
 
-          <!-- Punjab -->
-          <path id="path-punjab" class="province-path <?= in_array('punjab', $activeProvinces) ? 'active' : '' ?>"
-            data-province="punjab"
-            d="M 310,210 L 330,195 L 350,180 L 370,165 L 390,155 L 410,150 L 430,155 L 450,160 L 470,170 L 490,180 L 510,195 L 520,210 L 530,230 L 540,250 L 550,270 L 540,280 L 530,290 L 520,300 L 510,320 L 500,340 L 490,355 L 475,370 L 460,380 L 440,390 L 420,400 L 400,420 L 390,400 L 380,380 L 370,360 L 360,330 L 350,310 L 340,290 L 330,270 L 320,240 Z"
-            fill="<?= in_array('punjab', $activeProvinces) ? '#fecaca' : '#e2e8f0' ?>" stroke="#94a3b8" stroke-width="1.5" />
-          <text class="province-label" x="430" y="290" text-anchor="middle" font-size="14">Punjab</text>
-          <circle class="province-dot" cx="430" cy="305" r="4" fill="#ca0000" />
+          <div class="pointer-events-none absolute right-4 top-4 flex h-8 w-8 flex-col items-center justify-center rounded-full border border-slate-200 bg-white/85 text-slate-400 shadow-sm backdrop-blur">
+            <i class="fa-solid fa-arrow-up text-[9px]"></i>
+            <span class="text-[7px] font-bold leading-none">N</span>
+          </div>
 
-          <!-- Khyber Pakhtunkhwa -->
-          <path id="path-kp" class="province-path <?= in_array('kp', $activeProvinces) ? 'active' : '' ?>"
-            data-province="kp"
-            d="M 270,200 L 280,190 L 290,185 L 310,195 L 330,195 L 350,180 L 370,165 L 360,145 L 350,130 L 340,115 L 330,100 L 320,90 L 310,85 L 300,80 L 290,85 L 280,95 L 270,110 L 260,125 L 250,140 L 245,155 L 250,170 L 260,185 L 270,200 Z"
-            fill="<?= in_array('kp', $activeProvinces) ? '#fecaca' : '#f1f5f9' ?>" stroke="#94a3b8" stroke-width="1.5" />
-          <text class="province-label" x="305" y="140" text-anchor="middle" font-size="13">KPK</text>
-          <circle class="province-dot" cx="305" cy="155" r="4" fill="#ca0000" />
+          <svg viewBox="<?= sanitize($mapGeo['viewBox']) ?>" class="relative mx-auto block h-auto w-full max-w-[560px]" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Map of Pakistan showing WRC project coverage by province and district">
+            <g class="map-country">
+              <?php
+              $pathToProvince = ['ict' => 'punjab'];
+              foreach ($mapGeo['paths'] as $geoKey => $geoPath):
+                  $provinceKey = $pathToProvince[$geoKey] ?? $geoKey;
+                  $province    = $mapProvinceStats[$provinceKey] ?? null;
+                  if (!$province) { continue; }
+                  $isActive = $province['active'];
+                  $ariaLabel = $isActive
+                      ? $province['name'] . ': ' . $province['project_count'] . ' projects across ' . $province['district_total'] . ' districts'
+                      : $province['name'] . ': no current projects';
+              ?>
+              <path id="path-<?= sanitize($geoKey) ?>"
+                class="province-path <?= $isActive ? 'is-active' : 'is-inactive' ?>"
+                d="<?= $geoPath ?>"
+                data-province="<?= sanitize($provinceKey) ?>"
+                data-province-key="<?= $isActive ? sanitize($provinceKey) : '' ?>"
+                data-name="<?= sanitize($province['name']) ?>"
+                data-projects="<?= (int) $province['project_count'] ?>"
+                data-districts="<?= (int) $province['district_total'] ?>"
+                data-beneficiaries="<?= number_format($province['beneficiaries']) ?>"
+                data-active="<?= $isActive ? '1' : '0' ?>"
+                <?= $isActive ? 'tabindex="0" role="button"' : '' ?>
+                aria-label="<?= sanitize($ariaLabel) ?>"></path>
+              <?php endforeach; ?>
+            </g>
 
-          <!-- Dynamic District Markers -->
-          <?php foreach ($distinctDistricts as $dk => $dd): ?>
-          <?php if (empty($dd['has_coord'])) { continue; } ?>
-          <g class="district-marker-group" data-district="<?= sanitize($dd['district']) ?>" data-province="<?= sanitize($dd['province']) ?>" data-province-key="<?= sanitize($dd['province_key']) ?>" data-projects="<?= count($dd['projects_list']) ?>" data-beneficiaries="<?= number_format($dd['beneficiaries_count']) ?>">
-            <circle class="marker-pulse" cx="<?= (int)$dd['svg_x'] ?>" cy="<?= (int)$dd['svg_y'] ?>" r="6" fill="#ca0000" opacity="0.4" />
-            <circle class="district-marker" cx="<?= (int)$dd['svg_x'] ?>" cy="<?= (int)$dd['svg_y'] ?>" r="5" fill="#ca0000" stroke="white" stroke-width="2" />
-          </g>
-          <?php endforeach; ?>
+            <g class="map-labels">
+              <?php foreach ($mapGeo['labels'] as $label): ?>
+                <?php
+                if ($label['key'] === 'sea') {
+                    $labelClass = 'map-label-sea';
+                } else {
+                    $labelProvince = $mapProvinceStats[$label['key']] ?? null;
+                    $labelClass = 'province-label ' . (($labelProvince['active'] ?? false) ? 'is-active' : 'is-inactive');
+                }
+                $lineGap = $label['size'] + 2;
+                ?>
+                <text x="<?= $label['x'] ?>" y="<?= $label['y'] ?>" text-anchor="middle" class="<?= $labelClass ?>" font-size="<?= $label['size'] ?>">
+                  <?php foreach ($label['lines'] as $lineIndex => $lineText): ?>
+                    <tspan x="<?= $label['x'] ?>" dy="<?= $lineIndex === 0 ? 0 : $lineGap ?>"><?= sanitize($lineText) ?></tspan>
+                  <?php endforeach; ?>
+                </text>
+                <?php if ($label['key'] !== 'sea' && !empty($mapProvinceStats[$label['key']]['active'])): ?>
+                  <?php
+                  $labelProjects = (int) $mapProvinceStats[$label['key']]['project_count'];
+                  $subY = $label['y'] + (count($label['lines']) - 1) * $lineGap + 11;
+                  ?>
+                  <text x="<?= $label['x'] ?>" y="<?= $subY ?>" text-anchor="middle" class="province-sub"><?= $labelProjects ?> <?= $labelProjects === 1 ? 'project' : 'projects' ?></text>
+                <?php endif; ?>
+              <?php endforeach; ?>
+            </g>
 
-          <!-- Map Legend -->
-          <g transform="translate(15, 580)">
-            <rect x="0" y="0" width="165" height="90" rx="8" fill="white" stroke="#e2e8f0" stroke-width="1"/>
-            <circle cx="18" cy="18" r="5" fill="#ca0000" stroke="white" stroke-width="1.5"/>
-            <text x="30" y="22" font-size="10" fill="#475569" font-family="Inter">Active District</text>
-            <line x1="10" y1="42" x2="26" y2="42" stroke="#fecaca" stroke-width="8" stroke-linecap="round"/>
-            <text x="30" y="46" font-size="10" fill="#475569" font-family="Inter">Active Province</text>
-            <line x1="10" y1="62" x2="26" y2="62" stroke="#e2e8f0" stroke-width="8" stroke-linecap="round"/>
-            <text x="30" y="66" font-size="10" fill="#475569" font-family="Inter">Inactive Province</text>
-          </g>
-        </svg>
+            <g class="map-markers">
+              <?php foreach ($mapMarkers as $marker): ?>
+                <?php
+                $markerProjects = (int) $marker['projects'];
+                $markerAreas    = implode(', ', $marker['areas']);
+                $markerAria     = $markerAreas . ': ' . $markerProjects . ' ' . ($markerProjects === 1 ? 'project' : 'projects') . '. Click to view ' . $marker['province'] . '.';
+                ?>
+                <g class="map-marker-group"
+                  tabindex="0"
+                  role="button"
+                  data-province="<?= sanitize($marker['province']) ?>"
+                  data-province-key="<?= sanitize($marker['province_key']) ?>"
+                  data-areas="<?= sanitize($markerAreas) ?>"
+                  data-projects="<?= $markerProjects ?>"
+                  data-beneficiaries="<?= number_format($marker['beneficiaries']) ?>"
+                  aria-label="<?= sanitize($markerAria) ?>">
+                  <circle class="cluster-halo" cx="<?= $marker['x'] ?>" cy="<?= $marker['y'] ?>" r="<?= $marker['halo'] ?>" style="animation-delay: <?= $marker['delay'] ?>s"></circle>
+                  <circle class="cluster-dot" cx="<?= $marker['x'] ?>" cy="<?= $marker['y'] ?>" r="<?= $marker['radius'] ?>"></circle>
+                  <text class="cluster-count" x="<?= $marker['x'] ?>" y="<?= $marker['y'] ?>"><?= $markerProjects ?></text>
+                </g>
+              <?php endforeach; ?>
+            </g>
+
+            <g class="map-scale" transform="translate(526, 548)" aria-hidden="true">
+              <line class="map-scale-line" x1="0" y1="0" x2="<?= $mapGeo['scale200'] ?>" y2="0"></line>
+              <line class="map-scale-line" x1="0" y1="-3" x2="0" y2="3"></line>
+              <line class="map-scale-line" x1="<?= $mapGeo['scale200'] ?>" y1="-3" x2="<?= $mapGeo['scale200'] ?>" y2="3"></line>
+              <text class="map-scale-text" x="<?= $mapGeo['scale200'] / 2 ?>" y="-6" text-anchor="middle">200 km</text>
+            </g>
+          </svg>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-x-5 gap-y-2 border-t border-slate-100 px-5 py-3 text-[11px] text-slate-500 sm:px-6">
+          <span class="inline-flex items-center gap-2">
+            <span class="h-2.5 w-2.5 rounded-full bg-brandRed ring-2 ring-white shadow"></span>
+            Coverage area <span class="text-slate-300">·</span> <span class="text-slate-400">dot size = projects</span>
+          </span>
+          <span class="inline-flex items-center gap-2">
+            <span class="h-2.5 w-4 rounded-[3px] bg-[#fee2e2] ring-1 ring-red-200"></span>
+            Active province
+          </span>
+          <span class="inline-flex items-center gap-2">
+            <span class="h-2.5 w-4 rounded-[3px] bg-[#e9eef5] ring-1 ring-slate-200"></span>
+            No current projects
+          </span>
+          <span class="ml-auto hidden text-[10px] text-slate-300 md:inline">Boundaries: geoBoundaries · Public domain</span>
+        </div>
       </div>
 
-      <!-- Quick Navigation (dynamic from projects) -->
-      <div class="w-full lg:w-1/3 space-y-4">
-        <h3 class="text-lg font-bold text-slate-900 mb-2">Quick Navigation</h3>
-        <?php foreach ($quickLinks as $link): ?>
-        <a href="#<?= sanitize($link['id'] ?? '') ?>" class="group flex items-center gap-4 p-4 rounded-2xl border border-slate-200 hover:border-brandRed/30 hover:bg-brandRed-light transition-all">
-          <div class="w-12 h-12 rounded-xl bg-slate-100 group-hover:bg-brandRed flex items-center justify-center shrink-0 transition-colors">
-            <i class="fa-solid <?= sanitize($link['icon'] ?? 'fa-circle-info') ?> text-slate-500 group-hover:text-white transition-colors"></i>
+      <!-- COVERAGE PANEL -->
+      <aside class="flex w-full flex-col gap-4">
+
+        <div class="rounded-[1.75rem] border border-slate-200 bg-white p-5 shadow-sm">
+          <div class="flex items-start justify-between gap-3">
+            <div>
+              <h3 class="text-sm font-bold text-slate-900">Active Coverage</h3>
+              <p class="mt-1 text-[11px] text-slate-400">Live presence by province</p>
+            </div>
+            <span class="inline-flex items-center gap-1 rounded-full bg-brandRed/5 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-brandRed">
+              <?= count($provinceSections) ?> active
+            </span>
           </div>
-          <div>
-            <div class="font-bold text-slate-900 group-hover:text-brandRed transition-colors"><?= sanitize($link['name'] ?? '') ?></div>
-            <div class="text-xs text-slate-500"><?= sanitize($link['desc'] ?? '') ?></div>
+
+          <div class="mt-4 space-y-3">
+            <?php foreach ($provinceSections as $prov): ?>
+              <?php $provinceShare = (int) round(($prov['project_count'] / max(1, count($projectsAll))) * 100); ?>
+              <a href="#<?= sanitize($prov['id']) ?>" class="group block rounded-2xl border border-slate-100 p-3.5 transition-all hover:border-brandRed/30 hover:bg-brandRed/[0.03]">
+                <div class="flex items-start gap-3">
+                  <span class="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-brandRed/10 text-brandRed">
+                    <i class="fa-solid <?= sanitize($prov['icon'] ?? 'fa-map') ?> text-xs"></i>
+                  </span>
+                  <div class="min-w-0 flex-1">
+                    <div class="flex items-center justify-between gap-2">
+                      <span class="truncate text-sm font-semibold text-slate-900 group-hover:text-brandRed"><?= sanitize($prov['name']) ?></span>
+                      <span class="shrink-0 text-[10px] font-bold text-slate-400"><?= (int) $prov['project_count'] ?> <?= (int) $prov['project_count'] === 1 ? 'project' : 'projects' ?></span>
+                    </div>
+                    <div class="mt-1 flex flex-wrap items-center gap-x-2 text-[11px] text-slate-500">
+                      <span><?= (int) $prov['district_total'] ?> districts</span>
+                      <span class="text-slate-300">·</span>
+                      <span><?= sanitize($prov['beneficiaries']) ?> reached</span>
+                    </div>
+                    <div class="mt-2.5 h-1.5 overflow-hidden rounded-full bg-slate-100">
+                      <div class="h-full rounded-full bg-gradient-to-r from-brandRed to-red-400" style="width: <?= max(4, $provinceShare) ?>%"></div>
+                    </div>
+                  </div>
+                  <i class="fa-solid fa-arrow-right mt-1 text-[10px] text-slate-300 transition-all group-hover:translate-x-0.5 group-hover:text-brandRed"></i>
+                </div>
+              </a>
+            <?php endforeach; ?>
           </div>
-          <i class="fa-solid fa-arrow-right text-slate-300 group-hover:text-brandRed ml-auto transition-colors"></i>
+          <p class="mt-3 text-[10px] leading-4 text-slate-400">Bar length shows each province’s share of the live project portfolio.</p>
+        </div>
+
+        <div class="rounded-[1.75rem] border border-slate-200 bg-white p-5 shadow-sm">
+          <div class="flex items-center justify-between gap-3">
+            <h3 class="text-sm font-bold text-slate-900">Largest coverage areas</h3>
+            <span class="text-[9px] font-bold uppercase tracking-[0.18em] text-slate-400">By projects</span>
+          </div>
+
+          <?php
+          $topAreas = array_slice($districts, 0, 5);
+          $maxAreaProjects = max(1, (int) ($topAreas[0]['project_count'] ?? 1));
+          ?>
+          <div class="mt-4 space-y-3.5">
+            <?php foreach ($topAreas as $areaIndex => $area): ?>
+              <div class="flex items-center gap-3">
+                <span class="grid h-6 w-6 shrink-0 place-items-center rounded-lg bg-slate-100 text-[10px] font-bold text-slate-500"><?= $areaIndex + 1 ?></span>
+                <div class="min-w-0 flex-1">
+                  <div class="flex items-baseline justify-between gap-2">
+                    <span class="truncate text-xs font-semibold text-slate-800"><?= sanitize($area['district']) ?></span>
+                    <span class="shrink-0 text-[10px] font-semibold text-slate-400"><?= (int) $area['project_count'] ?> <?= (int) $area['project_count'] === 1 ? 'project' : 'projects' ?></span>
+                  </div>
+                  <div class="mt-1.5 h-1 overflow-hidden rounded-full bg-slate-100">
+                    <div class="h-full rounded-full bg-brandRed/60" style="width: <?= max(6, (int) round(((int) $area['project_count'] / $maxAreaProjects) * 100)) ?>%"></div>
+                  </div>
+                </div>
+              </div>
+            <?php endforeach; ?>
+          </div>
+
+          <a href="#districts" class="mt-4 inline-flex items-center gap-2 text-xs font-semibold text-brandRed transition-all hover:gap-3">
+            Full district breakdown <i class="fa-solid fa-arrow-right text-[10px]"></i>
+          </a>
+        </div>
+
+        <a href="#districts" class="group relative overflow-hidden rounded-[1.75rem] bg-ink-900 p-5 text-white shadow-sm transition-transform hover:-translate-y-0.5">
+          <span class="pointer-events-none absolute -right-8 -top-8 h-28 w-28 rounded-full bg-brandRed/25 blur-2xl"></span>
+          <div class="relative flex items-center gap-3">
+            <span class="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-white/10">
+              <i class="fa-solid fa-table-list text-sm"></i>
+            </span>
+            <div class="min-w-0 flex-1">
+              <div class="text-sm font-bold">District Coverage</div>
+              <div class="mt-0.5 text-[11px] text-white/50"><?= count($districts) ?> areas · search &amp; filter</div>
+            </div>
+            <i class="fa-solid fa-arrow-right text-xs text-white/40 transition-transform group-hover:translate-x-1"></i>
+          </div>
         </a>
-        <?php endforeach; ?>
-      </div>
+      </aside>
     </div>
   </div>
 </section>
+
 
 
 <!-- ======================== PROVINCE SECTIONS (dynamic from projects) ======================== -->
@@ -723,72 +1065,137 @@ include dirname(__DIR__) . '/includes/header.php';
 <!-- INTERACTIVE MAP + TABLE SCRIPTS -->
 <script>
 (function() {
-  // Province map click + hover
-  var provinces = document.querySelectorAll('.province-path');
+  var canvas = document.getElementById('map-canvas');
   var tooltip = document.getElementById('map-tooltip');
-  var originalFill = {};
-  var activeProvinces = <?= json_encode($activeProvinces) ?>;
-  provinces.forEach(function(p) {
-    originalFill[p.getAttribute('data-province')] = p.getAttribute('fill');
-  });
+  if (!canvas || !tooltip) return;
 
-  provinces.forEach(function(path) {
-    path.addEventListener('mouseenter', function(e) {
-      var id = this.getAttribute('data-province');
-      if (activeProvinces.indexOf(id) === -1) {
-        this.setAttribute('fill', '#d1d5db');
+  var tipEyebrow = tooltip.querySelector('.tt-eyebrow');
+  var tipTitle = tooltip.querySelector('.tt-title');
+  var tipMeta = tooltip.querySelector('.tt-meta');
+  var tipHint = tooltip.querySelector('.tt-hint');
+
+  function hideTip() {
+    tooltip.classList.add('hidden');
+  }
+
+  function positionTip(e) {
+    var rect = canvas.getBoundingClientRect();
+    var x = e.clientX - rect.left;
+    var y = e.clientY - rect.top;
+    var tw = tooltip.offsetWidth;
+    var th = tooltip.offsetHeight;
+    var left = x - tw / 2;
+    var top = y - th - 16;
+
+    if (left < 10) left = 10;
+    if (left + tw > rect.width - 10) left = rect.width - tw - 10;
+    if (top < 10) top = y + 20;
+    if (top + th > rect.height - 10) top = Math.max(10, rect.height - th - 10);
+
+    tooltip.style.left = left + 'px';
+    tooltip.style.top = top + 'px';
+  }
+
+  function showTip(e, eyebrow, title, meta, hint) {
+    tipEyebrow.textContent = eyebrow;
+    tipTitle.textContent = title;
+    tipMeta.textContent = meta;
+    tipHint.textContent = hint || '';
+    tipHint.classList.toggle('hidden', !hint);
+    tooltip.classList.remove('hidden');
+    positionTip(e);
+  }
+
+  function plural(count, word) {
+    return count + ' ' + word + (count === 1 ? '' : 's');
+  }
+
+  function goTo(target) {
+    if (!target) return;
+    var section = document.getElementById(target);
+    if (section) section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  function focusTip(element) {
+    var box = element.getBoundingClientRect();
+    return { clientX: box.left + box.width / 2, clientY: box.top + box.height / 2 };
+  }
+
+  // Province outlines
+  document.querySelectorAll('.province-path').forEach(function(path) {
+    var active = path.getAttribute('data-active') === '1';
+    var target = active ? path.getAttribute('data-province-key') : '';
+    var name = path.getAttribute('data-name') || '';
+    var projects = parseInt(path.getAttribute('data-projects') || '0', 10);
+    var districts = parseInt(path.getAttribute('data-districts') || '0', 10);
+    var beneficiaries = path.getAttribute('data-beneficiaries') || '0';
+
+    function show(e) {
+      if (active) {
+        showTip(
+          e,
+          'Active province',
+          name,
+          plural(projects, 'project') + ' · ' + plural(districts, 'district') + ' · ' + beneficiaries + ' reached',
+          'Click to view ' + name
+        );
       } else {
-        this.setAttribute('fill', '#f87171');
+        showTip(e, 'Province', name, 'No current projects in the live portfolio', '');
       }
-      var name = id.charAt(0).toUpperCase() + id.slice(1);
-      if (id === 'kp') name = 'Khyber Pakhtunkhwa';
-      tooltip.textContent = name + ' \u2014 Click to explore';
-      tooltip.classList.remove('hidden');
-    });
-    path.addEventListener('mousemove', function(e) {
-      var mapContainer = document.querySelector('#map .relative');
-      var rect = mapContainer.getBoundingClientRect();
-      tooltip.style.left = (e.clientX - rect.left + 12) + 'px';
-      tooltip.style.top = (e.clientY - rect.top - 36) + 'px';
-    });
-    path.addEventListener('mouseleave', function() {
-      var id = this.getAttribute('data-province');
-      this.setAttribute('fill', originalFill[id] || '#e2e8f0');
-      tooltip.classList.add('hidden');
-    });
-    path.addEventListener('click', function() {
-      var id = this.getAttribute('data-province');
-      var section = document.getElementById(id);
-      if (section) section.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    path.addEventListener('mouseenter', show);
+    path.addEventListener('mousemove', positionTip);
+    path.addEventListener('mouseleave', hideTip);
+    path.addEventListener('focus', function() { show(focusTip(path)); });
+    path.addEventListener('blur', hideTip);
+
+    if (active) {
+      path.addEventListener('click', function() { goTo(target); });
+      path.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          goTo(target);
+        }
+      });
+    }
+  });
+
+  // Clustered coverage pins
+  document.querySelectorAll('.map-marker-group').forEach(function(marker) {
+    var target = marker.getAttribute('data-province-key') || '';
+    var province = marker.getAttribute('data-province') || '';
+    var areas = marker.getAttribute('data-areas') || '';
+    var projects = parseInt(marker.getAttribute('data-projects') || '0', 10);
+    var beneficiaries = marker.getAttribute('data-beneficiaries') || '0';
+
+    function show(e) {
+      showTip(
+        e,
+        province,
+        areas,
+        plural(projects, 'project') + ' · ' + beneficiaries + ' people reached',
+        'Click to explore ' + province
+      );
+    }
+
+    marker.addEventListener('mouseenter', show);
+    marker.addEventListener('mousemove', positionTip);
+    marker.addEventListener('mouseleave', hideTip);
+    marker.addEventListener('focus', function() { show(focusTip(marker)); });
+    marker.addEventListener('blur', hideTip);
+    marker.addEventListener('click', function() { goTo(target); });
+    marker.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        goTo(target);
+      }
     });
   });
 
-  // District marker hover tooltips
-  var markers = document.querySelectorAll('.district-marker-group');
-  markers.forEach(function(mg) {
-    var dist = mg.getAttribute('data-district');
-    var prov = mg.getAttribute('data-province');
-    var projects = mg.getAttribute('data-projects');
-    var beneficiaries = mg.getAttribute('data-beneficiaries');
-    mg.addEventListener('mouseenter', function(e) {
-      tooltip.textContent = dist + ' (' + prov + ') \u2022 ' + projects + ' project' + (projects > 1 ? 's' : '') + ' \u2022 ' + beneficiaries + ' beneficiaries';
-      tooltip.classList.remove('hidden');
-    });
-    mg.addEventListener('mousemove', function(e) {
-      var mapContainer = document.querySelector('#map .relative');
-      var rect = mapContainer.getBoundingClientRect();
-      tooltip.style.left = (e.clientX - rect.left + 12) + 'px';
-      tooltip.style.top = (e.clientY - rect.top - 36) + 'px';
-    });
-    mg.addEventListener('mouseleave', function() {
-      tooltip.classList.add('hidden');
-    });
-    mg.addEventListener('click', function() {
-      var provSlug = this.getAttribute('data-province-key') || '';
-      var section = document.getElementById(provSlug);
-      if (section) section.scrollIntoView({ behavior: 'smooth' });
-    });
-  });
+  // Hide the tooltip when the pointer leaves the map or the page scrolls.
+  canvas.addEventListener('mouseleave', hideTip);
+  window.addEventListener('scroll', hideTip, { passive: true });
 
   // District table filter + search
   var tabs = document.querySelectorAll('.tab-btn');
