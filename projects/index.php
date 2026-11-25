@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 /**
  * WRC Projects - Listing Page (Dynamic)
  * ALL content from database
@@ -149,7 +149,7 @@ $quickStats = [
 ];
 
 $pageTitle = 'Our Portfolio | Welfare & Relief Committee (WRC)';
-$metaDescription = "Explore WRC's portfolio of humanitarian and development initiatives across Pakistan — health, WASH, food and relief distribution, and skill development.";
+$metaDescription = "Explore WRC's portfolio of humanitarian and development initiatives across Pakistan â€” health, WASH, food and relief distribution, and skill development.";
 
 include dirname(__DIR__) . '/includes/header.php';
 ?>
@@ -384,108 +384,183 @@ include dirname(__DIR__) . '/includes/header.php';
         <?php endforeach; ?>
       </div>
 
-      <!-- Sector Distribution - Donut Chart -->
-      <?php $sectors = $dashData['sectors'] ?? []; ?>
-      <?php if (!empty($sectors)): ?>
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <!-- Donut Chart -->
-        <div class="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6 sm:p-8">
-          <h3 class="text-lg font-display font-bold mb-8 flex items-center gap-3">
-            <div class="w-10 h-10 rounded-xl bg-brandRed/15 flex items-center justify-center">
-              <i class="fa-solid fa-chart-pie text-brandRed"></i>
+      <!-- PORTFOLIO ANALYTICS (single consolidated panel) -->
+      <?php
+      $sectors = $dashData['sectors'] ?? [];
+      if (!empty($sectors)):
+        // Each sector card now carries one fact only: the donut shows how the
+        // portfolio is split, the status block shows delivery progress, and the
+        // reach list shows the people behind the projects. Nothing repeats.
+        $sectorFigureKeys = [
+            'Health'                     => 'health',
+            'WASH'                       => 'wash',
+            'Food & Relief Distribution' => 'food',
+            'Skill Development'          => 'skills',
+        ];
+        $figureTotals      = wrcBeneficiaryFigures();
+        $donutTotal        = array_sum(array_column($sectors, 'count'));
+        $beneficiaryBase   = max(1, (int) ($figureTotals['total'] ?? 0));
+        $sectorReach       = [];
+        foreach ($sectors as $sector) {
+            $figureKey   = $sectorFigureKeys[$sector['name']] ?? '';
+            $figureValue = (int) ($figureTotals[$figureKey] ?? 0);
+            $sectorReach[] = [
+                'name'          => $sector['name'],
+                'color'         => $sector['color'],
+                'count'         => (int) $sector['count'],
+                'beneficiaries' => $figureValue,
+                'share'         => (int) round(($figureValue / $beneficiaryBase) * 100),
+            ];
+        }
+        $topSector        = $sectorReach[0] ?? null;
+        $portfolioTotal   = max(1, (int) $totalProjects);
+        $activeShare      = (int) round(($totalActive / $portfolioTotal) * 100);
+        $completedShare   = max(0, 100 - $activeShare);
+        $projectWord      = static fn(int $count): string => $count === 1 ? 'project' : 'projects';
+      ?>
+      <div class="rounded-3xl border border-white/10 bg-white/5 backdrop-blur-sm overflow-hidden">
+        <div class="grid grid-cols-1 lg:grid-cols-2 lg:divide-x lg:divide-white/10">
+
+          <!-- Left: how the portfolio is split -->
+          <div class="p-6 sm:p-8">
+            <div class="flex items-center justify-between gap-3 mb-8">
+              <h3 class="text-lg font-display font-bold flex items-center gap-3">
+                <span class="w-10 h-10 rounded-xl bg-brandRed/15 flex items-center justify-center">
+                  <i class="fa-solid fa-chart-pie text-brandRed"></i>
+                </span>
+                Projects by Sector
+              </h3>
+              <span class="inline-flex items-center gap-1.5 rounded-full bg-white/5 px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest text-white/40">
+                <span class="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse"></span> Live
+              </span>
             </div>
-            Projects by Sector
-          </h3>
-          
-          <div class="flex flex-col items-center">
-            <!-- SVG Donut Chart -->
-            <div class="relative w-56 h-56 mb-8">
-              <svg viewBox="0 0 100 100" class="w-full h-full transform -rotate-90">
-                <?php
-                $total = array_sum(array_column($sectors, 'count'));
-                $offset = 0;
-                $radius = 40;
-                $circumference = 2 * pi() * $radius;
-                ?>
-                <?php foreach ($sectors as $sector): ?>
+
+            <div class="flex flex-col items-center">
+              <div class="relative w-52 h-52 mb-8">
+                <svg viewBox="0 0 100 100" class="w-full h-full transform -rotate-90">
                   <?php
-                  $percent = $total > 0 ? ($sector['count'] / $total) : 0;
-                  $dashLength = $circumference * $percent;
-                  $dashGap = $circumference - $dashLength;
+                  $offset = 0;
+                  $radius = 40;
+                  $circumference = 2 * pi() * $radius;
                   ?>
-                  <circle cx="50" cy="50" r="<?= $radius ?>" fill="none" stroke="<?= $sector['color'] ?>" stroke-width="12"
-                    stroke-dasharray="<?= $dashLength ?> <?= $dashGap ?>"
-                    stroke-dashoffset="<?= -$offset ?>"
-                    stroke-linecap="round"
-                    class="donut-segment transition-all duration-500 hover:opacity-80"
-                    style="filter: drop-shadow(0 0 6px <?= $sector['color'] ?>40);"
-                  />
-                  <?php $offset += $dashLength; ?>
+                  <?php foreach ($sectors as $sector): ?>
+                    <?php
+                    $percent = $donutTotal > 0 ? ($sector['count'] / $donutTotal) : 0;
+                    $dashLength = $circumference * $percent;
+                    $dashGap = $circumference - $dashLength;
+                    ?>
+                    <circle cx="50" cy="50" r="<?= $radius ?>" fill="none" stroke="<?= $sector['color'] ?>" stroke-width="12"
+                      stroke-dasharray="<?= $dashLength ?> <?= $dashGap ?>"
+                      stroke-dashoffset="<?= -$offset ?>"
+                      stroke-linecap="round"
+                      class="donut-segment transition-all duration-500 hover:opacity-80"
+                      style="filter: drop-shadow(0 0 6px <?= $sector['color'] ?>40);"
+                    />
+                    <?php $offset += $dashLength; ?>
+                  <?php endforeach; ?>
+                </svg>
+                <div class="absolute inset-0 flex flex-col items-center justify-center">
+                  <span class="text-4xl font-display font-bold text-white"><?= $donutTotal ?></span>
+                  <span class="text-[11px] text-white/50 uppercase tracking-wider">Projects</span>
+                </div>
+              </div>
+
+              <div class="grid grid-cols-2 gap-2.5 w-full">
+                <?php foreach ($sectors as $sector): ?>
+                <div class="flex items-center gap-2.5 bg-white/5 rounded-xl px-3 py-2.5">
+                  <span class="h-2.5 w-2.5 rounded-full flex-shrink-0" style="background-color: <?= $sector['color'] ?>;"></span>
+                  <div class="flex-1 min-w-0">
+                    <div class="text-[11px] font-medium text-white/80 truncate"><?= sanitize($sector['name']) ?></div>
+                    <div class="text-[10px] text-white/40"><?= (int) $sector['count'] ?> <?= $projectWord((int) $sector['count']) ?></div>
+                  </div>
+                  <span class="text-xs font-bold text-white/90"><?= round($sector['percent']) ?>%</span>
+                </div>
                 <?php endforeach; ?>
-              </svg>
-              <!-- Center Text -->
-              <div class="absolute inset-0 flex flex-col items-center justify-center">
-                <span class="text-4xl font-display font-bold text-white"><?= $total ?></span>
-                <span class="text-xs text-white/50 uppercase tracking-wider">Total</span>
               </div>
-            </div>
 
-            <!-- Legend -->
-            <div class="grid grid-cols-2 gap-3 w-full">
-              <?php foreach ($sectors as $sector): ?>
-              <div class="flex items-center gap-3 bg-white/5 rounded-xl px-4 py-3">
-                <div class="w-3 h-3 rounded-full flex-shrink-0" style="background-color: <?= $sector['color'] ?>;"></div>
-                <div class="flex-1 min-w-0">
-                  <div class="text-xs font-medium text-white/80 truncate"><?= $sector['name'] ?></div>
-                  <div class="text-[10px] text-white/40"><?= $sector['count'] ?> projects</div>
-                </div>
-                <span class="text-sm font-bold text-white/90"><?= round($sector['percent']) ?>%</span>
+              <?php if ($topSector): ?>
+              <div class="mt-5 flex w-full items-center gap-3 rounded-2xl border border-brandRed/20 bg-gradient-to-r from-brandRed/10 to-transparent px-4 py-3.5">
+                <span class="w-9 h-9 shrink-0 rounded-xl bg-brandRed/20 flex items-center justify-center">
+                  <i class="fa-solid fa-lightbulb text-brandRed text-sm"></i>
+                </span>
+                <p class="text-xs leading-5 text-white/70">
+                  <span class="font-semibold text-white"><?= sanitize($topSector['name']) ?></span> carries the largest share of the portfolio: <?= (int) $topSector['count'] ?> projects reaching <?= number_format($topSector['beneficiaries']) ?> people.
+                </p>
               </div>
-              <?php endforeach; ?>
+              <?php endif; ?>
             </div>
           </div>
-        </div>
 
-        <!-- Sector Bar Details -->
-        <div class="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6 sm:p-8">
-          <h3 class="text-lg font-display font-bold mb-8 flex items-center gap-3">
-            <div class="w-10 h-10 rounded-xl bg-teal-500/15 flex items-center justify-center">
-              <i class="fa-solid fa-chart-simple text-teal-400"></i>
-            </div>
-            Sector Breakdown
-          </h3>
-          
-          <div class="space-y-6">
-            <?php foreach ($sectors as $i => $sector): ?>
-            <div class="sector-bar-item">
-              <div class="flex items-center justify-between mb-2">
-                <div class="flex items-center gap-3">
-                  <span class="text-xs font-bold text-white/30 w-5"><?= str_pad($i + 1, 2, '0', STR_PAD_LEFT) ?></span>
-                  <span class="text-sm text-white/90 font-medium"><?= $sector['name'] ?></span>
-                </div>
-                <div class="flex items-center gap-3">
-                  <span class="text-xs text-white/50"><?= $sector['count'] ?> projects</span>
-                  <span class="text-sm font-bold" style="color: <?= $sector['color'] ?>;"><?= round($sector['percent']) ?>%</span>
-                </div>
-              </div>
-              <div class="w-full h-2.5 bg-white/5 rounded-full overflow-hidden ml-8">
-                <div class="sector-bar-fill h-full rounded-full transition-all duration-1000 ease-out" 
-                  style="width: 0%; background: linear-gradient(90deg, <?= $sector['color'] ?>, <?= $sector['color'] ?>CC);" 
-                  data-width="<?= $sector['percent'] ?>%"></div>
-              </div>
-            </div>
-            <?php endforeach; ?>
-          </div>
+          <!-- Right: delivery status and the people reached -->
+          <div class="p-6 sm:p-8 space-y-8">
 
-          <!-- Summary Card -->
-          <div class="mt-8 bg-gradient-to-r from-brandRed/10 to-transparent border border-brandRed/20 rounded-xl p-5">
-            <div class="flex items-center gap-3">
-              <div class="w-10 h-10 bg-brandRed/20 rounded-xl flex items-center justify-center">
-                <i class="fa-solid fa-lightbulb text-brandRed"></i>
+            <!-- Delivery status -->
+            <div>
+              <div class="flex items-center justify-between gap-3 mb-4">
+                <h3 class="text-lg font-display font-bold flex items-center gap-3">
+                  <span class="w-10 h-10 rounded-xl bg-teal-500/15 flex items-center justify-center">
+                    <i class="fa-solid fa-list-check text-teal-400"></i>
+                  </span>
+                  Delivery Status
+                </h3>
+                <span class="text-[10px] font-semibold uppercase tracking-widest text-white/35"><?= $portfolioTotal ?> total</span>
               </div>
-              <div>
-                <div class="text-xs text-white/50 uppercase tracking-wider">Most Active Sector</div>
-                <div class="text-sm font-bold text-white"><?= $sectors[0]['name'] ?? 'N/A' ?> with <?= $sectors[0]['count'] ?? 0 ?> projects</div>
+
+              <div class="flex h-3 w-full overflow-hidden rounded-full bg-white/10">
+                <?php if ($totalActive > 0): ?>
+                <div class="h-full bg-emerald-400/90" style="width: <?= $activeShare ?>%"></div>
+                <?php endif; ?>
+                <?php if ($totalCompleted > 0): ?>
+                <div class="h-full bg-sky-400/80" style="width: <?= $completedShare ?>%"></div>
+                <?php endif; ?>
+              </div>
+
+              <div class="mt-4 grid grid-cols-2 gap-3">
+                <div class="rounded-xl bg-white/5 px-3.5 py-3">
+                  <div class="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-wider text-white/45">
+                    <span class="h-2 w-2 rounded-full bg-emerald-400"></span> Active
+                  </div>
+                  <div class="mt-1 flex items-baseline gap-2">
+                    <span class="text-xl font-display font-bold text-white tabular-nums"><?= (int) $totalActive ?></span>
+                    <span class="text-[11px] text-white/35"><?= $activeShare ?>%</span>
+                  </div>
+                </div>
+                <div class="rounded-xl bg-white/5 px-3.5 py-3">
+                  <div class="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-wider text-white/45">
+                    <span class="h-2 w-2 rounded-full bg-sky-400"></span> Completed
+                  </div>
+                  <div class="mt-1 flex items-baseline gap-2">
+                    <span class="text-xl font-display font-bold text-white tabular-nums"><?= (int) $totalCompleted ?></span>
+                    <span class="text-[11px] text-white/35"><?= $completedShare ?>%</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Beneficiary reach by sector -->
+            <div>
+              <h3 class="text-lg font-display font-bold flex items-center gap-3">
+                <span class="w-10 h-10 rounded-xl bg-brandRed/15 flex items-center justify-center">
+                  <i class="fa-solid fa-users text-brandRed"></i>
+                </span>
+                Beneficiary Reach by Sector
+              </h3>
+              <p class="mt-1 mb-3 text-[11px] leading-5 text-white/40">Unique people reached through the active portfolio, counted once in the headline total.</p>
+
+              <div class="divide-y divide-white/5">
+                <?php foreach ($sectorReach as $reach): ?>
+                <div class="flex items-center justify-between gap-3 py-2.5">
+                  <div class="flex items-center gap-2.5 min-w-0">
+                    <span class="h-2 w-2 rounded-full flex-shrink-0" style="background-color: <?= $reach['color'] ?>;"></span>
+                    <span class="text-sm text-white/85 truncate"><?= sanitize($reach['name']) ?></span>
+                  </div>
+                  <div class="flex items-center gap-3 flex-shrink-0">
+                    <span class="text-[11px] text-white/35"><?= (int) $reach['count'] ?> <?= $projectWord((int) $reach['count']) ?></span>
+                    <span class="text-sm font-bold text-white tabular-nums"><?= number_format($reach['beneficiaries']) ?></span>
+                    <span class="w-9 text-right text-[11px] text-white/40 tabular-nums"><?= $reach['share'] ?>%</span>
+                  </div>
+                </div>
+                <?php endforeach; ?>
               </div>
             </div>
           </div>
@@ -547,7 +622,7 @@ include dirname(__DIR__) . '/includes/header.php';
           </p>
           <div class="flex flex-wrap justify-center gap-4">
             <a href="<?= $base ?><?= $ctaData['button1_link'] ?? 'get-involved/contribute-with-us.php' ?>" class="bg-brandRed hover:bg-brandRed-hover text-white font-bold text-sm px-8 py-3.5 rounded-xl shadow-lg shadow-brandRed/30 transition-all flex items-center gap-2">
-              <i class="<?= $ctaData['button1_icon'] ?? 'fa-solid fa-handshake' ?> text-xs"></i> <?= sanitize($ctaData['button1_text'] ?? 'Let’s Work Together') ?>
+              <i class="<?= $ctaData['button1_icon'] ?? 'fa-solid fa-handshake' ?> text-xs"></i> <?= sanitize($ctaData['button1_text'] ?? 'Letâ€™s Work Together') ?>
             </a>
             <a href="<?= $base ?><?= $ctaData['button2_link'] ?? 'contact/index.php' ?>" class="bg-white/10 hover:bg-white/20 backdrop-blur-sm text-white font-bold text-sm px-8 py-3.5 rounded-xl border border-white/20 transition-all flex items-center gap-2">
               <i class="<?= $ctaData['button2_icon'] ?? 'fa-solid fa-envelope' ?> text-xs"></i> <?= sanitize($ctaData['button2_text'] ?? 'Contact Us') ?>
