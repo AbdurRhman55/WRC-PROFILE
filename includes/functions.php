@@ -128,6 +128,7 @@ function getById( string $table, int $id ): ?array {
         'project_donors', 'get_involved_hero', 'get_involved_cta',
         'get_involved_volunteer', 'get_involved_partner', 'get_involved_membership',
         'contact_hero', 'contact_content',
+        'our_work_dashboard', 'our_work_dashboard_metrics', 'our_work_dashboard_sectors',
     ];
 
     if ( !in_array( $table, $allowed ) ) {
@@ -166,6 +167,7 @@ function getRows( string $table, $conditions = [], string $orderBy = 'sort_order
         'our_work_process', 'our_work_process_steps',
         'our_work_pillars', 'our_work_pillars_items',
         'our_work_featured_projects', 'our_work_cta',
+        'our_work_dashboard', 'our_work_dashboard_metrics', 'our_work_dashboard_sectors',
         'projects_hero', 'projects_dashboard', 'projects_dashboard_metrics', 'projects_dashboard_sectors',
         'projects_cta', 'causes_hero', 'causes_impact', 'causes_impact_stats',
         'who_we_are_hero', 'who_we_are_impact', 'who_we_are_impact_items',

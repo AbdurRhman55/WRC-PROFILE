@@ -1321,3 +1321,43 @@ html {
   }
 }
 
+
+/* ==========================================================================
+   JUSTIFIED BODY COPY
+   Every paragraph, list item and quote in the page body is justified so the
+   content columns line up on both edges and the page reads as one clean
+   block. Hyphenation keeps the word spacing even instead of opening rivers.
+   Deliberately excluded: header/footer chrome, navigation, forms, tables,
+   short interface text (uppercase labels, eyebrows, captions under 12px),
+   truncated card previews (line-clamp) and anything marked .no-justify.
+   ========================================================================== */
+body :where(p, li, dd, blockquote, .prose):not(:where(
+  header *,
+  footer *,
+  nav *,
+  form *,
+  .mobile-tray,
+  .mobile-tray *,
+  table *,
+  .no-justify,
+  .no-justify *,
+  [class*="uppercase"],
+  [class*="tracking-"],
+  [class*="text-[9px]"],
+  [class*="text-[10px]"],
+  [class*="text-[11px]"],
+  [class*="text-xs"],
+  [class*="line-clamp-"],
+  .stat-value
+)) {
+  text-align: justify;
+  text-justify: inter-word;
+  hyphens: auto;
+  -webkit-hyphens: auto;
+}
+
+/* Opt-out for copy that must stay flush left (addresses, code, citations). */
+.no-justify,
+.no-justify :where(p, li, dd, blockquote) {
+  text-align: revert !important;
+}

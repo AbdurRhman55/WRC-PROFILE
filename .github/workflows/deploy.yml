@@ -232,6 +232,11 @@ jobs:
                 ;;
             esac
 
+            echo "=== ENSURING OUR WORK DASHBOARD SCHEMA & SEED ==="
+            if [ -f database/seed_our_work_dashboard.php ]; then
+              php -d display_errors=1 -d log_errors=0 database/seed_our_work_dashboard.php
+            fi
+
       - name: Verify live website
         shell: bash
         run: |
