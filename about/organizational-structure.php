@@ -243,21 +243,11 @@ include dirname( __DIR__ ) . '/includes/header.php';
       </div>
 
       <!-- ========================================================= -->
-      <!-- CONNECTOR 1: Seamless Line from Board to Executive Director -->
+      <!-- CONNECTOR 1: Board to Executive Director -->
       <!-- ========================================================= -->
-      <div class="flex flex-col items-center justify-center my-0">
-        <!-- Top stem -->
-        <div class="w-0.5 h-8 bg-slate-300"></div>
-        <!-- Middle label pill -->
-        <div class="bg-white px-4 py-1.5 rounded-full border border-slate-300 text-slate-700 shadow-sm z-20 flex items-center gap-2">
-          <i class="fa-solid fa-arrow-down text-[10px] text-brandRed"></i>
-          <span class="text-[11px] font-bold uppercase tracking-wider">
-            Reports to Board of Directors
-          </span>
-        </div>
-        <!-- Bottom stem with arrowhead -->
-        <div class="w-0.5 h-8 bg-slate-300 relative">
-          <div class="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2.5 h-2.5 border-r-2 border-b-2 border-slate-400 rotate-45"></div>
+      <div class="flex justify-center" aria-hidden="true">
+        <div class="relative h-16 w-0.5 bg-gradient-to-b from-slate-200 via-slate-300 to-slate-400">
+          <i class="fa-solid fa-chevron-down absolute left-1/2 top-full -translate-x-1/2 -translate-y-1/2 text-[9px] text-slate-400"></i>
         </div>
       </div>
 
@@ -285,49 +275,42 @@ include dirname( __DIR__ ) . '/includes/header.php';
       </div>
 
       <!-- ========================================================= -->
-      <!-- CONNECTOR 2: Seamless Branching to 4 Functional Areas -->
+      <!-- CONNECTOR 2: Executive Director to the four functional areas -->
       <!-- ========================================================= -->
-      
-      <!-- Stem directly under Executive Director -->
-      <div class="flex flex-col items-center justify-center my-0">
-        <div class="w-0.5 h-8 bg-slate-300"></div>
-        <div class="bg-white px-4 py-1.5 rounded-full border border-slate-300 text-slate-700 shadow-sm z-20 flex items-center gap-2">
-          <i class="fa-solid fa-arrow-down text-[10px] text-brandRed"></i>
-          <span class="text-[11px] font-bold uppercase tracking-wider">
-            Directs &amp; Oversees Four Functional Areas
-          </span>
+      <div class="flex justify-center" aria-hidden="true">
+        <div class="relative h-12 w-0.5 bg-gradient-to-b from-slate-200 via-slate-300 to-slate-400">
+          <i class="fa-solid fa-chevron-down absolute left-1/2 top-full -translate-x-1/2 -translate-y-1/2 text-[9px] text-slate-400 lg:hidden"></i>
         </div>
-        <div class="w-0.5 h-6 bg-slate-300"></div>
       </div>
 
-      <!-- Desktop 4-Column Connector Crossbar (Matches the 4-col card grid below pixel-perfect) -->
-      <div class="hidden lg:grid grid-cols-4 gap-6 max-w-7xl mx-auto -mb-0.5">
-        <!-- Branch 1 (Col 1: starts at center 50%, goes right across gap to col 2) -->
-        <div class="relative h-8">
-          <div class="absolute top-0 right-0 w-[calc(50%+12px)] h-0.5 bg-slate-300"></div>
-          <div class="absolute top-0 left-1/2 -translate-x-1/2 w-0.5 h-full bg-slate-300"></div>
-          <div class="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 border-r-2 border-b-2 border-slate-400 rotate-45"></div>
+      <!-- Desktop 4-column rail, aligned to the card grid below -->
+      <div class="hidden lg:grid grid-cols-4 gap-6 max-w-7xl mx-auto" aria-hidden="true">
+        <!-- Column 1: rail from the column centre out to the first gap -->
+        <div class="relative h-9">
+          <div class="absolute top-0 left-1/2 -right-3 h-0.5 bg-slate-300"></div>
+          <div class="absolute top-0 left-1/2 h-6 w-0.5 -translate-x-1/2 bg-slate-300"></div>
+          <i class="fa-solid fa-chevron-down absolute left-1/2 top-6 -translate-x-1/2 -translate-y-1/2 text-[9px] text-slate-400"></i>
         </div>
 
-        <!-- Branch 2 (Col 2: bridges left gap from col 1, spans across to col 3 gap) -->
-        <div class="relative h-8">
+        <!-- Column 2 -->
+        <div class="relative h-9">
           <div class="absolute top-0 -left-3 -right-3 h-0.5 bg-slate-300"></div>
-          <div class="absolute top-0 left-1/2 -translate-x-1/2 w-0.5 h-full bg-slate-300"></div>
-          <div class="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 border-r-2 border-b-2 border-slate-400 rotate-45"></div>
+          <div class="absolute top-0 left-1/2 h-6 w-0.5 -translate-x-1/2 bg-slate-300"></div>
+          <i class="fa-solid fa-chevron-down absolute left-1/2 top-6 -translate-x-1/2 -translate-y-1/2 text-[9px] text-slate-400"></i>
         </div>
 
-        <!-- Branch 3 (Col 3: bridges left gap from col 2, spans across to col 4 gap) -->
-        <div class="relative h-8">
+        <!-- Column 3 -->
+        <div class="relative h-9">
           <div class="absolute top-0 -left-3 -right-3 h-0.5 bg-slate-300"></div>
-          <div class="absolute top-0 left-1/2 -translate-x-1/2 w-0.5 h-full bg-slate-300"></div>
-          <div class="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 border-r-2 border-b-2 border-slate-400 rotate-45"></div>
+          <div class="absolute top-0 left-1/2 h-6 w-0.5 -translate-x-1/2 bg-slate-300"></div>
+          <i class="fa-solid fa-chevron-down absolute left-1/2 top-6 -translate-x-1/2 -translate-y-1/2 text-[9px] text-slate-400"></i>
         </div>
 
-        <!-- Branch 4 (Col 4: bridges left gap from col 3, ends at center 50%) -->
-        <div class="relative h-8">
-          <div class="absolute top-0 left-0 w-[calc(50%+12px)] h-0.5 bg-slate-300"></div>
-          <div class="absolute top-0 left-1/2 -translate-x-1/2 w-0.5 h-full bg-slate-300"></div>
-          <div class="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 border-r-2 border-b-2 border-slate-400 rotate-45"></div>
+        <!-- Column 4: rail from the last gap back to the column centre -->
+        <div class="relative h-9">
+          <div class="absolute top-0 -left-3 right-1/2 h-0.5 bg-slate-300"></div>
+          <div class="absolute top-0 left-1/2 h-6 w-0.5 -translate-x-1/2 bg-slate-300"></div>
+          <i class="fa-solid fa-chevron-down absolute left-1/2 top-6 -translate-x-1/2 -translate-y-1/2 text-[9px] text-slate-400"></i>
         </div>
       </div>
 
