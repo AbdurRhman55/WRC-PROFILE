@@ -68,35 +68,65 @@ include dirname( __DIR__ ) . '/includes/header.php';
 </div>
 
 <?php if ( !empty( $teamMembers ) ): ?>
-<div class = 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8'>
+<div class = 'grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6'>
 <?php foreach ( $teamMembers as $member ): ?>
-<div class = 'bg-white rounded-2xl border border-slate-100 overflow-hidden hover:shadow-xl hover:shadow-slate-900/10 hover:-translate-y-1 transition-all duration-400 group flex flex-col h-full'>
+<?php
+$memberName  = trim( (string) ( $member[ 'full_name' ] ?? $member[ 'name' ] ?? '' ) );
+$memberTitle = trim( (string) ( $member[ 'role_title' ] ?? $member[ 'title' ] ?? '' ) );
+$memberTitle = $memberTitle !== '' ? $memberTitle : 'Team Member';
+$memberPhoto = trim( (string) ( $member[ 'photo_path' ] ?? '' ) );
+
+// Monogram fallback for members without a portrait: first letters of up to
+// two meaningful words, skipping honorifics.
+$initials = '';
+if ( $memberName !== '' ) {
+    $words = preg_split( '/\s+/', $memberName ) ?: [];
+    foreach ( $words as $word ) {
+        $word = trim( $word, ".," );
+        if ( $word === '' || in_array( strtolower( $word ), [ 'mr', 'mrs', 'ms', 'dr', 'engr', 'sir' ], true ) ) {
+            continue;
+        }
+        $initials .= strtoupper( mb_substr( $word, 0, 1 ) );
+        if ( mb_strlen( $initials ) >= 2 ) {
+            break;
+        }
+    }
+    if ( $initials === '' ) {
+        $initials = strtoupper( mb_substr( $memberName, 0, 1 ) );
+    }
+}
+?>
+<article class = 'group relative flex flex-col overflow-hidden rounded-xl sm:rounded-2xl bg-white border border-slate-200/80 shadow-[0_2px_8px_-2px_rgba(15,23,42,0.05)] hover:shadow-[0_12px_28px_-6px_rgba(15,23,42,0.12)] hover:border-slate-300 hover:-translate-y-1 transition-all duration-300'>
+
+<!-- Accent rule: reveals on hover -->
+<span class = 'absolute inset-x-0 top-0 z-10 h-[3px] origin-left scale-x-0 bg-gradient-to-r from-brandRed via-red-500 to-amber-400 transition-transform duration-300 group-hover:scale-x-100' aria-hidden = 'true'></span>
 
 <!-- Member Image -->
-<div class = 'relative aspect-[4/5] overflow-hidden bg-slate-50'>
-<?php if ( !empty( $member[ 'photo_path' ] ) ): ?>
-<img src = "<?= $base ?><?= sanitize($member['photo_path']) ?>" alt = "<?= sanitize($member['full_name'] ?? $member['name'] ?? '') ?>" class = 'w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out'>
+<div class = 'relative aspect-square sm:aspect-[4/4.2] overflow-hidden bg-gradient-to-b from-slate-100 to-slate-200/80'>
+<?php if ( $memberPhoto !== '' ): ?>
+<img src = "<?= $base ?><?= sanitize( $memberPhoto ) ?>" alt = "<?= sanitize( $memberName ) ?>" loading = 'lazy' class = 'h-full w-full object-cover object-top transition-transform duration-500 ease-out group-hover:scale-105'>
 <?php else: ?>
-<div class = 'w-full h-full bg-gradient-to-br from-slate-50 to-slate-100 flex flex-col items-center justify-center p-6 text-center'>
-<div class = 'w-16 h-16 rounded-full bg-brandRed/10 border border-brandRed/20 flex items-center justify-center mb-3'>
-<i class = 'fa-solid fa-user text-2xl text-brandRed'></i>
+<div class = 'flex h-full w-full flex-col items-center justify-center bg-gradient-to-br from-slate-50 via-slate-100 to-slate-200 p-4'>
+<div class = 'flex h-12 w-12 sm:h-16 sm:w-16 items-center justify-center rounded-full bg-brandRed/10 ring-1 ring-brandRed/20 text-brandRed font-display font-bold text-base sm:text-xl shadow-inner transition-transform duration-300 group-hover:scale-110'>
+<?= sanitize( $initials ) ?>
 </div>
-<span class = 'text-xs text-slate-400 font-medium uppercase tracking-wider font-heading'>WRC Team</span>
+<span class = 'mt-2 text-[10px] font-semibold uppercase tracking-wider text-slate-400'>WRC Team</span>
 </div>
 <?php endif;
 ?>
+<span class = 'pointer-events-none absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-slate-950/25 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100' aria-hidden = 'true'></span>
 </div>
 
-<!-- Member Content -->
-<div class = 'p-5 text-center bg-white'>
-<h3 class = 'text-lg font-semibold font-display text-slate-900 leading-snug mb-1'>
-<?= sanitize( $member[ 'full_name' ] ?? $member[ 'name' ] ?? '' ) ?>
+<!-- Name & Designation only -->
+<div class = 'flex flex-1 flex-col items-center justify-center px-3.5 py-4 sm:px-4 sm:py-5 text-center bg-white'>
+<h3 class = 'font-display text-sm sm:text-base font-bold text-slate-900 group-hover:text-brandRed transition-colors duration-200 leading-snug line-clamp-1'>
+<?= sanitize( $memberName ) ?>
 </h3>
-<p class = 'text-slate-500 text-sm font-medium leading-relaxed'>
-<?= sanitize( $member[ 'role_title' ] ?? $member[ 'title' ] ?? 'Team Member' ) ?>
+<p class = 'mt-1 text-[11px] sm:text-xs font-medium text-slate-500 leading-tight line-clamp-1'>
+<?= sanitize( $memberTitle ) ?>
 </p>
 </div>
-</div>
+</article>
 <?php endforeach;
 ?>
 </div>
