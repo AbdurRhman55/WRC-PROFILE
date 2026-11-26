@@ -523,25 +523,19 @@ include dirname(__DIR__) . '/includes/header.php';
             <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
               <?php foreach ($sdg['projects'] as $sdgProject):
                 $sdgProjectStatus = wrcProjectStatusMeta((string) ($sdgProject['status'] ?? ''));
-                $sdgProjectImage  = trim((string) ($sdgProject['hero_image'] ?? ''));
                 $sdgProjectReach  = (int) ($sdgProject['beneficiaries_count'] ?? 0);
               ?>
               <a href="<?= $base ?>projects/project-name.php?slug=<?= urlencode((string) $sdgProject['slug']) ?>"
-                 class="group flex flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white transition-all duration-300 hover:-translate-y-0.5 hover:border-<?= $sdgBg ?>-300 hover:shadow-md">
-                <div class="relative aspect-[16/10] overflow-hidden bg-gradient-to-br from-<?= $sdgBg ?>-100 to-<?= $sdgBg ?>-200">
-                  <?php if ($sdgProjectImage !== ''): ?>
-                  <img src="<?= $base . $sdgProjectImage ?>" alt="<?= sanitize((string) ($sdgProject['title'] ?? '')) ?>" loading="lazy" class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
-                  <?php endif; ?>
-                  <span class="absolute left-2 top-2 inline-flex items-center gap-1.5 rounded-full border border-white/60 bg-white px-2 py-0.5 text-[10px] font-bold text-slate-700 shadow-sm">
+                 class="group flex flex-col rounded-2xl border border-slate-200 bg-white p-4 transition-all duration-300 hover:-translate-y-0.5 hover:border-<?= $sdgBg ?>-300 hover:shadow-md">
+                <div class="flex items-start justify-between gap-3">
+                  <h5 class="min-w-0 flex-1 text-[13px] font-semibold leading-snug text-ink-900 transition-colors group-hover:text-<?= $sdgColor ?>"><?= sanitize((string) ($sdgProject['title'] ?? '')) ?></h5>
+                  <span class="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-slate-200 bg-slate-50 px-2 py-0.5 text-[10px] font-bold text-slate-600">
                     <span class="h-1.5 w-1.5 rounded-full <?= sanitize($sdgProjectStatus['dot']) ?>"></span><?= sanitize($sdgProjectStatus['label']) ?>
                   </span>
                 </div>
-                <div class="flex flex-1 flex-col p-3.5">
-                  <h5 class="text-[13px] font-semibold leading-snug text-ink-900 transition-colors group-hover:text-<?= $sdgColor ?>"><?= sanitize((string) ($sdgProject['title'] ?? '')) ?></h5>
-                  <div class="mt-auto flex items-center justify-between gap-2 border-t border-slate-100 pt-2.5 text-[11px] font-medium text-slate-500">
-                    <span class="inline-flex items-center gap-1.5"><i class="fa-solid fa-users text-[10px] text-slate-400"></i><?= number_format($sdgProjectReach) ?></span>
-                    <span class="inline-flex items-center gap-1 text-slate-400 transition-colors group-hover:text-<?= $sdgColor ?>">View <i class="fa-solid fa-arrow-right text-[9px] transition-transform group-hover:translate-x-0.5"></i></span>
-                  </div>
+                <div class="mt-3 flex items-center justify-between gap-2 border-t border-slate-100 pt-2.5 text-[11px] font-medium text-slate-500">
+                  <span class="inline-flex items-center gap-1.5"><i class="fa-solid fa-users text-[10px] text-slate-400"></i><?= number_format($sdgProjectReach) ?></span>
+                  <span class="inline-flex items-center gap-1 text-slate-400 transition-colors group-hover:text-<?= $sdgColor ?>">View <i class="fa-solid fa-arrow-right text-[9px] transition-transform group-hover:translate-x-0.5"></i></span>
                 </div>
               </a>
               <?php endforeach; ?>
