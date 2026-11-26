@@ -60,7 +60,11 @@ if ( !isset( $logoV ) ) $logoV = @filemtime( dirname( __DIR__ ) . '/assets/image
 <ul class = 'space-y-4 text-slate-400 text-[13px] leading-relaxed'>
 <li class = 'flex items-start gap-3'>
 <i class = 'fa-solid fa-location-dot mt-1 text-brandRed'></i>
-<span><?= getSetting( 'address' ) ?></span>
+<span><span class = 'block text-white font-semibold uppercase tracking-[0.14em] text-[11px] mb-1'>Head Office</span><?= getSetting( 'address' ) ?></span>
+</li>
+<li class = 'flex items-start gap-3'>
+<i class = 'fa-solid fa-location-dot mt-1 text-brandRed'></i>
+<span><span class = 'block text-white font-semibold uppercase tracking-[0.14em] text-[11px] mb-1'>Islamabad Office</span><?= getSetting( 'address_islamabad', 'G-12/2, House #8, Street 74, Islamabad, Pakistan' ) ?></span>
 </li>
 <li class = 'flex items-center gap-3'>
 <i class = 'fa-solid fa-phone text-brandRed'></i>

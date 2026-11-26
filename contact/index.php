@@ -238,7 +238,7 @@ include dirname(__DIR__) . '/includes/header.php';
       <h2 class="text-3xl md:text-4xl font-extrabold text-slate-900 mt-2" style="font-family:'Fraunces',serif;"><?= sanitize($contentData['offices_title'] ?? 'Office Locations') ?></h2>
       <p class="mt-3 text-slate-500 text-sm max-w-xl mx-auto"><?= sanitize($contentData['offices_description'] ?? '') ?></p>
     </div>
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 items-stretch">
+    <div class="grid grid-cols-1 <?= count( $offices ) === 2 ? 'md:grid-cols-2' : 'md:grid-cols-3' ?> gap-6 items-stretch">
       <?php if (!empty($offices)): ?>
       <?php if (count($offices) === 1): $office = $offices[0]; ?>
       <div class="md:col-span-3 mx-auto w-full max-w-4xl overflow-hidden rounded-3xl border border-slate-200 bg-slate-50 shadow-sm">

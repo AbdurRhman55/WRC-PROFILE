@@ -1356,6 +1356,21 @@ body :where(p, li, dd, blockquote, .prose):not(:where(
   -webkit-hyphens: auto;
 }
 
+/* Alignment that the layout itself sets always wins over the blanket rule
+   above: centered section intros, right-aligned timeline steps and anything
+   explicitly left-aligned get it back by inheritance instead of being forced
+   into justified copy (which pushed their lines to the left edge). Responsive
+   variants such as md:text-center / sm:text-left are covered because the
+   attribute selector matches the whole class list. Body copy whose containers
+   state no alignment keeps the justified treatment, and elements that carry
+   their own alignment or text-justify class are left alone.
+   ========================================================================== */
+:is([class*="text-center"], [class*="text-right"], [class*="text-left"]) :is(p, li, dd, blockquote, .prose):not([class*="text-justify"], [class*="text-center"], [class*="text-right"], [class*="text-left"]) {
+  text-align: inherit;
+  hyphens: manual;
+  -webkit-hyphens: manual;
+}
+
 /* Opt-out for copy that must stay flush left (addresses, code, citations). */
 .no-justify,
 .no-justify :where(p, li, dd, blockquote) {

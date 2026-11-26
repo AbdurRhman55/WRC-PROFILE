@@ -8,6 +8,8 @@
  *      options, and trims Our Offices down to the head office.
  *  v3  Sets the official head office phone number on the office card and the
  *      contact info list.
+ *  v4  Adds the Islamabad office (G-12/2, House #8, Street 74) alongside the
+ *      head office so the Our Offices grid lists both locations.
  *
  * Both passes merge into the existing contact_content JSON, so phone numbers,
  * the map, feedback categories, and whistleblower text are preserved. Each
@@ -15,7 +17,7 @@
  * survive every deployment.
  *
  * Standalone:  php database/seed_contact_page.php
- * Re-run:      DELETE FROM site_settings WHERE setting_key IN ('contact_page_v1','contact_page_v2','contact_page_v3');
+ * Re-run:      DELETE FROM site_settings WHERE setting_key IN ('contact_page_v1','contact_page_v2','contact_page_v3','contact_page_v4');
  */
 
 if ( !isset( $pdo ) || !( $pdo instanceof PDO ) ) {
@@ -25,6 +27,7 @@ if ( !isset( $pdo ) || !( $pdo instanceof PDO ) ) {
 const WRC_CONTACT_MARKER_V1 = 'contact_page_v1';
 const WRC_CONTACT_MARKER_V2 = 'contact_page_v2';
 const WRC_CONTACT_MARKER_V3 = 'contact_page_v3';
+const WRC_CONTACT_MARKER_V4 = 'contact_page_v4';
 
 /** Create the tables and any missing columns without disturbing stored data. */
 function wrc_contact_ensure_schema( PDO $pdo ): void {
@@ -282,6 +285,56 @@ if ( !wrc_contact_done( $pdo, WRC_CONTACT_MARKER_V3 ) ) {
         wrc_contact_mark( $pdo, WRC_CONTACT_MARKER_V3 );
         $pdo->commit();
         $applied[] = 'official head office phone number';
+    } catch ( Throwable $error ) {
+        if ( $pdo->inTransaction() ) {
+            $pdo->rollBack();
+        }
+        throw $error;
+    }
+}
+
+// ---------------------------------------------------------------- pass v4 --
+if ( !wrc_contact_done( $pdo, WRC_CONTACT_MARKER_V4 ) ) {
+    try {
+        $pdo->beginTransaction();
+
+        $stored = wrc_contact_read( $pdo );
+        $data   = $stored[ 'data' ];
+
+        $offices = array_values( array_filter( (array) ( $data[ 'offices' ] ?? [] ), 'is_array' ) );
+
+        $hasIslamabad = false;
+        foreach ( $offices as $office ) {
+            if ( stripos( (string) ( $office[ 'address' ] ?? '' ), 'islamabad' ) !== false ) {
+                $hasIslamabad = true;
+                break;
+            }
+        }
+
+        $added = false;
+        if ( !$hasIslamabad ) {
+            $head = $offices[0] ?? [];
+            $offices[] = [
+                'icon'    => 'fa-building',
+                'name'    => 'Islamabad Office',
+                'badge'   => 'Branch',
+                'email'   => (string) ( $head['email'] ?? 'info@wrc.org.pk' ),
+                'hours'   => (string) ( $head['hours'] ?? 'Mon-Fri: 9:00 AM - 5:00 PM' ),
+                'phone'   => (string) ( $head['phone'] ?? '' ),
+                'address' => 'G-12/2, House #8, Street 74, Islamabad, Pakistan',
+            ];
+            $data['offices'] = $offices;
+
+            wrc_contact_write( $pdo, $stored['id'], $data );
+            $added = true;
+        }
+
+        wrc_contact_mark( $pdo, WRC_CONTACT_MARKER_V4 );
+        $pdo->commit();
+
+        if ( $added ) {
+            $applied[] = 'Islamabad office card';
+        }
     } catch ( Throwable $error ) {
         if ( $pdo->inTransaction() ) {
             $pdo->rollBack();
