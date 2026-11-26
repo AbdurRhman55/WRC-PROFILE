@@ -328,6 +328,28 @@ if (strpos($heroImage, 'assets/') !== 0 && strpos($heroImage, 'http') !== 0 && s
     </div>
 </section>
 
+<!-- ORGANIZATION REGISTRATION STATUS -->
+<section class="bg-white py-10 lg:py-12" aria-label="Organization status">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="relative overflow-hidden rounded-[2rem] border border-slate-200 bg-slate-50 px-6 py-10 text-center shadow-sm sm:px-10">
+            <div class="absolute inset-x-0 top-0 h-1.5 bg-gradient-to-r from-brandRed via-brandRed to-brandRed/40"></div>
+            <span class="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-white text-brandRed shadow-md ring-1 ring-slate-200">
+                <i class="fa-solid fa-stamp text-2xl" aria-hidden="true"></i>
+            </span>
+            <p class="mt-5 text-brandRed text-xs font-semibold uppercase tracking-[0.35em]">Organization Status</p>
+            <h2 class="mt-2 text-3xl sm:text-4xl font-extrabold text-slate-900">Registered Organization</h2>
+            <div class="mx-auto mt-5 h-1 w-16 rounded-full bg-gradient-to-r from-brandRed to-brandRed/40"></div>
+            <div class="mx-auto mt-5 max-w-3xl space-y-4">
+                <p class="text-base leading-7 text-slate-600 sm:text-lg sm:leading-8">
+                    <strong class="font-bold text-slate-900">Welfare &amp; Relief Committee (WRC)</strong> is a legally registered non-profit organization committed to humanitarian assistance, community development, and improving the quality of life of vulnerable and underserved communities across Pakistan.
+                </p>
+                <p class="text-base leading-7 text-slate-600 sm:text-lg sm:leading-8">
+                    Through responsible programme implementation, institutional partnerships, and a commitment to transparency and accountability, WRC works to create meaningful and sustainable community impact.
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
 
 <!-- CHAIRMAN'S MESSAGE -->
 <?php $chairman = $homepageMap['chairman_message'] ?? null; $chairmanData = $chairman ? json_decode($chairman['content'], true) : []; ?>

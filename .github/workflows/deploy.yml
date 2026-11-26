@@ -147,7 +147,7 @@ jobs:
           port: ${{ secrets.HOSTINGER_PORT || 22 }}
           timeout: 60s
           command_timeout: 10m
-          source: "about,admin,assets,contact,database,get-involved,impact,news,our-work,projects,resources,where-we-work,index.php,privacy.html,privacy.php,includes/footer.php,includes/form-submit.php,includes/functions.php,includes/header.php,includes/newsletter-subscribe.php,terms.html,terms.php"
+          source: "about,admin,assets,contact,database,get-involved,impact,news,our-work,projects,where-we-work,index.php,privacy.html,privacy.php,includes/footer.php,includes/form-submit.php,includes/functions.php,includes/header.php,includes/newsletter-subscribe.php,terms.html,terms.php"
           target: ${{ steps.docroot.outputs.dir }}
           overwrite: true
 
