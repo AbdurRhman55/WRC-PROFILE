@@ -4,7 +4,7 @@ require_once dirname(__DIR__) . '/includes/functions.php';
 
 $base = siteBaseUrl();
 $pageTitle = 'Get Involved | WRC';
-$metaDescription = 'Join Welfare & Relief Committee as a volunteer, explore career opportunities, or become a partner or member.';
+$metaDescription = 'Join Welfare & Relief Committee as a volunteer, explore career opportunities, or support our humanitarian work.';
 
 // Fetch hero & CTA from dedicated tables
 $heroRow = getRow('get_involved_hero');
@@ -13,13 +13,6 @@ $ctaRow = getRow('get_involved_cta');
 // Fetch section data from dedicated tables
 $volunteerRow = getRow('get_involved_volunteer');
 $volunteerRequirements = json_decode($volunteerRow['requirements'] ?? '[]', true);
-
-$partnerRow = getRow('get_involved_partner');
-$partnerTypes = json_decode($partnerRow['partner_types'] ?? '[]', true);
-
-$membershipRow = getRow('get_involved_membership');
-$memberBenefits = json_decode($membershipRow['benefits'] ?? '[]', true);
-$memberTypes = json_decode($membershipRow['membership_types'] ?? '[]', true);
 
 // Fetch open job listings
 $jobs = getRows('job_listings', 'is_active = 1 ORDER BY posted_at DESC, id DESC');
@@ -71,8 +64,6 @@ include dirname(__DIR__) . '/includes/header.php';
     <div class="flex overflow-x-auto gap-1 py-2 scrollbar-hide" style="scrollbar-width:none;">
       <a href="#volunteer" class="shrink-0 text-xs font-semibold px-4 py-2 rounded-lg hover:bg-brandRed hover:text-white text-slate-600 transition-all whitespace-nowrap"><i class="fa-solid fa-hands-holding-child mr-1.5 text-brandRed"></i> Volunteer</a>
       <a href="#careers" class="shrink-0 text-xs font-semibold px-4 py-2 rounded-lg hover:bg-brandRed hover:text-white text-slate-600 transition-all whitespace-nowrap"><i class="fa-solid fa-briefcase mr-1.5 text-brandRed"></i> Careers</a>
-      <a href="#partner" class="shrink-0 text-xs font-semibold px-4 py-2 rounded-lg hover:bg-brandRed hover:text-white text-slate-600 transition-all whitespace-nowrap"><i class="fa-solid fa-handshake-angle mr-1.5 text-brandRed"></i> Partner</a>
-      <a href="#membership" class="shrink-0 text-xs font-semibold px-4 py-2 rounded-lg hover:bg-brandRed hover:text-white text-slate-600 transition-all whitespace-nowrap"><i class="fa-solid fa-id-card-clip mr-1.5 text-brandRed"></i> Membership</a>
     </div>
   </div>
 </section>
@@ -361,170 +352,6 @@ include dirname(__DIR__) . '/includes/header.php';
 </section>
 
 
-<!-- 3. BECOME A PARTNER -->
-<section id="partner" class="py-12 md:py-12 bg-white">
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <div class="grid lg:grid-cols-2 gap-16 items-start">
-
-      <!-- LEFT: INFO -->
-      <div>
-        <div class="inline-flex items-center gap-2 bg-red-50 text-brandRed text-[11px] font-bold uppercase tracking-widest px-3 py-1.5 rounded-full mb-4">
-          <i class="fa-solid fa-handshake-angle"></i> Partnerships
-        </div>
-        <h2 class="text-3xl md:text-4xl font-bold font-heading text-slate-900 mb-5" style="font-family:'Fraunces',serif;"><?= sanitize($partnerRow['section_title'] ?? 'Become a Partner') ?></h2>
-        <p class="text-slate-600 leading-relaxed mb-6"><?= sanitize($partnerRow['description'] ?? '') ?></p>
-
-        <?php if (!empty($partnerTypes)): ?>
-        <div class="grid sm:grid-cols-2 gap-4 mb-6">
-          <?php foreach ($partnerTypes as $pt): ?>
-          <div class="bg-slate-50 rounded-xl border border-slate-200/60 p-5 hover:shadow-md transition-shadow">
-            <div class="w-10 h-10 rounded-lg bg-brandRed/10 text-brandRed flex items-center justify-center mb-3 text-lg"><i class="fa-solid <?= sanitize($pt['icon'] ?? 'fa-handshake') ?>"></i></div>
-            <h4 class="font-bold text-slate-900 text-sm mb-1"><?= sanitize($pt['title'] ?? '') ?></h4>
-            <p class="text-xs text-slate-600 leading-relaxed"><?= sanitize($pt['description'] ?? '') ?></p>
-          </div>
-          <?php endforeach; ?>
-        </div>
-        <?php endif; ?>
-      </div>
-
-      <!-- RIGHT: FORM -->
-      <div class="bg-slate-50 rounded-3xl border border-slate-200/60 p-8 md:p-10 shadow-sm">
-        <h3 class="text-xl font-bold text-slate-900 mb-1">Partnership Inquiry</h3>
-        <p class="text-sm text-slate-500 mb-6">Share your details and partnership idea. Our team will respond within 3 business days.</p>
-
-        <form id="partner-form" class="space-y-5" novalidate>
-          <div>
-            <label for="p-org" class="block text-xs font-semibold text-slate-700 mb-1.5">Organization Name <span class="text-brandRed">*</span></label>
-            <input type="text" id="p-org" name="organization" required placeholder="e.g. Acme Foundation" class="w-full px-4 py-3 rounded-xl border border-slate-300 bg-white text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-brandRed/30 focus:border-brandRed transition-all" />
-          </div>
-          <div class="grid md:grid-cols-2 gap-5">
-            <div>
-              <label for="p-contact" class="block text-xs font-semibold text-slate-700 mb-1.5">Contact Person <span class="text-brandRed">*</span></label>
-              <input type="text" id="p-contact" name="contact" required placeholder="Full name" class="w-full px-4 py-3 rounded-xl border border-slate-300 bg-white text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-brandRed/30 focus:border-brandRed transition-all" />
-            </div>
-            <div>
-              <label for="p-email" class="block text-xs font-semibold text-slate-700 mb-1.5">Email <span class="text-brandRed">*</span></label>
-              <input type="email" id="p-email" name="email" required placeholder="contact@org.com" class="w-full px-4 py-3 rounded-xl border border-slate-300 bg-white text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-brandRed/30 focus:border-brandRed transition-all" />
-            </div>
-          </div>
-          <div>
-            <label for="p-type" class="block text-xs font-semibold text-slate-700 mb-1.5">Partnership Type <span class="text-brandRed">*</span></label>
-            <select id="p-type" name="type" required class="w-full px-4 py-3 rounded-xl border border-slate-300 bg-white text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-brandRed/30 focus:border-brandRed transition-all">
-              <option value="" disabled selected>Select partnership type</option>
-              <option value="institutional">Institutional / Academic</option>
-              <option value="corporate">Corporate / CSR</option>
-              <option value="ngo">International NGO</option>
-              <option value="donor">Donor / Funding Agency</option>
-              <option value="government">Government Agency</option>
-              <option value="other">Other</option>
-            </select>
-          </div>
-          <div>
-            <label for="p-message" class="block text-xs font-semibold text-slate-700 mb-1.5">Message / Proposal <span class="text-brandRed">*</span></label>
-            <textarea id="p-message" name="message" rows="4" required placeholder="Describe your partnership idea or inquiry..." class="w-full px-4 py-3 rounded-xl border border-slate-300 bg-white text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-brandRed/30 focus:border-brandRed transition-all resize-none"></textarea>
-          </div>
-          <button type="submit" class="w-full bg-brandRed hover:bg-brandRed-hover text-white font-bold text-sm py-3.5 rounded-xl shadow-md transition-all flex items-center justify-center gap-2">
-            <i class="fa-solid fa-paper-plane text-xs"></i> Submit Inquiry
-          </button>
-        </form>
-        <div id="partner-success" class="hidden mt-4 bg-green-50 border border-green-200 text-green-800 text-sm rounded-xl p-4 flex items-start gap-3">
-          <i class="fa-solid fa-circle-check text-green-600 mt-0.5"></i>
-          <div><strong>Inquiry submitted!</strong> Thank you for your interest. Our Partnerships team will reach out shortly.</div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-
-<!-- 4. MEMBERSHIP -->
-<section id="membership" class="py-12 md:py-12 bg-slate-50">
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <div class="grid lg:grid-cols-2 gap-16 items-start">
-
-      <!-- LEFT: INFO -->
-      <div>
-        <div class="inline-flex items-center gap-2 bg-red-50 text-brandRed text-[11px] font-bold uppercase tracking-widest px-3 py-1.5 rounded-full mb-4">
-          <i class="fa-solid fa-id-card-clip"></i> Membership
-        </div>
-        <h2 class="text-3xl md:text-4xl font-bold font-heading text-slate-900 mb-5" style="font-family:'Fraunces',serif;"><?= sanitize($membershipRow['section_title'] ?? 'Become a WRC Member') ?></h2>
-        <p class="text-slate-600 leading-relaxed mb-6"><?= sanitize($membershipRow['description'] ?? '') ?></p>
-
-        <?php if (!empty($memberBenefits)): ?>
-        <div class="space-y-4 mb-6">
-          <?php foreach ($memberBenefits as $b): ?>
-          <div class="flex items-start gap-4">
-            <div class="w-10 h-10 rounded-lg bg-brandRed/10 text-brandRed flex items-center justify-center shrink-0"><i class="fa-solid <?= sanitize($b['icon'] ?? 'fa-check') ?> text-sm"></i></div>
-            <div>
-              <h4 class="font-bold text-slate-900 text-sm"><?= sanitize($b['title'] ?? '') ?></h4>
-              <p class="text-xs text-slate-600 mt-0.5"><?= sanitize($b['description'] ?? '') ?></p>
-            </div>
-          </div>
-          <?php endforeach; ?>
-        </div>
-        <?php endif; ?>
-
-        <?php if (!empty($memberTypes)): ?>
-        <div class="bg-white rounded-2xl border border-slate-200/60 p-6">
-          <h4 class="font-bold text-slate-900 text-sm mb-3">Membership Types</h4>
-          <div class="space-y-3">
-            <?php foreach ($memberTypes as $mt): ?>
-            <div class="flex items-center justify-between">
-              <div class="flex items-center gap-2 text-sm text-slate-700"><i class="fa-solid fa-user text-brandRed text-xs"></i> <?= sanitize($mt['type'] ?? '') ?></div>
-              <span class="text-xs font-semibold text-slate-500"><?= sanitize($mt['price'] ?? '') ?></span>
-            </div>
-            <?php endforeach; ?>
-          </div>
-        </div>
-        <?php endif; ?>
-      </div>
-
-      <!-- RIGHT: FORM -->
-      <div class="bg-white rounded-3xl border border-slate-200/60 p-8 md:p-10 shadow-sm">
-        <h3 class="text-xl font-bold text-slate-900 mb-1">Membership Registration</h3>
-        <p class="text-sm text-slate-500 mb-6">Complete the form below to become a registered WRC member.</p>
-
-        <form id="membership-form" class="space-y-5" novalidate>
-          <div>
-            <label for="mem-name" class="block text-xs font-semibold text-slate-700 mb-1.5">Full Name <span class="text-brandRed">*</span></label>
-            <input type="text" id="mem-name" name="name" required placeholder="e.g. Fatima Bibi" class="w-full px-4 py-3 rounded-xl border border-slate-300 bg-white text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-brandRed/30 focus:border-brandRed transition-all" />
-          </div>
-          <div>
-            <label for="mem-email" class="block text-xs font-semibold text-slate-700 mb-1.5">Email Address <span class="text-brandRed">*</span></label>
-            <input type="email" id="mem-email" name="email" required placeholder="fatima@example.com" class="w-full px-4 py-3 rounded-xl border border-slate-300 bg-white text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-brandRed/30 focus:border-brandRed transition-all" />
-          </div>
-          <div>
-            <label for="mem-phone" class="block text-xs font-semibold text-slate-700 mb-1.5">Phone Number <span class="text-brandRed">*</span></label>
-            <input type="tel" id="mem-phone" name="phone" required placeholder="+92 3XX XXXXXXX" class="w-full px-4 py-3 rounded-xl border border-slate-300 bg-white text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-brandRed/30 focus:border-brandRed transition-all" />
-          </div>
-          <div>
-            <label for="mem-address" class="block text-xs font-semibold text-slate-700 mb-1.5">Address <span class="text-brandRed">*</span></label>
-            <input type="text" id="mem-address" name="address" required placeholder="City, Province" class="w-full px-4 py-3 rounded-xl border border-slate-300 bg-white text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-brandRed/30 focus:border-brandRed transition-all" />
-          </div>
-          <div>
-            <label for="mem-type" class="block text-xs font-semibold text-slate-700 mb-1.5">Membership Type <span class="text-brandRed">*</span></label>
-            <select id="mem-type" name="type" required class="w-full px-4 py-3 rounded-xl border border-slate-300 bg-white text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-brandRed/30 focus:border-brandRed transition-all">
-              <option value="" disabled selected>Select membership type</option>
-              <option value="individual">Individual</option>
-              <option value="family">Family</option>
-              <option value="organizational">Organizational</option>
-              <option value="lifetime">Lifetime</option>
-            </select>
-          </div>
-          <button type="submit" class="w-full bg-brandRed hover:bg-brandRed-hover text-white font-bold text-sm py-3.5 rounded-xl shadow-md transition-all flex items-center justify-center gap-2">
-            <i class="fa-solid fa-id-card text-xs"></i> Register as Member
-          </button>
-        </form>
-        <div id="membership-success" class="hidden mt-4 bg-green-50 border border-green-200 text-green-800 text-sm rounded-xl p-4 flex items-start gap-3">
-          <i class="fa-solid fa-circle-check text-green-600 mt-0.5"></i>
-          <div><strong>Welcome aboard!</strong> Your membership registration has been received. You'll receive a confirmation email with your member ID within 48 hours.</div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-
 <!-- CTA BANNER -->
 <section class="bg-gradient-to-br from-brandRed to-brandRed-hover py-10">
   <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-white">
@@ -616,8 +443,6 @@ $extraScripts = <<<SCRIPT
   }
 
   handleForm('volunteer-form', 'volunteer-success', 'volunteer');
-  handleForm('partner-form', 'partner-success', 'partner');
-  handleForm('membership-form', 'membership-success', 'membership');
 
   // Job apply form special handler
   var jobForm = document.getElementById('job-apply-form');

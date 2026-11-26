@@ -164,6 +164,22 @@ $sdgs = $contentData['sdgs'] ?? [
     ['key' => 'climate', 'number' => '13', 'title' => 'Climate Action', 'desc' => 'Climate resilience, disaster preparedness, environmental protection and community awareness initiatives help vulnerable districts anticipate shocks and recover faster.', 'color' => 'emerald-600', 'bg' => 'emerald', 'tags' => ['Climate resilience', 'Disaster preparedness', 'Environmental protection'], 'icon' => 'fa-earth-asia'],
 ];
 
+// SDG 2 (Zero Hunger) carries the food-security portfolio. The dashboard's
+// stored list predates it, so it is merged in whenever it is missing instead
+// of being dropped the next time the section is saved.
+$sdgZeroHunger = [
+    'key' => 'food', 'number' => '2', 'title' => 'Zero Hunger',
+    'desc' => 'Emergency food distributions, Ramzan food packs and seasonal relief reach food-insecure households in disaster-affected and low-income districts.',
+    'color' => 'amber-600', 'bg' => 'amber',
+    'tags' => ['Emergency food relief', 'Seasonal food distribution'],
+    'icon' => 'fa-bowl-food',
+];
+
+$sdgs = array_values( $sdgs );
+if ( !in_array( 'food', array_column( $sdgs, 'key' ), true ) ) {
+    array_unshift( $sdgs, $sdgZeroHunger );
+}
+
 $sdgBeneficiaryMap = [
     'health' => [ 'value' => $beneficiaries['health'], 'label' => 'Health beneficiaries' ],
     'skills' => [ 'value' => $beneficiaries['skills'], 'label' => 'Skill Development beneficiaries' ],
@@ -188,9 +204,45 @@ foreach ( $sdgs as &$sdg ) {
 }
 unset( $sdg );
 
-// Cards are rendered in a two-column grid; a plain list keeps the "odd card"
-// centring below working even if the dashboard stores the goals keyed.
 $sdgs = array_values( $sdgs );
+
+// Every active project is filed under the SDG its sector maps to, so the goals
+// below double as the portfolio grouped by goal instead of a decorative list.
+// Categories come straight from projects.category; anything unmapped is left
+// out rather than shown against the wrong goal.
+$sdgCategoryMap = [
+    'health'             => 'health',
+    'education'          => 'skills',
+    'livelihood'         => 'gender',
+    'wash'               => 'wash',
+    'water'              => 'wash',
+    'food security'      => 'food',
+    'emergency response' => 'climate',
+    'climate resilience' => 'climate',
+];
+
+$projectsBySdg = [];
+$sdgProjectTotal = 0;
+foreach ( getRows( 'projects', 'is_active = 1 ORDER BY sort_order ASC, id ASC' ) as $sdgProject ) {
+    $sdgCategoryKey = strtolower( trim( (string) ( $sdgProject['category'] ?? '' ) ) );
+    $sdgKey = $sdgCategoryMap[ $sdgCategoryKey ] ?? null;
+    if ( $sdgKey === null ) {
+        continue;
+    }
+    $projectsBySdg[ $sdgKey ][] = $sdgProject;
+    $sdgProjectTotal++;
+}
+
+foreach ( $sdgs as &$sdg ) {
+    $sdgKey = $sdg['key'] ?? '';
+    $sdg['projects']       = $projectsBySdg[ $sdgKey ] ?? [];
+    $sdg['project_count']  = count( $sdg['projects'] );
+    $sdg['project_reach']  = 0;
+    foreach ( $sdg['projects'] as $sdgProjectRow ) {
+        $sdg['project_reach'] += (int) ( $sdgProjectRow['beneficiaries_count'] ?? 0 );
+    }
+}
+unset( $sdg );
 
 // SDG section copy (dashboard-managed, approved wording as the fallback).
 $sdgEyebrow = trim((string) ($contentData['sdg_eyebrow'] ?? '')) ?: 'Global Goals Alignment';
@@ -397,39 +449,111 @@ include dirname(__DIR__) . '/includes/header.php';
       <p class="md:border-l md:border-slate-200 md:pl-10"><?= sanitize($sdgIntro2) ?></p>
     </div>
 
-    <div class="mt-6 grid gap-6 md:grid-cols-2">
-      <?php $sdgTotal = count($sdgs); foreach ($sdgs as $sdgIndex => $sdg): ?>
-      <article class="group relative overflow-hidden rounded-[1.75rem] border border-slate-200 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl<?= ($sdgTotal % 2 === 1 && $sdgIndex === $sdgTotal - 1) ? ' md:col-span-2 md:w-[calc(50%-0.75rem)] md:justify-self-center' : '' ?>">
-        <div class="flex items-stretch">
-          <div class="relative flex w-24 shrink-0 flex-col items-center justify-center overflow-hidden bg-gradient-to-b from-<?= $sdg['bg'] ?>-500 to-<?= $sdg['bg'] ?>-700 p-4 text-white sm:w-28">
-            <span class="pointer-events-none absolute -right-1 -top-3 font-display text-6xl font-bold text-white/10"><?= sanitize($sdg['number']) ?></span>
-            <i class="fa-solid <?= sanitize($sdg['icon']) ?> mb-2 text-2xl sm:text-3xl"></i>
-            <span class="text-[10px] font-bold uppercase tracking-[0.18em] text-white/75">SDG</span>
-            <span class="font-display text-2xl font-bold leading-none"><?= sanitize($sdg['number']) ?></span>
-          </div>
-          <div class="flex-1 p-5 sm:p-6">
-            <h3 class="text-lg font-bold leading-snug text-ink-900"><?= sanitize($sdg['title']) ?></h3>
-            <p class="mt-2 text-sm leading-6 text-slate-600"><?= sanitize($sdg['desc']) ?></p>
+    <div class="mt-6 flex flex-wrap items-center justify-center gap-2.5">
+      <span class="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-1.5 text-[12px] font-semibold text-slate-600 shadow-sm">
+        <i class="fa-solid fa-diagram-project text-brandRed"></i> <?= (int) $sdgProjectTotal ?> active projects mapped across <?= count($sdgs) ?> goals
+      </span>
+      <span class="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-1.5 text-[12px] font-semibold text-slate-600 shadow-sm">
+        <i class="fa-solid fa-circle-check text-emerald-500"></i> Every project is listed under the goal it serves
+      </span>
+    </div>
 
-            <?php if (!empty($sdg['metric'])): ?>
-            <div class="mt-5 flex items-end justify-between gap-4 rounded-xl border border-slate-100 bg-slate-50 px-4 py-3">
-              <div>
-                <p class="text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-400">Beneficiaries reached</p>
-                <p class="mt-0.5 font-display text-2xl font-bold leading-none text-ink-900"><?= sanitize($sdg['metric']) ?></p>
-                <p class="mt-1 text-[11px] font-medium text-slate-500"><?= sanitize($sdg['metric_label'] ?? 'Programme beneficiaries') ?></p>
+    <div class="mt-6 space-y-6">
+      <?php foreach ($sdgs as $sdg):
+        $sdgBg      = $sdg['bg'] ?? 'slate';
+        $sdgColor   = $sdg['color'] ?? 'slate-600';
+        $sdgIcon    = $sdg['icon'] ?? 'fa-bullseye';
+        $sdgCount   = (int) ($sdg['project_count'] ?? 0);
+        $sdgTags    = is_array($sdg['tags'] ?? null) ? $sdg['tags'] : [];
+        // Goals without a dashboard-managed headline figure fall back to the
+        // live sum of their own projects, so the rail is never blank.
+        $sdgMetricValue = $sdg['metric'] ?? number_format((int) ($sdg['project_reach'] ?? 0));
+        $sdgMetricLabel = $sdg['metric_label'] ?? 'Beneficiaries in listed projects';
+      ?>
+      <article class="group overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm transition-shadow duration-300 hover:shadow-xl">
+        <div class="flex flex-col lg:flex-row">
+
+          <!-- IDENTITY RAIL: goal number, icon, copy, tags and headline figure -->
+          <div class="relative overflow-hidden bg-gradient-to-br from-<?= $sdgBg ?>-600 via-<?= $sdgBg ?>-700 to-<?= $sdgBg ?>-800 p-6 text-white lg:w-[21rem] lg:shrink-0 lg:p-7 xl:w-[24rem]">
+            <span class="pointer-events-none absolute -right-5 -top-9 font-display text-[8rem] font-bold leading-none text-white/10"><?= sanitize((string) ($sdg['number'] ?? '')) ?></span>
+            <div class="relative flex h-full flex-col">
+              <div class="flex items-center gap-3">
+                <span class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-white/15 ring-1 ring-white/25">
+                  <i class="fa-solid <?= sanitize($sdgIcon) ?> text-lg"></i>
+                </span>
+                <div class="min-w-0">
+                  <p class="text-[10px] font-bold uppercase tracking-[0.2em] text-white/70">SDG <?= sanitize((string) ($sdg['number'] ?? '')) ?></p>
+                  <h3 class="text-lg font-bold leading-tight"><?= sanitize((string) ($sdg['title'] ?? '')) ?></h3>
+                </div>
               </div>
-              <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-white text-xs font-bold text-<?= $sdg['color'] ?> ring-1 ring-slate-100">
-                <?= sanitize($sdg['number']) ?>
+
+              <p class="mt-4 text-[13px] leading-6 text-white/85"><?= sanitize((string) ($sdg['desc'] ?? '')) ?></p>
+
+              <?php if ($sdgTags): ?>
+              <div class="mt-4 flex flex-wrap gap-1.5">
+                <?php foreach ($sdgTags as $sdgTag): ?>
+                <span class="rounded-full bg-white/15 px-2.5 py-1 text-[11px] font-medium text-white/90 ring-1 ring-white/20"><?= sanitize((string) $sdgTag) ?></span>
+                <?php endforeach; ?>
+              </div>
+              <?php endif; ?>
+
+              <div class="mt-auto pt-5">
+                <div class="rounded-2xl bg-white/10 p-4 ring-1 ring-white/20">
+                  <p class="text-[10px] font-semibold uppercase tracking-[0.16em] text-white/70">Beneficiaries reached</p>
+                  <p class="mt-1.5 font-display text-3xl font-bold leading-none tabular-nums"><?= sanitize((string) $sdgMetricValue) ?></p>
+                  <p class="mt-1.5 text-[11px] font-medium text-white/75"><?= sanitize((string) $sdgMetricLabel) ?></p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- PROJECTS: every project filed under this goal -->
+          <div class="min-w-0 flex-1 p-5 sm:p-6">
+            <div class="mb-4 flex flex-wrap items-center justify-between gap-3">
+              <div class="flex items-center gap-2">
+                <span class="h-2 w-2 rounded-full bg-<?= $sdgBg ?>-500"></span>
+                <h4 class="text-[11px] font-bold uppercase tracking-[0.18em] text-slate-400">Projects under this goal</h4>
+              </div>
+              <span class="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-[11px] font-bold text-slate-600">
+                <?= $sdgCount ?> <?= $sdgCount === 1 ? 'project' : 'projects' ?>
               </span>
             </div>
-            <?php endif; ?>
 
-            <div class="mt-4 flex flex-wrap gap-2">
-              <?php foreach ($sdg['tags'] as $tag): ?>
-              <span class="rounded-full border border-<?= $sdg['bg'] ?>-100 bg-<?= $sdg['bg'] ?>-50 px-2.5 py-1 text-[11px] font-medium text-<?= $sdg['bg'] ?>-700"><?= sanitize($tag) ?></span>
+            <?php if ($sdgCount > 0): ?>
+            <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+              <?php foreach ($sdg['projects'] as $sdgProject):
+                $sdgProjectStatus = wrcProjectStatusMeta((string) ($sdgProject['status'] ?? ''));
+                $sdgProjectImage  = trim((string) ($sdgProject['hero_image'] ?? ''));
+                $sdgProjectReach  = (int) ($sdgProject['beneficiaries_count'] ?? 0);
+              ?>
+              <a href="<?= $base ?>projects/project-name.php?slug=<?= urlencode((string) $sdgProject['slug']) ?>"
+                 class="group flex flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white transition-all duration-300 hover:-translate-y-0.5 hover:border-<?= $sdgBg ?>-300 hover:shadow-md">
+                <div class="relative aspect-[16/10] overflow-hidden bg-gradient-to-br from-<?= $sdgBg ?>-100 to-<?= $sdgBg ?>-200">
+                  <?php if ($sdgProjectImage !== ''): ?>
+                  <img src="<?= $base . $sdgProjectImage ?>" alt="<?= sanitize((string) ($sdgProject['title'] ?? '')) ?>" loading="lazy" class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                  <?php endif; ?>
+                  <span class="absolute left-2 top-2 inline-flex items-center gap-1.5 rounded-full border border-white/60 bg-white px-2 py-0.5 text-[10px] font-bold text-slate-700 shadow-sm">
+                    <span class="h-1.5 w-1.5 rounded-full <?= sanitize($sdgProjectStatus['dot']) ?>"></span><?= sanitize($sdgProjectStatus['label']) ?>
+                  </span>
+                </div>
+                <div class="flex flex-1 flex-col p-3.5">
+                  <h5 class="text-[13px] font-semibold leading-snug text-ink-900 transition-colors group-hover:text-<?= $sdgColor ?>"><?= sanitize((string) ($sdgProject['title'] ?? '')) ?></h5>
+                  <div class="mt-auto flex items-center justify-between gap-2 border-t border-slate-100 pt-2.5 text-[11px] font-medium text-slate-500">
+                    <span class="inline-flex items-center gap-1.5"><i class="fa-solid fa-users text-[10px] text-slate-400"></i><?= number_format($sdgProjectReach) ?></span>
+                    <span class="inline-flex items-center gap-1 text-slate-400 transition-colors group-hover:text-<?= $sdgColor ?>">View <i class="fa-solid fa-arrow-right text-[9px] transition-transform group-hover:translate-x-0.5"></i></span>
+                  </div>
+                </div>
+              </a>
               <?php endforeach; ?>
             </div>
+            <?php else: ?>
+            <div class="rounded-2xl border border-dashed border-slate-200 bg-slate-50 px-4 py-8 text-center">
+              <i class="fa-solid fa-folder-open mb-2 block text-xl text-slate-300"></i>
+              <p class="text-sm text-slate-500">Projects for this goal are being documented.</p>
+            </div>
+            <?php endif; ?>
           </div>
+
         </div>
       </article>
       <?php endforeach; ?>

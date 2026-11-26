@@ -312,8 +312,6 @@ tailwind.config = {
             <a href = "<?= $base ?>where-we-work/index.php#map" class = 'block px-3 py-2 rounded-xl hover:bg-slate-800 hover:text-white transition-colors'><i class = 'fa-solid fa-map-location-dot mr-2 text-slate-400'></i> Pakistan Map</a>
             <a href = "<?= $base ?>where-we-work/index.php#kp" class = 'block px-3 py-2 rounded-xl hover:bg-slate-800 hover:text-white transition-colors'><i class = 'fa-solid fa-mountain mr-2 text-slate-400'></i> Khyber Pakhtunkhwa</a>
             <a href = "<?= $base ?>where-we-work/index.php#punjab" class = 'block px-3 py-2 rounded-xl hover:bg-slate-800 hover:text-white transition-colors'><i class = 'fa-solid fa-wheat-awn mr-2 text-slate-400'></i> Punjab</a>
-            <a href = "<?= $base ?>where-we-work/index.php#sindh" class = 'block px-3 py-2 rounded-xl hover:bg-slate-800 hover:text-white transition-colors'><i class = 'fa-solid fa-water mr-2 text-slate-400'></i> Sindh</a>
-            <a href = "<?= $base ?>where-we-work/index.php#balochistan" class = 'block px-3 py-2 rounded-xl hover:bg-slate-800 hover:text-white transition-colors'><i class = 'fa-solid fa-sun mr-2 text-slate-400'></i> Balochistan</a>
             <a href = "<?= $base ?>where-we-work/index.php#districts" class = 'block px-3 py-2 rounded-xl hover:bg-slate-800 hover:text-white transition-colors'><i class = 'fa-solid fa-layer-group mr-2 text-slate-400'></i> District Coverage</a>
             </div>
             </div>
@@ -354,8 +352,6 @@ tailwind.config = {
             <a href = "<?= $base ?>get-involved/contribute-with-us.php" class = 'block px-3 py-2 rounded-xl hover:bg-slate-800 hover:text-white transition-colors'><i class = 'fa-solid fa-handshake mr-2 text-slate-400'></i> Let’s Work Together</a>
             <a href = "<?= $base ?>get-involved/index.php#volunteer" class = 'block px-3 py-2 rounded-xl hover:bg-slate-800 hover:text-white transition-colors'><i class = 'fa-solid fa-hands-holding-child mr-2 text-slate-400'></i> Volunteer</a>
             <a href = "<?= $base ?>get-involved/index.php#careers" class = 'block px-3 py-2 rounded-xl hover:bg-slate-800 hover:text-white transition-colors'><i class = 'fa-solid fa-user-plus mr-2 text-slate-400'></i> Careers</a>
-            <a href = "<?= $base ?>get-involved/index.php#partner" class = 'block px-3 py-2 rounded-xl hover:bg-slate-800 hover:text-white transition-colors'><i class = 'fa-solid fa-handshake-angle mr-2 text-slate-400'></i> Become a Partner</a>
-            <a href = "<?= $base ?>get-involved/index.php#membership" class = 'block px-3 py-2 rounded-xl hover:bg-slate-800 hover:text-white transition-colors'><i class = 'fa-solid fa-id-card-clip mr-2 text-slate-400'></i> Membership</a>
             </div>
             </div>
 
@@ -514,8 +510,6 @@ tailwind.config = {
             <a href = "<?= $base ?>where-we-work/index.php#map">Pakistan Map</a>
             <a href = "<?= $base ?>where-we-work/index.php#kp">Khyber Pakhtunkhwa</a>
             <a href = "<?= $base ?>where-we-work/index.php#punjab">Punjab</a>
-            <a href = "<?= $base ?>where-we-work/index.php#sindh">Sindh</a>
-            <a href = "<?= $base ?>where-we-work/index.php#balochistan">Balochistan</a>
             <a href = "<?= $base ?>where-we-work/index.php#districts">District Coverage</a>
             </div></div>
 
@@ -550,8 +544,6 @@ tailwind.config = {
             <a href = "<?= $base ?>get-involved/contribute-with-us.php">Let’s Work Together</a>
             <a href = "<?= $base ?>get-involved/index.php#volunteer">Volunteer</a>
             <a href = "<?= $base ?>get-involved/index.php#careers">Careers</a>
-            <a href = "<?= $base ?>get-involved/index.php#partner">Become a Partner</a>
-            <a href = "<?= $base ?>get-involved/index.php#membership">Membership</a>
             </div></div>
 
             <button class = 'mobile-tray-accordion-btn' data-delay = '0.45'>
