@@ -235,6 +235,7 @@ tailwind.config = {
                  address hold the bar to a single 32px line at every lg+ width. -->
             <div class = 'flex items-center gap-5 shrink-0 whitespace-nowrap'>
             <span class = 'flex items-center gap-2'><i class = 'fa-solid fa-phone text-white text-[11px]'></i> <?= getSetting( 'phone' ) ?></span>
+            <a href = 'https://wa.me/92325244422' target = '_blank' rel = 'noopener noreferrer' class = 'flex items-center gap-2 text-white hover:text-white/80 transition-colors'><i class = 'fa-brands fa-whatsapp text-[11px]'></i> 0325-2444422</a>
             <span class = 'flex items-center gap-2'><i class = 'fa-solid fa-envelope text-white text-[11px]'></i> <?= getSetting( 'email' ) ?></span>
             <span class = 'text-white/80'>|</span>
             <span class = 'text-white/90 font-medium'><i class = 'fa-solid fa-bullhorn text-white mr-1 text-[11px]'></i> <?= getSetting( 'emergency_banner' ) ?></span>
@@ -339,7 +340,6 @@ tailwind.config = {
             <a href = "<?= $base ?>news/index.php#news" class = 'block px-3 py-2 rounded-xl hover:bg-slate-800 hover:text-white transition-colors'><i class = 'fa-solid fa-newspaper mr-2 text-slate-400'></i> Latest News</a>
             <a href = "<?= $base ?>news/blog.php" class = 'block px-3 py-2 rounded-xl hover:bg-slate-800 hover:text-white transition-colors'><i class = 'fa-solid fa-pen-nib mr-2 text-slate-400'></i> Blog</a>
             <a href = "<?= $base ?>news/gallery.php" class = 'block px-3 py-2 rounded-xl hover:bg-slate-800 hover:text-white transition-colors'><i class = 'fa-solid fa-images mr-2 text-slate-400'></i> Photo Gallery</a>
-            <a href = "<?= $base ?>news/index.php#videos" class = 'block px-3 py-2 rounded-xl hover:bg-slate-800 hover:text-white transition-colors'><i class = 'fa-solid fa-video mr-2 text-slate-400'></i> Video Gallery</a>
             </div>
             </div>
 
@@ -351,7 +351,6 @@ tailwind.config = {
             <div class = 'dropdown-menu absolute top-full right-0 w-56 bg-white border border-gray-100 rounded-2xl shadow-xl p-2 text-slate-600 text-xs'>
             <a href = "<?= $base ?>get-involved/contribute-with-us.php" class = 'block px-3 py-2 rounded-xl hover:bg-slate-800 hover:text-white transition-colors'><i class = 'fa-solid fa-handshake mr-2 text-slate-400'></i> Let’s Work Together</a>
             <a href = "<?= $base ?>get-involved/index.php#volunteer" class = 'block px-3 py-2 rounded-xl hover:bg-slate-800 hover:text-white transition-colors'><i class = 'fa-solid fa-hands-holding-child mr-2 text-slate-400'></i> Volunteer</a>
-            <a href = "<?= $base ?>get-involved/index.php#careers" class = 'block px-3 py-2 rounded-xl hover:bg-slate-800 hover:text-white transition-colors'><i class = 'fa-solid fa-user-plus mr-2 text-slate-400'></i> Careers</a>
             </div>
             </div>
 
@@ -533,7 +532,6 @@ tailwind.config = {
             <a href = "<?= $base ?>news/index.php">Latest News</a>
             <a href = "<?= $base ?>news/blog.php">Blog</a>
             <a href = "<?= $base ?>news/gallery.php">Photo Gallery</a>
-            <a href = "<?= $base ?>news/index.php#videos">Video Gallery</a>
             </div></div>
 
             <button class = 'mobile-tray-accordion-btn' data-delay = '0.40'>
@@ -543,7 +541,6 @@ tailwind.config = {
             <div class = 'mobile-tray-submenu'><div>
             <a href = "<?= $base ?>get-involved/contribute-with-us.php">Let’s Work Together</a>
             <a href = "<?= $base ?>get-involved/index.php#volunteer">Volunteer</a>
-            <a href = "<?= $base ?>get-involved/index.php#careers">Careers</a>
             </div></div>
 
             <button class = 'mobile-tray-accordion-btn' data-delay = '0.45'>

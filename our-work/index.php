@@ -83,8 +83,22 @@ $dashboardData = isset( $owSections[ 'our_work_dashboard' ] ) ? json_decode( $ow
 $featuredProjData = isset( $owSections[ 'our_work_featured_projects' ] ) ? json_decode( $owSections[ 'our_work_featured_projects' ][ 'content' ], true ) : [];
 $ctaData = isset( $owSections[ 'our_work_cta' ] ) ? json_decode( $owSections[ 'our_work_cta' ][ 'content' ], true ) : [];
 
-// Fetch featured projects ( latest active )
+// Fetch featured projects ( latest active ); fall back to the newest
+// published projects when nothing is flagged active so the section never
+// renders as an empty grid.
 $featuredProjects = getRows( 'projects', "is_active = 1 AND status = 'active' ORDER BY start_date DESC LIMIT 3" );
+if ( count( $featuredProjects ) < 3 ) {
+    $seen = [];
+    foreach ( $featuredProjects as $fp ) {
+        $seen[ $fp[ 'slug' ] ] = true;
+    }
+    foreach ( getRows( 'projects', "is_active = 1 ORDER BY start_date DESC LIMIT 6" ) as $fp ) {
+        if ( count( $featuredProjects ) >= 3 ) break;
+        if ( isset( $seen[ $fp[ 'slug' ] ] ) ) continue;
+        $seen[ $fp[ 'slug' ] ] = true;
+        $featuredProjects[] = $fp;
+    }
+}
 
 $pageTitle = 'Our Work & Core Programs | Welfare & Relief Committee (WRC)';
 $metaDescription = "Explore WRC's four programme sectors: Health, WASH, Food & Relief Distribution and Skill Development, delivered across Khyber Pakhtunkhwa and Punjab.";
@@ -143,7 +157,7 @@ include dirname( __DIR__ ) . '/includes/header.php';
 
 <div class = 'text-center max-w-3xl mx-auto mb-8'>
 <span class = 'text-brandRed font-bold text-xs uppercase tracking-widest mb-2 block'>Our Portfolio</span>
-<h2 class = 'text-3xl md:text-4xl font-extrabold font-heading text-slate-900 mb-4'>Active & Completed Projects</h2>
+<h2 class = 'text-3xl md:text-4xl font-extrabold font-heading text-slate-900 mb-4'>Our Projects</h2>
 <p class = 'text-slate-600 text-sm leading-relaxed'>Delivering real results through humanitarian projects across health, WASH, food and relief distribution, and skill development.</p>
 </div>
 
@@ -162,7 +176,7 @@ include dirname( __DIR__ ) . '/includes/header.php';
 <p class = 'text-xs text-slate-600 leading-relaxed mb-4 line-clamp-3'><?= sanitize( $project[ 'description' ] ?? '' ) ?></p>
 <?php if ( $project[ 'beneficiaries_count' ] > 0 ): ?>
 <div class = 'flex items-center gap-2 text-[10px] text-slate-500 mb-2'>
-<i class = 'fa-solid fa-users text-brandRed'></i> <?= number_format( $project[ 'beneficiaries_count' ] ) ?>+ beneficiaries
+<i class = 'fa-solid fa-users text-brandRed'></i> <?= number_format( $project[ 'beneficiaries_count' ] ) ?> beneficiaries
 </div>
 <?php endif;
 ?>
@@ -277,14 +291,14 @@ $dashSectors = $dashboardData['sectors'] ?? [];
 <!-- Total Beneficiaries -->
 <div class = 'relative rounded-2xl bg-white p-5 lg:p-6 border border-slate-200 shadow-sm hover:shadow-lg transition-shadow duration-300'>
 <div class = 'absolute inset-0 bg-gradient-to-br from-brandRed/5 to-transparent rounded-2xl'></div>
-<div class = 'relative flex items-center gap-4'>
-<div class = 'flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-brandRed/10 text-brandRed'>
-<i class = 'fa-solid fa-users text-2xl'></i>
+<div class = 'relative flex items-center gap-3 lg:gap-4'>
+<div class = 'flex h-11 w-11 lg:h-14 lg:w-14 shrink-0 items-center justify-center rounded-xl bg-brandRed/10 text-brandRed'>
+<i class = 'fa-solid fa-users text-xl lg:text-2xl'></i>
 </div>
-<div>
-<p class = 'text-[11px] font-semibold uppercase tracking-[0.1em] text-slate-500'>Total Reach</p>
-<div class = 'counter-val text-3xl font-display font-bold leading-none text-ink-900' data-target = '<?= $beneficiaries['total'] ?>'>0</div>
-<p class = 'mt-1 text-[11px] text-slate-500'>Beneficiaries across all sectors</p>
+<div class = 'min-w-0 flex-1'>
+<p class = 'text-[11px] font-semibold uppercase tracking-[0.1em] text-slate-500 truncate'>Total Reach</p>
+<div class = 'counter-val text-2xl lg:text-3xl font-display font-bold leading-none text-ink-900 tabular-nums break-words' data-target = '<?= $beneficiaries['total'] ?>'>0</div>
+<p class = 'mt-1 text-[11px] text-slate-500 leading-tight break-words'>Beneficiaries across all sectors</p>
 </div>
 </div>
 </div>
@@ -292,14 +306,14 @@ $dashSectors = $dashboardData['sectors'] ?? [];
 <!-- Active Projects -->
 <div class = 'relative rounded-2xl bg-white p-5 lg:p-6 border border-slate-200 shadow-sm hover:shadow-lg transition-shadow duration-300'>
 <div class = 'absolute inset-0 bg-gradient-to-br from-blue-500/5 to-transparent rounded-2xl'></div>
-<div class = 'relative flex items-center gap-4'>
-<div class = 'flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-blue-600'>
-<i class = 'fa-solid fa-folder-open text-2xl'></i>
+<div class = 'relative flex items-center gap-3 lg:gap-4'>
+<div class = 'flex h-11 w-11 lg:h-14 lg:w-14 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-blue-600'>
+<i class = 'fa-solid fa-folder-open text-xl lg:text-2xl'></i>
 </div>
-<div>
-<p class = 'text-[11px] font-semibold uppercase tracking-[0.1em] text-slate-500'>Active Projects</p>
-<div class = 'counter-val text-3xl font-display font-bold leading-none text-ink-900' data-target = '<?= $coverage['projects'] ?>'>0</div>
-<p class = 'mt-1 text-[11px] text-slate-500'>Currently implementing</p>
+<div class = 'min-w-0 flex-1'>
+<p class = 'text-[11px] font-semibold uppercase tracking-[0.1em] text-slate-500 truncate'>Active Projects</p>
+<div class = 'counter-val text-2xl lg:text-3xl font-display font-bold leading-none text-ink-900 tabular-nums break-words' data-target = '<?= $coverage['active_projects'] ?>'>0</div>
+<p class = 'mt-1 text-[11px] text-slate-500 leading-tight break-words'>Currently implementing</p>
 </div>
 </div>
 </div>
@@ -307,14 +321,14 @@ $dashSectors = $dashboardData['sectors'] ?? [];
 <!-- Districts Covered -->
 <div class = 'relative rounded-2xl bg-white p-5 lg:p-6 border border-slate-200 shadow-sm hover:shadow-lg transition-shadow duration-300'>
 <div class = 'absolute inset-0 bg-gradient-to-br from-emerald-500/5 to-transparent rounded-2xl'></div>
-<div class = 'relative flex items-center gap-4'>
-<div class = 'flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600'>
-<i class = 'fa-solid fa-map-location-dot text-2xl'></i>
+<div class = 'relative flex items-center gap-3 lg:gap-4'>
+<div class = 'flex h-11 w-11 lg:h-14 lg:w-14 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600'>
+<i class = 'fa-solid fa-map-location-dot text-xl lg:text-2xl'></i>
 </div>
-<div>
-<p class = 'text-[11px] font-semibold uppercase tracking-[0.1em] text-slate-500'>Districts Reached</p>
-<div class = 'counter-val text-3xl font-display font-bold leading-none text-ink-900' data-target = '<?= $coverage['districts'] ?>'>0</div>
-<p class = 'mt-1 text-[11px] text-slate-500'>Communities served</p>
+<div class = 'min-w-0 flex-1'>
+<p class = 'text-[11px] font-semibold uppercase tracking-[0.1em] text-slate-500 truncate'>Districts Reached</p>
+<div class = 'counter-val text-2xl lg:text-3xl font-display font-bold leading-none text-ink-900 tabular-nums break-words' data-target = '<?= $coverage['districts'] ?>'>0</div>
+<p class = 'mt-1 text-[11px] text-slate-500 leading-tight break-words'>Communities served</p>
 </div>
 </div>
 </div>
@@ -322,14 +336,14 @@ $dashSectors = $dashboardData['sectors'] ?? [];
 <!-- Partners -->
 <div class = 'relative rounded-2xl bg-white p-5 lg:p-6 border border-slate-200 shadow-sm hover:shadow-lg transition-shadow duration-300'>
 <div class = 'absolute inset-0 bg-gradient-to-br from-amber-500/5 to-transparent rounded-2xl'></div>
-<div class = 'relative flex items-center gap-4'>
-<div class = 'flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-amber-50 text-amber-600'>
-<i class = 'fa-solid fa-handshake text-2xl'></i>
+<div class = 'relative flex items-center gap-3 lg:gap-4'>
+<div class = 'flex h-11 w-11 lg:h-14 lg:w-14 shrink-0 items-center justify-center rounded-xl bg-amber-50 text-amber-600'>
+<i class = 'fa-solid fa-handshake text-xl lg:text-2xl'></i>
 </div>
-<div>
-<p class = 'text-[11px] font-semibold uppercase tracking-[0.1em] text-slate-500'>Partners</p>
-<div class = 'counter-val text-3xl font-display font-bold leading-none text-ink-900' data-target = '<?= $coverage['partners'] ?>'>0</div>
-<p class = 'mt-1 text-[11px] text-slate-500'>Funding & implementation</p>
+<div class = 'min-w-0 flex-1'>
+<p class = 'text-[11px] font-semibold uppercase tracking-[0.1em] text-slate-500 truncate'>Partners</p>
+<div class = 'counter-val text-2xl lg:text-3xl font-display font-bold leading-none text-ink-900 tabular-nums break-words' data-target = '<?= $coverage['partners'] ?>'>0</div>
+<p class = 'mt-1 text-[11px] text-slate-500 leading-tight break-words'>Funding &amp; implementation</p>
 </div>
 </div>
 </div>
@@ -386,8 +400,8 @@ $spanClass = $isLast ? 'lg:col-span-3 lg:max-w-4xl lg:mx-auto' : '';
 </div>
 </div>
 
-<h3 class = 'text-lg font-bold leading-snug text-ink-900 mb-2'><?= $sectorName ?></h3>
-<p class = 'text-sm leading-relaxed text-slate-600 mb-5'>
+<h3 class = 'text-lg font-bold leading-snug text-ink-900 mb-2 break-words'><?= $sectorName ?></h3>
+<p class = 'text-sm leading-relaxed text-slate-600 mb-5 break-words'>
 <?php
 $descriptions = [
 'Health' => 'Delivering essential healthcare, medical camps, and hospital services to underserved communities across Pakistan.',
@@ -401,13 +415,12 @@ echo $descriptions[$sectorName] ?? '';
 
 <div class = 'relative rounded-2xl border border-slate-100 bg-<?= str_replace('500', '50', $colors['primary']) ?> p-4 lg:p-5 transition-all duration-300 group-hover:border-<?= str_replace('500', '200', $colors['primary']) ?>'>
 <div class = 'flex items-end justify-between gap-4 flex-wrap'>
-<div class = 'flex-1 min-w-[140px]'>
-<p class = 'text-[10px] font-semibold uppercase tracking-[0.16em] text-<?= str_replace('500', '500', $colors['primary']) ?>'>Live Beneficiary Count</p>
-<div class = 'mt-1 flex items-baseline gap-2'>
-<div class = 'counter-val font-display text-3xl lg:text-4xl font-bold leading-none text-ink-900' data-target = '<?= $beneficiaries[$stat['key']] ?>'>0</div>
-<span class = 'text-sm font-medium text-slate-400'>+</span>
+<div class = 'flex-1 min-w-0 max-w-full'>
+<p class = 'text-[10px] font-semibold uppercase tracking-[0.16em] text-<?= str_replace('500', '500', $colors['primary']) ?> break-words'>Live Beneficiary Count</p>
+<div class = 'mt-1 flex items-baseline gap-2 min-w-0'>
+<div class = 'counter-val font-display text-2xl lg:text-3xl font-bold leading-none text-ink-900 tabular-nums break-words min-w-0' data-target = '<?= $beneficiaries[$stat['key']] ?>'>0</div>
 </div>
-<p class = 'mt-2 text-[11px] leading-4 text-slate-500'><?= $stat['sub'] ?></p>
+<p class = 'mt-2 text-[11px] leading-4 text-slate-500 break-words'><?= $stat['sub'] ?></p>
 </div>
 <div class = 'flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-white text-lg font-bold text-<?= str_replace('500', '600', $colors['primary']) ?> ring-1 ring-slate-100'>
 <i class = 'fa-solid <?= $mapping['icon'] ?>'></i>
@@ -465,7 +478,6 @@ Geographic Reach
 <p class = 'text-[10px] font-semibold uppercase tracking-[0.16em] text-teal-500'>Live Coverage Count</p>
 <div class = 'mt-1 flex items-baseline gap-2'>
 <div class = 'counter-val font-display text-3xl lg:text-4xl font-bold leading-none text-ink-900' data-target = '<?= $coverage['provinces'] ?>'>0</div>
-<span class = 'text-sm font-medium text-slate-400'>+</span>
 </div>
 <p class = 'mt-2 text-[11px] leading-4 text-slate-500'>Across our project areas</p>
 </div>
@@ -608,7 +620,6 @@ $counterScript = <<<'JS'
       const target = parseInt(el.getAttribute('data-target'), 10);
       const duration = 2000;
       const startTime = performance.now();
-      const suffix = target >= 1000 ? '+' : '';
 
       function easeOutExpo(t) {
         return t === 1 ? 1 : 1 - Math.pow(2, -10 * t);
@@ -621,9 +632,9 @@ $counterScript = <<<'JS'
         const current = Math.floor(easedProgress * target);
 
         if (target >= 1000) {
-          el.textContent = current.toLocaleString() + suffix;
+          el.textContent = current.toLocaleString();
         } else {
-          el.textContent = current + suffix;
+          el.textContent = current;
         }
 
         if (progress < 1) {

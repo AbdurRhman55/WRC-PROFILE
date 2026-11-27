@@ -1257,7 +1257,7 @@ function wrcPortfolioAreaDistricts( string $area ): array {
  * completing or deactivating a project updates the homepage automatically.
  * Beneficiaries come from the canonical figures so the whole site agrees.
  *
- * @return array{projects:int,beneficiaries:int,districts:int,partners:int,sectors:int,provinces:int}
+ * @return array{projects:int,active_projects:int,beneficiaries:int,districts:int,partners:int,sectors:int,provinces:int}
  */
 function wrcProjectImpactSummary( bool $refresh = false ): array {
     static $cached = null;
@@ -1269,12 +1269,13 @@ function wrcProjectImpactSummary( bool $refresh = false ): array {
     $figures = wrcBeneficiaryFigures( $refresh );
 
     $summary = [
-        'projects'      => 0,
-        'beneficiaries' => (int) $figures[ 'total' ],
-        'districts'     => 0,
-        'partners'      => 0,
-        'sectors'       => 0,
-        'provinces'     => 0,
+        'projects'        => 0,
+        'active_projects' => 0,
+        'beneficiaries'   => (int) $figures[ 'total' ],
+        'districts'       => 0,
+        'partners'        => 0,
+        'sectors'         => 0,
+        'provinces'       => 0,
     ];
 
     $pdo = $GLOBALS[ 'pdo' ] ?? null;
@@ -1285,13 +1286,15 @@ function wrcProjectImpactSummary( bool $refresh = false ): array {
     try {
         $row = $pdo->query(
             "SELECT COUNT(*) AS projects,
+                    COUNT(CASE WHEN status = 'active' THEN 1 END) AS active_projects,
                     COUNT(DISTINCT NULLIF(province_id, 0)) AS provinces
                FROM projects
               WHERE is_active = 1"
         )->fetch( PDO::FETCH_ASSOC );
 
-        $summary[ 'projects' ]  = (int) ( $row[ 'projects' ] ?? 0 );
-        $summary[ 'provinces' ] = (int) ( $row[ 'provinces' ] ?? 0 );
+        $summary[ 'projects' ]        = (int) ( $row[ 'projects' ] ?? 0 );
+        $summary[ 'active_projects' ] = (int) ( $row[ 'active_projects' ] ?? 0 );
+        $summary[ 'provinces' ]       = (int) ( $row[ 'provinces' ] ?? 0 );
 
         // Sector count folds categories into the four programme sectors the
         // organisation reports against.
@@ -2672,12 +2675,12 @@ function createSlug( string $text ): string {
 
 function formatNumber( int $number ): string {
     if ( $number >= 1000000 ) {
-        return number_format( $number / 1000000, 1 ) . 'M+';
+        return number_format( $number / 1000000, 1 ) . 'M';
     }
     if ( $number >= 1000 ) {
-        return number_format( $number / 1000, 0 ) . 'K+';
+        return number_format( $number / 1000, 0 ) . 'K';
     }
-    return $number . '+';
+    return (string) $number;
 }
 
 function formatDate( string $date, string $format = 'M d, Y' ): string {

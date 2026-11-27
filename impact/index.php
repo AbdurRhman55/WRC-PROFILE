@@ -245,7 +245,7 @@ foreach ( $sdgs as &$sdg ) {
 unset( $sdg );
 
 // SDG section copy (dashboard-managed, approved wording as the fallback).
-$sdgEyebrow = trim((string) ($contentData['sdg_eyebrow'] ?? '')) ?: 'Global Goals Alignment';
+$sdgEyebrow = trim((string) ($contentData['sdg_eyebrow'] ?? '')) ?: 'UN Global';
 $sdgTitle   = trim((string) ($contentData['sdg_title'] ?? '')) ?: 'Contributing to the United Nations Sustainable Development Goals (SDGs)';
 $sdgIntro1  = trim((string) ($contentData['sdg_intro1'] ?? ''))
     ?: "WRC aligns its humanitarian and development initiatives with the United Nations Sustainable Development Goals (SDGs). Our programmes contribute directly to SDG 3 (Good Health & Well-Being), SDG 4 (Quality Education), SDG 5 (Gender Equality), SDG 6 (Clean Water & Sanitation) and SDG 13 (Climate Action), with every beneficiary counted once across our programme sectors.";
@@ -643,7 +643,6 @@ $counterScript = <<<'JS'
       const target = parseInt(el.getAttribute('data-target'), 10);
       const duration = 2000;
       const startTime = performance.now();
-      const suffix = target >= 1000 ? '+' : '';
 
       function easeOutExpo(t) {
         return t === 1 ? 1 : 1 - Math.pow(2, -10 * t);
@@ -656,9 +655,9 @@ $counterScript = <<<'JS'
         const current = Math.floor(easedProgress * target);
 
         if (target >= 1000) {
-          el.textContent = current.toLocaleString() + suffix;
+          el.textContent = current.toLocaleString();
         } else {
-          el.textContent = current + suffix;
+          el.textContent = current;
         }
 
         if (progress < 1) {

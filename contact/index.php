@@ -182,13 +182,8 @@ include dirname(__DIR__) . '/includes/header.php';
 <!-- HERO SECTION -->
 <section class="relative w-full bg-slate-900 text-white overflow-hidden min-h-[480px] md:min-h-[540px] lg:min-h-[580px] flex items-center">
   <div class="absolute inset-0">
-    <?php
-      $heroImg = $heroRow['hero_image'] ?? 'assets/images/contact-hero.jpg';
-      if (strpos($heroImg, 'assets/') !== 0 && strpos($heroImg, 'http') !== 0 && strpos($heroImg, 'uploads/') !== 0) {
-          $heroImg = 'assets/images/' . $heroImg;
-      }
-    ?>
-    <img src="<?= $base ?><?= $heroImg ?>" alt="Contact Welfare &amp; Relief Committee" class="absolute inset-0 w-full h-full object-cover">
+    <div class="absolute inset-0 bg-slate-900"></div>
+    <img src="<?= $base ?>assets/images/logo.png" alt="" aria-hidden="true" class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[520px] max-w-[85%] opacity-[0.07] select-none pointer-events-none">
     <div class="absolute inset-0 bg-gradient-to-br from-slate-950/70 via-slate-900/50 to-brandRed/20"></div>
   </div>
   <div class="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 md:py-12 lg:py-12">
@@ -348,14 +343,22 @@ include dirname(__DIR__) . '/includes/header.php';
           <?php
             $infoValue = trim((string) ($info['value'] ?? ''));
             $infoIcon  = (string) ($info['icon'] ?? 'fa-phone');
-            $infoTel   = strpos($infoIcon, 'phone') !== false ? phoneHref($infoValue) : '';
+            $infoBrand = strpos($infoIcon, 'fa-brands') !== false;
+            $infoTel   = (!$infoBrand && strpos($infoIcon, 'phone') !== false) ? phoneHref($infoValue) : '';
+            $infoWa    = $infoBrand && strpos($infoIcon, 'whatsapp') !== false ? preg_replace('/[^0-9]/', '', $infoValue) : '';
+            if ($infoWa !== '') {
+                if (strpos($infoWa, '0') === 0) $infoWa = '92' . substr($infoWa, 1);
+                elseif (strpos($infoWa, '92') !== 0 && strpos($infoWa, '9') !== 0) $infoWa = '92' . $infoWa;
+            }
             $infoMail  = (strpos($infoIcon, 'envelope') !== false && filter_var($infoValue, FILTER_VALIDATE_EMAIL)) ? $infoValue : '';
           ?>
           <div class="flex items-center gap-4 p-4 bg-white rounded-xl border border-slate-200 hover:shadow-md transition-all">
-            <div class="w-10 h-10 rounded-lg bg-brandRed/10 flex items-center justify-center shrink-0"><i class="fa-solid <?= sanitize($infoIcon) ?> text-brandRed"></i></div>
+            <div class="w-10 h-10 rounded-lg bg-brandRed/10 flex items-center justify-center shrink-0"><i class="<?= $infoBrand ? 'fa-brands' : 'fa-solid' ?> <?= sanitize($infoIcon) ?> text-brandRed"></i></div>
             <div>
               <p class="text-[11px] text-slate-400 font-semibold uppercase tracking-wider"><?= sanitize($info['label'] ?? '') ?></p>
-              <?php if ($infoTel !== ''): ?>
+              <?php if ($infoWa !== ''): ?>
+              <a href="https://wa.me/<?= sanitize($infoWa) ?>" target="_blank" rel="noopener noreferrer" class="text-sm font-bold text-slate-900 transition-colors hover:text-brandRed"><?= sanitize($infoValue) ?></a>
+              <?php elseif ($infoTel !== ''): ?>
               <a href="tel:<?= sanitize($infoTel) ?>" class="text-sm font-bold text-slate-900 transition-colors hover:text-brandRed"><?= sanitize($infoValue) ?></a>
               <?php elseif ($infoMail !== ''): ?>
               <a href="mailto:<?= sanitize($infoMail) ?>" class="text-sm font-bold text-slate-900 transition-colors hover:text-brandRed"><?= sanitize($infoMail) ?></a>

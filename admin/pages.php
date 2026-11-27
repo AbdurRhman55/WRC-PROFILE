@@ -2192,7 +2192,7 @@ include __DIR__ . '/includes/header.php';
                                                                     <p style = 'font-size:0.75rem;font-weight:700;color:#ca0000;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.75rem;'>SDG Contributions</p>
                                                                     <div class = 'field-group'>
                                                                     <label>SDG Small Heading ( eyebrow )</label>
-                                                                    <input type = 'text' data-field = 'content.sdg_eyebrow' value = "<?= htmlspecialchars($content['sdg_eyebrow'] ?? '') ?>" placeholder = 'Global Goals Alignment'>
+                                                                    <input type = 'text' data-field = 'content.sdg_eyebrow' value = "<?= htmlspecialchars($content['sdg_eyebrow'] ?? '') ?>" placeholder = 'UN Global'>
                                                                     </div>
                                                                     <div class = 'field-group'>
                                                                     <label>SDG Heading</label>
@@ -2444,7 +2444,7 @@ include __DIR__ . '/includes/header.php';
                                                                     <div class = 'field-row-3'>
                                                                     <div class = 'field-group'>
                                                                     <label>Stat 1 Value</label>
-                                                                    <input type = 'text' data-field = 'content.stat1_value' value = "<?= htmlspecialchars($content['stat1_value'] ?? '') ?>" placeholder = '500+'>
+                                                                    <input type = 'text' data-field = 'content.stat1_value' value = "<?= htmlspecialchars($content['stat1_value'] ?? '') ?>" placeholder = '500'>
                                                                     </div>
                                                                     <div class = 'field-group'>
                                                                     <label>Stat 1 Label</label>
@@ -2454,7 +2454,7 @@ include __DIR__ . '/includes/header.php';
                                                                     <div class = 'field-row-3'>
                                                                     <div class = 'field-group'>
                                                                     <label>Stat 2 Value</label>
-                                                                    <input type = 'text' data-field = 'content.stat2_value' value = "<?= htmlspecialchars($content['stat2_value'] ?? '') ?>" placeholder = '30+'>
+                                                                    <input type = 'text' data-field = 'content.stat2_value' value = "<?= htmlspecialchars($content['stat2_value'] ?? '') ?>" placeholder = '30'>
                                                                     </div>
                                                                     <div class = 'field-group'>
                                                                     <label>Stat 2 Label</label>
@@ -2464,7 +2464,7 @@ include __DIR__ . '/includes/header.php';
                                                                     <div class = 'field-row-3'>
                                                                     <div class = 'field-group'>
                                                                     <label>Stat 3 Value</label>
-                                                                    <input type = 'text' data-field = 'content.stat3_value' value = "<?= htmlspecialchars($content['stat3_value'] ?? '') ?>" placeholder = '12k+'>
+                                                                    <input type = 'text' data-field = 'content.stat3_value' value = "<?= htmlspecialchars($content['stat3_value'] ?? '') ?>" placeholder = '12k'>
                                                                     </div>
                                                                     <div class = 'field-group'>
                                                                     <label>Stat 3 Label</label>
@@ -2954,7 +2954,7 @@ function renderStats_<?= $sKey ?>() {
   if (!el) return;
   el.innerHTML = '';
   statsArr_<?= $sKey ?>.forEach(function(item, i) {
-    el.innerHTML += '<div class="dynamic-item"><button type="button" class="remove-btn" onclick="statsArr_<?= $sKey ?>.splice('+i+',1);renderStats_<?= $sKey ?>()"><i class="fa-solid fa-xmark"></i></button><div class="field-row-4"><div class="field-group"><label>Value</label><input value="'+(item.value||'').replace(/"/g,'&quot;')+'" onchange="statsArr_<?= $sKey ?>['+i+'].value=this.value" placeholder="85,000+"></div><div class="field-group"><label>Label</label><input value="'+(item.label||'').replace(/"/g,'&quot;')+'" onchange="statsArr_<?= $sKey ?>['+i+'].label=this.value"></div><div class="field-group"><label>Icon</label><input value="'+(item.icon||item.icon_class||'').replace(/"/g,'&quot;')+'" onchange="statsArr_<?= $sKey ?>['+i+'].icon=this.value" placeholder="fa-solid fa-users"></div><div class="field-group"><label>Color</label><input value="'+(item.color||'').replace(/"/g,'&quot;')+'" onchange="statsArr_<?= $sKey ?>['+i+'].color=this.value" placeholder="brandRed"></div></div></div>';
+    el.innerHTML += '<div class="dynamic-item"><button type="button" class="remove-btn" onclick="statsArr_<?= $sKey ?>.splice('+i+',1);renderStats_<?= $sKey ?>()"><i class="fa-solid fa-xmark"></i></button><div class="field-row-4"><div class="field-group"><label>Value</label><input value="'+(item.value||'').replace(/"/g,'&quot;')+'" onchange="statsArr_<?= $sKey ?>['+i+'].value=this.value" placeholder="85,000"></div><div class="field-group"><label>Label</label><input value="'+(item.label||'').replace(/"/g,'&quot;')+'" onchange="statsArr_<?= $sKey ?>['+i+'].label=this.value"></div><div class="field-group"><label>Icon</label><input value="'+(item.icon||item.icon_class||'').replace(/"/g,'&quot;')+'" onchange="statsArr_<?= $sKey ?>['+i+'].icon=this.value" placeholder="fa-solid fa-users"></div><div class="field-group"><label>Color</label><input value="'+(item.color||'').replace(/"/g,'&quot;')+'" onchange="statsArr_<?= $sKey ?>['+i+'].color=this.value" placeholder="brandRed"></div></div></div>';
   });
 }
 function addStat_<?= $sKey ?>() { statsArr_<?= $sKey ?>.push({value:'',label:'',icon:'',color:''}); renderStats_<?= $sKey ?>(); }
@@ -3213,7 +3213,7 @@ function renderRequirements_get_involved_volunteer() {
   if (!el) return;
   el.innerHTML = '';
   requirementsArr_get_involved_volunteer.forEach(function(item, i) {
-    el.innerHTML += '<div class="dynamic-item"><button type="button" class="remove-btn" onclick="requirementsArr_get_involved_volunteer.splice('+i+',1);renderRequirements_get_involved_volunteer()"><i class="fa-solid fa-xmark"></i></button><div class="field-group"><label>Requirement</label><input value="'+item.replace(/"/g,'&quot;')+'" onchange="requirementsArr_get_involved_volunteer['+i+']=this.value" placeholder="Must be 18 years or older"></div></div>';
+    el.innerHTML += '<div class="dynamic-item"><button type="button" class="remove-btn" onclick="requirementsArr_get_involved_volunteer.splice('+i+',1);renderRequirements_get_involved_volunteer()"><i class="fa-solid fa-xmark"></i></button><div class="field-group"><label>Requirement</label><input value="'+item.replace(/"/g,'&quot;')+'" onchange="requirementsArr_get_involved_volunteer['+i+']=this.value" placeholder="Commitment of at least 4 hours per week"></div></div>';
   });
 }
 function addRequirement_get_involved_volunteer() { requirementsArr_get_involved_volunteer.push(''); renderRequirements_get_involved_volunteer(); }

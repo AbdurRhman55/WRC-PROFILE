@@ -596,7 +596,7 @@ include dirname(__DIR__) . '/includes/header.php';
 <!-- HERO SECTION -->
 <section class="relative w-full bg-slate-900 text-white min-h-[480px] md:min-h-[540px] lg:min-h-[580px] flex items-center overflow-hidden">
   <div class="absolute inset-0 z-0">
-    <div class="absolute inset-0 opacity-50 bg-cover bg-center" style="background-image: url('<?= $base ?><?= $heroData['hero_image'] ?? 'assets/images/where-we-work-hero.jpg' ?>');"></div>
+    <div class="absolute inset-0 opacity-50 bg-cover bg-center" style="background-image: url('<?= $base ?>assets/images/wrc-collage.webp');"></div>
     <div class="absolute inset-0 bg-gradient-to-r from-slate-950/80 via-slate-900/50 to-transparent"></div>
     <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-slate-900/30"></div>
   </div>

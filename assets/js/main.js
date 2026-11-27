@@ -233,10 +233,10 @@ document.addEventListener('DOMContentLoaded', () => {
           const updateCount = () => {
             count += speed;
             if (count < target) {
-              counter.innerText = count.toLocaleString() + '+';
+              counter.innerText = count.toLocaleString();
               setTimeout(updateCount, 30);
             } else {
-              counter.innerText = target.toLocaleString() + '+';
+              counter.innerText = target.toLocaleString();
             }
           };
           updateCount();

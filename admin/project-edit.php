@@ -434,11 +434,29 @@ include __DIR__ . '/includes/header.php';
     <div class="space-y-4">
       <div>
         <label class="block text-sm font-medium text-slate-700 mb-1">Description</label>
-        <textarea name="description" rows="4" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-brandRed/20 focus:border-brandRed"><?= htmlspecialchars($project['description'] ?? '') ?></textarea>
+        <div class="mb-1.5 flex flex-wrap items-center gap-1 rounded-xl border border-slate-200 bg-slate-50 p-1.5" data-rich-toolbar="projectDescriptionInput" role="toolbar" aria-label="Description formatting">
+          <button type="button" data-wrap="<strong>" data-unwrap="</strong>" class="rounded-lg px-2.5 py-1.5 text-xs font-bold text-slate-600 hover:bg-white hover:text-brandRed transition-colors" title="Bold"><i class="fa-solid fa-bold"></i></button>
+          <button type="button" data-wrap="<em>" data-unwrap="</em>" class="rounded-lg px-2.5 py-1.5 text-xs text-slate-600 hover:bg-white hover:text-brandRed transition-colors" title="Italic"><i class="fa-solid fa-italic"></i></button>
+          <button type="button" data-wrap="<u>" data-unwrap="</u>" class="rounded-lg px-2.5 py-1.5 text-xs text-slate-600 hover:bg-white hover:text-brandRed transition-colors" title="Underline"><i class="fa-solid fa-underline"></i></button>
+          <span class="mx-1 h-4 w-px bg-slate-200"></span>
+          <button type="button" data-wrap='<span style="font-size:1.5em">' data-unwrap="</span>" class="rounded-lg px-2.5 py-1.5 text-xs font-bold text-slate-600 hover:bg-white hover:text-brandRed transition-colors" title="Larger text">A+</button>
+          <button type="button" data-wrap='<span style="font-size:1.2em">' data-unwrap="</span>" class="rounded-lg px-2.5 py-1.5 text-xs font-bold text-slate-600 hover:bg-white hover:text-brandRed transition-colors" title="Large text">A</button>
+          <button type="button" data-wrap='<span style="font-size:0.8em">' data-unwrap="</span>" class="rounded-lg px-2.5 py-1.5 text-xs font-bold text-slate-600 hover:bg-white hover:text-brandRed transition-colors" title="Smaller text">A&minus;</button>
+        </div>
+        <textarea id="projectDescriptionInput" name="description" rows="4" placeholder="Short summary shown on the project page. Use the toolbar for bold, italic, underline or text size." class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-brandRed/20 focus:border-brandRed"><?= htmlspecialchars($project['description'] ?? '') ?></textarea>
       </div>
       <div>
         <label class="block text-sm font-medium text-slate-700 mb-1">Overview</label>
-        <textarea name="overview" rows="5" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-brandRed/20 focus:border-brandRed"><?= htmlspecialchars($project['overview'] ?? '') ?></textarea>
+        <div class="mb-1.5 flex flex-wrap items-center gap-1 rounded-xl border border-slate-200 bg-slate-50 p-1.5" data-rich-toolbar="projectOverviewInput" role="toolbar" aria-label="Overview formatting">
+          <button type="button" data-wrap="<strong>" data-unwrap="</strong>" class="rounded-lg px-2.5 py-1.5 text-xs font-bold text-slate-600 hover:bg-white hover:text-brandRed transition-colors" title="Bold"><i class="fa-solid fa-bold"></i></button>
+          <button type="button" data-wrap="<em>" data-unwrap="</em>" class="rounded-lg px-2.5 py-1.5 text-xs text-slate-600 hover:bg-white hover:text-brandRed transition-colors" title="Italic"><i class="fa-solid fa-italic"></i></button>
+          <button type="button" data-wrap="<u>" data-unwrap="</u>" class="rounded-lg px-2.5 py-1.5 text-xs text-slate-600 hover:bg-white hover:text-brandRed transition-colors" title="Underline"><i class="fa-solid fa-underline"></i></button>
+          <span class="mx-1 h-4 w-px bg-slate-200"></span>
+          <button type="button" data-wrap='<span style="font-size:1.5em">' data-unwrap="</span>" class="rounded-lg px-2.5 py-1.5 text-xs font-bold text-slate-600 hover:bg-white hover:text-brandRed transition-colors" title="Larger text">A+</button>
+          <button type="button" data-wrap='<span style="font-size:1.2em">' data-unwrap="</span>" class="rounded-lg px-2.5 py-1.5 text-xs font-bold text-slate-600 hover:bg-white hover:text-brandRed transition-colors" title="Large text">A</button>
+          <button type="button" data-wrap='<span style="font-size:0.8em">' data-unwrap="</span>" class="rounded-lg px-2.5 py-1.5 text-xs font-bold text-slate-600 hover:bg-white hover:text-brandRed transition-colors" title="Smaller text">A&minus;</button>
+        </div>
+        <textarea id="projectOverviewInput" name="overview" rows="5" placeholder="Full project overview shown under About This Project. Use the toolbar for bold, italic, underline or text size." class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-brandRed/20 focus:border-brandRed"><?= htmlspecialchars($project['overview'] ?? '') ?></textarea>
       </div>
     </div>
   </div>
@@ -673,6 +691,27 @@ function safeStr(val) {
 function escapeHtmlAttr(str) {
   return safeStr(str).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
+
+// === Rich text toolbars (Description / Overview) ===
+// Each toolbar wraps the current selection in the requested tag so bold,
+// italic, underline and text-size edits are stored as HTML and render
+// formatted on the project detail page.
+document.querySelectorAll('[data-rich-toolbar]').forEach(function (toolbar) {
+  var input = document.getElementById(toolbar.getAttribute('data-rich-toolbar'));
+  if (!input) return;
+  toolbar.querySelectorAll('[data-wrap]').forEach(function (button) {
+    button.addEventListener('click', function () {
+      var before = button.getAttribute('data-wrap');
+      var after = button.getAttribute('data-unwrap') || '';
+      var start = input.selectionStart;
+      var end = input.selectionEnd;
+      var selected = input.value.slice(start, end);
+      input.setRangeText(before + selected + after, start, end, 'end');
+      input.focus();
+      input.setSelectionRange(start + before.length, start + before.length + selected.length);
+    });
+  });
+});
 
 // === Objectives ===
 var objectives = [];

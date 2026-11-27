@@ -167,6 +167,133 @@ include dirname( __DIR__ ) . '/includes/header.php';
   </div>
 </section>
 
+<!-- SUPPORTING DEPARTMENTS -->
+<section class="py-12 bg-slate-50 border-t border-slate-200" id="departments">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="text-center max-w-3xl mx-auto mb-8">
+      <span class="px-4 py-1.5 rounded-full bg-brandRed/10 text-brandRed text-xs font-bold uppercase tracking-widest inline-block mb-3">
+        Departments
+      </span>
+      <h2 class="text-3xl md:text-4xl font-display font-bold text-slate-900">
+        Supporting Departments
+      </h2>
+      <p class="mt-4 text-slate-600 text-sm sm:text-base">
+        The functional departments that support WRC's programmes, governance, and day-to-day operations.
+      </p>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+      <!-- Human Resources -->
+      <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm hover:shadow-md hover:border-slate-300 transition-all">
+        <div class="w-11 h-11 rounded-xl bg-brandRed/10 text-brandRed flex items-center justify-center text-base mb-3">
+          <i class="fa-solid fa-user-group"></i>
+        </div>
+        <h3 class="text-sm font-bold text-slate-900 mb-1">Human Resources</h3>
+        <p class="text-xs text-slate-600 leading-relaxed">Recruitment, staff development, performance management, and workplace welfare.</p>
+      </div>
+
+      <!-- Security -->
+      <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm hover:shadow-md hover:border-slate-300 transition-all">
+        <div class="w-11 h-11 rounded-xl bg-slate-900 text-white flex items-center justify-center text-base mb-3">
+          <i class="fa-solid fa-shield-halved"></i>
+        </div>
+        <h3 class="text-sm font-bold text-slate-900 mb-1">Security</h3>
+        <p class="text-xs text-slate-600 leading-relaxed">Staff safety, field security protocols, asset protection, and duty-of-care checks.</p>
+      </div>
+
+      <!-- Risk Management -->
+      <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm hover:shadow-md hover:border-slate-300 transition-all">
+        <div class="w-11 h-11 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-base mb-3">
+          <i class="fa-solid fa-triangle-exclamation"></i>
+        </div>
+        <h3 class="text-sm font-bold text-slate-900 mb-1">Risk Management</h3>
+        <p class="text-xs text-slate-600 leading-relaxed">Risk registers, fraud prevention, safeguarding, and internal controls across projects.</p>
+      </div>
+
+      <!-- Finance & Administration -->
+      <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm hover:shadow-md hover:border-slate-300 transition-all">
+        <div class="w-11 h-11 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-base mb-3">
+          <i class="fa-solid fa-calculator"></i>
+        </div>
+        <h3 class="text-sm font-bold text-slate-900 mb-1">Finance &amp; Administration</h3>
+        <p class="text-xs text-slate-600 leading-relaxed">Budgeting, accounting, donor compliance, audits, and general administration.</p>
+      </div>
+
+      <!-- Programmes & Development -->
+      <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm hover:shadow-md hover:border-slate-300 transition-all">
+        <div class="w-11 h-11 rounded-xl bg-brandRed/10 text-brandRed flex items-center justify-center text-base mb-3">
+          <i class="fa-solid fa-diagram-project"></i>
+        </div>
+        <h3 class="text-sm font-bold text-slate-900 mb-1">Programmes &amp; Development</h3>
+        <p class="text-xs text-slate-600 leading-relaxed">Proposal design, sector programming, partnerships, and grant management.</p>
+      </div>
+
+      <!-- Operations & Logistics -->
+      <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm hover:shadow-md hover:border-slate-300 transition-all">
+        <div class="w-11 h-11 rounded-xl bg-slate-100 text-slate-700 flex items-center justify-center text-base mb-3">
+          <i class="fa-solid fa-truck-fast"></i>
+        </div>
+        <h3 class="text-sm font-bold text-slate-900 mb-1">Operations &amp; Logistics</h3>
+        <p class="text-xs text-slate-600 leading-relaxed">Procurement, warehousing, fleet, and emergency supply chain deployment.</p>
+      </div>
+
+      <!-- Monitoring & Evaluation -->
+      <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm hover:shadow-md hover:border-slate-300 transition-all">
+        <div class="w-11 h-11 rounded-xl bg-sky-50 text-sky-600 flex items-center justify-center text-base mb-3">
+          <i class="fa-solid fa-chart-line"></i>
+        </div>
+        <h3 class="text-sm font-bold text-slate-900 mb-1">Monitoring &amp; Evaluation</h3>
+        <p class="text-xs text-slate-600 leading-relaxed">Indicator tracking, field monitoring, quality assurance, and results reporting.</p>
+      </div>
+
+      <!-- IT & Digital -->
+      <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm hover:shadow-md hover:border-slate-300 transition-all">
+        <div class="w-11 h-11 rounded-xl bg-violet-50 text-violet-600 flex items-center justify-center text-base mb-3">
+          <i class="fa-solid fa-laptop-code"></i>
+        </div>
+        <h3 class="text-sm font-bold text-slate-900 mb-1">IT &amp; Digital</h3>
+        <p class="text-xs text-slate-600 leading-relaxed">Networks, devices, data security, and digital tools for offices and field teams.</p>
+      </div>
+
+      <!-- Legal & Compliance -->
+      <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm hover:shadow-md hover:border-slate-300 transition-all">
+        <div class="w-11 h-11 rounded-xl bg-slate-100 text-slate-700 flex items-center justify-center text-base mb-3">
+          <i class="fa-solid fa-scale-balanced"></i>
+        </div>
+        <h3 class="text-sm font-bold text-slate-900 mb-1">Legal &amp; Compliance</h3>
+        <p class="text-xs text-slate-600 leading-relaxed">Registrations, contracts, regulatory filings, and policy adherence.</p>
+      </div>
+
+      <!-- Field & Community Implementation -->
+      <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm hover:shadow-md hover:border-slate-300 transition-all">
+        <div class="w-11 h-11 rounded-xl bg-brandRed/10 text-brandRed flex items-center justify-center text-base mb-3">
+          <i class="fa-solid fa-people-roof"></i>
+        </div>
+        <h3 class="text-sm font-bold text-slate-900 mb-1">Field Implementation</h3>
+        <p class="text-xs text-slate-600 leading-relaxed">Regional offices, district project teams, and community mobilization.</p>
+      </div>
+
+      <!-- Communications -->
+      <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm hover:shadow-md hover:border-slate-300 transition-all">
+        <div class="w-11 h-11 rounded-xl bg-rose-50 text-rose-500 flex items-center justify-center text-base mb-3">
+          <i class="fa-solid fa-bullhorn"></i>
+        </div>
+        <h3 class="text-sm font-bold text-slate-900 mb-1">Communications &amp; Media</h3>
+        <p class="text-xs text-slate-600 leading-relaxed">Publications, press relations, social media, and brand reporting.</p>
+      </div>
+
+      <!-- Procurement -->
+      <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm hover:shadow-md hover:border-slate-300 transition-all">
+        <div class="w-11 h-11 rounded-xl bg-teal-50 text-teal-600 flex items-center justify-center text-base mb-3">
+          <i class="fa-solid fa-boxes-stacked"></i>
+        </div>
+        <h3 class="text-sm font-bold text-slate-900 mb-1">Procurement</h3>
+        <p class="text-xs text-slate-600 leading-relaxed">Vendor management, tendering, and value-for-money purchasing.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
 <!-- ORGANIZATIONAL HIERARCHY FLOWCHART -->
 <section class="py-12 bg-white relative overflow-hidden" id="chart">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

@@ -20,6 +20,21 @@ if (!$project) {
 
 $base = siteBaseUrl();
 
+/**
+ * Print project description/overview the way the dashboard editor wrote it.
+ * Plain text keeps its line breaks and stays escaped; content that already
+ * carries HTML tags (bold, italic, underline, text size) is printed as markup
+ * so the formatting survives onto this page.
+ */
+function wrcProjectRichText( ?string $value ): string {
+    $value = trim( (string) $value );
+    if ( $value === '' ) return '';
+    if ( strpos( $value, '<' ) === false ) {
+        return nl2br( htmlspecialchars( $value, ENT_QUOTES, 'UTF-8' ) );
+    }
+    return $value;
+}
+
 // Parse JSON fields (handle null values)
 $rawObjectives = json_decode($project['objectives'] ?? '', true) ?? [];
 $objectives = [];
@@ -272,9 +287,9 @@ include dirname(__DIR__) . '/includes/header.php';
                 </h1>
 
                 <!-- Description -->
-                <p class="text-slate-300 text-base md:text-lg max-w-3xl leading-relaxed mb-6 animate-fade-in-delay">
-                    <?= sanitize($project['description']) ?>
-                </p>
+                <div class="text-slate-300 text-base md:text-lg max-w-3xl leading-relaxed mb-6 animate-fade-in-delay project-desc-html">
+                    <?= wrcProjectRichText($project['description']) ?>
+                </div>
 
             </div>
         </div>
@@ -339,7 +354,7 @@ include dirname(__DIR__) . '/includes/header.php';
                                 <div class="text-slate-600 leading-relaxed text-[15px] project-overview-text relative"
                                     id="overview-container">
                                     <div id="overview-text" class="line-clamp-3">
-                                        <?= nl2br(sanitize($project['overview'] ?? $project['description'])) ?>
+                                        <?= wrcProjectRichText($project['overview'] ?? $project['description']) ?>
                                     </div>
                                     <button onclick="toggleOverview()" id="overview-toggle"
                                         class="mt-3 text-brandRed text-sm font-bold hover:text-brandRed-hover transition-colors inline-flex items-center gap-1.5">

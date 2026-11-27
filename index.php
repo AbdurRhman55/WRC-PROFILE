@@ -90,36 +90,42 @@ $heroStats = [
         'value' => (int) $impactSummary[ 'projects' ],
         'label' => 'Projects Delivered',
         'note'  => 'Active and completed',
+        'link'  => $base . 'our-work/index.php',
     ],
     [
         'icon'  => 'fa-solid fa-users',
         'value' => (int) $impactSummary[ 'beneficiaries' ],
         'label' => 'Beneficiaries Reached',
         'note'  => 'Lives directly impacted',
+        'link'  => $base . 'impact/index.php',
     ],
     [
         'icon'  => 'fa-solid fa-layer-group',
         'value' => (int) $impactSummary[ 'sectors' ],
         'label' => 'Programme Sectors',
         'note'  => 'Health, WASH, food & relief, skills',
+        'link'  => $base . 'our-work/index.php',
     ],
     [
         'icon'  => 'fa-solid fa-globe',
         'value' => $sdgCount,
         'label' => 'SDGs Covered',
         'note'  => 'Aligned with the UN 2030 Agenda',
+        'link'  => $base . 'impact/index.php#sdgs',
     ],
     [
         'icon'  => 'fa-solid fa-handshake-angle',
         'value' => $partnerLogoCount,
         'label' => 'Partner Organisations',
         'note'  => 'Donors and implementers',
+        'link'  => '#partners',
     ],
     [
         'icon'  => 'fa-solid fa-map-location-dot',
         'value' => (int) $impactSummary[ 'districts' ],
         'label' => 'Districts Covered',
         'note'  => 'Across our field areas',
+        'link'  => $base . 'where-we-work/index.php',
     ],
 ];
 
@@ -311,18 +317,18 @@ if (strpos($heroImage, 'assets/') !== 0 && strpos($heroImage, 'http') !== 0 && s
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="grid grid-cols-2 gap-x-4 gap-y-5 py-4 sm:grid-cols-3 sm:py-5 md:grid-cols-6 md:gap-0 md:divide-x md:divide-slate-100">
             <?php foreach ($heroStats as $stat): ?>
-            <div class="flex flex-col items-center justify-center gap-1.5 text-center md:px-4">
-                <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-brandRed/10 text-brandRed ring-1 ring-inset ring-brandRed/10">
+            <a href="<?= htmlspecialchars($stat['link'] ?? '#') ?>" class="group flex flex-col items-center justify-center gap-1.5 text-center md:px-4 rounded-lg transition-colors hover:bg-brandRed/5 focus:outline-none focus-visible:ring-2 focus-visible:ring-brandRed/40">
+                <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-brandRed/10 text-brandRed ring-1 ring-inset ring-brandRed/10 transition-transform group-hover:scale-110">
                     <i class="<?= $stat['icon'] ?> text-sm"></i>
                 </span>
                 <div class="min-w-0">
-                    <div class="counter-val font-display text-xl font-extrabold leading-none tracking-tight text-ink-900 sm:text-2xl"
+                    <div class="counter-val font-display text-xl font-extrabold leading-none tracking-tight text-ink-900 sm:text-2xl transition-colors group-hover:text-brandRed"
                         data-target="<?= (int) $stat['value'] ?>"><?= number_format((int) $stat['value']) ?></div>
-                    <p class="mt-1 text-[10px] font-bold uppercase leading-tight tracking-[0.12em] text-slate-500">
+                    <p class="mt-1 text-[10px] font-bold uppercase leading-tight tracking-[0.12em] text-slate-500 transition-colors group-hover:text-brandRed">
                         <?= sanitize($stat['label']) ?></p>
                     <p class="mt-0.5 hidden text-[9px] leading-tight text-slate-400 lg:block"><?= sanitize($stat['note']) ?></p>
                 </div>
-            </div>
+            </a>
             <?php endforeach; ?>
         </div>
     </div>
@@ -333,8 +339,8 @@ if (strpos($heroImage, 'assets/') !== 0 && strpos($heroImage, 'http') !== 0 && s
     <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="relative overflow-hidden rounded-[2rem] border border-slate-200 bg-slate-50 px-6 py-10 text-center shadow-sm sm:px-10">
             <div class="absolute inset-x-0 top-0 h-1.5 bg-gradient-to-r from-brandRed via-brandRed to-brandRed/40"></div>
-            <span class="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-white text-brandRed shadow-md ring-1 ring-slate-200">
-                <i class="fa-solid fa-stamp text-2xl" aria-hidden="true"></i>
+            <span class="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-white shadow-md ring-1 ring-slate-200 overflow-hidden">
+                <img src="<?= $base ?>assets/images/logo.png" alt="WRC logo" class="h-full w-full object-cover" aria-hidden="true">
             </span>
             <p class="mt-5 text-brandRed text-xs font-semibold uppercase tracking-[0.35em]">Organization Status</p>
             <h2 class="mt-2 text-3xl sm:text-4xl font-extrabold text-slate-900">Registered Organization</h2>
@@ -473,7 +479,7 @@ if (strpos($heroImage, 'assets/') !== 0 && strpos($heroImage, 'http') !== 0 && s
                             class="text-sm uppercase tracking-[0.28em] font-semibold <?= $step['color_class'] ?>"><?= str_pad($step['step_number'], 2, '0', STR_PAD_LEFT) ?></span>
                         <h3 class="mt-2 text-xl md:text-2xl font-semibold text-slate-900">
                             <?= sanitize($step['title']) ?></h3>
-                        <p class="mt-4 text-sm md:text-[15px] text-slate-600 leading-relaxed">
+                        <p class="mt-4 text-sm md:text-[15px] text-slate-600 leading-relaxed text-justify">
                             <?= sanitize($step['description']) ?></p>
                     </div>
                     <div class="hidden md:block"></div>
@@ -484,7 +490,7 @@ if (strpos($heroImage, 'assets/') !== 0 && strpos($heroImage, 'http') !== 0 && s
                             class="text-sm uppercase tracking-[0.28em] font-semibold <?= $step['color_class'] ?>"><?= str_pad($step['step_number'], 2, '0', STR_PAD_LEFT) ?></span>
                         <h3 class="mt-2 text-xl md:text-2xl font-semibold text-slate-900">
                             <?= sanitize($step['title']) ?></h3>
-                        <p class="mt-4 text-sm md:text-[15px] text-slate-600 leading-relaxed">
+                        <p class="mt-4 text-sm md:text-[15px] text-slate-600 leading-relaxed text-justify">
                             <?= sanitize($step['description']) ?></p>
                     </div>
                     <?php endif; ?>
@@ -515,7 +521,7 @@ if (strpos($heroImage, 'assets/') !== 0 && strpos($heroImage, 'http') !== 0 && s
 </section>
 
 <!-- PARTNERS & DONORS SECTION -->
-<section class="relative py-8 md:py-12 px-6 bg-slate-50">
+<section id="partners" class="relative py-8 md:py-12 px-6 bg-slate-50">
     <div class="max-w-6xl mx-auto">
 
         <!-- Header -->

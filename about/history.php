@@ -30,7 +30,7 @@ foreach ( $projects as $index => $p ) {
     $statusColors = [ 'active' => '#16a34a', 'completed' => '#64748b', 'upcoming' => '#2563eb' ];
     $tagColor = $statusColors[ strtolower( $p[ 'status' ] ?? 'active' ) ] ?? '#ca0000';
     $tag = ucfirst( $p[ 'status' ] ?? 'Active' );
-    $benefText = !empty( $p[ 'beneficiaries_count' ] ) ? number_format( $p[ 'beneficiaries_count' ] ) . '+ beneficiaries' : '';
+    $benefText = !empty( $p[ 'beneficiaries_count' ] ) ? number_format( $p[ 'beneficiaries_count' ] ) . ' beneficiaries' : '';
     $timelineCards[] = [
         'year' => $year,
         'title' => $p[ 'title' ],
@@ -47,34 +47,55 @@ foreach ( $projects as $index => $p ) {
 
 // Build data arrays
 $heroData = $heroRow ?: [];
+
+// Key stats mirror the homepage strip: every figure is computed from the live
+// portfolio (projects, beneficiaries, sectors, districts), the Impact SDG
+// content, and the partner wall, so this page can never disagree with home.
 $statsItems = [];
-if ( $statsRow ) {
-    $statsRows = getRows( 'history_stats_items', [ 'stats_id' => $statsRow[ 'id' ] ], 'sort_order ASC' );
-    $statsItems = array_map( function( $s ) {
-        return [ 'icon' => $s[ 'stat_icon' ] ?? '', 'color' => $s[ 'stat_color' ] ?? '', 'label' => $s[ 'stat_label' ] ?? '', 'value' => $s[ 'stat_value' ] ?? '' ];
+$historyImpact = wrcProjectImpactSummary();
+
+$historySdgCount = 0;
+if ( isset( $pdo ) && $pdo instanceof PDO ) {
+    try {
+        $historySdgRow = getRow( 'impact_content' );
+        $historySdgContent = $historySdgRow ? json_decode( $historySdgRow[ 'content' ] ?? '{}', true ) : null;
+        if ( is_array( $historySdgContent ) && !empty( $historySdgContent[ 'sdgs' ] ) && is_array( $historySdgContent[ 'sdgs' ] ) ) {
+            $historySdgCount = count( $historySdgContent[ 'sdgs' ] );
+        }
+    } catch ( Throwable $e ) {
+        $historySdgCount = 0;
     }
-    , $statsRows );
+}
+if ( $historySdgCount < 1 ) {
+    $historySdgCount = 5;
 }
 
-// The headline counters follow the live portfolio, so this page can never show
-// a project, province, district or beneficiary figure the dashboard does not
-// back.
-$coverage = wrcProjectImpactSummary();
-$coverageLabels = [
-    'projects completed'    => 'projects',
-    'projects delivered'    => 'projects',
-    'total projects'        => 'projects',
-    'provinces covered'     => 'provinces',
-    'districts covered'     => 'districts',
-    'beneficiaries reached' => 'beneficiaries',
-];
-foreach ( $statsItems as &$coverageStat ) {
-    $coverageKey = strtolower( trim( (string) ( $coverageStat[ 'label' ] ?? '' ) ) );
-    if ( isset( $coverageLabels[ $coverageKey ] ) ) {
-        $coverageStat[ 'value' ] = number_format( (int) $coverage[ $coverageLabels[ $coverageKey ] ] );
+$historyPartners = getRows( 'partners', 'is_active = 1 ORDER BY sort_order ASC' );
+$historyUniquePartners = [];
+foreach ( $historyPartners as $historyPartner ) {
+    if ( !in_array( $historyPartner[ 'partner_type' ] ?? '', [ 'funding', 'government' ], true ) ) {
+        continue;
     }
+    if ( !imageExists( $historyPartner[ 'logo_path' ] ?? '' ) ) {
+        continue;
+    }
+    $historyPartnerKey = wrcPartnerAliasKey( (string) ( $historyPartner[ 'name' ] ?? '' ) );
+    if ( $historyPartnerKey === '' || isset( $historyUniquePartners[ $historyPartnerKey ] ) ) {
+        continue;
+    }
+    $historyUniquePartners[ $historyPartnerKey ] = $historyPartner;
 }
-unset( $coverageStat );
+$historyPartnerCount = count( $historyUniquePartners );
+
+$statsItems = [
+    [ 'icon' => 'fa-diagram-project', 'color' => 'bg-brandRed/10', 'label' => 'Projects Delivered', 'value' => number_format( (int) $historyImpact[ 'projects' ] ) ],
+    [ 'icon' => 'fa-users', 'color' => 'bg-brandRed/10', 'label' => 'Beneficiaries Reached', 'value' => number_format( (int) $historyImpact[ 'beneficiaries' ] ) ],
+    [ 'icon' => 'fa-layer-group', 'color' => 'bg-brandRed/10', 'label' => 'Programme Sectors', 'value' => number_format( (int) $historyImpact[ 'sectors' ] ) ],
+    [ 'icon' => 'fa-globe', 'color' => 'bg-brandRed/10', 'label' => 'SDGs Covered', 'value' => number_format( (int) $historySdgCount ) ],
+    [ 'icon' => 'fa-handshake-angle', 'color' => 'bg-brandRed/10', 'label' => 'Partner Organisations', 'value' => number_format( (int) $historyPartnerCount ) ],
+    [ 'icon' => 'fa-map-location-dot', 'color' => 'bg-brandRed/10', 'label' => 'Districts Covered', 'value' => number_format( (int) $historyImpact[ 'districts' ] ) ],
+];
+
 $ctaData = $ctaRow ?: [];
 
 include dirname( __DIR__ ) . '/includes/header.php';
@@ -260,7 +281,7 @@ $statusColor = match( $projectStatus ) {
     default => 'bg-slate-100 text-slate-600'
 }
 ;
-$benefText = !empty( $project[ 'beneficiaries_count' ] ) ? number_format( $project[ 'beneficiaries_count' ] ) . '+' : '';
+$benefText = !empty( $project[ 'beneficiaries_count' ] ) ? number_format( $project[ 'beneficiaries_count' ] ) : '';
 ?>
 <a href = "<?= $link ?>" class = "group block <?= $idx % 2 === 0 ? 'bg-white' : 'bg-slate-50' ?> hover:bg-brandRed/5 transition-colors border-b border-slate-100 last:border-b-0">
 <!-- Desktop Row -->
@@ -345,13 +366,13 @@ $benefText = !empty( $project[ 'beneficiaries_count' ] ) ? number_format( $proje
 </p>
 </div>
 
-<div class = 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6'>
+<div class = 'grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 sm:gap-6'>
 <?php foreach ( $statsItems as $stat ): ?>
-<div class = 'text-center p-8 rounded-2xl bg-white border border-slate-100 hover:shadow-lg transition-all group'>
+<div class = 'text-center p-6 sm:p-8 rounded-2xl bg-white border border-slate-100 hover:shadow-lg transition-all group'>
 <div class = "w-14 h-14 mx-auto mb-5 rounded-2xl <?= $stat['color'] ?? 'bg-brandRed/10' ?> flex items-center justify-center group-hover:scale-110 transition-transform">
 <i class = "fa-solid <?= $stat['icon'] ?? 'fa-chart-line' ?> text-xl text-brandRed"></i>
 </div>
-<h4 class = 'text-3xl lg:text-4xl font-display font-bold text-slate-900 mb-2'>
+<h4 class = 'text-2xl lg:text-3xl font-display font-bold text-slate-900 mb-2'>
 <?= sanitize( $stat[ 'value' ] ?? '' ) ?>
 </h4>
 <p class = 'text-sm text-slate-500 font-medium'>

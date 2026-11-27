@@ -690,9 +690,20 @@ include __DIR__ . '/../includes/header.php';
           // Coverage counters follow the live portfolio; only the labels are
           // fixed so a dashboard edit and the dashboard's own numbers agree.
           $coverage = wrcProjectImpactSummary();
+          // Live partner count so this figure can never drift from the
+          // homepage partner wall (the old "8+" hardcode is gone).
+          $whyPartners = getRows('partners', 'is_active = 1 ORDER BY sort_order ASC');
+          $whyUniquePartners = [];
+          foreach ($whyPartners as $whyPartner) {
+            if (!in_array($whyPartner['partner_type'] ?? '', ['funding', 'government'], true)) continue;
+            if (!imageExists($whyPartner['logo_path'] ?? '')) continue;
+            $whyPartnerKey = wrcPartnerAliasKey((string) ($whyPartner['name'] ?? ''));
+            if ($whyPartnerKey === '' || isset($whyUniquePartners[$whyPartnerKey])) continue;
+            $whyUniquePartners[$whyPartnerKey] = $whyPartner;
+          }
           $defaultStats = [
             ['value' => (string) $coverage['projects'], 'label' => 'Projects Completed'],
-            ['value' => '8+', 'label' => 'Active Partners'],
+            ['value' => (string) count($whyUniquePartners), 'label' => 'Active Partners'],
             ['value' => wrcFormatBeneficiaries(wrcBeneficiaryTotal()), 'label' => 'Beneficiaries Reached'],
             ['value' => (string) $coverage['provinces'], 'label' => 'Provinces Covered'],
           ];

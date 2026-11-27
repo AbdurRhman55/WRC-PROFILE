@@ -64,11 +64,15 @@ if ( !isset( $logoV ) ) $logoV = @filemtime( dirname( __DIR__ ) . '/assets/image
 </li>
 <li class = 'flex items-start gap-3'>
 <i class = 'fa-solid fa-location-dot mt-1 text-brandRed'></i>
-<span><span class = 'block text-white font-semibold uppercase tracking-[0.14em] text-[11px] mb-1'>Islamabad Office</span><?= getSetting( 'address_islamabad', 'G-12/2, House #8, Street 74, Islamabad, Pakistan' ) ?></span>
+<span><span class = 'block text-white font-semibold uppercase tracking-[0.14em] text-[11px] mb-1'>Islamabad Office</span><?= getSetting( 'address_islamabad', '8, Street 74, Sector G-13/2, Islamabad, Pakistan' ) ?></span>
 </li>
 <li class = 'flex items-center gap-3'>
 <i class = 'fa-solid fa-phone text-brandRed'></i>
 <a href = "tel:<?= htmlspecialchars( phoneHref( getSetting( 'phone' ) ) ) ?>" class = 'hover:text-white transition'><?= getSetting( 'phone' ) ?></a>
+</li>
+<li class = 'flex items-center gap-3'>
+<i class = 'fa-brands fa-whatsapp text-brandRed'></i>
+<a href = 'https://wa.me/92325244422' target = '_blank' rel = 'noopener noreferrer' class = 'hover:text-white transition'>0325-2444422</a>
 </li>
 <li class = 'flex items-center gap-3'>
 <i class = 'fa-solid fa-envelope text-brandRed'></i>
@@ -109,6 +113,9 @@ if ( !isset( $logoV ) ) $logoV = @filemtime( dirname( __DIR__ ) . '/assets/image
 </a>
 <a href = 'https://www.youtube.com/@WRC-Pakistan' target = '_blank' rel = 'noopener noreferrer' class = 'social-rail-btn' aria-label = 'WRC on YouTube'>
 <i class = 'fa-brands fa-youtube'></i><span class = 'social-rail-tip' aria-hidden = 'true'>YouTube</span>
+</a>
+<a href = 'https://wa.me/92325244422' target = '_blank' rel = 'noopener noreferrer' class = 'social-rail-btn' aria-label = 'WRC on WhatsApp'>
+<i class = 'fa-brands fa-whatsapp'></i><span class = 'social-rail-tip' aria-hidden = 'true'>WhatsApp</span>
 </a>
 </aside>
 

@@ -40,9 +40,6 @@ foreach ($galleryPartners as $galleryPartner) {
     }
 }
 
-// Fetch videos from DB
-$videos = getRows('video_gallery', ['is_active' => 1], 'sort_order ASC');
-
 // Category color map for news
 $categoryColors = [
     'press_release' => 'bg-brandRed',
@@ -315,120 +312,6 @@ if (strpos($heroImage, 'assets/') !== 0 && strpos($heroImage, 'http') !== 0 && s
   </div>
 </section>
 
-
-<!-- VIDEO GALLERY -->
-<section id="videos" class="py-12 bg-white">
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <div class="text-center mb-6">
-      <span class="text-brandRed text-xs font-bold uppercase tracking-widest">Watch & Learn</span>
-      <h2 class="text-3xl sm:text-4xl font-display font-bold text-ink-900 mt-2">Video <span class="text-brandRed">Gallery</span></h2>
-      <p class="text-slate-500 mt-3 max-w-2xl mx-auto">Watch stories from the field and see the impact of your support in action.</p>
-    </div>
-
-    <?php if (empty($videos)): ?>
-    <div class="text-center py-10 bg-slate-50 rounded-2xl">
-      <i class="fa-solid fa-video text-4xl text-slate-300 mb-4 block"></i>
-      <h3 class="text-lg font-bold text-slate-700 mb-2">No videos yet</h3>
-      <p class="text-sm text-slate-400">Video gallery will be populated soon.</p>
-    </div>
-    <?php else: ?>
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-7">
-      <?php foreach ($videos as $video): ?>
-      <?php
-        $thumbPath = !empty($video['thumbnail_path']) ? $video['thumbnail_path'] : 'assets/images/hero/hero-slider-1.jpg';
-        if (strpos($thumbPath, 'assets/') !== 0 && strpos($thumbPath, 'http') !== 0 && strpos($thumbPath, 'uploads/') !== 0) {
-            $thumbPath = 'uploads/videos/' . $thumbPath;
-        }
-        $videoUrl = $video['video_url'] ?? '';
-        $isYouTube = preg_match('/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]+)/', $videoUrl, $ytMatch);
-        $embedUrl = $isYouTube ? "https://www.youtube.com/embed/{$ytMatch[1]}" : $videoUrl;
-      ?>
-      <div class="bg-slate-50 rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all border border-slate-100 program-card-hover group">
-        <div class="relative aspect-video bg-slate-200 overflow-hidden video-card" data-video-url="<?= htmlspecialchars($embedUrl) ?>">
-          <img src="<?= $base ?><?= $thumbPath ?>" alt="<?= sanitize($video['title'] ?? 'Video') ?>" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy">
-          <div class="absolute inset-0 bg-black/30 group-hover:bg-black/40 transition-colors flex items-center justify-center">
-            <button class="w-16 h-16 rounded-full bg-brandRed/90 hover:bg-brandRed text-white flex items-center justify-center shadow-lg shadow-brandRed/30 transition-all hover:scale-110 video-play-btn" aria-label="Play video">
-              <i class="fa-solid fa-play text-xl ml-1"></i>
-            </button>
-          </div>
-          <?php if (!empty($video['duration'])): ?>
-          <div class="absolute bottom-3 left-3 bg-black/60 text-white text-[10px] font-semibold px-2.5 py-1 rounded-md">
-            <i class="fa-solid fa-clock mr-1"></i> <?= sanitize($video['duration']) ?>
-          </div>
-          <?php endif; ?>
-        </div>
-        <div class="p-5">
-          <h3 class="text-lg font-bold text-ink-900 mb-1.5 group-hover:text-brandRed transition-colors line-clamp-2"><?= sanitize($video['title'] ?? '') ?></h3>
-          <?php if (!empty($video['description'])): ?>
-          <p class="text-sm text-slate-500 leading-relaxed line-clamp-2"><?= sanitize($video['description']) ?></p>
-          <?php endif; ?>
-        </div>
-      </div>
-      <?php endforeach; ?>
-    </div>
-    <?php endif; ?>
-  </div>
-</section>
-
 </main>
 
-<!-- VIDEO MODAL -->
-<div id="video-modal" class="fixed inset-0 z-[100] bg-black/90 backdrop-blur-sm hidden items-center justify-center p-4" role="dialog" aria-modal="true">
-  <button id="video-modal-close" class="absolute top-6 right-6 text-white/50 hover:text-white text-3xl z-10 transition-colors w-12 h-12 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20" aria-label="Close">
-    <i class="fa-solid fa-xmark"></i>
-  </button>
-  <div class="w-full max-w-4xl">
-    <div class="relative aspect-video bg-black rounded-xl overflow-hidden">
-      <iframe id="video-iframe" src="" class="w-full h-full" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-    </div>
-  </div>
-</div>
-
 <?php include dirname(__DIR__) . '/includes/footer.php'; ?>
-
-<script>
-(function(){
-
-  // === VIDEO MODAL ===
-  var videoModal = document.getElementById('video-modal');
-  var videoIframe = document.getElementById('video-iframe');
-
-  document.querySelectorAll('.video-play-btn').forEach(function(btn) {
-    btn.addEventListener('click', function() {
-      var card = this.closest('.video-card');
-      var url = card.getAttribute('data-video-url');
-      if (url) {
-        videoIframe.src = url;
-        videoModal.classList.remove('hidden');
-        videoModal.classList.add('flex');
-        document.body.style.overflow = 'hidden';
-      }
-    });
-  });
-
-  document.getElementById('video-modal-close').addEventListener('click', function() {
-    videoIframe.src = '';
-    videoModal.classList.add('hidden');
-    videoModal.classList.remove('flex');
-    document.body.style.overflow = '';
-  });
-
-  videoModal.addEventListener('click', function(e) {
-    if (e.target === videoModal) {
-      videoIframe.src = '';
-      videoModal.classList.add('hidden');
-      videoModal.classList.remove('flex');
-      document.body.style.overflow = '';
-    }
-  });
-
-  document.addEventListener('keydown', function(e) {
-    if (!videoModal.classList.contains('hidden') && e.key === 'Escape') {
-      videoIframe.src = '';
-      videoModal.classList.add('hidden');
-      videoModal.classList.remove('flex');
-      document.body.style.overflow = '';
-    }
-  });
-})();
-</script>
