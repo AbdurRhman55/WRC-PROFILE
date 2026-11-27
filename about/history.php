@@ -70,29 +70,14 @@ if ( $historySdgCount < 1 ) {
     $historySdgCount = 5;
 }
 
-$historyPartners = getRows( 'partners', 'is_active = 1 ORDER BY sort_order ASC' );
-$historyUniquePartners = [];
-foreach ( $historyPartners as $historyPartner ) {
-    if ( !in_array( $historyPartner[ 'partner_type' ] ?? '', [ 'funding', 'government' ], true ) ) {
-        continue;
-    }
-    if ( !imageExists( $historyPartner[ 'logo_path' ] ?? '' ) ) {
-        continue;
-    }
-    $historyPartnerKey = wrcPartnerAliasKey( (string) ( $historyPartner[ 'name' ] ?? '' ) );
-    if ( $historyPartnerKey === '' || isset( $historyUniquePartners[ $historyPartnerKey ] ) ) {
-        continue;
-    }
-    $historyUniquePartners[ $historyPartnerKey ] = $historyPartner;
-}
-$historyPartnerCount = count( $historyUniquePartners );
-
+// Partner count comes from the shared impact summary (the single source),
+// so this page always agrees with the homepage partner wall.
 $statsItems = [
     [ 'icon' => 'fa-diagram-project', 'color' => 'bg-brandRed/10', 'label' => 'Projects Delivered', 'value' => number_format( (int) $historyImpact[ 'projects' ] ) ],
     [ 'icon' => 'fa-users', 'color' => 'bg-brandRed/10', 'label' => 'Beneficiaries Reached', 'value' => number_format( (int) $historyImpact[ 'beneficiaries' ] ) ],
     [ 'icon' => 'fa-layer-group', 'color' => 'bg-brandRed/10', 'label' => 'Programme Sectors', 'value' => number_format( (int) $historyImpact[ 'sectors' ] ) ],
     [ 'icon' => 'fa-globe', 'color' => 'bg-brandRed/10', 'label' => 'SDGs Covered', 'value' => number_format( (int) $historySdgCount ) ],
-    [ 'icon' => 'fa-handshake-angle', 'color' => 'bg-brandRed/10', 'label' => 'Partner Organisations', 'value' => number_format( (int) $historyPartnerCount ) ],
+    [ 'icon' => 'fa-handshake-angle', 'color' => 'bg-brandRed/10', 'label' => 'Partner Organisations', 'value' => number_format( (int) $historyImpact[ 'partners' ] ) ],
     [ 'icon' => 'fa-map-location-dot', 'color' => 'bg-brandRed/10', 'label' => 'Districts Covered', 'value' => number_format( (int) $historyImpact[ 'districts' ] ) ],
 ];
 

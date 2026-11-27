@@ -303,7 +303,7 @@ $dashSectors = $dashboardData['sectors'] ?? [];
 </div>
 </div>
 
-<!-- Active Projects -->
+<!-- Projects -->
 <div class = 'relative rounded-2xl bg-white p-5 lg:p-6 border border-slate-200 shadow-sm hover:shadow-lg transition-shadow duration-300'>
 <div class = 'absolute inset-0 bg-gradient-to-br from-blue-500/5 to-transparent rounded-2xl'></div>
 <div class = 'relative flex items-center gap-3 lg:gap-4'>
@@ -311,9 +311,9 @@ $dashSectors = $dashboardData['sectors'] ?? [];
 <i class = 'fa-solid fa-folder-open text-xl lg:text-2xl'></i>
 </div>
 <div class = 'min-w-0 flex-1'>
-<p class = 'text-[11px] font-semibold uppercase tracking-[0.1em] text-slate-500 truncate'>Active Projects</p>
-<div class = 'counter-val text-2xl lg:text-3xl font-display font-bold leading-none text-ink-900 tabular-nums break-words' data-target = '<?= $coverage['active_projects'] ?>'>0</div>
-<p class = 'mt-1 text-[11px] text-slate-500 leading-tight break-words'>Currently implementing</p>
+<p class = 'text-[11px] font-semibold uppercase tracking-[0.1em] text-slate-500 truncate'>Projects</p>
+<div class = 'counter-val text-2xl lg:text-3xl font-display font-bold leading-none text-ink-900 tabular-nums break-words' data-target = '<?= $coverage['projects'] ?>'>0</div>
+<p class = 'mt-1 text-[11px] text-slate-500 leading-tight break-words'>Active &amp; completed</p>
 </div>
 </div>
 </div>
@@ -343,7 +343,7 @@ $dashSectors = $dashboardData['sectors'] ?? [];
 <div class = 'min-w-0 flex-1'>
 <p class = 'text-[11px] font-semibold uppercase tracking-[0.1em] text-slate-500 truncate'>Partners</p>
 <div class = 'counter-val text-2xl lg:text-3xl font-display font-bold leading-none text-ink-900 tabular-nums break-words' data-target = '<?= $coverage['partners'] ?>'>0</div>
-<p class = 'mt-1 text-[11px] text-slate-500 leading-tight break-words'>Funding &amp; implementation</p>
+<p class = 'mt-1 text-[11px] text-slate-500 leading-tight break-words'>Funding &amp; government</p>
 </div>
 </div>
 </div>

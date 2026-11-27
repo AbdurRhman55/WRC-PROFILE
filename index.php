@@ -15,7 +15,9 @@ $partners = getRows('partners', 'is_active = 1 ORDER BY sort_order ASC');
 
 // The homepage partner wall only renders logo cards for active funding and
 // government partners. Everything below works from that same list, so the
-// "Partner Organisations" figure always equals the number of logos shown.
+// wall can never show a different set of organisations than the headline
+// figure (which is read from wrcProjectImpactSummary(), applying this exact
+// rule as the single source for every dashboard on the site).
 //
 // Records are folded with wrcPartnerAliasKey() so spelling variants of one
 // organisation (the three KP-TEVTA records, for example) are never shown or
@@ -38,7 +40,6 @@ $partners = array_values($uniquePartners);
 
 $fundingPartners = array_values(array_filter($partners, fn($p) => ($p['partner_type'] ?? '') === 'funding'));
 $govPartners = array_values(array_filter($partners, fn($p) => ($p['partner_type'] ?? '') === 'government'));
-$partnerLogoCount = count($fundingPartners) + count($govPartners);
 
 $activeProjects = getRows('projects', "status = 'active' ORDER BY start_date DESC LIMIT 3");
 $provinces = getRows('provinces', 'is_active = 1 ORDER BY sort_order ASC');
@@ -115,7 +116,7 @@ $heroStats = [
     ],
     [
         'icon'  => 'fa-solid fa-handshake-angle',
-        'value' => $partnerLogoCount,
+        'value' => (int) $impactSummary[ 'partners' ],
         'label' => 'Partner Organisations',
         'note'  => 'Donors and implementers',
         'link'  => '#partners',
@@ -339,8 +340,8 @@ if (strpos($heroImage, 'assets/') !== 0 && strpos($heroImage, 'http') !== 0 && s
     <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="relative overflow-hidden rounded-[2rem] border border-slate-200 bg-slate-50 px-6 py-10 text-center shadow-sm sm:px-10">
             <div class="absolute inset-x-0 top-0 h-1.5 bg-gradient-to-r from-brandRed via-brandRed to-brandRed/40"></div>
-            <span class="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-white shadow-md ring-1 ring-slate-200 overflow-hidden">
-                <img src="<?= $base ?>assets/images/logo.png" alt="WRC logo" class="h-full w-full object-cover" aria-hidden="true">
+            <span class="mx-auto flex h-16 w-44 max-w-full items-center justify-center rounded-2xl bg-white px-4 shadow-md ring-1 ring-slate-200 overflow-hidden">
+                <img src="<?= $base ?>assets/images/logo.png" alt="WRC logo" class="h-full w-full object-contain" aria-hidden="true">
             </span>
             <p class="mt-5 text-brandRed text-xs font-semibold uppercase tracking-[0.35em]">Organization Status</p>
             <h2 class="mt-2 text-3xl sm:text-4xl font-extrabold text-slate-900">Registered Organization</h2>

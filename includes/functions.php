@@ -1253,9 +1253,11 @@ function wrcPortfolioAreaDistricts( string $area ): array {
 /**
  * Project-derived headline figures for the homepage hero strip.
  *
- * Every number is calculated from the live projects table, so publishing,
+ * Every number is calculated from the live portfolio, so publishing,
  * completing or deactivating a project updates the homepage automatically.
- * Beneficiaries come from the canonical figures so the whole site agrees.
+ * Beneficiaries come from the canonical figures so the whole site agrees,
+ * and partners follow the public partner wall rule so every dashboard on
+ * the site shows the same organisations visitors can actually see.
  *
  * @return array{projects:int,active_projects:int,beneficiaries:int,districts:int,partners:int,sectors:int,provinces:int}
  */
@@ -1328,19 +1330,28 @@ function wrcProjectImpactSummary( bool $refresh = false ): array {
         }
         $summary[ 'districts' ] = count( $districts );
 
+        // Partners follow the exact rule the public partner wall renders by:
+        // active funding and government organisations that have a logo, with
+        // spelling variants folded. This is the single source every dashboard
+        // reads, so the headline count always matches the logos visitors see.
         $partnerRows = $pdo->query(
-            "SELECT DISTINCT p.id, p.name
-               FROM partners p
-               INNER JOIN partner_projects pp ON pp.partner_id = p.id
-               INNER JOIN projects pr ON pr.slug = pp.project_slug AND pr.is_active = 1
-              WHERE p.is_active = 1"
+            "SELECT name, partner_type, logo_path
+               FROM partners
+              WHERE is_active = 1
+                AND partner_type IN ('funding', 'government')
+              ORDER BY sort_order ASC"
         )->fetchAll( PDO::FETCH_ASSOC );
 
-        // Fold spelling variants exactly as the public gallery does, so the
-        // headline count matches the cards visitors can actually see.
         $partnerKeys = [];
         foreach ( $partnerRows as $partnerRow ) {
-            $partnerKeys[ wrcPartnerAliasKey( (string) $partnerRow[ 'name' ] ) ] = true;
+            if ( !imageExists( (string) ( $partnerRow[ 'logo_path' ] ?? '' ) ) ) {
+                continue;
+            }
+            $partnerKey = wrcPartnerAliasKey( (string) $partnerRow[ 'name' ] );
+            if ( $partnerKey === '' || isset( $partnerKeys[ $partnerKey ] ) ) {
+                continue;
+            }
+            $partnerKeys[ $partnerKey ] = true;
         }
         $summary[ 'partners' ] = count( $partnerKeys );
     } catch ( Throwable $error ) {
@@ -2502,6 +2513,10 @@ function wrcSyncBeneficiaryStats( PDO $pdo ): array {
             'programme sectors'   => (string) $coverage['sectors'],
             'program sectors'     => (string) $coverage['sectors'],
             'sectors covered'     => (string) $coverage['sectors'],
+            'active partners'     => (string) $coverage['partners'],
+            'partners'            => (string) $coverage['partners'],
+            'partner organisations' => (string) $coverage['partners'],
+            'partner organizations' => (string) $coverage['partners'],
             'beneficiaries reached' => $total,
         ];
 
@@ -2526,6 +2541,8 @@ function wrcSyncBeneficiaryStats( PDO $pdo ): array {
         $coverageChanges  = $syncCoverage( 'impact_stats', 'stat_label', 'stat_value' );
         $coverageChanges += $syncCoverage( 'history_stats_items', 'stat_label', 'stat_value' );
         $coverageChanges += $syncCoverage( 'geographic_presence_stats', 'stat_label', 'stat_value' );
+        $coverageChanges += $syncCoverage( 'contribute_why_stats', 'stat_label', 'stat_value' );
+        $coverageChanges += $syncCoverage( 'causes_impact_stats', 'stat_label', 'stat_value' );
         if ( $coverageChanges ) {
             $applied[] = 'coverage counters';
         }

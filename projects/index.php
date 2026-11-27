@@ -24,13 +24,14 @@ if ($heroRow) $projSections['projects_hero'] = ['section_key' => 'projects_hero'
 $dashRow = getRow('projects_dashboard');
 if ($dashRow) {
     global $pdo;
-    $projectSummary = $pdo->query("SELECT COUNT(*) AS project_count, COALESCE(SUM(beneficiaries_count), 0) AS beneficiary_count, COUNT(DISTINCT NULLIF(location_details, '')) AS location_count FROM projects WHERE is_active = 1")->fetch(PDO::FETCH_ASSOC);
-    $partnerCount = (int) $pdo->query("SELECT COUNT(DISTINCT d.donor_name) FROM project_donors d INNER JOIN projects p ON p.id = d.project_id WHERE p.is_active = 1")->fetchColumn();
+    // Single source of truth: every dashboard figure comes from
+    // wrcProjectImpactSummary() so this page can never disagree with the
+    // homepage, Our Work or History.
     $coverageStats = wrcProjectImpactSummary();
     $metrics = [
-      ['icon' => 'fa-solid fa-folder-open', 'color' => 'brandRed', 'label' => 'Portfolio Projects', 'value' => number_format((int) ($projectSummary['project_count'] ?? 0))],
-      ['icon' => 'fa-solid fa-users', 'color' => 'teal-500', 'label' => 'Beneficiaries Reached', 'value' => wrcFormatBeneficiaries(wrcBeneficiaryTotal())],
-      ['icon' => 'fa-solid fa-handshake', 'color' => 'blue-400', 'label' => 'Project Partners', 'value' => number_format($partnerCount)],
+      ['icon' => 'fa-solid fa-folder-open', 'color' => 'brandRed', 'label' => 'Portfolio Projects', 'value' => number_format((int) $coverageStats['projects'])],
+      ['icon' => 'fa-solid fa-users', 'color' => 'teal-500', 'label' => 'Beneficiaries Reached', 'value' => wrcFormatBeneficiaries((int) $coverageStats['beneficiaries'])],
+      ['icon' => 'fa-solid fa-handshake', 'color' => 'blue-400', 'label' => 'Project Partners', 'value' => number_format((int) $coverageStats['partners'])],
       ['icon' => 'fa-solid fa-location-dot', 'color' => 'gold-400', 'label' => 'Districts Covered', 'value' => number_format((int) $coverageStats['districts'])],
     ];
 
