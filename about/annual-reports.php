@@ -30,7 +30,7 @@ if ( $heroSubtitle === '' ) {
 
 $heroImage = trim( (string) ( $heroRow[ 'hero_image' ] ?? '' ) );
 if ( $heroImage === '' ) {
-    $heroImage = 'assets/images/hero/about-hero.JPG';
+    $heroImage = 'assets/images/hero/about-hero.jpg';
 }
 
 $introOne = trim( (string) ( $contentData[ 'intro1' ] ?? '' ) );

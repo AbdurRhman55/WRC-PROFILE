@@ -99,7 +99,7 @@ try {
     // Older database without site_settings: carry on.
 }
 
-$heroImage = 'assets/images/hero/about-hero.JPG';
+$heroImage = 'assets/images/hero/about-hero.jpg';
 
 $heroTitle = 'Annual Reports';
 $heroSubtitle = 'Transparency Through Reporting, Accountability Through Action';
