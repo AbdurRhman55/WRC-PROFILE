@@ -262,7 +262,7 @@ All Projects <i class = 'fa-solid fa-arrow-right text-xs'></i></a></div>
 </section>
 
 <!-- UNIFIED IMPACT DASHBOARD -->
-<section id = 'dashboard' class = 'relative bg-sand-50 py-12 lg:py-16'>
+<section id = 'dashboard' class = 'relative overflow-hidden bg-sand-50 py-12 lg:py-16'>
 <div class = 'absolute inset-0 bg-gradient-to-b from-sand-50 via-white to-sand-50'></div>
 <div class = 'pointer-events-none absolute -left-24 top-0 h-72 w-72 rounded-full bg-brandRed/10 blur-3xl'></div>
 <div class = 'pointer-events-none absolute -right-16 bottom-0 h-72 w-72 rounded-full bg-gold-400/10 blur-3xl'></div>
