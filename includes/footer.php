@@ -243,7 +243,13 @@ Read Full Story <i class = 'fa-solid fa-arrow-right text-[10px]'></i>
 <?php endif; ?>
 
 <!-- Main JavaScript File -->
-<script src = "<?= $base ?>assets/js/main.js"></script>
+<?php
+// Version main.js on its own mtime: the CDN holds static JS for 7 days, and the
+// cached copy it was serving still appended a "+" to every counter (and still
+// contained the removed hero slider), so a rebuild must change the URL itself.
+$mainJsV = @filemtime( dirname( __DIR__ ) . '/assets/js/main.js' );
+?>
+<script src = "<?= $base ?>assets/js/main.js?v=<?= $mainJsV ? (string) $mainJsV : '1' ?>"></script>
 <?php if ( isset( $extraScripts ) ) echo $extraScripts;
 ?>
 </body>
